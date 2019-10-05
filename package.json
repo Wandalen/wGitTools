@@ -4,7 +4,7 @@
   "description": "Collection of tools to use git programmatically.",
   "author": "Kostiantyn Wandalen <wanalen@willbe.so>",
   "license": "MIT",
-  "main": "proto/dwtools/amid/l3/git/IncludeTop.s",
+  "main": "proto/dwtools/amid/l3/git/IncludeMid.s",
   "files": [
     "proto/dwtools/amid/l3/git",
     "proto/dwtools/Tools.s",
@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "wTools": "",
-    "wCopyable": ""
+    "wCopyable": "",
+    "wgittools": "file:."
   },
   "devDependencies": {
     "wTesting": ""
