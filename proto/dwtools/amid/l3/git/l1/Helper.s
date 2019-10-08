@@ -596,6 +596,8 @@ let Extend =
 
   isDownloaded,
 
+  hasLocalChanges,
+
   //
 
   hookRegister,

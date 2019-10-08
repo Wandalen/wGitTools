@@ -25,9 +25,9 @@
     "wTools": "",
     "wCopyable": "",
     "wFiles": "",
-    "wappbasic" : "",
+    "wappbasic": "",
     "wgittools": "file:.",
-    "ini" : ""
+    "ini": ""
   },
   "devDependencies": {
     "wTesting": ""
