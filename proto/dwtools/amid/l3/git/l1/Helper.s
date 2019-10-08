@@ -11,32 +11,10 @@ if( typeof module !== 'undefined' )
 
 let _ = wTools;
 let Self = _.git = _.git || Object.create( null );
-let Ini;
 
 // --
 // inter
 // --
-
-function gitConfigRead( filePath )
-{
-  let provider = _.fileProvider;
-  let path = provider.path;
-
-  // debugger;
-
-  _.assert( arguments.length === 1 );
-  _.assert( _.strIs( filePath ) );
-
-  if( !Ini )
-  Ini = require( 'ini' );
-
-  let read = provider.fileRead( path.join( filePath, '.git/config' ) );
-  let config = Ini.parse( read );
-
-  return config;
-}
-
-//
 
 function versionLocalChange( o )
 {
@@ -584,8 +562,6 @@ var KnownHooks =
 
 let Extend =
 {
-
-  gitConfigRead,
 
   versionLocalChange,
   versionLocalRetrive,
