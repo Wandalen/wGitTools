@@ -271,7 +271,7 @@ function hookRegister( o )
     if( !_.arrayHas( KnownHooks, o.hookName ) )
     throw _.err( 'Unknown git hook:', o.hookName );
 
-    let handlerNamePattern = new RegExp( `${o.hookName}.*` );
+    let handlerNamePattern = new RegExp( `^${o.hookName}\\..*` );
     if( !handlerNamePattern.test( o.handlerName ) )
     throw _.err( 'Handler name:', o.handlerName, 'should match the pattern ', handlerNamePattern.toString() )
 
