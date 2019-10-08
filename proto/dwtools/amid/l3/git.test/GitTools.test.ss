@@ -349,19 +349,7 @@ function hasLocalChanges( test )
   })
 
   provider.dirMake( testPath )
-
-  /* */
-
-  con.then( () =>
-  {
-    test.case = 'setup repo';
-    provider.filesDelete( repoPath );
-    return _.process.start
-    ({
-      execPath : 'git clone ' + remotePath + ' ' + path.name( repoPath ),
-      currentPath : testPath,
-    })
-  })
+  prepareRepo()
 
   /* */
 
@@ -373,16 +361,7 @@ function hasLocalChanges( test )
 
   /* */
 
-  .then( () =>
-  {
-    test.case = 'clean clone';
-    provider.filesDelete( localPath );
-    return _.process.start
-    ({
-      execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-      currentPath : testPath,
-    })
-  })
+  begin()
   .then( () =>
   {
     test.case = 'check after fresh clone'
@@ -393,16 +372,7 @@ function hasLocalChanges( test )
 
   /* */
 
-  .then( () =>
-  {
-    test.case = 'clean clone';
-    provider.filesDelete( localPath );
-    return _.process.start
-    ({
-      execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-      currentPath : testPath,
-    })
-  })
+  begin()
   .then( () =>
   {
     test.case = 'new untraked file'
@@ -423,16 +393,7 @@ function hasLocalChanges( test )
 
   /* */
 
-  .then( () =>
-  {
-    test.case = 'clean clone';
-    provider.filesDelete( localPath );
-    return _.process.start
-    ({
-      execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-      currentPath : testPath,
-    })
-  })
+  begin()
   .then( () =>
   {
     test.case = 'change in existing file'
@@ -444,17 +405,8 @@ function hasLocalChanges( test )
 
   /* */
 
-  .then( () =>
-  {
-    test.case = 'clean clone';
-    provider.filesDelete( localPath );
-    return _.process.start
-    ({
-      execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-      currentPath : testPath,
-    })
-  })
-  shell2( 'git commit --allow-empty -m testcommit' )
+  begin()
+  repoNewCommit( 'testCommit' )
   .then( () =>
   {
     test.case = 'remote has new commit';
@@ -465,17 +417,8 @@ function hasLocalChanges( test )
 
   /* */
 
-  .then( () =>
-  {
-    test.case = 'clean clone';
-    provider.filesDelete( localPath );
-    return _.process.start
-    ({
-      execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-      currentPath : testPath,
-    })
-  })
-  shell2( 'git commit --allow-empty -m testcommit' )
+  begin()
+  repoNewCommit( 'testCommit' )
   shell( 'git fetch' )
   .then( () =>
   {
@@ -487,16 +430,7 @@ function hasLocalChanges( test )
 
   /*  */
 
-  .then( () =>
-  {
-    test.case = 'clean clone';
-    provider.filesDelete( localPath );
-    return _.process.start
-    ({
-      execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-      currentPath : testPath,
-    })
-  })
+  begin()
   shell( 'git commit --allow-empty -m test' )
   .then( () =>
   {
@@ -508,18 +442,9 @@ function hasLocalChanges( test )
 
   /* */
 
-  .then( () =>
-  {
-    test.case = 'clean clone';
-    provider.filesDelete( localPath );
-    return _.process.start
-    ({
-      execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-      currentPath : testPath,
-    })
-  })
+  begin()
+  repoNewCommit( 'testCommit' )
   shell( 'git commit --allow-empty -m test' )
-  shell2( 'git commit --allow-empty -m testcommit' )
   .then( () =>
   {
     test.case = 'local and remote has has new commit';
@@ -530,18 +455,9 @@ function hasLocalChanges( test )
 
   /* */
 
-  .then( () =>
-  {
-    test.case = 'clean clone';
-    provider.filesDelete( localPath );
-    return _.process.start
-    ({
-      execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-      currentPath : testPath,
-    })
-  })
+  begin()
+  repoNewCommit( 'testCommit' )
   shell( 'git commit --allow-empty -m test' )
-  shell2( 'git commit --allow-empty -m testcommit' )
   shell( 'git fetch' )
   .then( () =>
   {
@@ -551,7 +467,65 @@ function hasLocalChanges( test )
     return null;
   })
 
+  /*  */
+
   return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    shell2( 'git init --bare' );
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+
+  function repoNewCommit( message )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    con.then( () =>
+    {
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git -C secondary commit --allow-empty -m ' + message )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
 }
 
 hasLocalChanges.timeOut = 30000;
