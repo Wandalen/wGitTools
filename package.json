@@ -24,7 +24,10 @@
   "dependencies": {
     "wTools": "",
     "wCopyable": "",
-    "wgittools": "file:."
+    "wFiles": "",
+    "wappbasic" : "",
+    "wgittools": "file:.",
+    "ini" : ""
   },
   "devDependencies": {
     "wTesting": ""
