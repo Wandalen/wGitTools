@@ -456,12 +456,25 @@ function hasLocalChanges( test )
   /* */
 
   begin()
-  repoNewCommit( 'testCommit' )
+  repoNewCommitToBranch( 'testCommit', 'feature' )
+  shell( 'git fetch' )
+  .then( () =>
+  {
+    test.case = 'remote has commit to other branch, local executed fetch without merge';
+    var got = _.git.hasLocalChanges({ localPath });
+    test.identical( got, false );
+    return null;
+  })
+
+  /* */
+
+  begin()
+  repoNewCommitToBranch( 'testCommit', 'feature' )
   shell( 'git commit --allow-empty -m test' )
   shell( 'git fetch' )
   .then( () =>
   {
-    test.case = 'local and remote has has new commit, local executed fetch without merge';
+    test.case = 'remote has commit to other branch, local has commit to master,fetch without merge';
     var got = _.git.hasLocalChanges({ localPath });
     test.identical( got, true );
     return null;
@@ -526,6 +539,53 @@ function hasLocalChanges( test )
 
     return con;
   }
+
+  function repoNewCommitToBranch( message, branch )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    let create = true;
+    let secondRepoPath = path.join( testPath, 'secondary' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+
+    con.then( () =>
+    {
+      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
+      create = false;
+      return null;
+    })
+
+    con.thenGive( () =>
+    {
+      if( create )
+      shell( 'git -C secondary checkout -b ' + branch )
+      else
+      shell( 'git -C secondary checkout ' + branch )
+
+      shell( 'git -C secondary commit --allow-empty -m ' + message )
+
+      if( create )
+      shell( 'git -C secondary push --set-upstream origin ' + branch )
+      else
+      shell( 'git -C secondary push' )
+
+      con.take( null );
+    })
+
+    return con;
+  }
+
 }
 
 hasLocalChanges.timeOut = 30000;
