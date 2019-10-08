@@ -11,141 +11,10 @@ if( typeof module !== 'undefined' )
 
 let _ = wTools;
 let Self = _.git = _.git || Object.create( null );
-let Ini;
 
 // --
 // inter
 // --
-
-function gitConfigRead( filePath )
-{
-  let provider = _.fileProvider;
-  let path = provider.path;
-
-  // debugger;
-
-  _.assert( arguments.length === 1 );
-  _.assert( _.strIs( filePath ) );
-
-  if( !Ini )
-  Ini = require( 'ini' );
-
-  let read = provider.fileRead( path.join( filePath, '.git/config' ) );
-  let config = Ini.parse( read );
-
-  return config;
-}
-
-//
-
-function versionLocalChange( o )
-{
-  if( !_.mapIs( o ) )
-  o = { localPath : o }
-
-  _.routineOptions( versionLocalChange, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
-
-  let localVersion = _.git.versionLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
-
-  if( !localVersion )
-  return false;
-
-  if( localVersion === o.version )
-  return true;
-
-  let shell = _.process.starter
-  ({
-    verbosity : self.verbosity - 1,
-    sync : 1,
-    deasync : 0,
-    outputCollecting : 1,
-    currentPath : o.localPath
-  });
-
-  let result = shell( 'git status' );
-  let localChanges = _.strHas( result.output, 'Changes to be committed' );
-
-  if( localChanges )
-  shell( 'git stash' )
-
-  shell( 'git checkout ' + o.version );
-
-  if( localChanges )
-  shell( 'git pop' )
-
-  return true;
-}
-
-var defaults = versionLocalChange.defaults = Object.create( null );
-defaults.localPath = null;
-defaults.version = null
-defaults.verbosity = 0;
-
-//
-
-function versionLocalRetrive( o )
-{
-  let provider = _.fileProvider;
-  let path = provider.path;
-
-  if( !_.mapIs( o ) )
-  o = { localPath : o }
-
-  _.routineOptions( versionLocalRetrive, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
-  _.assert( provider instanceof _.FileProvider.HardDrive );
-
-  if( !_.git.isDownloaded( o ) )
-  return '';
-
-  let currentVersion = provider.fileRead( path.join( o.localPath, '.git/HEAD' ) );
-  let r = /^ref: refs\/heads\/(.+)\s*$/;
-
-  let found = r.exec( currentVersion );
-  if( found )
-  currentVersion = found[ 1 ];
-
-  return currentVersion.trim() || null;
-}
-
-var defaults = versionLocalRetrive.defaults = Object.create( null );
-defaults.localPath = null;
-defaults.verbosity = 0;
-
-//
-
-function isDownloaded( o )
-{
-  let provider = _.fileProvider;
-  let path = provider.path;
-
-  _.routineOptions( isDownloaded, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
-  _.assert( provider instanceof _.FileProvider.HardDrive );
-
-  if( !provider.fileExists( o.localPath ) )
-  return false;
-
-  let gitConfigExists = provider.fileExists( path.join( o.localPath, '.git' ) );
-
-  if( !gitConfigExists )
-  return false;
-
-  if( gitConfigExists )
-  {
-    if( !provider.isTerminal( path.join( o.localPath, '.git/config' ) ) )
-    return false;
-  }
-
-  return true;
-}
-
-var defaults = isDownloaded.defaults = Object.create( null );
-defaults.localPath = null;
-defaults.verbosity = 0;
-
-//
 
 function versionsRemoteRetrive( o )
 {
@@ -217,6 +86,9 @@ defaults.localPath = null;
 
 function hasLocalChanges( o )
 {
+  let provider = _.fileProvider;
+  let path = provider.path;
+
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
@@ -226,7 +98,7 @@ function hasLocalChanges( o )
 
   let ready = _.Consequence.Try( () =>
   {
-    if( !_.git.isDownloaded({ localPath : o.localPath }) )
+    if( !provider.fileExists( path.join( o.localPath, '.git' ) ) )
     throw _.err( 'Found no GIT repository at:', o.localPath );
 
     let commands =
@@ -584,18 +456,8 @@ var KnownHooks =
 
 let Extend =
 {
-
-  gitConfigRead,
-
-  versionLocalChange,
-  versionLocalRetrive,
-
   versionsRemoteRetrive,
-
   versionsPull,
-
-  isDownloaded,
-
   hasLocalChanges,
 
   //

@@ -581,9 +581,7 @@ var Proto =
   tests :
   {
     versionsRemoteRetrive,
-
     versionsPull,
-
     hasLocalChanges
   },
 
