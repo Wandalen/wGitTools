@@ -589,6 +589,7 @@ function gitHooksManager( test )
     - User's hook was created by hookRegister, try to add another one
     - First hook handler returns bad exit code, second should not be executed
     - Try to register hook with existing handler name, previously registered handlers should work as before
+    - Register two handlers for single hook, unregister second handler, only first should be executed
   */
 
   .then( () =>
@@ -1005,6 +1006,98 @@ function gitHooksManager( test )
       test.will = 'only one custom handler was executed';
       test.identical( _.strCount( got.output, 'Running .git/hooks/post-commit' ), 1 );
       test.identical( _.strCount( got.output, 'Custom handler executed' ), 1 );
+      return null;
+    })
+
+    return con;
+  })
+
+  /* */
+
+  .then( () =>
+  {
+    test.case = 'Register two handlers for single hook, unregister second handler, only first should be executed';
+    let con = begin();
+
+    let shell = _.process.starter
+    ({
+      currentPath : localPath,
+      outputCollecting : 1,
+      ready : con
+    })
+
+    con.then( () =>
+    {
+      provider.fileWrite( handlerCodePath, handlerCode )
+      _.git.hookRegister
+      ({
+        repoPath : localPath,
+        filePath : handlerCodePath,
+        hookName : hookName,
+        handlerName : handlerName,
+        throwing : 1,
+        rewriting : 0
+      })
+      return null;
+    })
+
+    con.then( () =>
+    {
+      let handlerName2 = handlerName + '2';
+      let hookHandlerPath2 = hookHandlerPath + '2';
+      let handlerCodePath2 = handlerCodePath + '2'
+
+      let handlerCode2 =
+      `#!/bin/sh
+      echo "Custom handler2 executed."
+      `
+      provider.fileWrite( handlerCodePath2, handlerCode2 )
+
+      _.git.hookRegister
+      ({
+        repoPath : localPath,
+        filePath : handlerCodePath2,
+        hookName : hookName,
+        handlerName : handlerName2,
+        throwing : 1,
+        rewriting : 0
+      })
+
+      _.git.hookUnregister
+      ({
+        repoPath : localPath,
+        handlerName : handlerName2,
+        force : 0,
+        throwing : 1
+      })
+
+      test.will = 'hook runner was created';
+      test.is( provider.fileExists( originalHookPath ) );
+      let hookRead = provider.fileRead( originalHookPath );
+      test.is( _.strHas( hookRead, specialComment ) )
+
+      test.will = 'first hook handler exists'
+      test.is( provider.fileExists( hookHandlerPath ) );
+      var customHookRead = provider.fileRead( hookHandlerPath );
+      test.identical( customHookRead,handlerCode );
+
+      test.will = 'second hook handler does not exist'
+      test.is( !provider.fileExists( hookHandlerPath2 ) );
+
+      test.will = 'copy of original hook does not exist';
+      test.is( !provider.fileExists( wasOriginalHookPath ) );
+
+      return null;
+    })
+
+    shell( 'git commit --allow-empty -m test' )
+
+    con.then( ( got ) =>
+    {
+      test.will = 'custom handler1 was executed after git commit';
+      test.is( _.strHas( got.output, 'Custom handler executed' ) );
+      test.will = 'custom handler2 should not be executed after git commit';
+      test.is( !_.strHas( got.output, 'Custom handler2 executed' ) );
       return null;
     })
 
