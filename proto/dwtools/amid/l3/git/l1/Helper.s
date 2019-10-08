@@ -107,8 +107,7 @@ function hasLocalChanges( o )
       deasync : 0,
       throwingExitCode : 1,
       outputCollecting : 1,
-      outputPiping :1,
-      verbosity : 1,
+      verbosity : o.verbosity - 1,
     });
   })
 
