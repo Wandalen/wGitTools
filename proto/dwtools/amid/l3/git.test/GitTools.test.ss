@@ -556,6 +556,255 @@ function hasLocalChanges( test )
 
 hasLocalChanges.timeOut = 30000;
 
+//
+
+function hook( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+
+  provider.dirMake( testPath );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    throwingExitCode : 0,
+    outputCollecting : 1,
+    ready : con
+  })
+
+  shell( 'git init' )
+
+  .then( () =>
+  {
+    let sourceCode = '#!/usr/bin/env node\n' +  'process.exit( 1 )';
+    let tempPath = _.process.tempOpen({ sourceCode : sourceCode });
+    _.git.hookRegister
+    ({
+      repoPath : testPath,
+      filePath : tempPath,
+      handlerName : 'pre-commit.commitHandler',
+      hookName : 'pre-commit',
+      throwing : 1,
+      rewriting : 0
+    })
+    _.process.tempClose({ filePath : tempPath });
+    test.is( provider.fileExists( path.join( testPath, './.git/hooks/pre-commit' ) ) );
+    test.is( provider.fileExists( path.join( testPath, './.git/hooks/pre-commit.commitHandler' ) ) );
+
+    return null;
+  })
+
+  shell( 'git commit --allow-empty -m test' )
+  shell( 'git log -n 1' )
+
+  .then( ( got ) =>
+  {
+    test.notIdentical( got.exitCode, 0 );
+    test.is( _.strHas( got.output, `your current branch 'master' does not have any commits yet` ) );
+    return got;
+  })
+
+  .then( () =>
+  {
+    test.is( provider.fileExists( path.join( testPath, './.git/hooks/pre-commit' ) ) );
+    test.is( provider.fileExists( path.join( testPath, './.git/hooks/pre-commit.commitHandler' ) ) );
+
+    _.git.hookUnregister
+    ({
+      repoPath : testPath,
+      handlerName : 'pre-commit.commitHandler',
+      force : 0,
+      throwing : 1
+    })
+
+    test.is( provider.fileExists( path.join( testPath, './.git/hooks/pre-commit' ) ) );
+    test.is( !provider.fileExists( path.join( testPath, './.git/hooks/pre-commit.commitHandler' ) ) );
+
+    return null;
+  })
+
+  shell( 'git commit --allow-empty -m test' )
+  shell( 'git log -n 1' )
+
+  .then( ( got ) =>
+  {
+    test.identical( got.exitCode, 0 );
+    test.is( _.strHas( got.output, `test` ) );
+    return got;
+  })
+
+  return con;
+
+}
+
+//
+
+function hookPreservingHardLinks( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+
+  let con = new _.Consequence().take( null );
+
+  let shellClone = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : con
+  })
+
+  let shellRepo = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  let filesTree =
+  {
+    'a' : 'a',
+    'b' : 'b',
+    'c' : 'c',
+    'dir' :
+    {
+      'a' : 'a',
+      'b' : 'b',
+      'c' : 'c1'
+    }
+  }
+  let extract = _.FileProvider.Extract({ filesTree });
+
+  /* */
+
+  prepareRepo()
+  prepareClone()
+
+  /*  */
+
+  .then( () =>
+  {
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
+
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
+
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
+
+    return null;
+  })
+
+  .then( () => _.git.hookPreservingHardLinksRegister( localPath ) );
+
+  shellRepo( 'git commit --allow-empty -m test' )
+  shellClone( 'git pull' )
+
+  .then( () =>
+  {
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
+
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
+
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), true );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), true );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
+
+    debugger
+
+    return null;
+  })
+
+  .then( () => _.git.hookPreservingHardLinksUnregister( localPath ) )
+
+  .then( () =>
+  {
+    provider.fileWrite( path.join( repoPath, 'a' ), 'a1' )
+    provider.fileWrite( path.join( repoPath, 'b' ), 'b1' )
+    provider.fileWrite( path.join( repoPath, 'c' ), 'c1' )
+    return null;
+  })
+
+  shellRepo( 'git add .' )
+  shellRepo( 'git commit --allow-empty -m test2' )
+  shellClone( 'git pull' )
+
+  .then( () =>
+  {
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
+
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
+
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), false );
+    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
+
+    return null;
+  })
+
+  return con;
+
+  /*  */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( testPath );
+      provider.dirMake( testPath )
+      provider.dirMake( repoPath )
+
+      extract.filesReflectTo( provider, repoPath );
+      return null;
+    })
+
+    shellRepo( 'git init' )
+    shellRepo( 'git add .' )
+    shellRepo( 'git commit -m init' )
+
+    return con;
+  }
+
+  //
+
+  function prepareClone()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( localPath );
+      provider.dirMake( localPath );
+
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath
+      })
+    })
+
+    return con;
+  }
+
+}
+
 // --
 // declare
 // --
@@ -582,7 +831,11 @@ var Proto =
   {
     versionsRemoteRetrive,
     versionsPull,
-    hasLocalChanges
+    hasLocalChanges,
+
+    hook,
+    hookPreservingHardLinks,
+
   },
 
 }
