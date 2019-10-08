@@ -98,6 +98,63 @@ function hasLocalChanges( o )
 
   let ready = _.Consequence.Try( () =>
   {
+    return _.process.start
+    ({
+      execPath : 'git status -u --porcelain -b',
+      currentPath : o.localPath,
+      mode : 'spawn',
+      sync : o.sync,
+      deasync : 0,
+      throwingExitCode : 1,
+      outputCollecting : 1,
+      outputPiping :1,
+      verbosity : 1,
+    });
+  })
+
+  ready.finally( ( err, got ) =>
+  {
+    if( err )
+    throw _.err( err, '\nFailed to check if repository has local changes' );
+
+    let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+
+    if( output.length > 1 ) // check for any changes, except new commits
+    return true;
+
+    if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )// check for unpushed commits
+    return true;
+
+    return false;
+  })
+
+  if( o.sync )
+  return ready.syncMaybe();
+
+  return ready;
+}
+
+var defaults = hasLocalChanges.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.verbosity = 0;
+defaults.sync = 1;
+
+//
+
+function hasLocalChangesComplex( o )
+{
+  let provider = _.fileProvider;
+  let path = provider.path;
+
+  if( !_.mapIs( o ) )
+  o = { localPath : o }
+
+  _.routineOptions( hasLocalChangesComplex, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ) );
+
+  let ready = _.Consequence.Try( () =>
+  {
     if( !provider.fileExists( path.join( o.localPath, '.git' ) ) )
     throw _.err( 'Found no GIT repository at:', o.localPath );
 
@@ -167,7 +224,7 @@ function hasLocalChanges( o )
   }
 }
 
-var defaults = hasLocalChanges.defaults = Object.create( null );
+var defaults = hasLocalChangesComplex.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.sync = 1;
@@ -473,6 +530,7 @@ let Extend =
   versionsRemoteRetrive,
   versionsPull,
   hasLocalChanges,
+  hasLocalChangesComplex,
 
   //
 
