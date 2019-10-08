@@ -268,16 +268,18 @@ function hookRegister( o )
     if [[ -d $hook_dir ]]; then
       stdin=$(cat /dev/stdin)
 
-      for hook in $hook_dir/$hook_name.*; do
-        echo "Running $hook hook"
-        echo "$stdin" | $hook "$@"
+      if stat -t $hook_dir/$hook_name.* >/dev/null 2>&1; then
+        for hook in $hook_dir/$hook_name.*; do
+          echo "Running $hook hook"
+          echo "$stdin" | $hook "$@"
 
-        exit_code=$?
+          exit_code=$?
 
-        if [ $exit_code != 0 ]; then
-          exit $exit_code
-        fi
-      done
+          if [ $exit_code != 0 ]; then
+            exit $exit_code
+          fi
+        done
+      fi
     fi
 
     exit 0
@@ -351,10 +353,17 @@ hookUnregister.defaults =
 
 function hookPreservingHardLinksRegister( repoPath )
 {
+  let provider = _.fileProvider;
+  let path = provider.path;
+
   _.assert( arguments.length === 1 );
   _.assert( _.strDefined( repoPath ) );
 
-  let sourceCode = '#!/usr/bin/env node\n' +  restoreHardLinks.toString() + '\nrestoreHardLinks()';
+  let toolsPath = path.resolve( __dirname, '../../../../Tools.s' );
+  _.sure( provider.fileExists( toolsPath ) );
+  toolsPath = path.nativize( toolsPath );
+
+  let sourceCode = '#!/usr/bin/env node\n' +  restoreHardLinksCode();
   let tempPath = _.process.tempOpen({ sourceCode : sourceCode });
   try
   {
@@ -377,15 +386,18 @@ function hookPreservingHardLinksRegister( repoPath )
     _.process.tempClose({ filePath : tempPath });
   }
 
+  return true;
+
   /* */
 
-  function restoreHardLinks()
+  function restoreHardLinksCode()
   {
-    try
+    let sourceCode =
+    `try
     {
       try
       {
-        var _ = require( '../../proto/dwtools/Tools.s' );
+        var _ = require( "${ _.strEscape( toolsPath) }" );
       }
       catch( err )
       {
@@ -395,7 +407,7 @@ function hookPreservingHardLinksRegister( repoPath )
     }
     catch( err )
     {
-      console.log( 'Git post pull hook fails to preserve hardlinks due missing dependency.' );
+      console.log( err, 'Git post pull hook fails to preserve hardlinks due missing dependency.' );
       return;
     }
 
@@ -406,6 +418,8 @@ function hookPreservingHardLinksRegister( repoPath )
     provider.archive.filesLinkSame({ consideringFileName : 0 });
     provider.finit();
     provider.archive.finit();
+    `
+    return sourceCode;
   }
 }
 
