@@ -24,6 +24,9 @@
   "dependencies": {
     "wTools": "",
     "wCopyable": "",
+    "wFiles": "",
+    "wfilesarchive": "",
+    "wappbasic": "",
     "wgittools": "file:."
   },
   "devDependencies": {
