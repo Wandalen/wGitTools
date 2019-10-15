@@ -592,6 +592,325 @@ hasLocalChanges.timeOut = 30000;
 
 //
 
+function isDownloadedFromRemote( test )
+{
+  let context = this;
+  let provider = _.fileProvider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'wPathBasic' );
+  let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+  let remotePath2 = 'git+https:///github.com/Wandalen/wTools.git';
+
+  let con = new _.Consequence().take( null )
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    mode : 'spawn',
+    ready : con
+  })
+
+  con
+  .then( () =>
+  {
+    let got = _.git.isDownloadedFromRemote({ localPath, remotePath : remotePath });
+    test.identical( got.downloaded, false )
+    test.identical( got.downloadedFromRemote, false )
+    return null;
+  })
+
+  .then( () =>
+  {
+    test.case = 'setup';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return null;
+  })
+
+  shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ) )
+
+  .then( () =>
+  {
+    let got = _.git.isDownloadedFromRemote({ localPath, remotePath });
+    test.identical( got.downloaded, true )
+    test.identical( got.downloadedFromRemote, true )
+    return null;
+  })
+
+  .then( () =>
+  {
+    let got = _.git.isDownloadedFromRemote({ localPath, remotePath : remotePath2 });
+    test.identical( got.downloaded, true )
+    test.identical( got.downloadedFromRemote, false )
+    return null;
+  })
+
+  return con;
+}
+
+function isUpToDate( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = context.provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'wPathBasic' );
+
+  let con = new _.Consequence().take( null )
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    mode : 'spawn',
+  })
+
+
+  con
+  .then( () =>
+  {
+    test.open( 'local master' );
+    test.case = 'setup';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ) )
+  })
+
+  .then( () =>
+  {
+    test.case = 'remote master';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
+
+  .then( () =>
+  {
+    test.case = 'remote has different branch';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#other';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  .then( () =>
+  {
+    test.case = 'remote has fixed version';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#c94e0130358ba54fc47237e15bac1ab18024c0a9';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  .then( () =>
+  {
+    test.close( 'local master' );
+    return null;
+  })
+
+  /**/
+
+  .then( () =>
+  {
+    test.open( 'local detached' );
+    test.case = 'setup';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return null;
+  })
+
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  shell({ execPath : 'git -C wPathBasic checkout c94e0130358ba54fc47237e15bac1ab18024c0a9', ready : con })
+
+  .then( () =>
+  {
+    test.case = 'remote has same fixed version';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#c94e0130358ba54fc47237e15bac1ab18024c0a9';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
+
+  .then( () =>
+  {
+    test.case = 'remote has other fixed version';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#469a6497f616cf18639b2aa68957f4dab78b7965';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  .then( () =>
+  {
+    test.case = 'remote has other branch';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#other';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  .then( () =>
+  {
+    test.close( 'local detached' );
+    return null;
+  })
+
+  /**/
+
+  .then( () =>
+  {
+    test.case = 'local is behind remote';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return null;
+  })
+
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+
+  .then( () =>
+  {
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+    return _.process.start
+    ({
+      execPath : 'git reset --hard HEAD~1',
+      currentPath : localPath,
+    })
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  /* */
+
+  .then( () =>
+  {
+    test.case = 'local is ahead remote';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return null;
+  })
+
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+
+  .then( () =>
+  {
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+
+    return _.process.start
+    ({
+      execPath : 'git commit --allow-empty -m emptycommit',
+      currentPath : localPath,
+    })
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
+
+  /*  */
+
+  .then( () =>
+  {
+    test.case = 'local and remote have new commit';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return null;
+  })
+
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+
+  .then( () =>
+  {
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+
+    let ready = new _.Consequence().take( null );
+
+    _.process.start
+    ({
+      execPath : 'git reset --hard HEAD~1',
+      currentPath : localPath,
+      ready
+    })
+
+    _.process.start
+    ({
+      execPath : 'git commit --allow-empty -m emptycommit',
+      currentPath : localPath,
+      ready
+    })
+
+    ready
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+
+    return ready;
+  })
+
+  /* */
+
+  .then( () =>
+  {
+    test.case = 'local is detached and has local commit';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return null;
+  })
+
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  shell({ execPath : 'git -C wPathBasic checkout 05930d3a7964b253ea3bbfeca7eb86848f550e96', ready : con })
+
+  .then( () =>
+  {
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+    return _.process.start
+    ({
+      execPath : 'git commit --allow-empty -m emptycommit',
+      currentPath : localPath,
+    })
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  return con;
+}
+
+isUpToDate.timeOut = 30000;
+
+//
+
 function gitHooksManager( test )
 {
   let context = this;
@@ -1822,6 +2141,9 @@ var Proto =
     versionsRemoteRetrive,
     versionsPull,
     hasLocalChanges,
+
+    isDownloadedFromRemote,
+    isUpToDate,
 
     gitHooksManager,
     gitHooksManagerErrors,
