@@ -4,6 +4,9 @@ submodule :
   wTools :
     path : npm:///wTools
     enabled : 0 # submodule
+  wFiles :
+    path : npm:///wFiles
+    enabled : 0 # submodule
   wgittools :
     path : hd://.
     enabled : 0 # submodule
@@ -14,6 +17,9 @@ submodule :
     enabled : 0 # submodule
     criterion :
       development : 1
+  ini :
+    path : npm:///ini
+    enabled : 0 # submodule
 
 path :
 
