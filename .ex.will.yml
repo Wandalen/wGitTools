@@ -1,0 +1,90 @@
+
+about :
+
+  name : 'wGitTools'
+  description : 'Collection of tools to use git.'
+  version : '0.4.0'
+  enabled : 1
+  interpreters :
+  - njs >= 8.0.0
+  - chrome >= 60.0.0
+  - firefox >= 60.0.0
+  keywords :
+  - wTools
+  - graph
+  license : MIT
+  author : 'Kostiantyn Wandalen <wanalen@willbe.so>'
+  contributors :
+  - 'Kostiantyn Wandalen <wanalen@willbe.so>'
+  npm.name : 'wgittools'
+  npm.scripts :
+    test : 'wtest .run proto/**'
+    docgen : 'wdocgen .build proto'
+
+path :
+
+  repository : git+https:///github.com/Wandalen/wGitTools.git
+  bugtracker : https:///github.com/Wandalen/wGitTools/issues
+
+step :
+
+  proto.export :
+    inherit : module.export
+    export : path::export
+    tar : 0
+    criterion :
+      content : 'proto'
+
+  doc.export :
+    inherit : module.export
+    export : path::doc
+    tar : 0
+    criterion :
+      content : 'doc'
+
+  npm.export :
+    inherit : module.export
+    export : out.npm
+    tar : 0
+    criterion :
+      content : 'npm'
+
+  npm.publish :
+    shell : npm publish
+
+build :
+
+  proto.export :
+    criterion :
+      content : 'proto'
+      export : 1
+    steps :
+      # - build::debug.raw
+      - step::proto.export
+
+  doc.export :
+    criterion :
+      content : 'doc'
+      export : 1
+    steps :
+      # - build::debug.raw
+      - step::doc.export
+
+  npm.export :
+    criterion :
+      content : 'npm'
+      export : 1
+    steps :
+      # - build::debug.raw
+      # - step::npm.export
+      - step::npm.publish
+
+  export :
+
+    criterion :
+      default : 1
+      export : 1
+    steps :
+      # - build::npm
+      - build::proto.export
+      # - build::doc.export
