@@ -2,7 +2,7 @@
 about :
 
   name : 'wGitTools'
-  description : 'Collection of tools to use git.'
+  description : 'Collection of tools to use git programmatically.'
   version : '0.4.0'
   enabled : 1
   interpreters :
