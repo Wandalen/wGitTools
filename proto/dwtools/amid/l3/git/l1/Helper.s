@@ -729,8 +729,8 @@ function hasLocalChanges( o )
     if( output.length > 1 ) // check for any changes, except new commits
     return true;
 
-    if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )// check for unpushed commits
-    return true;
+    // if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )// check for unpushed commits
+    // return true;
 
     return false;
   })
