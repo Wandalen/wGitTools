@@ -726,11 +726,13 @@ function hasLocalChanges( o )
 
     let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
 
+    if( o.uncommitted )
     if( output.length > 1 ) // check for any changes, except new commits
     return true;
 
-    // if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )// check for unpushed commits
-    // return true;
+    if( o.unpushed )
+    if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )// check for unpushed commits
+    return true;
 
     return false;
   })
@@ -743,6 +745,8 @@ function hasLocalChanges( o )
 
 var defaults = hasLocalChanges.defaults = Object.create( null );
 defaults.localPath = null;
+defaults.uncommitted = 1;
+defaults.unpushed = 1;
 defaults.verbosity = 0;
 defaults.sync = 1;
 
