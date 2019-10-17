@@ -592,6 +592,48 @@ hasLocalChanges.timeOut = 30000;
 
 //
 
+function isDownloaded( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = context.provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'repo' );
+  let filePath = path.join( localPath, 'file' );
+
+  test.case = 'missing';
+  provider.filesDelete( localPath );
+  var got = _.git.isDownloaded({ localPath });
+  test.identical( got, false );
+
+  test.case = 'terminal';
+  provider.filesDelete( localPath );
+  provider.fileWrite( localPath, localPath )
+  var got = _.git.isDownloaded({ localPath });
+  test.identical( got, false );
+
+  test.case = 'link';
+  provider.filesDelete( localPath );
+  provider.dirMake( localPath );
+  provider.softLink( filePath, localPath );
+  var got = _.git.isDownloaded({ localPath : filePath });
+  test.identical( got, false );
+
+  test.case = 'empty dir';
+  provider.filesDelete( localPath );
+  provider.dirMake( localPath )
+  var got = _.git.isDownloaded({ localPath });
+  test.identical( got, false );
+
+  test.case = 'dir with file';
+  provider.filesDelete( localPath );
+  provider.fileWrite( filePath, filePath )
+  var got = _.git.isDownloaded({ localPath });
+  test.identical( got, true );
+}
+
+//
+
 function isDownloadedFromRemote( test )
 {
   let context = this;
@@ -2142,6 +2184,7 @@ var Proto =
     versionsPull,
     hasLocalChanges,
 
+    isDownloaded,
     isDownloadedFromRemote,
     isUpToDate,
 
