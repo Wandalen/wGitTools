@@ -18,7 +18,7 @@ let Self = _.git = _.git || Object.create( null );
 // inter
 // --
 
-function gitConfigRead( filePath )
+function configRead( filePath )
 {
   let fileProvider = _.fileProvider;
   let path = fileProvider.path;
@@ -388,6 +388,8 @@ var defaults = versionRemoteCurrentRetrive.defaults = Object.create( null );
 defaults.remotePath = null;
 defaults.verbosity = 0;
 
+//
+
 /**
  * @summary Returns true if local copy of repository `o.localPath` is up to date with remote repository `o.remotePath`.
  * @param {Object} o Options map.
@@ -437,11 +439,11 @@ function isUpToDate( o )
   if( gitConfigExists )
   ready
   // .give( () => GitConfig( localProvider.path.nativize( o.localPath ), ready.tolerantCallback() ) )
-  .then( () => _.git.gitConfigRead( o.localPath ) )
+  .then( () => _.git.configRead( o.localPath ) )
   .ifNoErrorThen( function( arg )
   {
 
-    debugger;
+    // debugger;
 
     if( !arg[ 'remote "origin"' ] || !arg[ 'remote "origin"' ] || !_.strIs( arg[ 'remote "origin"' ].url ) )
     return false;
@@ -480,8 +482,6 @@ function isUpToDate( o )
     let detachedRegexp = /HEAD detached at (\w+)/;
     let detachedParsed = detachedRegexp.exec( arg[ 0 ].output );
     let versionLocal = _.git.versionLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
-
-    debugger;
 
     if( detachedParsed )
     {
@@ -603,7 +603,7 @@ function isDownloadedFromRemote( o )
     return result;
   }
 
-  let config = _.git.gitConfigRead( o.localPath );
+  let config = _.git.configRead( o.localPath );
   let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
   let originVcsPath = config[ 'remote "origin"' ].url;
 
@@ -1149,7 +1149,7 @@ var KnownHooks =
 
 let Extend =
 {
-  gitConfigRead,
+  configRead,
 
   pathParse,
   pathIsFixated,
