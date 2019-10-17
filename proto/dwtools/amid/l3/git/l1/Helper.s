@@ -532,11 +532,12 @@ function isDownloaded( o )
   _.routineOptions( isDownloaded, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  if( !localProvider.fileExists( o.localPath ) )
+  if( !localProvider.isDir( o.localPath  ) )
   return false;
+  if( !localProvider.dirIsEmpty( o.localPath ) )
+  return true;
 
-  let files = localProvider.dirRead( o.localPath );
-  return files.length > 0;
+  return false;
 }
 
 var defaults = isDownloaded.defaults = Object.create( null );
