@@ -571,6 +571,9 @@ function insideRepository( o )
   let localProvider = _.fileProvider;
   let path = localProvider.path;
 
+  if( _.strIs( arguments[ 0 ] ) )
+  o = { localPath : o }
+
   _.routineOptions( isRepository, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
