@@ -958,12 +958,12 @@ function insideRepository( test )
   test.case = 'missing'
   var localPath = _.path.join( __dirname, 'someFile' );
   var got = _.git.insideRepository({ localPath })
-  test.identical( got,false )
+  test.identical( got,true )
 
   test.case = 'terminal'
   var localPath = _.path.normalize( __filename );
   var got = _.git.insideRepository({ localPath })
-  test.identical( got,false )
+  test.identical( got,true )
 
   test.case = 'testdir'
   var localPath = _.path.normalize( __dirname );

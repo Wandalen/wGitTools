@@ -574,9 +574,6 @@ function insideRepository( o )
   _.routineOptions( isRepository, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  if( !localProvider.isDir( o.localPath ) )
-  return false;
-
   let paths = path.traceToRoot( o.localPath );
 
   for( var i = paths.length - 1; i >= 0; i-- )
