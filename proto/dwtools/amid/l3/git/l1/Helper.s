@@ -566,6 +566,32 @@ defaults.verbosity = 0;
 
 //
 
+function insideRepository( o )
+{
+  let localProvider = _.fileProvider;
+  let path = localProvider.path;
+
+  _.routineOptions( isRepository, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+
+  if( !localProvider.isDir( o.localPath ) )
+  return false;
+
+  let paths = path.traceToRoot( o.localPath );
+
+  for( var i = paths.length - 1; i >= 0; i-- )
+  if( _.git.isRepository({ localPath : paths[ i ] }) )
+  return true;
+
+  return false;
+}
+
+var defaults = insideRepository.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.verbosity = 0;
+
+//
+
 /**
  * @summary Returns true if path `o.localPath` contains a git repository that was cloned from remote `o.remotePath`.
  * @param {Object} o Options map.
@@ -1165,6 +1191,7 @@ let Extend =
   isDownloaded,
   isRepository,
   isDownloadedFromRemote,
+  insideRepository,
 
   versionsRemoteRetrive,
   versionsPull,
