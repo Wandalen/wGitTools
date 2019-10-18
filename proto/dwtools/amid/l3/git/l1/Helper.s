@@ -577,19 +577,13 @@ function insideRepository( o )
   if( !localProvider.isDir( o.localPath ) )
   return false;
 
-  let result = _.process.start
-  ({
-    execPath : 'git status',
-    currentPath : o.localPath,
-    outputPiping : 0,
-    outputCollecting : 1,
-    inputMirroring : 0,
-    throwingExitCode : 0,
-    deasync : 0,
-    sync : 1,
-  })
+  let paths = path.traceToRoot( o.localPath );
 
-  return result.exitCode === 0;
+  for( var i = paths.length - 1; i >= 0; i-- )
+  if( _.git.isRepository({ localPath : paths[ i ] }) )
+  return true;
+
+  return false;
 }
 
 var defaults = insideRepository.defaults = Object.create( null );
