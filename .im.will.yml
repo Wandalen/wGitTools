@@ -19,6 +19,9 @@ submodule :
   ini :
     path : npm:///ini
     enabled : 0 # submodule
+  octonode :
+    path : npm:///octonode
+    enabled : 0 # submodule
   wgittools :
     path : hd://.
     enabled : 0 # submodule

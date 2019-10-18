@@ -28,7 +28,8 @@
     "wfilesarchive": "",
     "wappbasic": "",
     "wgittools": "file:.",
-    "ini" : ""
+    "ini" : "",
+    "octonode" : ""
   },
   "devDependencies": {
     "wTesting": ""

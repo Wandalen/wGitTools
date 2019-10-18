@@ -36,6 +36,26 @@ function configRead( filePath )
 
 //
 
+function objectsParse( remotePath )
+{
+  let result = Object.create( null );
+  let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)\.git/;
+
+  remotePath = this.remotePathNormalize( remotePath );
+  let match = remotePath.match( gitHubRegexp );
+
+  if( match )
+  {
+    result.service = 'github.com';
+    result.user = match[ 1 ];
+    result.repo = match[ 2 ];
+  }
+
+  return result;
+}
+
+//
+
 /**
  * @typedef {Object} RemotePathComponents
  * @property {String} protocol
@@ -223,6 +243,86 @@ function pathFixate( o )
 var defaults = pathFixate.defaults = Object.create( null );
 defaults.remotePath = null;
 defaults.verbosity = 0;
+
+//
+
+function remotePathNormalize( remotePath )
+{
+
+  remotePath = remotePath.replace( /^(\w+):\/\//, 'git+$1://' );
+  remotePath = remotePath.replace( /:\/\/\b/, ':///' );
+
+  return remotePath;
+}
+
+//
+
+function remotePathNativize( remotePath )
+{
+
+  debugger;
+
+  remotePath = remotePath.replace( /^git\+(\w+):\/\//, '$1://' );
+  remotePath = remotePath.replace( /:\/\/\/\b/, '://' );
+
+  return remotePath;
+}
+
+//
+
+function remotePathFromLocal( o )
+{
+  if( _.strIs( arguments[ 0 ] ) )
+  o = { localPath : arguments[ 0 ] }
+  o = _.routineOptions( remotePathFromLocal, o );
+  let config = _.git.configRead( o.localPath );
+  let remotePath = config[ 'remote "origin"' ].url;
+
+  if( remotePath )
+  remotePath = this.remotePathNormalize( remotePath );
+
+  return remotePath;
+}
+
+remotePathFromLocal.defaults =
+{
+  localPath : null,
+}
+
+//
+
+function localPathFromInside( o )
+{
+  let localProvider = _.fileProvider;
+  let path = localProvider.path;
+
+  if( _.strIs( arguments[ 0 ] ) )
+  o = { insidePath : o }
+
+  _.routineOptions( localPathFromInside, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+
+  let paths = path.traceToRoot( o.insidePath );
+
+  for( var i = paths.length - 1; i >= 0; i-- )
+  if( _.git.isRepository({ localPath : paths[ i ] }) )
+  return paths[ i ];
+
+  return null;
+}
+
+var defaults = localPathFromInside.defaults = Object.create( null );
+defaults.insidePath = null;
+
+//
+
+function insideRepository( o )
+{
+  return !!this.localPathFromInside( o );
+}
+
+var defaults = insideRepository.defaults = Object.create( null );
+defaults.insidePath = null;
 
 //
 
@@ -566,32 +666,6 @@ defaults.verbosity = 0;
 
 //
 
-function insideRepository( o )
-{
-  let localProvider = _.fileProvider;
-  let path = localProvider.path;
-
-  if( _.strIs( arguments[ 0 ] ) )
-  o = { localPath : o }
-
-  _.routineOptions( isRepository, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
-
-  let paths = path.traceToRoot( o.localPath );
-
-  for( var i = paths.length - 1; i >= 0; i-- )
-  if( _.git.isRepository({ localPath : paths[ i ] }) )
-  return true;
-
-  return false;
-}
-
-var defaults = insideRepository.defaults = Object.create( null );
-defaults.localPath = null;
-defaults.verbosity = 0;
-
-//
-
 /**
  * @summary Returns true if path `o.localPath` contains a git repository that was cloned from remote `o.remotePath`.
  * @param {Object} o Options map.
@@ -753,12 +827,18 @@ function hasLocalChanges( o )
 
     let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
 
+    /*
+    check for any changes, except new commits
+    */
     if( o.uncommitted )
-    if( output.length > 1 ) // check for any changes, except new commits
+    if( output.length > 1 )
     return true;
 
+    /*
+    check for unpushed commits
+    */
     if( o.unpushed )
-    if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )// check for unpushed commits
+    if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )
     return true;
 
     return false;
@@ -866,6 +946,130 @@ var defaults = hasLocalChangesComplex.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.sync = 1;
+
+//
+
+function prsGet( o )
+{
+  let ready = new _.Consequence().take( null );
+
+  if( _.strIs( o ) )
+  o = { remotePath : o }
+  o = _.routineOptions( prsGet, o );
+
+  let parsed = this.objectsParse( o.remotePath );
+
+  ready
+  .then( () =>
+  {
+    if( parsed.service === 'github.com' )
+    return prsOnGitgub();
+    debugger;
+    if( o.throwing )
+    throw _.err( 'Unknown service' );
+    return null;
+  })
+  .finally( ( err, prs ) =>
+  {
+    if( !err && !prs && o.throwing )
+    err = _.err( 'Failed' );
+    if( err )
+    if( !o.throwing )
+    return null;
+    else
+    throw _.err( err, '\nFailed to get list of pull requests' );
+    return prs;
+  });
+
+  if( o.sync )
+  return ready.deasync();
+
+  return ready;
+
+  /* */
+
+  function prsOnGitgub()
+  {
+    let ready = new _.Consequence().take( null );
+    ready
+    .then( () =>
+    {
+      var github = require( 'octonode' );
+      var client = github.client();
+      let repo = client.repo( `${parsed.user}/${parsed.repo}` );
+      return repo.prsAsync();
+    })
+    .then( ( result ) =>
+    {
+      return result[ 0 ];
+    });
+    return ready;
+  }
+
+}
+
+prsGet.defaults =
+{
+  remotePath : null,
+  throwing : 1,
+  sync : 1,
+}
+
+//
+
+function infoStatus( o )
+{
+
+  o = _.routineOptions( infoStatus, arguments );
+
+  o.info = null;
+
+  if( !o.localPath && o.insidePath )
+  o.localPath = _.git.localPathFromInside( o.insidePath );
+
+  if( !o.localPath )
+  return o;
+
+  if( !o.remotePath )
+  o.remotePath = _.git.remotePathFromLocal( o.localPath );
+
+  o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : o.throwing, sync : 1 });
+  o.hasLocalChanges = _.git.hasLocalChanges( o.localPath );
+
+  if( ( !o.prs || !o.prs.length ) && !o.hasLocalChanges )
+  return o;
+
+  _.process.start
+  ({
+    execPath : 'git status',
+    outputPiping : 0,
+    inputMirroring : 0,
+    currentPath : o.localPath,
+    outputCollecting : 1,
+    outputGraying : 1,
+    mode : 'spawn',
+    deasync : 1,
+    sync : 0,
+  })
+  .then( ( op ) =>
+  {
+    o.info = '';
+    if( o.prs && o.prs.length )
+    o.info += `Has ${o.prs.length} opened pull requests\n`;
+    o.info += op.output + '\n';
+    return op;
+  })
+  .catchBrief();
+
+  return o;
+}
+
+infoStatus.defaults =
+{
+  insidePath : null,
+  localPath : null,
+  remotePath : null,
+}
 
 //
 
@@ -1176,11 +1380,19 @@ var KnownHooks =
 
 let Extend =
 {
+
   configRead,
 
+  objectsParse,
   pathParse,
   pathIsFixated,
   pathFixate,
+  remotePathNormalize,
+  remotePathNativize,
+
+  remotePathFromLocal,
+  insideRepository,
+  localPathFromInside,
 
   versionLocalChange,
   versionLocalRetrive,
@@ -1191,12 +1403,14 @@ let Extend =
   isDownloaded,
   isRepository,
   isDownloadedFromRemote,
-  insideRepository,
 
   versionsRemoteRetrive,
   versionsPull,
   hasLocalChanges,
   hasLocalChangesComplex,
+
+  prsGet,
+  infoStatus,
 
   //
 
