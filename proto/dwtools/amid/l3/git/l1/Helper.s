@@ -858,94 +858,126 @@ defaults.verbosity = 0;
 defaults.sync = 1;
 
 //
+//
+// function hasLocalChangesComplex( o )
+// {
+//   let provider = _.fileProvider;
+//   let path = provider.path;
+//
+//   if( !_.mapIs( o ) )
+//   o = { localPath : o }
+//
+//   _.routineOptions( hasLocalChangesComplex, o );
+//   _.assert( arguments.length === 1, 'Expects single argument' );
+//   _.assert( _.strDefined( o.localPath ) );
+//
+//   let ready = _.Consequence.Try( () =>
+//   {
+//     if( !provider.fileExists( path.join( o.localPath, '.git' ) ) )
+//     throw _.err( 'Found no GIT repository at:', o.localPath );
+//
+//     let commands =
+//     [
+//       'git diff HEAD --quiet',
+//       'git rev-list origin..HEAD --count',
+//       'git status -sz'
+//     ]
+//
+//     return _.process.start
+//     ({
+//       execPath : commands,
+//       currentPath : o.localPath,
+//       mode : 'spawn',
+//       sync : 0,
+//       deasync : 0,
+//       throwingExitCode : 0,
+//       outputCollecting : 1,
+//       verbosity : o.verbosity - 1,
+//     });
+//   })
+//
+//   ready.then( ( got ) =>
+//   {
+//     if( got[ 0 ].exitCode === 1 /* diff */ )
+//     return true;
+//     if( _.numberFrom( got[ 1 ].output ) /* commits ahead */ )
+//     return true;
+//     if( _.strHas( got[ 2 ].output, '?' ) /* untracked files */ )
+//     return true;
+//
+//     if( got[ 1 ].exitCode )
+//     throw _.err( infoGet( got[ 1 ] ) );
+//     if( got[ 2 ].exitCode )
+//     throw _.err( infoGet( got[ 2 ] ) );
+//
+//     return false;
+//
+//     // let localChanges = _.strHasAny( got.output, [ 'Changes to be committed', 'Changes not staged for commit' ] );
+//     // if( !localChanges )
+//     // localChanges = !_.strHasAny( got.output, [ 'nothing to commit', 'working tree clean' ] )
+//     // let localCommits = _.strHasAny( got.output, [ 'branch is ahead', 'have diverged' ] );
+//     // return localChanges || localCommits;
+//   })
+//
+//   ready.catch( ( err ) =>
+//   {
+//     throw _.err( err, '\nFailed to check if repository has local changes' );
+//   })
+//
+//   if( o.sync )
+//   return ready.deasync();
+//
+//   return ready;
+//
+//   /* */
+//
+//   function infoGet( o )
+//   {
+//     let result = '';
+//     result += 'Process returned exit code' + o.exitCode + '\n';
+//     result += 'Launched as ' + _.strQuote( o.fullExecPath ) + '\n';
+//     result += 'Launched at ' + _.strQuote( o.currentPath ) + '\n';
+//     result += '\n -> Output' + '\n' + ' -  ' + _.strIndentation( stderrOutput, ' -  ' ) + '\n -< Output';
+//     return result;
+//   }
+// }
+//
+// var defaults = hasLocalChangesComplex.defaults = Object.create( null );
+// defaults.localPath = null;
+// defaults.verbosity = 0;
+// defaults.sync = 1;
 
-function hasLocalChangesComplex( o )
+//
+
+function hasRemoteChanges( o )
 {
-  let provider = _.fileProvider;
-  let path = provider.path;
 
-  if( !_.mapIs( o ) )
-  o = { localPath : o }
+  _.assert( 0, 'not implemented' ); /* qqq : implement */
 
-  _.routineOptions( hasLocalChangesComplex, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
-  _.assert( _.strDefined( o.localPath ) );
-
-  let ready = _.Consequence.Try( () =>
-  {
-    if( !provider.fileExists( path.join( o.localPath, '.git' ) ) )
-    throw _.err( 'Found no GIT repository at:', o.localPath );
-
-    let commands =
-    [
-      'git diff HEAD --quiet',
-      'git rev-list origin..HEAD --count',
-      'git status -sz'
-    ]
-
-    return _.process.start
-    ({
-      execPath : commands,
-      currentPath : o.localPath,
-      mode : 'spawn',
-      sync : 0,
-      deasync : 0,
-      throwingExitCode : 0,
-      outputCollecting : 1,
-      verbosity : o.verbosity - 1,
-    });
-  })
-
-  ready.then( ( got ) =>
-  {
-    if( got[ 0 ].exitCode === 1 /* diff */ )
-    return true;
-    if( _.numberFrom( got[ 1 ].output ) /* commits ahead */ )
-    return true;
-    if( _.strHas( got[ 2 ].output, '?' ) /* untracked files */ )
-    return true;
-
-    if( got[ 1 ].exitCode )
-    throw _.err( infoGet( got[ 1 ] ) );
-    if( got[ 2 ].exitCode )
-    throw _.err( infoGet( got[ 2 ] ) );
-
-    return false;
-
-    // let localChanges = _.strHasAny( got.output, [ 'Changes to be committed', 'Changes not staged for commit' ] );
-    // if( !localChanges )
-    // localChanges = !_.strHasAny( got.output, [ 'nothing to commit', 'working tree clean' ] )
-    // let localCommits = _.strHasAny( got.output, [ 'branch is ahead', 'have diverged' ] );
-    // return localChanges || localCommits;
-  })
-
-  ready.catch( ( err ) =>
-  {
-    throw _.err( err, '\nFailed to check if repository has local changes' );
-  })
-
-  if( o.sync )
-  return ready.deasync();
-
-  return ready;
-
-  /* */
-
-  function infoGet( o )
-  {
-    let result = '';
-    result += 'Process returned exit code' + o.exitCode + '\n';
-    result += 'Launched as ' + _.strQuote( o.fullExecPath ) + '\n';
-    result += 'Launched at ' + _.strQuote( o.currentPath ) + '\n';
-    result += '\n -> Output' + '\n' + ' -  ' + _.strIndentation( stderrOutput, ' -  ' ) + '\n -< Output';
-    return result;
-  }
 }
 
-var defaults = hasLocalChangesComplex.defaults = Object.create( null );
+var defaults = hasRemoteChanges.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.sync = 1;
+
+//
+
+function hasChanges( o )
+{
+
+  _.assert( 0, 'not implemented' ); /* qqq : implement */
+
+}
+
+var defaults = hasChanges.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.verbosity = 0;
+defaults.sync = 1;
+defaults.remote = 1;
+defaults.uncommitted = 1;
+defaults.unpushed = 1;
+defaults.local = 1;
 
 //
 
@@ -1033,10 +1065,12 @@ function infoStatus( o )
   if( !o.remotePath )
   o.remotePath = _.git.remotePathFromLocal( o.localPath );
 
-  o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : o.throwing, sync : 1 });
+  o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : o.throwing, sync : 1 }) || [];
   o.hasLocalChanges = _.git.hasLocalChanges( o.localPath );
+  // o.hasRemoteChanges = _.git.hasRemoteChanges( o.localPath ); // xxx
+  o.hasRemoteChanges = false;
 
-  if( ( !o.prs || !o.prs.length ) && !o.hasLocalChanges )
+  if( !o.prs.length && !o.hasLocalChanges && !o.hasRemoteChanges )
   return o;
 
   _.process.start
@@ -1407,7 +1441,8 @@ let Extend =
   versionsRemoteRetrive,
   versionsPull,
   hasLocalChanges,
-  hasLocalChangesComplex,
+  hasRemoteChanges,
+  hasChanges,
 
   prsGet,
   infoStatus,
