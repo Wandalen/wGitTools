@@ -1007,9 +1007,14 @@ function prsGet( o )
     err = _.err( 'Failed' );
     if( err )
     if( !o.throwing )
-    return null;
+    {
+      _.errAttend( err );
+      return null;
+    }
     else
-    throw _.err( err, '\nFailed to get list of pull requests' );
+    {
+      throw _.err( err, '\nFailed to get list of pull requests' );
+    }
     return prs;
   });
 
@@ -1055,6 +1060,9 @@ function infoStatus( o )
   o = _.routineOptions( infoStatus, arguments );
 
   o.info = null;
+  o.hasLocalChanges = null;
+  o.hasRemoteChanges = null;
+  o.isRepository = null;
 
   if( !o.localPath && o.insidePath )
   o.localPath = _.git.localPathFromInside( o.insidePath );
@@ -1062,13 +1070,17 @@ function infoStatus( o )
   if( !o.localPath )
   return o;
 
+  o.isRepository = true;
+
   if( !o.remotePath )
   o.remotePath = _.git.remotePathFromLocal( o.localPath );
 
-  o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : o.throwing, sync : 1 }) || [];
+  o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
+
+  if( o.checkingLocalChanges )
   o.hasLocalChanges = _.git.hasLocalChanges( o.localPath );
+  // if( o.checkingRemoteChanges )
   // o.hasRemoteChanges = _.git.hasRemoteChanges( o.localPath ); // xxx
-  o.hasRemoteChanges = false;
 
   if( !o.prs.length && !o.hasLocalChanges && !o.hasRemoteChanges )
   return o;
@@ -1103,6 +1115,9 @@ infoStatus.defaults =
   insidePath : null,
   localPath : null,
   remotePath : null,
+  checkingLocalChanges : 1,
+  checkingRemoteChanges : 1,
+  checkingPrs : 1,
 }
 
 //
