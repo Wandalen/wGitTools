@@ -24,6 +24,9 @@ about :
 path :
 
   repository : git+https:///github.com/Wandalen/wGitTools.git
+  remotes :
+   - git+https:///github.com/Wandalen/wGitTools.git
+   - npm:///wgittools
   bugtracker : https:///github.com/Wandalen/wGitTools/issues
 
 step :
