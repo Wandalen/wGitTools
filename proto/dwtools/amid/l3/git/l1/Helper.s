@@ -1078,7 +1078,13 @@ function infoStatus( o )
   o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
 
   if( o.checkingLocalChanges )
-  o.hasLocalChanges = _.git.hasLocalChanges( o.localPath );
+  o.hasLocalChanges = _.git.hasLocalChanges
+  ({
+    localPath : o.localPath,
+    uncommitted : o.checkingUncommittedLocalChanges,
+    unpushed : o.checkingUnpushedLocalChanges,
+  });
+
   // if( o.checkingRemoteChanges )
   // o.hasRemoteChanges = _.git.hasRemoteChanges( o.localPath ); // xxx
 
@@ -1116,6 +1122,8 @@ infoStatus.defaults =
   localPath : null,
   remotePath : null,
   checkingLocalChanges : 1,
+  checkingUncommittedLocalChanges : 1,
+  checkingUnpushedLocalChanges : 1,
   checkingRemoteChanges : 1,
   checkingPrs : 1,
 }
