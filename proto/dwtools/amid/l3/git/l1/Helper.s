@@ -1077,6 +1077,7 @@ function infoStatus( o )
 
   o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
 
+  debugger;
   if( o.checkingLocalChanges )
   o.hasLocalChanges = _.git.hasLocalChanges
   ({
