@@ -674,6 +674,58 @@ function hasLocalChanges( test )
 
   /*  */
 
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  shell( 'git checkout -b testbranch' )
+  .then( () =>
+  {
+    test.case = 'local clone has unpushed branch';
+    var got = _.git.hasLocalChanges({ localPath, unpushedBranches : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, unpushedBranches : 1 });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git push -u origin testbranch' )
+  .then( () =>
+  {
+    test.case = 'local clone does not have unpushed branch';
+    var got = _.git.hasLocalChanges({ localPath, unpushedBranches : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, unpushedBranches : 1 });
+    test.identical( got, false );
+    return null;
+  })
+
+  /*  */
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  shell( 'git tag testtag' )
+  .then( () =>
+  {
+    test.case = 'local clone has unpushed tag';
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : 1 });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git push --tags' )
+  .then( () =>
+  {
+    test.case = 'local clone doesnt have unpushed tag';
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : 1 });
+    test.identical( got, false );
+    return null;
+  })
+
+  /*  */
+
   return con;
 
   /* - */

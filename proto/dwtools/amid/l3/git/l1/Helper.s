@@ -816,8 +816,6 @@ function hasLocalChanges_pre( routine, args )
     o[ k ] = o.unpushed;
   })
 
-  _.assert( !o.unpushedBranches, 'not implemented' );
-
   return o;
 }
 
@@ -827,20 +825,18 @@ function hasLocalChanges_body( o )
 {
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let ready = _.Consequence.Try( () =>
-  {
-    return _.process.start
-    ({
-      execPath : 'git status -u --porcelain -b',
-      currentPath : o.localPath,
-      mode : 'spawn',
-      sync : o.sync,
-      deasync : 0,
-      throwingExitCode : 1,
-      outputCollecting : 1,
-      verbosity : o.verbosity - 1,
-    });
-  })
+  let shell = _.process.starter
+  ({
+    currentPath : o.localPath,
+    mode : 'spawn',
+    sync : o.sync,
+    deasync : 0,
+    throwingExitCode : 1,
+    outputCollecting : 1,
+    verbosity : o.verbosity - 1,
+  });
+
+  let ready = _.Consequence.Try( () => shell( 'git status -u --porcelain -b' ) )
 
   .then( ( got ) =>
   {
@@ -894,13 +890,26 @@ function hasLocalChanges_body( o )
     if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )
     return true;
 
-    if( o.unpushedTags )
-    return checkTags();
-
     return false;
   })
 
-  .finally( ( err, got ) =>
+  if( o.unpushedTags )
+  ready.then( ( result ) =>
+  {
+    if( result )
+    return true;
+    return checkTags();
+  })
+
+  if( o.unpushedBranches )
+  ready.then( ( result ) =>
+  {
+    if( result )
+    return true;
+    return checkBranches();
+  })
+
+  ready.finally( ( err, got ) =>
   {
     if( err )
     throw _.err( err, '\nFailed to check if repository has local changes' );
@@ -916,27 +925,27 @@ function hasLocalChanges_body( o )
 
   function checkTags()
   {
-    let ready = _.Consequence.Try( () =>
-    {
-      return _.process.start
-      ({
-        execPath : 'git push --tags --dry-run',
-        currentPath : o.localPath,
-        mode : 'spawn',
-        sync : o.sync,
-        deasync : 0,
-        throwingExitCode : 1,
-        outputCollecting : 1,
-        verbosity :2,
-      });
-    })
+    let ready = _.Consequence.Try( () => shell( 'git push --tags --dry-run' ) );
     ready.then( ( got ) =>
     {
       if( _.strHas( got.output, '[new tag]' ) )
       return true;
       return false;
     })
+    return ready;
+  }
 
+  /* - */
+
+  function checkBranches()
+  {
+    let ready = _.Consequence.Try( () => shell( 'git push --all --dry-run' ) );
+    ready.then( ( got ) =>
+    {
+      if( _.strHas( got.output, '[new branch]' ) )
+      return true;
+      return false;
+    })
     return ready;
   }
 }
