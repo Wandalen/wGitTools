@@ -987,14 +987,54 @@ defaults.sync = 1;
 
 function hasRemoteChanges( o )
 {
+  if( !_.mapIs( o ) )
+  o = { localPath : o }
 
-  _.assert( 0, 'not implemented' ); /* qqq : implement */
+  _.routineOptions( hasRemoteChanges, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ) );
 
+  let shell =  _.process.starter
+  ({
+    currentPath : o.localPath,
+    mode : 'spawn',
+    sync : o.sync,
+    deasync : 0,
+    throwingExitCode : 1,
+    outputCollecting : 1,
+    verbosity : o.verbosity - 1,
+  });
+
+  let ready = _.Consequence.Try( () => shell( 'git remote show origin' ) )
+
+  .then( () => shell( 'git status --porcelain -b' ) )
+  .finally( ( err, got ) =>
+  {
+    if( err )
+    throw _.err( err, '\nFailed to check if remote repository has changes' );
+
+    if( o.commits )
+    if( _.strHas( got.output, 'local out of date' ) )
+    return true;
+
+    if( o.branches )
+    if( _.strHasAny( got.output, [ 'Remote branches', 'next fetch will store in' ] ) )
+    return true;
+
+    return false;
+  })
+
+  if( o.sync )
+  return ready.syncMaybe();
+
+  return ready;
 }
 
 var defaults = hasRemoteChanges.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
+defaults.commits = 1;
+defaults.branches = 1;
 defaults.sync = 1;
 
 //
