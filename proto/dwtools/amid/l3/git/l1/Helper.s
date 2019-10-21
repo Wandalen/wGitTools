@@ -1087,7 +1087,7 @@ function infoStatus( o )
   });
 
   // if( o.checkingRemoteChanges )
-  // o.hasRemoteChanges = _.git.hasRemoteChanges( o.localPath ); // xxx
+  // o.hasRemoteChanges = _.git.hasRemoteChanges( o.localPath ); // xxx qqq
 
   if( !o.prs.length && !o.hasLocalChanges && !o.hasRemoteChanges )
   return o;
