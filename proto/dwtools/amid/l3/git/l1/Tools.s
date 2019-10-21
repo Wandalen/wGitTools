@@ -1,4 +1,4 @@
-( function _Helper_s_( ) {
+( function _Tools_s_( ) {
 
 'use strict';
 
