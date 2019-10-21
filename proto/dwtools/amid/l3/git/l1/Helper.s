@@ -1041,9 +1041,30 @@ defaults.sync = 1;
 
 function hasChanges( o )
 {
+  if( !_.mapIs( o ) )
+  o = { localPath : o }
 
-  _.assert( 0, 'not implemented' ); /* qqq : implement */
+  _.routineOptions( hasChanges, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ) );
 
+  let ready = _.Consequence.Try( () =>
+  {
+    if( o.local )
+    return this.hasLocalChanges( _.mapOnly( o, this.hasLocalChanges.defaults ) );
+    return false;
+  })
+  .then( ( result ) =>
+  {
+    if( !result && o.remote )
+    return this.hasRemoteChanges( _.mapOnly( o, this.hasRemoteChanges.defaults ) );
+    return result;
+  })
+
+  if( o.sync )
+  return ready.syncMaybe();
+
+  return ready;
 }
 
 var defaults = hasChanges.defaults = Object.create( null );
