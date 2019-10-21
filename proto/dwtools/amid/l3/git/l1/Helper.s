@@ -1660,6 +1660,121 @@ function hookPreservingHardLinksUnregister( repoPath )
   })
 }
 
+//
+
+function ignoreAdd( o )
+{
+  let provider = _.fileProvider;
+  let path = provider.path;
+
+  if( arguments.length === 2 )
+  o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
+
+  _.assert( arguments.length === 1 || arguments.length === 2 );
+  _.routineOptions( ignoreAdd, o );
+
+  if( !provider.isDir( o.insidePath ) )
+  throw _.err( 'Provided {-o.insidePath-} is not a directory:', _.strQuote( o.insidePath ) );
+
+  if( !this.insideRepository( o.insidePath ) )
+  throw _.err( 'Provided {-o.insidePath-}:', _.strQuote( o.insidePath ), 'is not inside of a git repository.' );
+
+  let gitignorePath = path.join( o.insidePath, '.gitignore' );
+  let records = _.mapKeys( o.pathMap );
+
+  let result = 0;
+
+  if( !records.length )
+  return result;
+
+  let gitconfig = [];
+
+  if( provider.fileExists( gitignorePath ) )
+  {
+    gitconfig = provider.fileRead( gitignorePath );
+    gitconfig = _.strSplitNonPreserving({ src : gitconfig, delimeter : '\n' })
+  }
+
+  result = _.arrayAppendedArrayOnce( gitconfig, records );
+
+  let data = gitconfig.join( '\n' );
+  provider.fileWrite({ filePath : gitignorePath, data : data, mode : 'append' });
+
+  return result;
+}
+
+var defaults = ignoreAdd.defaults = Object.create( null );
+defaults.insidePath = null;
+defaults.pathMap = null;
+
+//
+
+function ignoreRemove( o )
+{
+  let provider = _.fileProvider;
+  let path = provider.path;
+
+  if( arguments.length === 2 )
+  o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
+
+  _.assert( arguments.length === 1 || arguments.length === 2 );
+  _.routineOptions( ignoreRemove, o );
+
+  let gitignorePath = path.join( o.insidePath, '.gitignore' );
+
+  if( !provider.fileExists( gitignorePath ) )
+  throw _.err( 'Provided .gitignore file doesn`t exist at:', _.strQuote( gitignorePath ) );
+
+  if( !this.isTerminal( o.insidePath ) )
+  throw _.err( 'Provided .gitignore file:', _.strQuote( gitignorePath ),  'is not terminal' );
+
+  let records = _.mapKeys( o.pathMap );
+
+  if( !records.length )
+  return false;
+
+  let gitconfig = provider.fileRead( gitignorePath );
+  gitconfig = _.strSplitNonPreserving({ src : gitconfig, delimeter : '\n' })
+
+  let result = 0;
+
+  if( !gitconfig.length )
+  return result;
+
+  result = _.arrayRemovedArrayOnce( gitconfig, records );
+
+  let data = gitconfig.join( '\n' );
+  provider.fileWrite({ filePath : gitignorePath, data : data, mode : 'rewrite' });
+
+  return result;
+}
+
+_.routineExtend( ignoreRemove, ignoreAdd );
+
+//
+
+function ignoreRemoveAll( o )
+{
+  let provider = _.fileProvider;
+  let path = provider.path;
+
+  if( arguments.length === 2 )
+  o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
+
+  _.assert( arguments.length === 1 || arguments.length === 2 );
+  _.routineOptions( ignoreRemoveAll, o );
+
+  let result = ignoreRemove.apply( this,arguments );
+  let expectedResult = _.mapKeys( o.pathMap ).length;
+
+  if( result !== expectedResult )
+  throw _.err( 'Some records from {-o.pathMap-} were not removed from .gitignore at:', _.strQuote( o.insidePath ) );
+
+  return true;
+}
+
+_.routineExtend( ignoreRemoveAll, ignoreRemove );
+
 // --
 // relations
 // --
@@ -1731,6 +1846,10 @@ let Extend =
 
   hookPreservingHardLinksRegister,
   hookPreservingHardLinksUnregister,
+
+  ignoreAdd,
+  ignoreRemove,
+  ignoreRemoveAll
 
 }
 
