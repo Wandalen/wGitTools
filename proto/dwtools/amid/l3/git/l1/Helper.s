@@ -836,7 +836,7 @@ function hasLocalChanges_body( o )
     verbosity : o.verbosity - 1,
   });
 
-  let ready = _.Consequence.Try( () => shell( 'git status -u --porcelain -b' ) )
+  let ready = _.Consequence.Try( () => shell( 'git status --ignored -u --porcelain -b' ) )
 
   .then( ( got ) =>
   {
@@ -879,6 +879,10 @@ function hasLocalChanges_body( o )
 
       if( o.uncommittedCopied )
       if( _.strHas( got.output, /^C .*/gm ) )
+      return true;
+
+      if( o.uncommittedIgnored )
+      if( _.strHas( got.output, /^!! .*/gm ) )
       return true;
     }
 
