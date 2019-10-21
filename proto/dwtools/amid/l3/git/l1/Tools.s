@@ -1141,7 +1141,7 @@ function hasRemoteChanges( o )
     return result.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
   }
 
-  //
+  /* */
 
   function check()
   {
@@ -1182,17 +1182,26 @@ function hasRemoteChanges( o )
 
     return ready;
   }
+
+  /* */
+
 }
 
 var defaults = hasRemoteChanges.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.commits = 1;
-defaults.branches = 1;
-defaults.tags = 0;
+defaults.branches = 0;
+defaults.tags = 1;
+// defaults.branches = 1; /* qqq : ? */
+// defaults.tags = 0; /* qqq : ? */
 defaults.sync = 1;
 
 //
+
+/*
+qqq : option returningMap required
+*/
 
 function hasChanges( o )
 {
@@ -1306,6 +1315,10 @@ prsGet.defaults =
 
 //
 
+/*
+  qqq : extend and cover please
+*/
+
 function infoStatus( o )
 {
 
@@ -1330,6 +1343,7 @@ function infoStatus( o )
   o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
 
   debugger;
+
   if( o.checkingLocalChanges )
   o.hasLocalChanges = _.git.hasLocalChanges
   ({
@@ -1338,8 +1352,11 @@ function infoStatus( o )
     unpushed : o.checkingUnpushedLocalChanges,
   });
 
-  // if( o.checkingRemoteChanges )
-  // o.hasRemoteChanges = _.git.hasRemoteChanges( o.localPath ); // xxx qqq
+  if( o.checkingRemoteChanges )
+  o.hasRemoteChanges = _.git.hasRemoteChanges
+  ({
+    localPath : o.localPath,
+  });
 
   if( !o.prs.length && !o.hasLocalChanges && !o.hasRemoteChanges )
   return o;
