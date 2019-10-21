@@ -303,7 +303,6 @@ function localPathFromInside( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let paths = path.traceToRoot( o.insidePath );
-
   for( var i = paths.length - 1; i >= 0; i-- )
   if( _.git.isRepository({ localPath : paths[ i ] }) )
   return paths[ i ];
