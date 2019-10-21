@@ -582,6 +582,98 @@ function hasLocalChanges( test )
 
   /*  */
 
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  .then( () =>
+  {
+    provider.fileWrite( readmePath, readmePath );
+    return null;
+  })
+  shell( 'git add README' )
+  shell( 'git commit -m test' )
+  shell( 'git push' )
+  .then( () =>
+  {
+    test.case = 'unstaged after rename';
+    provider.fileRename( readmePath + '_', readmePath );
+    var got = _.git.hasLocalChanges({ localPath });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git add .' )
+  .then( () =>
+  {
+    test.case = 'staged after rename';
+    var got = _.git.hasLocalChanges({ localPath });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git commit -m test' )
+  .then( () =>
+  {
+    test.case = 'comitted after rename';
+    var got = _.git.hasLocalChanges({ localPath });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git push' )
+  .then( () =>
+  {
+    test.case = 'pushed after rename';
+    var got = _.git.hasLocalChanges({ localPath });
+    test.identical( got, false );
+    return null;
+  })
+
+  /*  */
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  .then( () =>
+  {
+    provider.fileWrite( readmePath, readmePath );
+    return null;
+  })
+  shell( 'git add README' )
+  shell( 'git commit -m test' )
+  shell( 'git push' )
+  .then( () =>
+  {
+    test.case = 'unstaged after delete';
+    provider.fileDelete( readmePath );
+    var got = _.git.hasLocalChanges({ localPath });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git add .' )
+  .then( () =>
+  {
+    test.case = 'staged after delete';
+    var got = _.git.hasLocalChanges({ localPath });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git commit -m test' )
+  .then( () =>
+  {
+    test.case = 'comitted after delete';
+    var got = _.git.hasLocalChanges({ localPath });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git push' )
+  .then( () =>
+  {
+    test.case = 'pushed after delete';
+    var got = _.git.hasLocalChanges({ localPath });
+    test.identical( got, false );
+    return null;
+  })
+
+  /*  */
+
   return con;
 
   /* - */
