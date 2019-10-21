@@ -793,17 +793,27 @@ defaults.localPath = null;
 
 //
 
-function hasLocalChanges( o )
+function hasLocalChanges_pre( routine, args )
 {
-  let provider = _.fileProvider;
-  let path = provider.path;
+  let o = args[ 0 ];
 
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( hasLocalChanges, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.routineOptions( routine, o );
   _.assert( _.strDefined( o.localPath ) );
+  _.assert( args.length === 1 );
+
+  _.assert( !o.branches, 'not implemented' );
+
+  return o;
+}
+
+//
+
+function hasLocalChanges_body( o )
+{
+  _.assert( arguments.length === 1, 'Expects single argument' );
 
   let ready = _.Consequence.Try( () =>
   {
@@ -827,9 +837,38 @@ function hasLocalChanges( o )
     /*
     check for any changes, except new commits
     */
+
     if( o.uncommitted )
-    if( output.length > 1 )
-    return true;
+    {
+      if( output.length > 1 )
+      return true;
+    }
+    else
+    {
+      if( o.untracked )
+      if( _.strHas( got.output, /^\? .*/gm ) )
+      return true;
+
+      if( o.added )
+      if( _.strHas( got.output, /^A .*/gm ) )
+      return true;
+
+      if( o.updated )
+      if( _.strHas( got.output, /^M .*/gm ) )
+      return true;
+
+      if( o.deleted )
+      if( _.strHas( got.output, /^D .*/gm ) )
+      return true;
+
+      if( o.renamed )
+      if( _.strHas( got.output, /^R .*/gm ) )
+      return true;
+
+      if( o.copied )
+      if( _.strHas( got.output, /^C .*/gm ) )
+      return true;
+    }
 
     /*
     check for unpushed commits
@@ -885,13 +924,25 @@ function hasLocalChanges( o )
   }
 }
 
-var defaults = hasLocalChanges.defaults = Object.create( null );
+var defaults = hasLocalChanges_body.defaults = Object.create( null );
+
 defaults.localPath = null;
-defaults.uncommitted = 1;
-defaults.unpushed = 1;
-defaults.verbosity = 0;
-defaults.tags = 0;
 defaults.sync = 1;
+defaults.verbosity = 0;
+
+defaults.uncommitted = 1;
+defaults.untracked = null;
+defaults.added = null;
+defaults.updated = null;
+defaults.deleted = null;
+defaults.renamed = null;
+defaults.copied = null;
+
+defaults.unpushed = 1;
+defaults.tags = 0;
+defaults.branches = 0;
+
+let hasLocalChanges = _.routineFromPreAndBody( hasLocalChanges_pre, hasLocalChanges_body );
 
 //
 //
