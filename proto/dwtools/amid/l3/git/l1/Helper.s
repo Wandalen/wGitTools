@@ -804,7 +804,19 @@ function hasLocalChanges_pre( routine, args )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( args.length === 1 );
 
-  _.assert( !o.branches, 'not implemented' );
+  _.each( routine.uncommittedGroup, ( k ) =>
+  {
+    if( o[ k ] === null )
+    o[ k ] = o.uncommitted;
+  })
+
+  _.each( routine.unpushedGroup, ( k ) =>
+  {
+    if( o[ k ] === null )
+    o[ k ] = o.unpushed;
+  })
+
+  _.assert( !o.unpushedBranches, 'not implemented' );
 
   return o;
 }
@@ -835,49 +847,54 @@ function hasLocalChanges_body( o )
     let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
 
     /*
-    check for any changes, except new commits
+    check for any changes, except new commits/tags/branches
     */
 
-    if( o.uncommitted )
+    let uncommittedFastCheck = o.uncommittedUntracked && o.uncommittedAdded &&
+                               o.uncommittedChanged && o.uncommittedDeleted &&
+                               o.uncommittedRenamed && o.uncommittedCopied;
+
+    if( uncommittedFastCheck )
     {
       if( output.length > 1 )
       return true;
     }
     else
     {
-      if( o.untracked )
+      if( o.uncommittedUntracked )
       if( _.strHas( got.output, /^\? .*/gm ) )
       return true;
 
-      if( o.added )
+      if( o.uncommittedAdded )
       if( _.strHas( got.output, /^A .*/gm ) )
       return true;
 
-      if( o.updated )
+      if( o.uncommittedChanged )
       if( _.strHas( got.output, /^M .*/gm ) )
       return true;
 
-      if( o.deleted )
+      if( o.uncommittedDeleted )
       if( _.strHas( got.output, /^D .*/gm ) )
       return true;
 
-      if( o.renamed )
+      if( o.uncommittedRenamed )
       if( _.strHas( got.output, /^R .*/gm ) )
       return true;
 
-      if( o.copied )
+      if( o.uncommittedCopied )
       if( _.strHas( got.output, /^C .*/gm ) )
       return true;
     }
 
     /*
-    check for unpushed commits
+    check for unpushed commits/tags/branches
     */
-    if( o.unpushed )
+
+    if( o.unpushedCommits )
     if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )
     return true;
 
-    if( o.tags )
+    if( o.unpushedTags )
     return checkTags();
 
     return false;
@@ -931,16 +948,36 @@ defaults.sync = 1;
 defaults.verbosity = 0;
 
 defaults.uncommitted = 1;
-defaults.untracked = null;
-defaults.added = null;
-defaults.updated = null;
-defaults.deleted = null;
-defaults.renamed = null;
-defaults.copied = null;
+defaults.uncommittedUntracked = null;
+defaults.uncommittedAdded = null;
+defaults.uncommittedChanged = null;
+defaults.uncommittedDeleted = null;
+defaults.uncommittedRenamed = null;
+defaults.uncommittedCopied = null;
+defaults.uncommittedIgnored = 0;
 
 defaults.unpushed = 1;
-defaults.tags = 0;
-defaults.branches = 0;
+defaults.unpushedCommits = null;
+defaults.unpushedTags = 0;
+defaults.unpushedBranches = 0;
+
+hasLocalChanges_body.uncommittedGroup =
+[
+  'uncommittedUntracked',
+  'uncommittedAdded',
+  'uncommittedChanged',
+  'uncommittedDeleted',
+  'uncommittedRenamed',
+  'uncommittedCopied',
+  'uncommittedIgnored'
+]
+
+hasLocalChanges_body.unpushedGroup =
+[
+  'unpushedCommits',
+  'unpushedTags',
+  'unpushedBranches',
+]
 
 let hasLocalChanges = _.routineFromPreAndBody( hasLocalChanges_pre, hasLocalChanges_body );
 
@@ -1045,6 +1082,8 @@ function hasRemoteChanges( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
 
+  _.assert( !o.tags, 'not implemented' )
+
   let shell =  _.process.starter
   ({
     currentPath : o.localPath,
@@ -1086,6 +1125,7 @@ defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.commits = 1;
 defaults.branches = 1;
+defaults.tags = 0;
 defaults.sync = 1;
 
 //

@@ -453,9 +453,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'merge after fetch, remote had new commit';
-    var got = _.git.hasLocalChanges({ localPath, unpushed : 0 });
+    var got = _.git.hasLocalChanges({ localPath, unpushedCommits : 0 });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath, unpushed : 1  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedCommits : 1  });
     test.identical( got, false );
     return null;
   })
@@ -467,10 +467,10 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'new local commit'
-    var got = _.git.hasLocalChanges({ localPath, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedCommits : false  });
     test.identical( got, false );
     test.case = 'new local commit'
-    var got = _.git.hasLocalChanges({ localPath, unpushed : true });
+    var got = _.git.hasLocalChanges({ localPath, unpushedCommits : true });
     test.identical( got, true );
     return null;
   })
@@ -483,9 +483,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'local and remote has has new commit';
-    var got = _.git.hasLocalChanges({ localPath, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedCommits : false  });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath, unpushed : true  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedCommits : true  });
     test.identical( got, true );
     return null;
   })
@@ -500,9 +500,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local executed fetch without merge';
-    var got = _.git.hasLocalChanges({ localPath, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedCommits : false  });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath, unpushed : true  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedCommits : true  });
     test.identical( got, false );
     return null;
   })
@@ -519,9 +519,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local has commit to master,fetch without merge';
-    var got = _.git.hasLocalChanges({ localPath, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedCommits : false  });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath, unpushed : true  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedCommits : true  });
     test.identical( got, true );
     return null;
   })
@@ -536,9 +536,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'local has unpushed tag';
-    var got = _.git.hasLocalChanges({ localPath, tags : false, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : false, unpushedCommits : false  });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath, tags : true, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : true, unpushedCommits : false  });
     test.identical( got, true );
     return null;
   })
@@ -546,9 +546,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'local has pushed tag';
-    var got = _.git.hasLocalChanges({ localPath, tags : false, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : false, unpushedCommits : false  });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath, tags : true, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : true, unpushedCommits : false  });
     test.identical( got, false );
     return null;
   })
@@ -563,9 +563,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'local has unpushed annotated tag';
-    var got = _.git.hasLocalChanges({ localPath, tags : false, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : false, unpushedCommits : false  });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath, tags : true, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : true, unpushedCommits : false  });
     test.identical( got, true );
     return null;
   })
@@ -573,9 +573,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'local has pushed annotated tag';
-    var got = _.git.hasLocalChanges({ localPath, tags : false, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : false, unpushedCommits : false  });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath, tags : true, unpushed : false  });
+    var got = _.git.hasLocalChanges({ localPath, unpushedTags : true, unpushedCommits : false  });
     test.identical( got, false );
     return null;
   })
