@@ -1095,42 +1095,94 @@ function hasRemoteChanges( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
 
-  _.assert( !o.tags, 'not implemented' )
-
   let shell =  _.process.starter
   ({
     currentPath : o.localPath,
-    mode : 'spawn',
+    mode : 'shell',
     sync : o.sync,
     deasync : 0,
     throwingExitCode : 1,
     outputCollecting : 1,
-    verbosity : o.verbosity - 1,
+    stdio : [ 'pipe', 'pipe', 'ignore' ],
+    verbosity : 2,
   });
 
-  let ready = _.Consequence.Try( () => shell( 'git remote show origin' ) )
+  let remotes;
+  let ready = _.Consequence.Try( () =>
+  {
+    if( o.commits || o.branches || o.tags )
+    return shell( 'git ls-remote' );
+    return false;
+  })
 
-  .then( () => shell( 'git status --porcelain -b' ) )
-  .finally( ( err, got ) =>
+  .then( ( arg ) =>
+  {
+    if( !arg )
+    return false;
+    remotes = parseRefs( arg.output );
+    remotes = remotes.slice( 1 );
+    return check();
+  })
+  .catch( ( err ) =>
   {
     if( err )
     throw _.err( err, '\nFailed to check if remote repository has changes' );
-
-    if( o.commits )
-    if( _.strHas( got.output, 'local out of date' ) )
-    return true;
-
-    if( o.branches )
-    if( _.strHasAny( got.output, [ 'Remote branches', 'next fetch will store in' ] ) )
-    return true;
-
-    return false;
   })
 
   if( o.sync )
   return ready.syncMaybe();
 
   return ready;
+
+  /* - */
+
+  function parseRefs( src )
+  {
+    let result = _.strSplitNonPreserving({ src : src, delimeter : '\n' });
+    return result.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
+  }
+
+  //
+
+  function check()
+  {
+    let ready = _.Consequence.Try( () => shell( 'git show-ref --heads --tags' ) )
+    .then( ( got ) =>
+    {
+      for( var r = 0; r < remotes.length ; r++ )
+      {
+        let hash = remotes[ r ][ 0 ];
+        let ref = remotes[ r ][ 1 ];
+
+        if( o.branches )
+        if( _.strBegins( ref, 'refs/heads' ) )
+        if( !_.strHas( got.output, ref ) )
+        return true;
+
+        if( o.tags )
+        if( _.strBegins( ref, 'refs/tags' ) )
+        if( !_.strHas( got.output, ref ) )
+        return true;
+
+        if( o.commits )
+        {
+          let result = shell
+          ({
+            execPath : `git branch --contains ${hash} --quiet --format=%(refname)`,
+            stdio : 'pipe',
+            throwingExitCode : 0,
+            sync : 1
+          });
+          if( !_.strHas( result.output, ref ) )
+          return true;
+        }
+      }
+
+      return false;
+    })
+
+    return ready;
+  }
 }
 
 var defaults = hasRemoteChanges.defaults = Object.create( null );
