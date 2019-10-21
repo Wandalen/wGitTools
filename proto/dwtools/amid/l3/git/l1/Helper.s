@@ -793,69 +793,206 @@ defaults.localPath = null;
 
 //
 
-function hasLocalChanges( o )
+function hasLocalChanges_pre( routine, args )
 {
-  let provider = _.fileProvider;
-  let path = provider.path;
+  let o = args[ 0 ];
 
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( hasLocalChanges, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.routineOptions( routine, o );
   _.assert( _.strDefined( o.localPath ) );
+  _.assert( args.length === 1 );
 
-  let ready = _.Consequence.Try( () =>
+  _.each( routine.uncommittedGroup, ( k ) =>
   {
-    return _.process.start
-    ({
-      execPath : 'git status -u --porcelain -b',
-      currentPath : o.localPath,
-      mode : 'spawn',
-      sync : o.sync,
-      deasync : 0,
-      throwingExitCode : 1,
-      outputCollecting : 1,
-      verbosity : o.verbosity - 1,
-    });
+    if( o[ k ] === null )
+    o[ k ] = o.uncommitted;
   })
 
-  ready.finally( ( err, got ) =>
+  _.each( routine.unpushedGroup, ( k ) =>
   {
-    if( err )
-    throw _.err( err, '\nFailed to check if repository has local changes' );
+    if( o[ k ] === null )
+    o[ k ] = o.unpushed;
+  })
 
+  return o;
+}
+
+//
+
+function hasLocalChanges_body( o )
+{
+  _.assert( arguments.length === 1, 'Expects single argument' );
+
+  let shell = _.process.starter
+  ({
+    currentPath : o.localPath,
+    mode : 'spawn',
+    sync : o.sync,
+    deasync : 0,
+    throwingExitCode : 1,
+    outputCollecting : 1,
+    verbosity : o.verbosity - 1,
+  });
+
+  let ready = _.Consequence.Try( () => shell( 'git status --ignored -u --porcelain -b' ) )
+
+  .then( ( got ) =>
+  {
     let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
 
     /*
-    check for any changes, except new commits
+    check for any changes, except new commits/tags/branches
     */
-    if( o.uncommitted )
-    if( output.length > 1 )
-    return true;
+
+    let uncommittedFastCheck = o.uncommittedUntracked && o.uncommittedAdded &&
+                               o.uncommittedChanged && o.uncommittedDeleted &&
+                               o.uncommittedRenamed && o.uncommittedCopied;
+
+    if( uncommittedFastCheck )
+    {
+      if( output.length > 1 )
+      return true;
+    }
+    else
+    {
+      if( o.uncommittedUntracked )
+      if( _.strHas( got.output, /^\? .*/gm ) )
+      return true;
+
+      if( o.uncommittedAdded )
+      if( _.strHas( got.output, /^A .*/gm ) )
+      return true;
+
+      if( o.uncommittedChanged )
+      if( _.strHas( got.output, /^M .*/gm ) )
+      return true;
+
+      if( o.uncommittedDeleted )
+      if( _.strHas( got.output, /^D .*/gm ) )
+      return true;
+
+      if( o.uncommittedRenamed )
+      if( _.strHas( got.output, /^R .*/gm ) )
+      return true;
+
+      if( o.uncommittedCopied )
+      if( _.strHas( got.output, /^C .*/gm ) )
+      return true;
+
+      if( o.uncommittedIgnored )
+      if( _.strHas( got.output, /^!! .*/gm ) )
+      return true;
+    }
 
     /*
-    check for unpushed commits
+    check for unpushed commits/tags/branches
     */
-    if( o.unpushed )
+
+    if( o.unpushedCommits )
     if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )
     return true;
 
     return false;
   })
 
+  if( o.unpushedTags )
+  ready.then( ( result ) =>
+  {
+    if( result )
+    return true;
+    return checkTags();
+  })
+
+  if( o.unpushedBranches )
+  ready.then( ( result ) =>
+  {
+    if( result )
+    return true;
+    return checkBranches();
+  })
+
+  ready.finally( ( err, got ) =>
+  {
+    if( err )
+    throw _.err( err, '\nFailed to check if repository has local changes' );
+    return got;
+  })
+
   if( o.sync )
   return ready.syncMaybe();
 
   return ready;
+
+  /* - */
+
+  function checkTags()
+  {
+    let ready = _.Consequence.Try( () => shell( 'git push --tags --dry-run' ) );
+    ready.then( ( got ) =>
+    {
+      if( _.strHas( got.output, '[new tag]' ) )
+      return true;
+      return false;
+    })
+    return ready;
+  }
+
+  /* - */
+
+  function checkBranches()
+  {
+    let ready = _.Consequence.Try( () => shell( 'git push --all --dry-run' ) );
+    ready.then( ( got ) =>
+    {
+      if( _.strHas( got.output, '[new branch]' ) )
+      return true;
+      return false;
+    })
+    return ready;
+  }
 }
 
-var defaults = hasLocalChanges.defaults = Object.create( null );
+var defaults = hasLocalChanges_body.defaults = Object.create( null );
+
 defaults.localPath = null;
-defaults.uncommitted = 1;
-defaults.unpushed = 1;
-defaults.verbosity = 0;
 defaults.sync = 1;
+defaults.verbosity = 0;
+
+defaults.uncommitted = 1;
+defaults.uncommittedUntracked = null;
+defaults.uncommittedAdded = null;
+defaults.uncommittedChanged = null;
+defaults.uncommittedDeleted = null;
+defaults.uncommittedRenamed = null;
+defaults.uncommittedCopied = null;
+defaults.uncommittedIgnored = 0;
+
+defaults.unpushed = 1;
+defaults.unpushedCommits = null;
+defaults.unpushedTags = 0;
+defaults.unpushedBranches = 0;
+
+hasLocalChanges_body.uncommittedGroup =
+[
+  'uncommittedUntracked',
+  'uncommittedAdded',
+  'uncommittedChanged',
+  'uncommittedDeleted',
+  'uncommittedRenamed',
+  'uncommittedCopied',
+  'uncommittedIgnored'
+]
+
+hasLocalChanges_body.unpushedGroup =
+[
+  'unpushedCommits',
+  'unpushedTags',
+  'unpushedBranches',
+]
+
+let hasLocalChanges = _.routineFromPreAndBody( hasLocalChanges_pre, hasLocalChanges_body );
 
 //
 //
@@ -951,23 +1088,139 @@ defaults.sync = 1;
 
 function hasRemoteChanges( o )
 {
+  if( !_.mapIs( o ) )
+  o = { localPath : o }
 
-  _.assert( 0, 'not implemented' ); /* qqq : implement */
+  _.routineOptions( hasRemoteChanges, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ) );
 
+  let shell =  _.process.starter
+  ({
+    currentPath : o.localPath,
+    mode : 'shell',
+    sync : o.sync,
+    deasync : 0,
+    throwingExitCode : 1,
+    outputCollecting : 1,
+    stdio : [ 'pipe', 'pipe', 'ignore' ],
+    verbosity : 2,
+  });
+
+  let remotes;
+  let ready = _.Consequence.Try( () =>
+  {
+    if( o.commits || o.branches || o.tags )
+    return shell( 'git ls-remote' );
+    return false;
+  })
+
+  .then( ( arg ) =>
+  {
+    if( !arg )
+    return false;
+    remotes = parseRefs( arg.output );
+    remotes = remotes.slice( 1 );
+    return check();
+  })
+  .catch( ( err ) =>
+  {
+    if( err )
+    throw _.err( err, '\nFailed to check if remote repository has changes' );
+  })
+
+  if( o.sync )
+  return ready.syncMaybe();
+
+  return ready;
+
+  /* - */
+
+  function parseRefs( src )
+  {
+    let result = _.strSplitNonPreserving({ src : src, delimeter : '\n' });
+    return result.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
+  }
+
+  //
+
+  function check()
+  {
+    let ready = _.Consequence.Try( () => shell( 'git show-ref --heads --tags' ) )
+    .then( ( got ) =>
+    {
+      for( var r = 0; r < remotes.length ; r++ )
+      {
+        let hash = remotes[ r ][ 0 ];
+        let ref = remotes[ r ][ 1 ];
+
+        if( o.branches )
+        if( _.strBegins( ref, 'refs/heads' ) )
+        if( !_.strHas( got.output, ref ) )
+        return true;
+
+        if( o.tags )
+        if( _.strBegins( ref, 'refs/tags' ) )
+        if( !_.strHas( got.output, ref ) )
+        return true;
+
+        if( o.commits )
+        {
+          let result = shell
+          ({
+            execPath : `git branch --contains ${hash} --quiet --format=%(refname)`,
+            stdio : 'pipe',
+            throwingExitCode : 0,
+            sync : 1
+          });
+          if( !_.strHas( result.output, ref ) )
+          return true;
+        }
+      }
+
+      return false;
+    })
+
+    return ready;
+  }
 }
 
 var defaults = hasRemoteChanges.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
+defaults.commits = 1;
+defaults.branches = 1;
+defaults.tags = 0;
 defaults.sync = 1;
 
 //
 
 function hasChanges( o )
 {
+  if( !_.mapIs( o ) )
+  o = { localPath : o }
 
-  _.assert( 0, 'not implemented' ); /* qqq : implement */
+  _.routineOptions( hasChanges, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ) );
 
+  let ready = _.Consequence.Try( () =>
+  {
+    if( o.local )
+    return this.hasLocalChanges( _.mapOnly( o, this.hasLocalChanges.defaults ) );
+    return false;
+  })
+  .then( ( result ) =>
+  {
+    if( !result && o.remote )
+    return this.hasRemoteChanges( _.mapOnly( o, this.hasRemoteChanges.defaults ) );
+    return result;
+  })
+
+  if( o.sync )
+  return ready.syncMaybe();
+
+  return ready;
 }
 
 var defaults = hasChanges.defaults = Object.create( null );
@@ -1407,6 +1660,121 @@ function hookPreservingHardLinksUnregister( repoPath )
   })
 }
 
+//
+
+function ignoreAdd( o )
+{
+  let provider = _.fileProvider;
+  let path = provider.path;
+
+  if( arguments.length === 2 )
+  o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
+
+  _.assert( arguments.length === 1 || arguments.length === 2 );
+  _.routineOptions( ignoreAdd, o );
+
+  if( !provider.isDir( o.insidePath ) )
+  throw _.err( 'Provided {-o.insidePath-} is not a directory:', _.strQuote( o.insidePath ) );
+
+  if( !this.insideRepository( o.insidePath ) )
+  throw _.err( 'Provided {-o.insidePath-}:', _.strQuote( o.insidePath ), 'is not inside of a git repository.' );
+
+  let gitignorePath = path.join( o.insidePath, '.gitignore' );
+  let records = _.mapKeys( o.pathMap );
+
+  let result = 0;
+
+  if( !records.length )
+  return result;
+
+  let gitconfig = [];
+
+  if( provider.fileExists( gitignorePath ) )
+  {
+    gitconfig = provider.fileRead( gitignorePath );
+    gitconfig = _.strSplitNonPreserving({ src : gitconfig, delimeter : '\n' })
+  }
+
+  result = _.arrayAppendedArrayOnce( gitconfig, records );
+
+  let data = gitconfig.join( '\n' );
+  provider.fileWrite({ filePath : gitignorePath, data : data, mode : 'append' });
+
+  return result;
+}
+
+var defaults = ignoreAdd.defaults = Object.create( null );
+defaults.insidePath = null;
+defaults.pathMap = null;
+
+//
+
+function ignoreRemove( o )
+{
+  let provider = _.fileProvider;
+  let path = provider.path;
+
+  if( arguments.length === 2 )
+  o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
+
+  _.assert( arguments.length === 1 || arguments.length === 2 );
+  _.routineOptions( ignoreRemove, o );
+
+  let gitignorePath = path.join( o.insidePath, '.gitignore' );
+
+  if( !provider.fileExists( gitignorePath ) )
+  throw _.err( 'Provided .gitignore file doesn`t exist at:', _.strQuote( gitignorePath ) );
+
+  if( !this.isTerminal( o.insidePath ) )
+  throw _.err( 'Provided .gitignore file:', _.strQuote( gitignorePath ),  'is not terminal' );
+
+  let records = _.mapKeys( o.pathMap );
+
+  if( !records.length )
+  return false;
+
+  let gitconfig = provider.fileRead( gitignorePath );
+  gitconfig = _.strSplitNonPreserving({ src : gitconfig, delimeter : '\n' })
+
+  let result = 0;
+
+  if( !gitconfig.length )
+  return result;
+
+  result = _.arrayRemovedArrayOnce( gitconfig, records );
+
+  let data = gitconfig.join( '\n' );
+  provider.fileWrite({ filePath : gitignorePath, data : data, mode : 'rewrite' });
+
+  return result;
+}
+
+_.routineExtend( ignoreRemove, ignoreAdd );
+
+//
+
+function ignoreRemoveAll( o )
+{
+  let provider = _.fileProvider;
+  let path = provider.path;
+
+  if( arguments.length === 2 )
+  o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
+
+  _.assert( arguments.length === 1 || arguments.length === 2 );
+  _.routineOptions( ignoreRemoveAll, o );
+
+  let result = ignoreRemove.apply( this,arguments );
+  let expectedResult = _.mapKeys( o.pathMap ).length;
+
+  if( result !== expectedResult )
+  throw _.err( 'Some records from {-o.pathMap-} were not removed from .gitignore at:', _.strQuote( o.insidePath ) );
+
+  return true;
+}
+
+_.routineExtend( ignoreRemoveAll, ignoreRemove );
+
 // --
 // relations
 // --
@@ -1478,6 +1846,10 @@ let Extend =
 
   hookPreservingHardLinksRegister,
   hookPreservingHardLinksUnregister,
+
+  ignoreAdd,
+  ignoreRemove,
+  ignoreRemoveAll
 
 }
 
