@@ -365,7 +365,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'check after fresh clone'
-    var got = _.git.hasLocalChanges({ localPath });
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 1  });
     test.identical( got, false );
     return null;
   })
@@ -377,7 +379,9 @@ function hasLocalChanges( test )
   {
     test.case = 'new untraked file'
     provider.fileWrite( filePath, filePath );
-    var got = _.git.hasLocalChanges({ localPath });
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 1  });
     test.identical( got, true );
     return null;
   })
@@ -386,7 +390,9 @@ function hasLocalChanges( test )
   {
     test.case = 'new staged file'
     test.is( provider.fileExists( filePath ) );
-    var got = _.git.hasLocalChanges({ localPath });
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 1  });
     test.identical( got, true );
     return null;
   })
@@ -396,9 +402,21 @@ function hasLocalChanges( test )
   begin()
   .then( () =>
   {
-    test.case = 'change in existing file'
+    test.case = 'unstaged change in existing file'
     provider.fileWrite( readmePath, readmePath );
-    var got = _.git.hasLocalChanges({ localPath });
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 1  });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git add README' )
+  .then( () =>
+  {
+    test.case = 'unstaged change in existing file'
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 1  });
     test.identical( got, true );
     return null;
   })
@@ -410,7 +428,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'remote has new commit';
-    var got = _.git.hasLocalChanges({ localPath });
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 1  });
     test.identical( got, false );
     return null;
   })
@@ -423,7 +443,19 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'remote has new commit, local executed fetch without merge';
-    var got = _.git.hasLocalChanges({ localPath });
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, uncommitted : 1  });
+    test.identical( got, false );
+    return null;
+  })
+  shell( 'git merge' )
+  .then( () =>
+  {
+    test.case = 'merge after fetch, remote had new commit';
+    var got = _.git.hasLocalChanges({ localPath, unpushed : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, unpushed : 1  });
     test.identical( got, false );
     return null;
   })
@@ -435,7 +467,10 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'new local commit'
-    var got = _.git.hasLocalChanges({ localPath });
+    var got = _.git.hasLocalChanges({ localPath, unpushed : false  });
+    test.identical( got, false );
+    test.case = 'new local commit'
+    var got = _.git.hasLocalChanges({ localPath, unpushed : true });
     test.identical( got, true );
     return null;
   })
@@ -448,35 +483,100 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'local and remote has has new commit';
-    var got = _.git.hasLocalChanges({ localPath });
+    var got = _.git.hasLocalChanges({ localPath, unpushed : false  });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, unpushed : true  });
     test.identical( got, true );
     return null;
   })
 
   /* */
 
+  prepareRepo()
+  repoNewCommit( 'init' )
   begin()
   repoNewCommitToBranch( 'testCommit', 'feature' )
   shell( 'git fetch' )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local executed fetch without merge';
-    var got = _.git.hasLocalChanges({ localPath });
+    var got = _.git.hasLocalChanges({ localPath, unpushed : false  });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, unpushed : true  });
     test.identical( got, false );
     return null;
   })
 
   /* */
 
+  prepareRepo()
+  repoNewCommit( 'init' )
   begin()
   repoNewCommitToBranch( 'testCommit', 'feature' )
   shell( 'git commit --allow-empty -m test' )
   shell( 'git fetch' )
+  shell( 'git status' )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local has commit to master,fetch without merge';
-    var got = _.git.hasLocalChanges({ localPath });
+    var got = _.git.hasLocalChanges({ localPath, unpushed : false  });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, unpushed : true  });
     test.identical( got, true );
+    return null;
+  })
+
+  /* */
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  shell( 'git commit --allow-empty -m test' )
+  shell( 'git tag sometag' )
+  .then( () =>
+  {
+    test.case = 'local has unpushed tag';
+    var got = _.git.hasLocalChanges({ localPath, tags : false, unpushed : false  });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, tags : true, unpushed : false  });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git push --tags' )
+  .then( () =>
+  {
+    test.case = 'local has pushed tag';
+    var got = _.git.hasLocalChanges({ localPath, tags : false, unpushed : false  });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, tags : true, unpushed : false  });
+    test.identical( got, false );
+    return null;
+  })
+
+  /*  */
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  shell( 'git commit --allow-empty -m test' )
+  shell( 'git tag -a sometag -m "testtag"' )
+  .then( () =>
+  {
+    test.case = 'local has unpushed annotated tag';
+    var got = _.git.hasLocalChanges({ localPath, tags : false, unpushed : false  });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, tags : true, unpushed : false  });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git push --follow-tags' )
+  .then( () =>
+  {
+    test.case = 'local has pushed annotated tag';
+    var got = _.git.hasLocalChanges({ localPath, tags : false, unpushed : false  });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, tags : true, unpushed : false  });
+    test.identical( got, false );
     return null;
   })
 
@@ -566,21 +666,28 @@ function hasLocalChanges( test )
       return null;
     })
 
-    con.thenGive( () =>
+    con.then( () =>
     {
+      let con2 = new _.Consequence().take( null );
+      let shell2 = _.process.starter
+      ({
+        currentPath : testPath,
+        ready : con2
+      })
+
       if( create )
-      shell( 'git -C secondary checkout -b ' + branch )
+      shell2( 'git -C secondary checkout -b ' + branch )
       else
-      shell( 'git -C secondary checkout ' + branch )
+      shell2( 'git -C secondary checkout ' + branch )
 
-      shell( 'git -C secondary commit --allow-empty -m ' + message )
+      shell2( 'git -C secondary commit --allow-empty -m ' + message )
 
       if( create )
-      shell( 'git -C secondary push --set-upstream origin ' + branch )
+      shell2( 'git -C secondary push --set-upstream origin ' + branch )
       else
-      shell( 'git -C secondary push' )
+      shell2( 'git -C secondary push' )
 
-      con.take( null );
+      return con2;
     })
 
     return con;

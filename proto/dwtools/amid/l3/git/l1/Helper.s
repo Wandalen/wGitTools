@@ -820,11 +820,8 @@ function hasLocalChanges( o )
     });
   })
 
-  ready.finally( ( err, got ) =>
+  .then( ( got ) =>
   {
-    if( err )
-    throw _.err( err, '\nFailed to check if repository has local changes' );
-
     let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
 
     /*
@@ -841,13 +838,51 @@ function hasLocalChanges( o )
     if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )
     return true;
 
+    if( o.tags )
+    return checkTags();
+
     return false;
+  })
+
+  .finally( ( err, got ) =>
+  {
+    if( err )
+    throw _.err( err, '\nFailed to check if repository has local changes' );
+    return got;
   })
 
   if( o.sync )
   return ready.syncMaybe();
 
   return ready;
+
+  /* - */
+
+  function checkTags()
+  {
+    let ready = _.Consequence.Try( () =>
+    {
+      return _.process.start
+      ({
+        execPath : 'git push --tags --dry-run',
+        currentPath : o.localPath,
+        mode : 'spawn',
+        sync : o.sync,
+        deasync : 0,
+        throwingExitCode : 1,
+        outputCollecting : 1,
+        verbosity :2,
+      });
+    })
+    ready.then( ( got ) =>
+    {
+      if( _.strHas( got.output, '[new tag]' ) )
+      return true;
+      return false;
+    })
+
+    return ready;
+  }
 }
 
 var defaults = hasLocalChanges.defaults = Object.create( null );
@@ -855,6 +890,7 @@ defaults.localPath = null;
 defaults.uncommitted = 1;
 defaults.unpushed = 1;
 defaults.verbosity = 0;
+defaults.tags = 0;
 defaults.sync = 1;
 
 //
