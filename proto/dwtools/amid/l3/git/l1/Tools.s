@@ -39,7 +39,7 @@ function configRead( filePath )
 function objectsParse( remotePath )
 {
   let result = Object.create( null );
-  let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)\.git/;
+  let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
 
   remotePath = this.remotePathNormalize( remotePath );
   let match = remotePath.match( gitHubRegexp );
@@ -259,8 +259,6 @@ function remotePathNormalize( remotePath )
 
 function remotePathNativize( remotePath )
 {
-
-  debugger;
 
   remotePath = remotePath.replace( /^git\+(\w+):\/\//, '$1://' );
   remotePath = remotePath.replace( /:\/\/\/\b/, '://' );
@@ -1332,31 +1330,47 @@ prsGet.defaults =
 
 function repositoryInit( o )
 {
+  let self = this;
   let ready = new _.Consequence().take( null );
 
   if( _.strIs( o ) )
   o = { remotePath : o }
-  o = _.routineOptions( prsGet, o );
+  o = _.routineOptions( repositoryInit, o );
 
-  let parsed = this.objectsParse( o.remotePath );
+  let nativeRemotePath = null;
+  let parsed = null;
+  let remoteExists = null;
+
+  if( o.remotePath )
+  {
+    o.remotePath = self.remotePathNormalize( o.remotePath );
+    nativeRemotePath = self.remotePathNativize( o.remotePath );
+    parsed = self.objectsParse( o.remotePath );
+    remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
+  }
+
+  if( o.remote === null )
+  o.remote = !!o.remotePath;
+  if( o.local === null )
+  o.local = !!o.localPath;
 
   ready
   .then( () =>
   {
-    if( !o.remoteIniting )
-    return null
-    if( parsed.service === 'github.com' )
-    return repositoryInitOnGithub();
+    if( !o.remote )
     return null;
+    return remoteInit();
   })
   .then( () =>
   {
-    if( !o.localIniting )
-    return null
-    xxx
+    return null;
+    if( !o.local )
+    return null;
+    return localInit();
   })
-  .finally( ( err, prs ) =>
+  .finally( ( err, arg ) =>
   {
+    debugger;
     if( err )
     if( !o.throwing )
     {
@@ -1367,7 +1381,7 @@ function repositoryInit( o )
     {
       throw _.err( err, `\nFailed to init git repository remotePath:${o.remotePath}` );
     }
-    return prs;
+    return arg;
   });
 
   if( o.sync )
@@ -1379,24 +1393,103 @@ function repositoryInit( o )
 
   function repositoryInitOnGithub()
   {
+    if( !o.token )
+    {
+      if( o.throwing )
+      throw _.err( 'Requires an access token to create a repository on github.com' );
+      return null;
+    }
     let ready = new _.Consequence().take( null );
     ready
     .then( () =>
     {
+      debugger;
       let github = require( 'octonode' );
-      return github.repoAsync
+      let client = github.client( o.token );
+      let me = client.me();
+      debugger;
+      return me.repoAsync
       ({
-        'name' : 'Experiment' + _.intRandom(),
-        'description' : 'Experiment',
+        'name' : parsed.repo,
+        'description' : o.description || 'description',
       });
     })
     .then( ( result ) =>
     {
       debugger;
+      remoteExists = true;
       return result[ 0 ];
     });
     return ready;
   }
+
+  /**/
+
+  function remoteInit()
+  {
+    if( parsed.service === 'github.com' )
+    return repositoryInitOnGithub();
+    if( o.throwing )
+    throw _.err( `Cant init remote repository, because not clear what service to use for ${o.remotePath}` );
+    return null;
+  }
+
+  /**/
+
+  function localInit()
+  {
+    _.assert( _.uri.is( o.localPath ) && !_.uri.isGlobal( o.localPath ), () => `Expects local path, but got ${o.localPath}` );
+
+    o.localPath = _.path.canonize( o.localPath );
+
+    if( o.remotePath && remoteExists ) /* xxx */
+    {
+      let dirPath = _.path.dir( o.localPath );
+      let name = _.path.fullName( o.localPath );
+      _.fileProvider.dirMake( dirPath );
+
+      let start = _.process.starter
+      ({
+        verbosity : o.verbosity - 1,
+        sync : 0,
+        deasync : 0,
+        outputCollecting : 1,
+        mode : 'spawn',
+        currentPath : dirPath,
+      });
+
+      return start( `git clone ${nativeRemotePath} ${name}` );
+    }
+    else
+    {
+
+      let start = _.process.starter
+      ({
+        verbosity : o.verbosity - 1,
+        sync : 0,
+        deasync : 0,
+        outputCollecting : 1,
+        mode : 'spawn',
+        currentPath : o.localPath,
+      });
+
+      if( self.isRepository({ localPath : o.localPath }) )
+      {
+        if( _.git.remotePathFromLocal( o.localPath ) )
+        start( `git remote rm origin` );
+        return start( `git remote add origin ${nativeRemotePath}` );
+      }
+      else
+      {
+        _.fileProvider.dirMake( o.localPath );
+        start( `git init .` );
+        return start( `git remote add origin ${nativeRemotePath}` );
+      }
+
+    }
+  }
+
+  /**/
 
 }
 
@@ -1404,10 +1497,13 @@ repositoryInit.defaults =
 {
   remotePath : null,
   localPath : null,
-  remoteIniting : 0,
-  localIniting : 1,
+  remote : null,
+  local : null,
   throwing : 1,
   sync : 1,
+  verbosity : 0,
+  description : null,
+  token : null,
 }
 
 //
