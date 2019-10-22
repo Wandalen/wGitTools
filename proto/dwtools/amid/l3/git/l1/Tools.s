@@ -652,41 +652,60 @@ function isRepository( o )
   _.routineOptions( isRepository, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  if( !_.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) ) )
-  return false;
+  let ready = _.Consequence.Try( () =>
+  {
+    return _.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) );
+  })
 
   if( o.remotePath === null )
-  return true;
+  return end();
 
   let remoteParsed = o.remotePath;
 
-  if( path.isGlobal( o.remotePath ) )
-  remoteParsed = this.pathParse( o.remotePath ).remoteVcsPath;
+  ready.then( ( exists ) =>
+  {
+    if( !exists )
+    return false;
+    if( path.isGlobal( o.remotePath ) )
+    remoteParsed = this.pathParse( o.remotePath ).remoteVcsPath;
+    return remoteIsRepository( remoteParsed );
+  })
 
-  if( !remoteIsRepository() )
-  return false;
+  ready.then( ( isRepo ) =>
+  {
+    if( !isRepo )
+    return false;
+    return localHasRightOrigin();
+  })
 
-  if( !localHasRightOrigin() )
-  return false;
-
-  return true;
+  return end();
 
   /* */
 
   function remoteIsRepository()
   {
-    let result = _.process.start
-    ({
-      execPath : 'git ls-remote ' + remoteParsed,
-      throwingExitCode : 0,
-      outputPiping : 0,
-      sync : 1,
-      deasync : 0,
-      inputMirroring : 0,
-      outputCollecting : 0
+    let ready = _.Consequence.Try( () =>
+    {
+      return _.process.start
+      ({
+        execPath : 'git ls-remote ' + remoteParsed,
+        throwingExitCode : 0,
+        outputPiping : 0,
+        stdio : 'ignore',
+        sync : o.sync,
+        deasync : 0,
+        inputMirroring : 0,
+        outputCollecting : 0
+      });
+    })
+    ready.then( ( got ) =>
+    {
+      return got.exitCode === 0;
     });
 
-    return result.exitCode === 0;
+    if( o.sync )
+    return ready.syncMaybe();
+    return ready;
   }
 
   /*  */
@@ -700,11 +719,20 @@ function isRepository( o )
     return originPath === remoteParsed;
   }
 
+  /*  */
+
+  function end()
+  {
+    if( o.sync )
+    return ready.syncMaybe();
+    return ready;
+  }
 }
 
 var defaults = isRepository.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
+defaults.sync = 1;
 defaults.verbosity = 0;
 
 //

@@ -1675,6 +1675,54 @@ function isRepository( test )
     return null;
   })
 
+  /* -async- */
+
+  begin2()
+  .then( () =>
+  {
+    test.case = 'cloned, provided local path to repo'
+    return _.git.isRepository({ localPath, sync : 0 })
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return null;
+    })
+  })
+  .then( () =>
+  {
+    test.case = 'cloned, provided global local & remote paths to repo'
+    return _.git.isRepository({ localPath, sync : 0, remotePath : remotePathGlobal })
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return null;
+    })
+  })
+
+  /*  */
+
+  begin2()
+  .then( () =>
+  {
+    test.case = 'cloned, provided global remote path to repo with out file'
+    return _.git.isRepository({ localPath, sync : 0 })
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return null;
+    })
+  })
+  .then( () =>
+  {
+    test.case = 'cloned, provided global remote path to repo with out file'
+    return _.git.isRepository({ localPath, sync : 0, remotePath : remotePathGlobalWithOut2 })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return null;
+    })
+  })
+
   /*  */
 
   return con;
