@@ -653,14 +653,55 @@ function isRepository( o )
   _.routineOptions( isRepository, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  if( localProvider.fileExists( path.join( o.localPath, '.git/config' ) ) )
+  if( !localProvider.fileExists( path.join( o.localPath, '.git/config' ) ) )
+  return false;
+
+  if( o.remotePath === null )
   return true;
 
+  let remotePathNativized = this.remotePathNativize( o.remotePath );
+
+  if( !remoteIsRepository() )
   return false;
+
+  if( !localHasRightOrigin() )
+  return false;
+
+  return true;
+
+  /* */
+
+  function remoteIsRepository()
+  {
+    let result = _.process.start
+    ({
+      execPath : 'git ls-remote ' + remotePathNativized,
+      throwingExitCode : 0,
+      outputPiping : 0,
+      sync : 1,
+      deasync : 0,
+      outputCollecting : 1
+    });
+
+    return result.exitCode === 0;
+  }
+
+  /*  */
+
+  function localHasRightOrigin()
+  {
+    let config = configRead( o.localPath );
+    let originPath = config[ 'remote "origin"' ].url
+    if( path.isAbsolute( originPath ) )
+    originPath = path.normalize( originPath )
+    return originPath === remotePathNativized;
+  }
+
 }
 
 var defaults = isRepository.defaults = Object.create( null );
 defaults.localPath = null;
+defaults.remotePath = null;
 defaults.verbosity = 0;
 
 //
