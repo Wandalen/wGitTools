@@ -13,9 +13,7 @@ if( typeof module !== 'undefined' )
   let _ = require( '../../../Tools.s' );
 
   require( './IncludeBase.s' );
-
-  require( './l1/Helper.s' );
-  require( './l3/Hooker.s' );
+  require( './l1/Tools.s' );
 
   _.include( 'wFiles' );
 }

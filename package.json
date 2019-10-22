@@ -18,15 +18,15 @@
   }, 
   "dependencies" : 
   {
-    "wTools" : "", 
-    "wCopyable" : "", 
-    "wFiles" : "", 
-    "wfilesarchive" : "", 
-    "wappbasic" : "", 
+    "wTools" : "beta", 
+    "wCopyable" : "beta", 
+    "wFiles" : "beta", 
+    "wfilesarchive" : "beta", 
+    "wappbasic" : "beta", 
     "wgittools" : "file:.", 
     "ini" : "", 
     "octonode" : ""
   }, 
-  "devDependencies" : { "wTesting" : "" }, 
+  "devDependencies" : { "wTesting" : "beta" }, 
   "keywords" : [ "wTools" ]
 }

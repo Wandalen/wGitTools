@@ -1,4 +1,4 @@
-( function _Helper_s_( ) {
+( function _Tools_s_( ) {
 
 'use strict';
 
@@ -303,7 +303,6 @@ function localPathFromInside( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let paths = path.traceToRoot( o.insidePath );
-
   for( var i = paths.length - 1; i >= 0; i-- )
   if( _.git.isRepository({ localPath : paths[ i ] }) )
   return paths[ i ];
@@ -342,7 +341,7 @@ function versionLocalChange( o )
   if( localVersion === o.version )
   return true;
 
-  let shell = _.process.starter
+  let start = _.process.starter
   ({
     verbosity : o.verbosity - 1,
     sync : 1,
@@ -351,16 +350,16 @@ function versionLocalChange( o )
     currentPath : o.localPath
   });
 
-  let result = shell( 'git status' );
+  let result = start( 'git status' );
   let localChanges = _.strHas( result.output, 'Changes to be committed' );
 
   if( localChanges )
-  shell( 'git stash' )
+  start( 'git stash' )
 
-  shell( 'git checkout ' + o.version );
+  start( 'git checkout ' + o.version );
 
   if( localChanges )
-  shell( 'git pop' )
+  start( 'git pop' )
 
   return true;
 }
@@ -435,7 +434,7 @@ function versionRemoteLatestRetrive( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let parsed = _.git.pathParse( o.remotePath );
-  let shell = _.process.starter
+  let start = _.process.starter
   ({
     verbosity : o.verbosity - 1,
     sync : 1,
@@ -443,7 +442,7 @@ function versionRemoteLatestRetrive( o )
     outputCollecting : 1,
   });
 
-  let got = shell( 'git ls-remote ' + parsed.longerRemoteVcsPath );
+  let got = start( 'git ls-remote ' + parsed.longerRemoteVcsPath );
   let latestVersion = /([0-9a-f]+)\s+HEAD/.exec( got.output );
   if( !latestVersion || !latestVersion[ 1 ] )
   return null;
@@ -512,7 +511,7 @@ function isUpToDate( o )
   let parsed = _.git.pathParse( o.remotePath );
   let ready = _.Consequence().take( null );
 
-  let shell = _.process.starter
+  let start = _.process.starter
   ({
     verbosity : o.verbosity - 1,
     ready : ready,
@@ -556,7 +555,7 @@ function isUpToDate( o )
     return true;
   });
 
-  shell( 'git fetch origin' );
+  start( 'git fetch origin' );
 
   ready.finally( ( err, arg ) =>
   {
@@ -825,7 +824,7 @@ function hasLocalChanges_body( o )
 {
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let shell = _.process.starter
+  let start = _.process.starter
   ({
     currentPath : o.localPath,
     mode : 'spawn',
@@ -836,7 +835,7 @@ function hasLocalChanges_body( o )
     verbosity : o.verbosity - 1,
   });
 
-  let ready = _.Consequence.Try( () => shell( 'git status --ignored -u --porcelain -b' ) )
+  let ready = _.Consequence.Try( () => start( 'git status --ignored -u --porcelain -b' ) )
 
   .then( ( got ) =>
   {
@@ -916,7 +915,7 @@ function hasLocalChanges_body( o )
   ready.finally( ( err, got ) =>
   {
     if( err )
-    throw _.err( err, '\nFailed to check if repository has local changes' );
+    throw _.err( err, '\nFailed to check if repository has local changes' ); /* qqq : ? */
     return got;
   })
 
@@ -929,7 +928,7 @@ function hasLocalChanges_body( o )
 
   function checkTags()
   {
-    let ready = _.Consequence.Try( () => shell( 'git push --tags --dry-run' ) );
+    let ready = _.Consequence.Try( () => start( 'git push --tags --dry-run' ) );
     ready.then( ( got ) =>
     {
       if( _.strHas( got.output, '[new tag]' ) )
@@ -943,7 +942,7 @@ function hasLocalChanges_body( o )
 
   function checkBranches()
   {
-    let ready = _.Consequence.Try( () => shell( 'git push --all --dry-run' ) );
+    let ready = _.Consequence.Try( () => start( 'git push --all --dry-run' ) );
     ready.then( ( got ) =>
     {
       if( _.strHas( got.output, '[new branch]' ) )
@@ -952,6 +951,7 @@ function hasLocalChanges_body( o )
     })
     return ready;
   }
+
 }
 
 var defaults = hasLocalChanges_body.defaults = Object.create( null );
@@ -1095,7 +1095,7 @@ function hasRemoteChanges( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
 
-  let shell =  _.process.starter
+  let start =  _.process.starter
   ({
     currentPath : o.localPath,
     mode : 'shell',
@@ -1106,14 +1106,14 @@ function hasRemoteChanges( o )
     outputPiping : 0,
     inputMirroring : 0,
     stdio : [ 'pipe', 'pipe', 'ignore' ],
-    verbosity : 2,
+    verbosity : o.verbosity - 1, /* qqq : was 2 */
   });
 
   let remotes;
   let ready = _.Consequence.Try( () =>
   {
     if( o.commits || o.branches || o.tags )
-    return shell( 'git ls-remote' );
+    return start( 'git ls-remote' );
     return false;
   })
 
@@ -1144,11 +1144,11 @@ function hasRemoteChanges( o )
     return result.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
   }
 
-  //
+  /* */
 
   function check()
   {
-    let ready = _.Consequence.Try( () => shell( 'git show-ref --heads --tags' ) )
+    let ready = _.Consequence.Try( () => start( 'git show-ref --heads --tags' ) )
     .then( ( got ) =>
     {
       if( o.branches || o.commits )
@@ -1165,7 +1165,7 @@ function hasRemoteChanges( o )
 
           if( o.commits )
           {
-            let result = shell
+            let result = start
             ({
               execPath : `git branch --contains ${hash} --quiet --format=%(refname)`,
               throwingExitCode : 0,
@@ -1193,17 +1193,26 @@ function hasRemoteChanges( o )
 
     return ready;
   }
+
+  /* */
+
 }
 
 var defaults = hasRemoteChanges.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.commits = 1;
-defaults.branches = 1;
-defaults.tags = 0;
+defaults.branches = 0;
+defaults.tags = 1;
+// defaults.branches = 1; /* qqq : ? */
+// defaults.tags = 0; /* qqq : ? */
 defaults.sync = 1;
 
 //
+
+/*
+qqq : option returningMap required
+*/
 
 function hasChanges( o )
 {
@@ -1258,7 +1267,7 @@ function prsGet( o )
   .then( () =>
   {
     if( parsed.service === 'github.com' )
-    return prsOnGitgub();
+    return prsOnGithub();
     debugger;
     if( o.throwing )
     throw _.err( 'Unknown service' );
@@ -1288,14 +1297,14 @@ function prsGet( o )
 
   /* */
 
-  function prsOnGitgub()
+  function prsOnGithub()
   {
     let ready = new _.Consequence().take( null );
     ready
     .then( () =>
     {
-      var github = require( 'octonode' );
-      var client = github.client();
+      let github = require( 'octonode' );
+      let client = github.client();
       let repo = client.repo( `${parsed.user}/${parsed.repo}` );
       return repo.prsAsync();
     })
@@ -1317,6 +1326,92 @@ prsGet.defaults =
 
 //
 
+function repositoryInit( o )
+{
+  let ready = new _.Consequence().take( null );
+
+  if( _.strIs( o ) )
+  o = { remotePath : o }
+  o = _.routineOptions( prsGet, o );
+
+  let parsed = this.objectsParse( o.remotePath );
+
+  ready
+  .then( () =>
+  {
+    if( !o.remoteIniting )
+    return null
+    if( parsed.service === 'github.com' )
+    return repositoryInitOnGithub();
+    return null;
+  })
+  .then( () =>
+  {
+    if( !o.localIniting )
+    return null
+    xxx
+  })
+  .finally( ( err, prs ) =>
+  {
+    if( err )
+    if( !o.throwing )
+    {
+      _.errAttend( err );
+      return null;
+    }
+    else
+    {
+      throw _.err( err, `\nFailed to init git repository remotePath:${o.remotePath}` );
+    }
+    return prs;
+  });
+
+  if( o.sync )
+  return ready.deasync();
+
+  return ready;
+
+  /* */
+
+  function repositoryInitOnGithub()
+  {
+    let ready = new _.Consequence().take( null );
+    ready
+    .then( () =>
+    {
+      let github = require( 'octonode' );
+      return github.repoAsync
+      ({
+        'name' : 'Experiment' + _.intRandom(),
+        'description' : 'Experiment',
+      });
+    })
+    .then( ( result ) =>
+    {
+      debugger;
+      return result[ 0 ];
+    });
+    return ready;
+  }
+
+}
+
+repositoryInit.defaults =
+{
+  remotePath : null,
+  localPath : null,
+  remoteIniting : 0,
+  localIniting : 1,
+  throwing : 1,
+  sync : 1,
+}
+
+//
+
+/*
+  qqq : extend and cover please
+*/
+
 function infoStatus( o )
 {
 
@@ -1326,6 +1421,7 @@ function infoStatus( o )
   o.hasLocalChanges = null;
   o.hasRemoteChanges = null;
   o.isRepository = null;
+  o.prs = [];
 
   if( !o.localPath && o.insidePath )
   o.localPath = _.git.localPathFromInside( o.insidePath );
@@ -1338,10 +1434,10 @@ function infoStatus( o )
   if( !o.remotePath )
   o.remotePath = _.git.remotePathFromLocal( o.localPath );
 
+  if( o.checkingPrs )
   o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
 
-  debugger;
-  if( o.checkingLocalChanges )
+  if( o.checkingLocalChanges || o.checkingUncommittedLocalChanges || o.checkingUnpushedLocalChanges )
   o.hasLocalChanges = _.git.hasLocalChanges
   ({
     localPath : o.localPath,
@@ -1349,8 +1445,11 @@ function infoStatus( o )
     unpushed : o.checkingUnpushedLocalChanges,
   });
 
-  // if( o.checkingRemoteChanges )
-  // o.hasRemoteChanges = _.git.hasRemoteChanges( o.localPath ); // xxx
+  if( o.checkingRemoteChanges )
+  o.hasRemoteChanges = _.git.hasRemoteChanges
+  ({
+    localPath : o.localPath,
+  });
 
   if( !o.prs.length && !o.hasLocalChanges && !o.hasRemoteChanges )
   return o;
@@ -1847,6 +1946,7 @@ let Extend =
   hasChanges,
 
   prsGet,
+  repositoryInit,
   infoStatus,
 
   //
