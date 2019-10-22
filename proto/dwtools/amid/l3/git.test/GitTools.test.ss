@@ -1551,6 +1551,189 @@ function insideRepository( test )
 
 //
 
+function isRepository( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let remotePathGlobal = 'git+https:///github.com/Wandalen/wPathBasic.git#master';
+  let remotePathGlobalWithOut = 'git+https:///github.com/Wandalen/wPathBasic.git/out/wPathBasic#master';
+  let remotePath2 = 'https://github.com/Wandalen/wTools.git';
+  let remotePathGlobal2 = 'git+https:///github.com/Wandalen/wTools.git#master';
+  let remotePathGlobalWithOut2 = 'git+https:///github.com/Wandalen/wTools.git/out/wTools#master';
+
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+  prepareRepo()
+
+  .then( () =>
+  {
+    test.case = 'not cloned'
+    var got = _.git.isRepository({ localPath });
+    test.identical( got, false );
+    var got = _.git.isRepository({ localPath, remotePath : repoPath });
+    test.identical( got, false );
+    return null;
+  })
+
+  /* */
+
+  begin()
+  .then( () =>
+  {
+    test.case = 'check after fresh clone'
+    var got = _.git.isRepository({ localPath });
+    test.identical( got, true );
+    var got = _.git.isRepository({ localPath, remotePath : repoPath });
+    test.identical( got, true );
+    return null;
+  })
+
+  begin()
+  .then( () =>
+  {
+    test.case = 'cloned, other remote'
+    var got = _.git.isRepository({ localPath });
+    test.identical( got, true );
+    var got = _.git.isRepository({ localPath, remotePath : remotePath });
+    test.identical( got, false );
+    return null;
+  })
+
+  begin()
+  .then( () =>
+  {
+    test.case = 'cloned, provided remote is not a repo'
+    var got = _.git.isRepository({ localPath });
+    test.identical( got, true );
+    var got = _.git.isRepository({ localPath, remotePath : remotePath2 });
+    test.identical( got, false );
+    return null;
+  })
+
+  begin2()
+  .then( () =>
+  {
+    test.case = 'cloned, provided global remote path to repo'
+    var got = _.git.isRepository({ localPath });
+    test.identical( got, true );
+    var got = _.git.isRepository({ localPath, remotePath : remotePathGlobal });
+    test.identical( got, true );
+    return null;
+  })
+
+  begin2()
+  .then( () =>
+  {
+    test.case = 'cloned, provided wrong global remote path to repo'
+    var got = _.git.isRepository({ localPath });
+    test.identical( got, true );
+    var got = _.git.isRepository({ localPath, remotePath : remotePathGlobal2 });
+    test.identical( got, false );
+    return null;
+  })
+
+  begin2()
+  .then( () =>
+  {
+    test.case = 'cloned, provided global remote path to repo with out file'
+    var got = _.git.isRepository({ localPath });
+    test.identical( got, true );
+    var got = _.git.isRepository({ localPath, remotePath : remotePathGlobalWithOut });
+    test.identical( got, true );
+    return null;
+  })
+
+  begin2()
+  .then( () =>
+  {
+    test.case = 'cloned, provided global remote path to repo with out file'
+    var got = _.git.isRepository({ localPath });
+    test.identical( got, true );
+    var got = _.git.isRepository({ localPath, remotePath : remotePathGlobalWithOut2 });
+    test.identical( got, false );
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    shell2( 'git init --bare' );
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+
+  function begin2()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + remotePath + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+}
+
+isRepository.timeOut = 30000;
+
+//
+
 function gitHooksManager( test )
 {
   let context = this;
@@ -2787,6 +2970,7 @@ var Proto =
     isDownloadedFromRemote,
     isUpToDate,
     insideRepository,
+    isRepository,
 
     gitHooksManager,
     gitHooksManagerErrors,

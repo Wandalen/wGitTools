@@ -647,19 +647,21 @@ defaults.verbosity = 0;
 
 function isRepository( o )
 {
-  let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.uri;
 
   _.routineOptions( isRepository, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  if( !localProvider.fileExists( path.join( o.localPath, '.git/config' ) ) )
+  if( !_.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) ) )
   return false;
 
   if( o.remotePath === null )
   return true;
 
-  let remotePathNativized = this.remotePathNativize( o.remotePath );
+  let remoteParsed = o.remotePath;
+
+  if( path.isGlobal( o.remotePath ) )
+  remoteParsed = this.pathParse( o.remotePath ).remoteVcsPath;
 
   if( !remoteIsRepository() )
   return false;
@@ -675,12 +677,13 @@ function isRepository( o )
   {
     let result = _.process.start
     ({
-      execPath : 'git ls-remote ' + remotePathNativized,
+      execPath : 'git ls-remote ' + remoteParsed,
       throwingExitCode : 0,
       outputPiping : 0,
       sync : 1,
       deasync : 0,
-      outputCollecting : 1
+      inputMirroring : 0,
+      outputCollecting : 0
     });
 
     return result.exitCode === 0;
@@ -692,9 +695,9 @@ function isRepository( o )
   {
     let config = configRead( o.localPath );
     let originPath = config[ 'remote "origin"' ].url
-    if( path.isAbsolute( originPath ) )
+    if( !path.isGlobal( originPath ) )
     originPath = path.normalize( originPath )
-    return originPath === remotePathNativized;
+    return originPath === remoteParsed;
   }
 
 }
