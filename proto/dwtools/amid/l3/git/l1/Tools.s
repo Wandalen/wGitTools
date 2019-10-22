@@ -654,6 +654,9 @@ function isRepository( o )
 
   let ready = _.Consequence.Try( () =>
   {
+    if( o.localPath === null )
+    return false;
+
     return _.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) );
   })
 
@@ -664,7 +667,7 @@ function isRepository( o )
 
   ready.then( ( exists ) =>
   {
-    if( !exists )
+    if( !exists && o.localPath )
     return false;
     if( path.isGlobal( o.remotePath ) )
     remoteParsed = this.pathParse( o.remotePath ).remoteVcsPath;
@@ -673,8 +676,9 @@ function isRepository( o )
 
   ready.then( ( isRepo ) =>
   {
-    if( !isRepo )
-    return false;
+    if( !isRepo || o.localPath === null )
+    return isRepo;
+
     return localHasRightOrigin();
   })
 
