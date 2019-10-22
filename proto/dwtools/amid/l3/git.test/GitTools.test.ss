@@ -1511,6 +1511,128 @@ statusLocal.timeOut = 30000;
 
 //
 
+function statusLocalExplaining( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+  prepareRepo()
+
+  // /*  */
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  shell( 'git commit --allow-empty -am "no desc"' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal({ localPath, unpushed : 1, uncommitted : 1, detailing : 1, explaining : 1 });
+    var expected =
+    {
+      'unpushedCommits' : '## master...origin/master [ahead 1]',
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : _.maybe,
+      'unpushedTags' : _.maybe,
+      'unpushedBranches' : _.maybe,
+      'status' : '## master...origin/master [ahead 1]'
+    }
+    test.identical( got, expected )
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    shell2( 'git init --bare' );
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+
+  function repoNewCommit( message )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    con.then( () =>
+    {
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git -C secondary commit --allow-empty -m ' + message )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
+}
+
+statusLocalExplaining.timeOut = 30000;
+
+//
+
 function hasLocalChanges( test )
 {
   let context = this;
@@ -2757,6 +2879,7 @@ function isRepository( test )
   let remotePath2 = 'https://github.com/Wandalen/wTools.git';
   let remotePathGlobal2 = 'git+https:///github.com/Wandalen/wTools.git#master';
   let remotePathGlobalWithOut2 = 'git+https:///github.com/Wandalen/wTools.git/out/wTools#master';
+  let remotePath3 = 'git+https:///github.com/Wandalen/wSomeModule.git/out/wSomeModule#master';
 
 
   let con = new _.Consequence().take( null );
@@ -2775,6 +2898,28 @@ function isRepository( test )
 
   provider.dirMake( testPath )
   prepareRepo()
+
+  .then( () =>
+  {
+    test.case = 'not cloned, only remotePath'
+    var got = _.git.isRepository({ remotePath : repoPath });
+    test.identical( got, true );
+    var got = _.git.isRepository({ remotePath : remotePath });
+    test.identical( got, true );
+    var got = _.git.isRepository({ remotePath : remotePathGlobal });
+    test.identical( got, true );
+    var got = _.git.isRepository({ remotePath : remotePathGlobalWithOut });
+    test.identical( got, true );
+    var got = _.git.isRepository({ remotePath : remotePath2 });
+    test.identical( got, true );
+    var got = _.git.isRepository({ remotePath : remotePathGlobal2 });
+    test.identical( got, true );
+    var got = _.git.isRepository({ remotePath : remotePathGlobalWithOut2 });
+    test.identical( got, true );
+    var got = _.git.isRepository({ remotePath : remotePath3 });
+    test.identical( got, false );
+    return null;
+  })
 
   .then( () =>
   {
@@ -4203,6 +4348,7 @@ var Proto =
     versionsPull,
 
     statusLocal,
+    statusLocalExplaining,
     hasLocalChanges,
     hasRemoteChanges,
 

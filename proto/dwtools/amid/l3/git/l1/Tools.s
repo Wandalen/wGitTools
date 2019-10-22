@@ -652,6 +652,9 @@ function isRepository( o )
 
   let ready = _.Consequence.Try( () =>
   {
+    if( o.localPath === null )
+    return false;
+
     return _.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) );
   })
 
@@ -662,7 +665,7 @@ function isRepository( o )
 
   ready.then( ( exists ) =>
   {
-    if( !exists )
+    if( !exists && o.localPath )
     return false;
     if( path.isGlobal( o.remotePath ) )
     remoteParsed = this.pathParse( o.remotePath ).remoteVcsPath;
@@ -671,8 +674,9 @@ function isRepository( o )
 
   ready.then( ( isRepo ) =>
   {
-    if( !isRepo )
-    return false;
+    if( !isRepo || o.localPath === null )
+    return isRepo;
+
     return localHasRightOrigin();
   })
 
@@ -936,54 +940,34 @@ function statusLocal_body( o )
     else
     {
       let outputStripped = output.join( '\n' );
+
       if( o.uncommittedUntracked )
-      {
-        result.uncommittedUntracked = _.strHas( outputStripped, /^\?{1,2} .*/gm )
-        if( result.uncommittedUntracked && !o.detailing )
-        return true;
-      }
+      if( uncommittedDetailedCheck( outputStripped, 'uncommittedUntracked', /^\?{1,2} .*/gm ) )
+      return true;
 
       if( o.uncommittedAdded )
-      {
-        result.uncommittedAdded = _.strHas( outputStripped, /^A .*/gm )
-        if( result.uncommittedAdded && !o.detailing )
-        return true;
-      }
+      if( uncommittedDetailedCheck( outputStripped, 'uncommittedAdded', /^A .*/gm ) )
+      return true;
 
       if( o.uncommittedChanged )
-      {
-        result.uncommittedChanged = _.strHas( outputStripped, /^M .*/gm )
-        if( result.uncommittedChanged && !o.detailing )
-        return true;
-      }
+      if( uncommittedDetailedCheck( outputStripped, 'uncommittedChanged', /^M .*/gm ) )
+      return true;
 
       if( o.uncommittedDeleted )
-      {
-        result.uncommittedDeleted = _.strHas( outputStripped, /^D .*/gm )
-        if( result.uncommittedDeleted && !o.detailing )
-        return true;
-      }
+      if( uncommittedDetailedCheck( outputStripped, 'uncommittedDeleted', /^D .*/gm ) )
+      return true;
 
       if( o.uncommittedRenamed )
-      {
-        result.uncommittedRenamed = _.strHas( outputStripped, /^R .*/gm )
-        if( result.uncommittedRenamed && !o.detailing )
-        return true;
-      }
+      if( uncommittedDetailedCheck( outputStripped, 'uncommittedRenamed', /^R .*/gm ) )
+      return true;
 
       if( o.uncommittedCopied )
-      {
-        result.uncommittedCopied = _.strHas( outputStripped, /^C .*/gm )
-        if( result.uncommittedCopied && !o.detailing )
-        return true;
-      }
+      if( uncommittedDetailedCheck( outputStripped, 'uncommittedCopied', /^C .*/gm ) )
+      return true;
 
       if( o.uncommittedIgnored )
-      {
-        result.uncommittedIgnored = _.strHas( outputStripped, /^!{1,2} .*/gm )
-        if( result.uncommittedIgnored && !o.detailing )
-        return true;
-      }
+      if( uncommittedDetailedCheck( outputStripped, 'uncommittedIgnored', /^!{1,2} .*/gm ) )
+      return true;
     }
 
     /*
@@ -993,8 +977,13 @@ function statusLocal_body( o )
     if( o.unpushedCommits )
     {
       result.unpushedCommits = _.strHas( output[ 0 ], /\[ahead.*\]/ );
-      if( result.unpushedCommits && !o.detailing )
-      return true;
+      if( result.unpushedCommits )
+      {
+        if( o.explaining )
+        result.unpushedCommits = output[ 0 ];
+        if( !o.detailing )
+        return true;
+      }
     }
 
     return false;
@@ -1032,10 +1021,34 @@ function statusLocal_body( o )
     if( !o.detailing )
     return got;
 
+    if( o.explaining )
+    {
+      let status = '';
+      for( let k in result )
+      if( _.strIs( result[ k ] ) )
+      status += result[ k ] + '\n';
+      return status;
+    }
+
     for( let k in result )
     if( result[ k ] === true )
     return true;
 
+    return false;
+  }
+
+  /* - */
+
+  function uncommittedDetailedCheck( output, check, regexp )
+  {
+    result[ check ] = _.strHas( output, regexp );
+    if( result[ check ] )
+    {
+      if( o.explaining )
+      result[ check ] = output.match( regexp );
+      if( !o.detailing )
+      return true;
+    }
     return false;
   }
 
@@ -1048,8 +1061,13 @@ function statusLocal_body( o )
     ready.then( ( got ) =>
     {
       result.unpushedTags = _.strHas( got.output, '[new tag]' )
-      if( result.unpushedTags && !o.detailing )
-      return true;
+      if( result.unpushedTags )
+      {
+        if( o.explaining )
+        result.unpushedTags = got.output;
+        if( !o.detailing )
+        return true;
+      }
       return false;
     })
     return ready;
@@ -1066,8 +1084,13 @@ function statusLocal_body( o )
     ready.then( ( got ) =>
     {
       result.unpushedBranches = _.strHas( got.output, '[new branch]' );
-      if( result.unpushedBranches && !o.detailing )
-      return true;
+      if( result.unpushedBranches )
+      {
+        if( o.explaining )
+        result.unpushedBranches = got.output;
+        if( !o.detailing )
+        return true;
+      }
       return false;
     })
     return ready;
