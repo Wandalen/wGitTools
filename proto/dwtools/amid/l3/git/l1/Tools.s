@@ -1090,6 +1090,12 @@ let hasLocalChanges = _.routineFromPreAndBody( hasLocalChanges_pre, hasLocalChan
 
 //
 
+/*
+  additional check for branch
+  git reflog --pretty=format:"%H, %D"
+  if branch is not listed in `git branch` but exists in ouput of reflog, then branch was deleted
+*/
+
 function hasRemoteChanges( o )
 {
   if( !_.mapIs( o ) )
@@ -1871,22 +1877,21 @@ function ignoreRemoveAll( o )
   let provider = _.fileProvider;
   let path = provider.path;
 
-  if( arguments.length === 2 )
-  o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
+  if( !_.objectIs( o ) )
+  o = { insidePath : arguments[ 0 ] }
 
   _.assert( arguments.length === 1 || arguments.length === 2 );
   _.routineOptions( ignoreRemoveAll, o );
 
-  let result = ignoreRemove.apply( this,arguments );
-  let expectedResult = _.mapKeys( o.pathMap ).length;
-
-  if( result !== expectedResult )
-  throw _.err( 'Some records from {-o.pathMap-} were not removed from .gitignore at:', _.strQuote( o.insidePath ) );
-
+  let gitignorePath = path.join( o.insidePath, '.gitignore' );
+  if( !provider.fileExists( gitignorePath ) )
+  return false;
+  provider.fileDelete( gitignorePath );
   return true;
 }
 
-_.routineExtend( ignoreRemoveAll, ignoreRemove );
+var defaults = ignoreRemoveAll.defaults = Object.create( null );
+defaults.insidePath = null;
 
 // --
 // relations
