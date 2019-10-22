@@ -913,29 +913,39 @@ function statusLocal_body( o )
   if( o.uncommittedIgnored )
   statusArgs.push( '--ignored' );
 
-  let result = Object.create( null );
+  let result = resultPrepare();
 
-  _.each( statusLocal_body.uncommittedGroup, ( k ) => { result[ k ] = _.maybe } )
-  _.each( statusLocal_body.unpushedGroup, ( k ) => { result[ k ] = _.maybe } )
+  let optimizedCheck =  o.uncommittedUntracked && o.uncommittedAdded &&
+                        o.uncommittedChanged && o.uncommittedDeleted &&
+                        o.uncommittedRenamed && o.uncommittedCopied  &&
+                        !o.detailing;
 
   let ready = _.Consequence.Try( () => start({ execPath : 'git status', args : statusArgs }) )
 
   .then( ( got ) =>
   {
     let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+
     /*
     check for any changes, except new commits/tags/branches
     */
 
-    let optimizedCheck =  o.uncommittedUntracked && o.uncommittedAdded &&
-                          o.uncommittedChanged && o.uncommittedDeleted &&
-                          o.uncommittedRenamed && o.uncommittedCopied  &&
-                          !o.detailing;
-
     if( optimizedCheck )
     {
-      if( output.length > 1 )
-      return true;
+      result.uncommitted = output.length > 1;
+
+      _.each( statusLocal_body.uncommittedGroup, ( k ) =>
+      {
+        if( o[ k ] )
+        result[ k ] = result.uncommitted ? _.maybe : false;
+      })
+
+      if( result.uncommitted )
+      {
+        if( o.explaining )
+        result.uncommitted = got.output;
+        return true;
+      }
     }
     else
     {
@@ -977,6 +987,12 @@ function statusLocal_body( o )
     if( o.unpushedCommits )
     {
       result.unpushedCommits = _.strHas( output[ 0 ], /\[ahead.*\]/ );
+
+      if( result.unpushed === null )
+      result.unpushed = result.unpushedCommits;
+      else
+      result.unpushed = result.unpushed && result.unpushedCommits;
+
       if( result.unpushedCommits )
       {
         if( o.explaining )
@@ -1009,7 +1025,7 @@ function statusLocal_body( o )
     if( err )
     throw _.err( err, `\nFailed to check if repository ${_.color.strFormat( String( o.localPath ), 'path' )} has local changes` );
 
-    result.status = statusMake( got );
+    statusMake();
 
     return result;
   }
@@ -1018,23 +1034,55 @@ function statusLocal_body( o )
 
   function statusMake( got )
   {
-    if( !o.detailing )
-    return got;
-
     if( o.explaining )
     {
-      let status = '';
-      for( let k in result )
-      if( _.strIs( result[ k ] ) )
-      status += result[ k ] + '\n';
-      return status;
+      result.status = '';
+
+      if( optimizedCheck )
+      result.status += result.uncommitted + '\n'
+      else
+      explanationCollect( statusLocal_body.uncommittedGroup )
+
+      explanationCollect( statusLocal_body.unpushedGroup )
     }
+    else
+    {
+      for( let k in result )
+      {
+        if( result[ k ] === true )
+        {
+          result.status = true;
+          break
+        }
+        else if( result[ k ] === false )
+        {
+          result.status = result[ k ];
+        }
+      }
+    }
+  }
 
-    for( let k in result )
-    if( result[ k ] === true )
-    return true;
+  function explanationCollect( checksMap )
+  {
+    _.each( checksMap, ( k ) =>
+    {
+      if( _.strIs( result[ k ] ) )
+      result.status += result[ k ] + '\n';
+    })
+  }
 
-    return false;
+  function resultPrepare()
+  {
+    let result = Object.create( null );
+
+    result.uncommitted = null;
+    result.unpushed = null;
+    result.status = null;
+
+    _.each( statusLocal_body.uncommittedGroup, ( k ) => { result[ k ] = null } )
+    _.each( statusLocal_body.unpushedGroup, ( k ) => { result[ k ] = null } )
+
+    return result;
   }
 
   /* - */
@@ -1042,6 +1090,12 @@ function statusLocal_body( o )
   function uncommittedDetailedCheck( output, check, regexp )
   {
     result[ check ] = _.strHas( output, regexp );
+
+    if( result.uncommitted === null )
+    result.uncommitted = result[ check ];
+    else
+    result.uncommitted = result.uncommitted && result[ check ];
+
     if( result[ check ] )
     {
       if( o.explaining )
@@ -1049,6 +1103,7 @@ function statusLocal_body( o )
       if( !o.detailing )
       return true;
     }
+
     return false;
   }
 
@@ -1061,6 +1116,12 @@ function statusLocal_body( o )
     ready.then( ( got ) =>
     {
       result.unpushedTags = _.strHas( got.output, '[new tag]' )
+
+      if( result.unpushed === null )
+      result.unpushed = result.unpushedTags;
+      else
+      result.unpushed = result.unpushed && result.unpushedTags;
+
       if( result.unpushedTags )
       {
         if( o.explaining )
@@ -1084,6 +1145,12 @@ function statusLocal_body( o )
     ready.then( ( got ) =>
     {
       result.unpushedBranches = _.strHas( got.output, '[new branch]' );
+
+      if( result.unpushed === null )
+      result.unpushed = result.unpushedBranches;
+      else
+      result.unpushed = result.unpushed && result.unpushedBranches;
+
       if( result.unpushedBranches )
       {
         if( o.explaining )
@@ -1146,8 +1213,15 @@ let statusLocal = _.routineFromPreAndBody( statusLocal_pre, statusLocal_body );
 function hasLocalChanges()
 {
   let result = statusLocal.apply( this, arguments );
+
   _.assert( result.status !== undefined );
+
+  if( _.boolIs( result.status ) )
   return result.status;
+  if( _.strIs( result.status ) && result.length )
+  return true;
+
+  return false;
 }
 
 _.routineExtend( hasLocalChanges, statusLocal )
