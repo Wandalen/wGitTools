@@ -1807,7 +1807,7 @@ function ignoreAdd( o )
   result = _.arrayAppendedArrayOnce( gitconfig, records );
 
   let data = gitconfig.join( '\n' );
-  provider.fileWrite({ filePath : gitignorePath, data : data, mode : 'append' });
+  provider.fileWrite({ filePath : gitignorePath, data : data, writeMode : 'append' });
 
   return result;
 }
@@ -1853,7 +1853,7 @@ function ignoreRemove( o )
   result = _.arrayRemovedArrayOnce( gitconfig, records );
 
   let data = gitconfig.join( '\n' );
-  provider.fileWrite({ filePath : gitignorePath, data : data, mode : 'rewrite' });
+  provider.fileWrite({ filePath : gitignorePath, data : data, writeMode : 'rewrite' });
 
   return result;
 }
