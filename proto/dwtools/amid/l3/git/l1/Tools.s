@@ -645,20 +645,92 @@ defaults.verbosity = 0;
 
 function isRepository( o )
 {
-  let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.uri;
 
   _.routineOptions( isRepository, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  if( localProvider.fileExists( path.join( o.localPath, '.git/config' ) ) )
-  return true;
+  let ready = _.Consequence.Try( () =>
+  {
+    return _.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) );
+  })
 
-  return false;
+  if( o.remotePath === null )
+  return end();
+
+  let remoteParsed = o.remotePath;
+
+  ready.then( ( exists ) =>
+  {
+    if( !exists )
+    return false;
+    if( path.isGlobal( o.remotePath ) )
+    remoteParsed = this.pathParse( o.remotePath ).remoteVcsPath;
+    return remoteIsRepository( remoteParsed );
+  })
+
+  ready.then( ( isRepo ) =>
+  {
+    if( !isRepo )
+    return false;
+    return localHasRightOrigin();
+  })
+
+  return end();
+
+  /* */
+
+  function remoteIsRepository()
+  {
+    let ready = _.Consequence.Try( () =>
+    {
+      return _.process.start
+      ({
+        execPath : 'git ls-remote ' + remoteParsed,
+        throwingExitCode : 0,
+        outputPiping : 0,
+        stdio : 'ignore',
+        sync : o.sync,
+        deasync : 0,
+        inputMirroring : 0,
+        outputCollecting : 0
+      });
+    })
+    ready.then( ( got ) =>
+    {
+      return got.exitCode === 0;
+    });
+
+    if( o.sync )
+    return ready.syncMaybe();
+    return ready;
+  }
+
+  /*  */
+
+  function localHasRightOrigin()
+  {
+    let config = configRead( o.localPath );
+    let originPath = config[ 'remote "origin"' ].url
+    if( !path.isGlobal( originPath ) )
+    originPath = path.normalize( originPath )
+    return originPath === remoteParsed;
+  }
+
+  /*  */
+
+  function end()
+  {
+    if( o.sync )
+    return ready.syncMaybe();
+    return ready;
+  }
 }
 
 var defaults = isRepository.defaults = Object.create( null );
 defaults.localPath = null;
+defaults.remotePath = null;
+defaults.sync = 1;
 defaults.verbosity = 0;
 
 //
@@ -790,7 +862,7 @@ defaults.localPath = null;
 
 //
 
-function hasLocalChanges_pre( routine, args )
+function statusLocal_pre( routine, args )
 {
   let o = args[ 0 ];
 
@@ -818,7 +890,7 @@ function hasLocalChanges_pre( routine, args )
 
 //
 
-function hasLocalChanges_body( o )
+function statusLocal_body( o )
 {
   _.assert( arguments.length === 1, 'Expects single argument' );
 
@@ -837,54 +909,81 @@ function hasLocalChanges_body( o )
   if( o.uncommittedIgnored )
   statusArgs.push( '--ignored' );
 
+  let result = Object.create( null );
+
+  _.each( statusLocal_body.uncommittedGroup, ( k ) => { result[ k ] = _.maybe } )
+  _.each( statusLocal_body.unpushedGroup, ( k ) => { result[ k ] = _.maybe } )
+
   let ready = _.Consequence.Try( () => start({ execPath : 'git status', args : statusArgs }) )
 
   .then( ( got ) =>
   {
     let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
-
     /*
     check for any changes, except new commits/tags/branches
     */
 
-    let uncommittedFastCheck = o.uncommittedUntracked && o.uncommittedAdded &&
-                               o.uncommittedChanged && o.uncommittedDeleted &&
-                               o.uncommittedRenamed && o.uncommittedCopied;
+    let optimizedCheck =  o.uncommittedUntracked && o.uncommittedAdded &&
+                          o.uncommittedChanged && o.uncommittedDeleted &&
+                          o.uncommittedRenamed && o.uncommittedCopied  &&
+                          !o.detailing;
 
-    if( uncommittedFastCheck )
+    if( optimizedCheck )
     {
       if( output.length > 1 )
       return true;
     }
     else
     {
+      let outputStripped = output.join( '\n' );
       if( o.uncommittedUntracked )
-      if( _.strHas( got.output, /^\? .*/gm ) )
-      return true;
+      {
+        result.uncommittedUntracked = _.strHas( outputStripped, /^\?{1,2} .*/gm )
+        if( result.uncommittedUntracked && !o.detailing )
+        return true;
+      }
 
       if( o.uncommittedAdded )
-      if( _.strHas( got.output, /^A .*/gm ) )
-      return true;
+      {
+        result.uncommittedAdded = _.strHas( outputStripped, /^A .*/gm )
+        if( result.uncommittedAdded && !o.detailing )
+        return true;
+      }
 
       if( o.uncommittedChanged )
-      if( _.strHas( got.output, /^M .*/gm ) )
-      return true;
+      {
+        result.uncommittedChanged = _.strHas( outputStripped, /^M .*/gm )
+        if( result.uncommittedChanged && !o.detailing )
+        return true;
+      }
 
       if( o.uncommittedDeleted )
-      if( _.strHas( got.output, /^D .*/gm ) )
-      return true;
+      {
+        result.uncommittedDeleted = _.strHas( outputStripped, /^D .*/gm )
+        if( result.uncommittedDeleted && !o.detailing )
+        return true;
+      }
 
       if( o.uncommittedRenamed )
-      if( _.strHas( got.output, /^R .*/gm ) )
-      return true;
+      {
+        result.uncommittedRenamed = _.strHas( outputStripped, /^R .*/gm )
+        if( result.uncommittedRenamed && !o.detailing )
+        return true;
+      }
 
       if( o.uncommittedCopied )
-      if( _.strHas( got.output, /^C .*/gm ) )
-      return true;
+      {
+        result.uncommittedCopied = _.strHas( outputStripped, /^C .*/gm )
+        if( result.uncommittedCopied && !o.detailing )
+        return true;
+      }
 
       if( o.uncommittedIgnored )
-      if( _.strHas( got.output, /^!! .*/gm ) )
-      return true;
+      {
+        result.uncommittedIgnored = _.strHas( outputStripped, /^!{1,2} .*/gm )
+        if( result.uncommittedIgnored && !o.detailing )
+        return true;
+      }
     }
 
     /*
@@ -892,34 +991,22 @@ function hasLocalChanges_body( o )
     */
 
     if( o.unpushedCommits )
-    if( _.strHas( output[ 0 ], /\[ahead.*\]/ ) )
-    return true;
+    {
+      result.unpushedCommits = _.strHas( output[ 0 ], /\[ahead.*\]/ );
+      if( result.unpushedCommits && !o.detailing )
+      return true;
+    }
 
     return false;
   })
 
   if( o.unpushedTags )
-  ready.then( ( result ) =>
-  {
-    if( result )
-    return true;
-    return checkTags();
-  })
+  ready.then( checkTags )
 
   if( o.unpushedBranches )
-  ready.then( ( result ) =>
-  {
-    if( result )
-    return true;
-    return checkBranches();
-  })
+  ready.then( checkBranches )
 
-  ready.finally( ( err, got ) =>
-  {
-    if( err )
-    throw _.err( err, `\nFailed to check if repository ${o.localPath} has local changes` );
-    return got;
-  })
+  ready.finally( end );
 
   if( o.sync )
   return ready.syncMaybe();
@@ -928,12 +1015,40 @@ function hasLocalChanges_body( o )
 
   /* - */
 
-  function checkTags()
+  function end( err, got )
   {
+    if( err )
+    throw _.err( err, `\nFailed to check if repository ${o.localPath} has local changes` );
+
+    result.status = statusMake( got );
+
+    return result;
+  }
+
+  /* - */
+
+  function statusMake( got )
+  {
+    if( !o.detailing )
+    return got;
+
+    for( let k in result )
+    if( result[ k ] === true )
+    return true;
+
+    return false;
+  }
+
+  function checkTags( got )
+  {
+    if( got )
+    return true;
+
     let ready = _.Consequence.Try( () => start( 'git push --tags --dry-run' ) );
     ready.then( ( got ) =>
     {
-      if( _.strHas( got.output, '[new tag]' ) )
+      result.unpushedTags = _.strHas( got.output, '[new tag]' )
+      if( result.unpushedTags && !o.detailing )
       return true;
       return false;
     })
@@ -942,12 +1057,16 @@ function hasLocalChanges_body( o )
 
   /* - */
 
-  function checkBranches()
+  function checkBranches( got )
   {
+    if( got )
+    return true;
+
     let ready = _.Consequence.Try( () => start( 'git push --all --dry-run' ) );
     ready.then( ( got ) =>
     {
-      if( _.strHas( got.output, '[new branch]' ) )
+      result.unpushedBranches = _.strHas( got.output, '[new branch]' );
+      if( result.unpushedBranches && !o.detailing )
       return true;
       return false;
     })
@@ -956,7 +1075,7 @@ function hasLocalChanges_body( o )
 
 }
 
-var defaults = hasLocalChanges_body.defaults = Object.create( null );
+var defaults = statusLocal_body.defaults = Object.create( null );
 
 defaults.localPath = null;
 defaults.sync = 1;
@@ -976,7 +1095,10 @@ defaults.unpushedCommits = null;
 defaults.unpushedTags = 0;
 defaults.unpushedBranches = 0;
 
-hasLocalChanges_body.uncommittedGroup =
+defaults.detailing = 0;
+defaults.explaining = 0;
+
+statusLocal_body.uncommittedGroup =
 [
   'uncommittedUntracked',
   'uncommittedAdded',
@@ -987,14 +1109,25 @@ hasLocalChanges_body.uncommittedGroup =
   'uncommittedIgnored'
 ]
 
-hasLocalChanges_body.unpushedGroup =
+statusLocal_body.unpushedGroup =
 [
   'unpushedCommits',
   'unpushedTags',
   'unpushedBranches',
 ]
 
-let hasLocalChanges = _.routineFromPreAndBody( hasLocalChanges_pre, hasLocalChanges_body );
+let statusLocal = _.routineFromPreAndBody( statusLocal_pre, statusLocal_body );
+
+//
+
+function hasLocalChanges()
+{
+  let result = statusLocal.apply( this, arguments );
+  _.assert( result.status !== undefined );
+  return result.status;
+}
+
+_.routineExtend( hasLocalChanges, statusLocal )
 
 //
 //
@@ -1087,6 +1220,12 @@ let hasLocalChanges = _.routineFromPreAndBody( hasLocalChanges_pre, hasLocalChan
 // defaults.sync = 1;
 
 //
+
+/*
+  additional check for branch
+  git reflog --pretty=format:"%H, %D"
+  if branch is not listed in `git branch` but exists in ouput of reflog, then branch was deleted
+*/
 
 function hasRemoteChanges( o )
 {
@@ -1967,22 +2106,21 @@ function ignoreRemoveAll( o )
   let provider = _.fileProvider;
   let path = provider.path;
 
-  if( arguments.length === 2 )
-  o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
+  if( !_.objectIs( o ) )
+  o = { insidePath : arguments[ 0 ] }
 
   _.assert( arguments.length === 1 || arguments.length === 2 );
   _.routineOptions( ignoreRemoveAll, o );
 
-  let result = ignoreRemove.apply( this,arguments );
-  let expectedResult = _.mapKeys( o.pathMap ).length;
-
-  if( result !== expectedResult )
-  throw _.err( 'Some records from {-o.pathMap-} were not removed from .gitignore at:', _.strQuote( o.insidePath ) );
-
+  let gitignorePath = path.join( o.insidePath, '.gitignore' );
+  if( !provider.fileExists( gitignorePath ) )
+  return false;
+  provider.fileDelete( gitignorePath );
   return true;
 }
 
-_.routineExtend( ignoreRemoveAll, ignoreRemove );
+var defaults = ignoreRemoveAll.defaults = Object.create( null );
+defaults.insidePath = null;
 
 // --
 // relations
@@ -2041,6 +2179,8 @@ let Extend =
 
   versionsRemoteRetrive,
   versionsPull,
+
+  statusLocal,
 
   hasLocalChanges,
   hasRemoteChanges,
