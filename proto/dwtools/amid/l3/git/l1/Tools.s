@@ -835,7 +835,11 @@ function hasLocalChanges_body( o )
     verbosity : o.verbosity - 1,
   });
 
-  let ready = _.Consequence.Try( () => start( 'git status --ignored -u --porcelain -b' ) )
+  let statusArgs = [ '-u', '--porcelain', '-b' ]
+  if( o.uncommittedIgnored )
+  statusArgs.push( '--ignored' );
+
+  let ready = _.Consequence.Try( () => start({ execPath : 'git status', args : statusArgs }) )
 
   .then( ( got ) =>
   {
@@ -1103,6 +1107,8 @@ function hasRemoteChanges( o )
     deasync : 0,
     throwingExitCode : 1,
     outputCollecting : 1,
+    outputPiping : 0,
+    inputMirroring : 0,
     stdio : [ 'pipe', 'pipe', 'ignore' ],
     verbosity : o.verbosity - 1
   });
@@ -1149,31 +1155,39 @@ function hasRemoteChanges( o )
     let ready = _.Consequence.Try( () => start( 'git show-ref --heads --tags' ) )
     .then( ( got ) =>
     {
-      for( var r = 0; r < remotes.length ; r++ )
+      if( o.branches || o.commits )
       {
-        let hash = remotes[ r ][ 0 ];
-        let ref = remotes[ r ][ 1 ];
-
-        if( o.branches )
-        if( _.strBegins( ref, 'refs/heads' ) )
-        if( !_.strHas( got.output, ref ) )
-        return true;
-
-        if( o.tags )
-        if( _.strBegins( ref, 'refs/tags' ) )
-        if( !_.strHas( got.output, ref ) )
-        return true;
-
-        if( o.commits )
+        let heads = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/heads' ) );
+        for( var h = 0; h < heads.length ; h++ )
         {
-          let result = start
-          ({
-            execPath : `git branch --contains ${hash} --quiet --format=%(refname)`,
-            stdio : 'pipe',
-            throwingExitCode : 0,
-            sync : 1
-          });
-          if( !_.strHas( result.output, ref ) )
+          let hash = heads[ h ][ 0 ];
+          let ref = heads[ h ][ 1 ];
+
+          if( o.branches )
+          if( !_.strHas( got.output, ref ) )
+          return true;
+
+          if( o.commits )
+          {
+            let result = start
+            ({
+              execPath : `git branch --contains ${hash} --quiet --format=%(refname)`,
+              throwingExitCode : 0,
+              sync : 1
+            });
+            if( !_.strHas( result.output, ref ) )
+            return true;
+          }
+        }
+      }
+
+      if( o.tags )
+      {
+        let tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) );
+        for( var h = 0; h < tags.length ; h++ )
+        {
+          let ref = tags[ h ][ 1 ];
+          if( !_.strHas( got.output, ref ) )
           return true;
         }
       }
@@ -1797,7 +1811,7 @@ function ignoreAdd( o )
   result = _.arrayAppendedArrayOnce( gitconfig, records );
 
   let data = gitconfig.join( '\n' );
-  provider.fileWrite({ filePath : gitignorePath, data : data, mode : 'append' });
+  provider.fileWrite({ filePath : gitignorePath, data : data, writeMode : 'append' });
 
   return result;
 }
@@ -1843,7 +1857,7 @@ function ignoreRemove( o )
   result = _.arrayRemovedArrayOnce( gitconfig, records );
 
   let data = gitconfig.join( '\n' );
-  provider.fileWrite({ filePath : gitignorePath, data : data, mode : 'rewrite' });
+  provider.fileWrite({ filePath : gitignorePath, data : data, writeMode : 'rewrite' });
 
   return result;
 }
