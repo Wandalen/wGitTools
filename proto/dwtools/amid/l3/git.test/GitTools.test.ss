@@ -738,6 +738,7 @@ function hasLocalChanges( test )
     return null;
   })
   shell( 'git add --all' )
+  shell( 'git commit -am "no desc"' )
   .then( () =>
   {
     test.case = 'has ignored file';

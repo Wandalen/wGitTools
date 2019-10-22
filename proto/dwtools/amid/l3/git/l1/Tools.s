@@ -835,7 +835,11 @@ function hasLocalChanges_body( o )
     verbosity : o.verbosity - 1,
   });
 
-  let ready = _.Consequence.Try( () => start( 'git status --ignored -u --porcelain -b' ) )
+  let statusArgs = [ '-u', '--porcelain', '-b' ]
+  if( o.uncommittedIgnored )
+  statusArgs.push( '--ignored' );
+
+  let ready = _.Consequence.Try( () => start({ execPath : 'git status', args : statusArgs }) )
 
   .then( ( got ) =>
   {
