@@ -960,6 +960,36 @@ function hasRemoteChanges( test )
     return null;
   })
 
+  //
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  repoNewTag( 'test' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag';
+    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 0 });
+    test.identical( got, false );
+    var got = _.git.hasRemoteChanges({ localPath, commits : 1, branches : 0, tags : 0 });
+    test.identical( got, false );
+    var got = _.git.hasRemoteChanges({ localPath, commits : 1, branches : 0, tags : 1 });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git fetch --all' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag, local after fetch';
+    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 0 });
+    test.identical( got, false );
+    var got = _.git.hasRemoteChanges({ localPath, commits : 1, branches : 0, tags : 0 });
+    test.identical( got, false );
+    var got = _.git.hasRemoteChanges({ localPath, commits : 1, branches : 0, tags : 1 });
+    test.identical( got, false );
+    return null;
+  })
+
   /*  */
 
   return con;
@@ -1097,7 +1127,7 @@ function hasRemoteChanges( test )
 
 }
 
-hasLocalChanges.timeOut = 30000;
+hasRemoteChanges.timeOut = 30000;
 
 //
 
