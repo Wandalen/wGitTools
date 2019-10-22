@@ -726,6 +726,34 @@ function hasLocalChanges( test )
 
   /*  */
 
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  .then( () =>
+  {
+    test.case = 'local clone has unpushed tag';
+    let ignoredFilePath = path.join( localPath, 'file' );
+    provider.fileWrite( ignoredFilePath,ignoredFilePath )
+    _.git.ignoreAdd( localPath, { 'file' : null } )
+    return null;
+  })
+  shell( 'git add --all' )
+  .then( () =>
+  {
+    test.case = 'has ignored file';
+    var got = _.git.hasLocalChanges({ localPath, unpushed : 0, uncommitted : 0, uncommittedIgnored : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, unpushed : 0, uncommitted : 0, uncommittedIgnored : 1 });
+    test.identical( got, true );
+    var got = _.git.hasLocalChanges({ localPath, unpushed : 0, uncommitted : 1, uncommittedIgnored : 0 });
+    test.identical( got, false );
+    var got = _.git.hasLocalChanges({ localPath, unpushed : 0, uncommitted : 1, uncommittedIgnored : 1 });
+    test.identical( got, true );
+    return null;
+  })
+
+  /*  */
+
   return con;
 
   /* - */
