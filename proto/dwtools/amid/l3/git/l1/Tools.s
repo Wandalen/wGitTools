@@ -915,7 +915,7 @@ function hasLocalChanges_body( o )
   ready.finally( ( err, got ) =>
   {
     if( err )
-    throw _.err( err, '\nFailed to check if repository has local changes' ); /* qqq : ? */
+    throw _.err( err, `\nFailed to check if repository ${o.localPath} has local changes` );
     return got;
   })
 
@@ -1104,7 +1104,7 @@ function hasRemoteChanges( o )
     throwingExitCode : 1,
     outputCollecting : 1,
     stdio : [ 'pipe', 'pipe', 'ignore' ],
-    verbosity : o.verbosity - 1, /* qqq : was 2 */
+    verbosity : o.verbosity - 1
   });
 
   let remotes;
@@ -1931,6 +1931,7 @@ let Extend =
 
   versionsRemoteRetrive,
   versionsPull,
+
   hasLocalChanges,
   hasRemoteChanges,
   hasChanges,
