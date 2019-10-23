@@ -8,14 +8,16 @@ if( typeof module !== 'undefined' )
 
   _.include( 'wTesting' );
 
-  require( '../git/IncludeMid.s' );
+  require( '../../l3/git/IncludeMid.s' );
 }
 
 //
 
 var _ = _global_.wTools;
 
-//
+// --
+// context
+// --
 
 function onSuiteBegin( test )
 {

@@ -15,7 +15,6 @@ if( typeof module !== 'undefined' )
   require( './IncludeBase.s' );
   require( './l1/Tools.s' );
 
-  _.include( 'wFiles' );
 }
 
 })();
