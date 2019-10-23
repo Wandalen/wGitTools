@@ -942,6 +942,13 @@ function statusLocal_body( o )
 
       if( result.uncommitted )
       {
+        result.unpushed = _.maybe;
+        _.each( statusLocal_body.unpushedGroup, ( k ) =>
+        {
+          if( o[ k ] )
+          result[ k ] = _.maybe;
+        })
+
         if( o.explaining )
         result.uncommitted = got.output;
         return true;
@@ -990,11 +997,11 @@ function statusLocal_body( o )
 
       if( result.unpushed === null )
       result.unpushed = result.unpushedCommits;
-      else
-      result.unpushed = result.unpushed && result.unpushedCommits;
 
       if( result.unpushedCommits )
       {
+        result.unpushed = true;
+
         if( o.explaining )
         result.unpushedCommits = output[ 0 ];
         if( !o.detailing )
@@ -1060,6 +1067,9 @@ function statusLocal_body( o )
         }
       }
     }
+
+
+
   }
 
   function explanationCollect( checksMap )
@@ -1093,11 +1103,11 @@ function statusLocal_body( o )
 
     if( result.uncommitted === null )
     result.uncommitted = result[ check ];
-    else
-    result.uncommitted = result.uncommitted && result[ check ];
 
     if( result[ check ] )
     {
+      result.uncommitted = true;
+
       if( o.explaining )
       result[ check ] = output.match( regexp );
       if( !o.detailing )
@@ -1119,11 +1129,10 @@ function statusLocal_body( o )
 
       if( result.unpushed === null )
       result.unpushed = result.unpushedTags;
-      else
-      result.unpushed = result.unpushed && result.unpushedTags;
 
       if( result.unpushedTags )
       {
+        result.unpushed = true;
         if( o.explaining )
         result.unpushedTags = got.output;
         if( !o.detailing )
@@ -1148,11 +1157,10 @@ function statusLocal_body( o )
 
       if( result.unpushed === null )
       result.unpushed = result.unpushedBranches;
-      else
-      result.unpushed = result.unpushed && result.unpushedBranches;
 
       if( result.unpushedBranches )
       {
+        result.unpushed = true;
         if( o.explaining )
         result.unpushedBranches = got.output;
         if( !o.detailing )
