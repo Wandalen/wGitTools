@@ -990,7 +990,7 @@ function statusLocal_body( o )
     return false;
   })
 
-  if( o.checkUnpushedCommits )
+  if( o.unpushedCommits )
   ready.then( checkUnpushedCommits )
 
   if( o.unpushedTags )
@@ -1155,10 +1155,34 @@ function statusLocal_body( o )
     if( got )
     return true;
 
-    let ready = _.Consequence.Try( () => start( 'git push --all --dry-run' ) );
+    let o =
+    {
+      execPath : 'git branch',
+      args :
+      [
+       '-vv',
+       `--format={ "branch" : "%(refname:short)", "upstream" : "%(upstream)" }`
+      ]
+    };
+
+    let ready = _.Consequence.Try( () => start( o ) );
     ready.then( ( got ) =>
     {
-      result.unpushedBranches = _.strHas( got.output, '[new branch]' );
+      let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+      let branches = output.map( ( src ) => JSON.parse( src ) );
+
+      result.unpushedBranches = false;
+
+      for( let i = 0; i < branches.length; i++ )
+      {
+        let branch = branches[ i ];
+        _.assert( _.strIs( branch.upstream ) );
+        if( !branch.upstream.length )
+        {
+          result.unpushedBranches = true;
+          break;
+        }
+      }
 
       if( result.unpushed === null )
       result.unpushed = result.unpushedBranches;
@@ -1201,6 +1225,8 @@ function statusLocal_body( o )
         if( !o.detailing )
         return true;
       }
+
+      return false;
     })
 
     return ready;
@@ -1630,9 +1656,13 @@ function status( o )
   {
     result.status = statusOk( result.local ) || statusOk( result.remote );
 
-    if( result.status )
     if( o.explaining )
-    result.status = [ result.local, result.remote ].join( '\n' );
+    {
+      if( result.status )
+      result.status = [ result.local.status, result.remote.status ].join( '\n' );
+      else
+      result.status = '';
+    }
 
     return result;
   })
@@ -2210,13 +2240,11 @@ function infoStatus( o )
   if( !o.prs.length && !o.hasLocalChanges && !o.hasRemoteChanges )
   return o;
 
-  o.status = o.status || '';
-
   if( o.hasRemoteChanges )
-  o.status += 'Has some remote changes\n' + o.status;
+  o.status.status += 'Has some remote changes\n' + o.status.status;
 
   if( o.prs && o.prs.length )
-  o.status += `Has ${o.prs.length} opened pull requests\n` + o.status;
+  o.status.status += `Has ${o.prs.length} opened pull requests\n` + o.status.status;
 
   // _.process.start
   // ({
