@@ -1429,9 +1429,21 @@ function statusRemote( o )
     let ready = _.Consequence.Try( () => start( 'git show-ref --heads --tags' ) )
     .then( ( got ) =>
     {
+      let heads = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/heads' ) );
+      let tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) );
+
       if( o.branches || o.commits )
       {
-        let heads = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/heads' ) );
+        if( !heads.length )
+        {
+          if( o.branches )
+          result.branches = false;
+          if( o.commits )
+          result.commits = false;
+          if( result.status = null )
+          result.status = false;
+        }
+
         for( var h = 0; h < heads.length ; h++ )
         {
           let hash = heads[ h ][ 0 ];
@@ -1449,7 +1461,7 @@ function statusRemote( o )
               if( o.explaining )
               result.status = got.output;
               if( !o.detailing )
-              return true;
+              return noDetailingEnd();
             }
           }
 
@@ -1471,7 +1483,7 @@ function statusRemote( o )
               if( o.explaining )
               result.status = got.output;
               if( !o.detailing )
-              return true;
+              return noDetailingEnd();
             }
           }
         }
@@ -1479,7 +1491,14 @@ function statusRemote( o )
 
       if( o.tags )
       {
-        let tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) );
+
+        if( !tags.length )
+        {
+          result.tags = false;
+          if( result.status === null )
+          result.status = false;
+        }
+
         for( var h = 0; h < tags.length ; h++ )
         {
           let ref = tags[ h ][ 1 ];
@@ -1493,12 +1512,31 @@ function statusRemote( o )
             if( o.explaining )
             result.status = got.output;
             if( !o.detailing )
-            return true;
+            return noDetailingEnd();
           }
         }
       }
 
       return false;
+
+      /*  */
+
+      function noDetailingEnd()
+      {
+        if( o.branches )
+        if( result.branches === null )
+        result.branches = heads.length ? _.maybe : false;
+
+        if( o.commits )
+        if( result.commits === null )
+        result.commits = heads.length ? _.maybe : false;
+
+        if( o.tags )
+        if( result.tags === null )
+        result.tags = tags.length ? _.maybe : false;
+
+        return true;
+      }
     })
 
     return ready;
@@ -1595,8 +1633,8 @@ function status( o )
 
   function remoteCheck( prevStatus )
   {
-    if( prevStatus && !o.detailing )
-    return true;
+    // if( prevStatus && !o.detailing )
+    // return true;
 
     let ready = _.Consequence.Try( () =>
     {
@@ -2110,14 +2148,19 @@ function infoStatus( o )
   o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
 
   if( o.checkingLocalChanges || o.checkingUncommittedLocalChanges || o.checkingUnpushedLocalChanges || o.checkingRemoteChanges )
-  o.changes = _.git.status
-  ({
-    localPath : o.localPath,
-    local : o.checkingLocalChanges,
-    remote : o.checkingRemoteChanges,
-    uncommitted : o.checkingUncommittedLocalChanges,
-    unpushed : o.checkingUnpushedLocalChanges,
-  })
+  {
+    o.changes = _.git.status
+    ({
+      localPath : o.localPath,
+      local : o.checkingLocalChanges,
+      remote : o.checkingRemoteChanges,
+      uncommitted : o.checkingUncommittedLocalChanges,
+      unpushed : o.checkingUnpushedLocalChanges,
+    })
+
+    o.hasLocalChanges = o.changes.local.status === true || _.strDefined( o.changes.local.status );
+    o.hasRemoteChanges = o.changes.remote.status === true || _.strDefined( o.changes.remote.status );
+  }
 
   if( !o.prs.length && !o.changes.status )
   return o;

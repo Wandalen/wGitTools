@@ -5301,6 +5301,266 @@ isRepository.timeOut = 30000;
 
 //
 
+function infoStatus( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+  prepareRepo()
+
+  /* */
+
+  begin()
+  .then( () =>
+  {
+    test.case = 'clean clone'
+    var got = _.git.infoStatus
+    ({
+      localPath : localPath,
+      remotePath : repoPath,
+      checkingLocalChanges : 1,
+      checkingRemoteChanges : 1,
+      checkingPrs : 1,
+      checkingUncommittedLocalChanges : 1,
+      checkingUnpushedLocalChanges : 1
+    });
+
+    test.identical( got.isRepository, true )
+    test.identical( got.hasLocalChanges, false )
+    test.identical( got.hasRemoteChanges, false )
+    test.identical( got.changes.status, false );
+
+    var expectedLocal =
+    {
+      uncommitted: false,
+      uncommittedAdded: false,
+      uncommittedChanged: false,
+      uncommittedCopied: false,
+      uncommittedDeleted: false,
+      uncommittedIgnored: null,
+      uncommittedRenamed: false,
+      uncommittedUntracked: false,
+      unpushed: false,
+      unpushedBranches: null,
+      unpushedCommits: false,
+      unpushedTags: null,
+      status: false
+    }
+    test.identical( got.changes.local, expectedLocal );
+
+    var expectedRemote =
+    {
+      branches: null,
+      commits: false,
+      tags: false,
+      status: false
+    }
+    test.identical( got.changes.remote, expectedRemote );
+
+    test.identical( got.info, null );
+
+    return null;
+  })
+
+  /*  */
+
+  repoNewCommit( 'test1' );
+  begin()
+  shell( 'git commit --allow-empty -m test2' )
+  .then( () =>
+  {
+    debugger
+    test.case = 'new commit'
+    var got = _.git.infoStatus
+    ({
+      localPath : localPath,
+      remotePath : repoPath,
+      checkingLocalChanges : 1,
+      checkingRemoteChanges : 1,
+      checkingPrs : 1,
+      checkingUncommittedLocalChanges : 1,
+      checkingUnpushedLocalChanges : 1
+    });
+
+    test.identical( got.isRepository, true )
+    test.identical( got.hasLocalChanges, true )
+    test.identical( got.hasRemoteChanges, false )
+    test.identical( got.changes.status, true );
+
+    var expectedLocal =
+    {
+      uncommitted: false,
+      uncommittedAdded: false,
+      uncommittedChanged: false,
+      uncommittedCopied: false,
+      uncommittedDeleted: false,
+      uncommittedIgnored: null,
+      uncommittedRenamed: false,
+      uncommittedUntracked: false,
+      unpushed: true,
+      unpushedBranches: null,
+      unpushedCommits: true,
+      unpushedTags: null,
+      status: true
+    }
+    test.identical( got.changes.local, expectedLocal );
+
+    var expectedRemote =
+    {
+      branches: null,
+      commits: false,
+      tags: false,
+      status: false
+    }
+    test.identical( got.changes.remote, expectedRemote );
+
+    test.is( _.strHas( got.info, `Your branch is ahead of 'origin/master' by 1 commit` ) );
+
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    shell2( 'git init --bare' );
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+
+  function repoNewCommit( message )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    con.then( () =>
+    {
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git -C secondary commit --allow-empty -m ' + message )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
+
+  function repoNewCommitToBranch( message, branch )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    let create = true;
+    let secondRepoPath = path.join( testPath, 'secondary' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+
+    con.then( () =>
+    {
+      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
+      create = false;
+      return null;
+    })
+
+    con.then( () =>
+    {
+      let con2 = new _.Consequence().take( null );
+      let shell2 = _.process.starter
+      ({
+        currentPath : testPath,
+        ready : con2
+      })
+
+      if( create )
+      shell2( 'git -C secondary checkout -b ' + branch )
+      else
+      shell2( 'git -C secondary checkout ' + branch )
+
+      shell2( 'git -C secondary commit --allow-empty -m ' + message )
+
+      if( create )
+      shell2( 'git -C secondary push --set-upstream origin ' + branch )
+      else
+      shell2( 'git -C secondary push' )
+
+      return con2;
+    })
+
+    return con;
+  }
+
+}
+
+infoStatus.timeOut = 30000;
+
+//
+
 function gitHooksManager( test )
 {
   let context = this;
@@ -6543,6 +6803,8 @@ var Proto =
     isUpToDate,
     insideRepository,
     isRepository,
+
+    infoStatus,
 
     gitHooksManager,
     gitHooksManagerErrors,
