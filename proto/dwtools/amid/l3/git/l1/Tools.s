@@ -2197,10 +2197,8 @@ function infoStatus( o )
     o.status = _.git.status
     ({
       localPath : o.localPath,
-      local : o.checkingLocalChanges,
-      remote : o.checkingRemoteChanges,
-      uncommitted : o.checkingUncommittedLocalChanges,
-      unpushed : o.checkingUnpushedLocalChanges,
+      local : o.local,
+      remote : o.remote,
       explaining : 1,
       detailing : o.detailing
     })
