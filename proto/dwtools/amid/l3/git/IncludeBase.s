@@ -9,6 +9,7 @@ if( typeof module !== 'undefined' )
 
   _.include( 'wCopyable' );
   _.include( 'wAppBasic' );
+  _.include( 'wFiles' );
 
 }
 

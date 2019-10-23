@@ -1018,7 +1018,7 @@ function statusLocal_body( o )
     return result;
   }
 
-  /* - */
+  /* */
 
   function statusMake()
   {
@@ -1094,7 +1094,7 @@ function statusLocal_body( o )
     return result;
   }
 
-  /* - */
+  /* */
 
   function uncommittedDetailedCheck( output, check, regexp )
   {
@@ -1119,6 +1119,8 @@ function statusLocal_body( o )
 
     return false;
   }
+
+  /* */
 
   function checkTags( got )
   {
@@ -1146,7 +1148,7 @@ function statusLocal_body( o )
     return ready;
   }
 
-  /* - */
+  /* */
 
   function checkBranches( got )
   {
@@ -1799,10 +1801,22 @@ function repositoryInit( o )
     remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
   }
 
+  // o.verbosity = 3;
+
   if( o.remote === null )
   o.remote = !!o.remotePath;
   if( o.local === null )
   o.local = !!o.localPath;
+
+  let start = _.process.starter
+  ({
+    verbosity : o.verbosity - 1,
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+  });
 
   ready
   .then( () =>
@@ -1883,6 +1897,7 @@ function repositoryInit( o )
 
   function remoteInit()
   {
+    debugger;
     if( parsed.service === 'github.com' )
     return repositoryInitOnGithub();
     if( o.throwing )
@@ -1894,110 +1909,131 @@ function repositoryInit( o )
 
   function localInit()
   {
+    debugger;
     _.assert( _.uri.is( o.localPath ) && !_.uri.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
 
     o.localPath = _.path.canonize( o.localPath );
 
-    if( o.remotePath && remoteExists ) /* xxx */
+    if( _.fileProvider.fileExists( o.localPath ) && !_.fileProvider.isDir( o.localPath ) )
+    throw _.err( `Cant clone repository to ${_.color.strFormat( String( o.localPath ), 'path' )}. It is occupied by non-directory.` );
+
+    if( o.remotePath && remoteExists )
     {
 
-      if( _.fileProvider.fileExists( o.localPath ) && !_.fileProvider.isDir( o.localPath ) )
-      throw _.err( `Cant clone repostory to ${_.color.strFormat( String( o.localPath ), 'path' )}. It is occupied by non-directory.` );
+      if( self.isRepository({ localPath : o.localPath }) )
+      return localRepositoryRemoteAdd();
+      else
+      return localRepositoryClone();
 
-      if( o.verbosity )
-      if( _.fileProvider.isDir( o.localPath ) )
-      logger.log( `Directory ${_.color.strFormat( String( o.localPath ), 'path' )} will be moved` );
-
-      if( o.verbosity )
-      logger.log( `Cloning repository from ${_.color.strFormat( String( o.remotePath ), 'path' )} to ${_.color.strFormat( String( o.localPath ), 'path' )}` );
-
-      if( o.dry )
-      return null;
-
-      let downloadPath = o.localPath;
-      if( _.fileProvider.isDir( o.localPath ) )
-      {
-        downloadPath = _.path.join( o.localPath + '-' + _.idWithGuid() );
-      }
-
-      _.fileProvider.dirMake( downloadPath );
-
-      let start = _.process.starter
-      ({
-        verbosity : o.verbosity - 1,
-        sync : 0,
-        deasync : 0,
-        outputCollecting : 1,
-        mode : 'spawn',
-        currentPath : downloadPath,
-      });
-
-      return start( `git clone ${nativeRemotePath} .` )
-      .finally( ( err, arg ) =>
-      {
-        if( err )
-        {
-          debugger;
-          _.fileProvider.filesDelete( downloadPath );
-          throw err;
-        }
-        try
-        {
-          let o2 =
-          {
-            dst : o.localPath,
-            src : downloadPath,
-            dstRewriting : 1,
-            dstRewritingOnlyPreserving : 1,
-            linking : 'hardLink',
-          }
-          _.fileProvider.filesReflect( o2 );
-          debugger;
-        }
-        catch( err )
-        {
-          _.fileProvider.filesDelete( downloadPath );
-          throw _.err( err, `\nCollision of local files with remote files at ${_.color.strFormat( String( o.localPath ), 'path' )}` );
-        }
-        _.fileProvider.filesDelete( downloadPath );
-        return arg;
-      });
     }
     else
     {
 
-      let start = _.process.starter
-      ({
-        verbosity : o.verbosity - 1,
-        sync : 0,
-        deasync : 0,
-        outputCollecting : 1,
-        mode : 'spawn',
-        currentPath : o.localPath,
-      });
-
       if( self.isRepository({ localPath : o.localPath }) )
-      {
-        if( o.verbosity )
-        logger.log( `Adding origin ${_.color.strFormat( String( o.remotePath ), 'path' )} to local repository ${_.color.strFormat( String( o.localPath ), 'path' )}` );
-        if( o.dry )
-        return null;
-        if( _.git.remotePathFromLocal( o.localPath ) )
-        start( `git remote rm origin` );
-        return start( `git remote add origin ${nativeRemotePath}` );
-      }
+      return localRepositoryRemoteAdd();
       else
-      {
-        if( o.verbosity )
-        logger.log( `Making a new local repository at ${_.color.strFormat( String( o.localPath ), 'path' )}` );
-        if( o.dry )
-        return null;
-        _.fileProvider.dirMake( o.localPath );
-        start( `git init .` );
-        return start( `git remote add origin ${nativeRemotePath}` );
-      }
+      return localRepositoryNew();
 
     }
+  }
+
+  /**/
+
+  function localRepositoryNew()
+  {
+    if( o.verbosity )
+    logger.log( `Making a new local repository at ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    if( o.dry )
+    return null;
+    _.fileProvider.dirMake( o.localPath );
+    start( `git init .` );
+    return start( `git remote add origin ${nativeRemotePath}` );
+  }
+
+  /**/
+
+  function localRepositoryRemoteAdd()
+  {
+    let wasRemotePath = _.git.remotePathFromLocal( o.localPath );
+    if( wasRemotePath )
+    {
+      if( wasRemotePath !== o.remotePath )
+      throw _.err( `Repository at ${o.localPath} already exists, but has different origin ${wasRemotePath}` );
+      return null;
+    }
+    if( o.verbosity )
+    logger.log( `Adding origin ${_.color.strFormat( String( o.remotePath ), 'path' )} to local repository ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    if( o.dry )
+    return null;
+    // if( _.git.remotePathFromLocal( o.localPath ) )
+    // start( `git remote rm origin` );
+    return start( `git remote add origin ${nativeRemotePath}` );
+  }
+
+  /**/
+
+  function localRepositoryClone()
+  {
+
+    if( o.verbosity )
+    if( _.fileProvider.isDir( o.localPath ) )
+    logger.log( `Directory ${_.color.strFormat( String( o.localPath ), 'path' )} will be moved` );
+
+    if( o.verbosity )
+    logger.log( `Cloning repository from ${_.color.strFormat( String( o.remotePath ), 'path' )} to ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+
+    if( o.dry )
+    return null;
+
+    let downloadPath = o.localPath;
+    if( _.fileProvider.isDir( o.localPath ) )
+    {
+      downloadPath = _.path.join( o.localPath + '-' + _.idWithGuid() );
+    }
+
+    _.fileProvider.dirMake( downloadPath );
+
+    let start = _.process.starter
+    ({
+      verbosity : o.verbosity - 1,
+      sync : 0,
+      deasync : 0,
+      outputCollecting : 1,
+      mode : 'spawn',
+      currentPath : downloadPath,
+    });
+
+    return start( `git clone ${nativeRemotePath} .` )
+    .finally( ( err, arg ) =>
+    {
+      if( err )
+      {
+        debugger;
+        _.fileProvider.filesDelete( downloadPath );
+        throw err;
+      }
+      try
+      {
+        let o2 =
+        {
+          dst : o.localPath,
+          src : downloadPath,
+          dstRewriting : 1,
+          dstRewritingOnlyPreserving : 1,
+          linking : 'hardLink',
+        }
+        _.fileProvider.filesReflect( o2 );
+        debugger;
+      }
+      catch( err )
+      {
+        _.fileProvider.filesDelete( downloadPath );
+        throw _.err( err, `\nCollision of local files with remote files at ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+      }
+      _.fileProvider.filesDelete( downloadPath );
+      return arg;
+    });
+
   }
 
   /**/
@@ -2089,8 +2125,6 @@ function repositoryDelete( o )
       if( o.dry )
       return true;
 
-      debugger;
-
       let github = require( 'octonode' );
       let client = github.client( o.token );
       let repo = client.repo( `${parsed.user}/${parsed.repo}` );
@@ -2098,7 +2132,6 @@ function repositoryDelete( o )
     })
     .then( ( result ) =>
     {
-      debugger;
       return result[ 0 ] || null;
     });
     return ready;
@@ -2142,6 +2175,7 @@ function infoStatus( o )
   o.hasLocalChanges = null;
   o.hasRemoteChanges = null;
   o.isRepository = null;
+  if( o.prs )
   o.prs = [];
 
   if( !o.localPath && o.insidePath )
@@ -2155,12 +2189,12 @@ function infoStatus( o )
   if( !o.remotePath )
   o.remotePath = _.git.remotePathFromLocal( o.localPath );
 
-  if( o.checkingPrs )
+  if( o.prs )
   o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
 
   if( o.checkingLocalChanges || o.checkingUncommittedLocalChanges || o.checkingUnpushedLocalChanges || o.checkingRemoteChanges )
   {
-    o.changes = _.git.status
+    o.status = _.git.status
     ({
       localPath : o.localPath,
       local : o.checkingLocalChanges,
@@ -2169,34 +2203,42 @@ function infoStatus( o )
       unpushed : o.checkingUnpushedLocalChanges,
     })
 
-    o.hasLocalChanges = o.changes.local.status === true || _.strDefined( o.changes.local.status );
-    o.hasRemoteChanges = o.changes.remote.status === true || _.strDefined( o.changes.remote.status );
+    o.hasLocalChanges = o.status.local.status;
+    o.hasRemoteChanges = o.status.remote.status;
   }
 
-  if( !o.prs.length && !o.changes.status )
+  if( !o.prs.length && !o.hasLocalChanges && !o.hasRemoteChanges )
   return o;
 
-  _.process.start
-  ({
-    execPath : 'git status',
-    outputPiping : 0,
-    inputMirroring : 0,
-    currentPath : o.localPath,
-    outputCollecting : 1,
-    outputGraying : 1,
-    mode : 'spawn',
-    deasync : 1,
-    sync : 0,
-  })
-  .then( ( op ) =>
-  {
-    o.info = '';
-    if( o.prs && o.prs.length )
-    o.info += `Has ${o.prs.length} opened pull requests\n`;
-    o.info += op.output + '\n';
-    return op;
-  })
-  .catchBrief();
+  o.status = o.status || '';
+
+  if( o.hasRemoteChanges )
+  o.status += 'Has some remote changes\n' + o.status;
+
+  if( o.prs && o.prs.length )
+  o.status += `Has ${o.prs.length} opened pull requests\n` + o.status;
+
+  // _.process.start
+  // ({
+  //   execPath : 'git status',
+  //   outputPiping : 0,
+  //   inputMirroring : 0,
+  //   currentPath : o.localPath,
+  //   outputCollecting : 1,
+  //   outputGraying : 1,
+  //   mode : 'spawn',
+  //   deasync : 1,
+  //   sync : 0,
+  // })
+  // .then( ( op ) =>
+  // {
+  //   o.info = '';
+  //   if( o.prs && o.prs.length )
+  //   o.info += `Has ${o.prs.length} opened pull requests\n`;
+  //   o.info += op.output + '\n';
+  //   return op;
+  // })
+  // .catchBrief();
 
   return o;
 }
@@ -2206,12 +2248,19 @@ infoStatus.defaults =
   insidePath : null,
   localPath : null,
   remotePath : null,
-  checkingLocalChanges : 1,
-  checkingUncommittedLocalChanges : 1,
-  checkingUnpushedLocalChanges : 1,
-  checkingRemoteChanges : 1,
-  checkingPrs : 1,
+  local : 1,
+  remote : 1,
+  prs : 1,
+  detailing : 1,
+  explaining : 1,
+  // checkingLocalChanges : 1,
+  // uncommitted : 1,
+  // unpushed : 1,
+  // checkingRemoteChanges : 1,
+  // checkingPrs : 1,
 }
+
+_.mapSupplement( infoStatus.defaults, statusLocal.defaults );
 
 //
 
