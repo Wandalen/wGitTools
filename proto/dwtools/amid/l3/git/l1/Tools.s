@@ -987,30 +987,11 @@ function statusLocal_body( o )
       return true;
     }
 
-    /*
-    check for unpushed commits/tags/branches
-    */
-
-    if( o.unpushedCommits )
-    {
-      result.unpushedCommits = _.strHas( output[ 0 ], /\[ahead.*\]/ );
-
-      if( result.unpushed === null )
-      result.unpushed = result.unpushedCommits;
-
-      if( result.unpushedCommits )
-      {
-        result.unpushed = true;
-
-        if( o.explaining )
-        result.unpushedCommits = output[ 0 ];
-        if( !o.detailing )
-        return true;
-      }
-    }
-
     return false;
   })
+
+  if( o.checkUnpushedCommits )
+  ready.then( checkUnpushedCommits )
 
   if( o.unpushedTags )
   ready.then( checkTags )
@@ -1190,6 +1171,36 @@ function statusLocal_body( o )
       }
       return false;
     })
+    return ready;
+  }
+
+  /* - */
+
+  function checkUnpushedCommits( got )
+  {
+    if( got )
+    return true;
+
+    let ready = _.Consequence.Try( () => start( 'git branch -vv' ) );
+
+    ready.then( ( got ) =>
+    {
+      result.unpushedCommits = _.strHas( got.output, /\[.*ahead .*\]/gm );
+
+      if( result.unpushed === null )
+      result.unpushed = result.unpushedCommits;
+
+      if( result.unpushedCommits )
+      {
+        result.unpushed = true;
+
+        if( o.explaining )
+        result.unpushedCommits = got.output;
+        if( !o.detailing )
+        return true;
+      }
+    })
+
     return ready;
   }
 
