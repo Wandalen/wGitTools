@@ -1039,18 +1039,22 @@ function statusLocal_body( o )
 
   /* - */
 
-  function statusMake( got )
+  function statusMake()
   {
     if( o.explaining )
     {
       result.status = '';
 
       if( optimizedCheck )
-      result.status += result.uncommitted + '\n'
+      {
+        result.status += result.uncommitted + '\n'
+      }
       else
-      explanationCollect( statusLocal_body.uncommittedGroup )
+      {
+        explanationCollect( statusLocal_body.uncommittedGroup, 'uncommitted'  )
+      }
 
-      explanationCollect( statusLocal_body.unpushedGroup )
+      explanationCollect( statusLocal_body.unpushedGroup, 'unpushed' );
     }
     else
     {
@@ -1072,13 +1076,27 @@ function statusLocal_body( o )
 
   }
 
-  function explanationCollect( checksMap )
+  function explanationCollect( checksMap, statusField )
   {
+    let explanation = '';
     _.each( checksMap, ( k ) =>
     {
       if( _.strIs( result[ k ] ) )
-      result.status += result[ k ] + '\n';
+      {
+        if( explanation.length )
+        explanation += '\n';
+        explanation += result[ k ];
+      }
     })
+
+    if( !explanation )
+    return;
+
+    if( result.status.length )
+    result.status += '\n';
+    result.status += explanation;
+
+    result[ statusField ] = explanation;
   }
 
   function resultPrepare()
@@ -1109,7 +1127,11 @@ function statusLocal_body( o )
       result.uncommitted = true;
 
       if( o.explaining )
-      result[ check ] = output.match( regexp );
+      {
+        result[ check ] = output.match( regexp );
+        if( _.arrayIs( result[ check ] ) )
+        result[ check ] = result[ check ].join( '\n' );
+      }
       if( !o.detailing )
       return true;
     }

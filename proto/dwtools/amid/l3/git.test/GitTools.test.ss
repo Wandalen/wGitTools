@@ -2638,7 +2638,7 @@ statusLocal.timeOut = 30000;
 
 //
 
-function statusLocalExplaining( test )
+function statusLocalExplainingTrivial( test )
 {
   let context = this;
   let provider = context.provider;
@@ -2668,7 +2668,7 @@ function statusLocalExplaining( test )
   provider.dirMake( testPath )
   prepareRepo()
 
-  // /*  */
+  /*  */
 
   prepareRepo()
   repoNewCommit( 'init' )
@@ -2679,19 +2679,72 @@ function statusLocalExplaining( test )
     var got = _.git.statusLocal({ localPath, unpushed : 1, uncommitted : 1, detailing : 1, explaining : 1 });
     var expected =
     {
-      'unpushedCommits' : '## master...origin/master [ahead 1]',
+      'uncommitted' : false,
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
       'uncommittedDeleted' : false,
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
-      'uncommittedIgnored' : _.maybe,
-      'unpushedTags' : _.maybe,
-      'unpushedBranches' : _.maybe,
+      'uncommittedIgnored' : null,
+      'unpushed' : '## master...origin/master [ahead 1]',
+      'unpushedCommits' : '## master...origin/master [ahead 1]',
+      'unpushedTags' : null,
+      'unpushedBranches' : null,
       'status' : '## master...origin/master [ahead 1]'
     }
     test.identical( got, expected )
+    return null;
+  })
+
+  //
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  shell( 'git commit --allow-empty -am "no desc"' )
+  .then( () =>
+  {
+    _.fileProvider.fileWrite( filePath, filePath );
+    return null;
+  })
+  shell( 'git tag sometag' )
+  shell( 'git checkout -b somebranch' )
+  shell( 'git checkout master' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      unpushed : 1,
+      unpushedBranches : 1,
+      unpushedTags : 1,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1
+    });
+    var expected =
+    {
+      'uncommitted' : '?? newFile',
+      'uncommittedUntracked' : '?? newFile',
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : null,
+      'unpushedCommits' : '## master...origin/master [ahead 1]',
+    }
+    test.is( _.strHas( got.unpushed, '[new branch]      somebranch -> somebranch' ) )
+    test.is( _.strHas( got.unpushedBranches, '[new branch]      somebranch -> somebranch' ) )
+    test.is( _.strHas( got.unpushed, '[new tag]         sometag -> sometag' ) )
+    test.is( _.strHas( got.unpushedTags, '[new tag]         sometag -> sometag' ) )
+
+    test.is( _.strHas( got.status, '?? newFile' ) )
+    test.is( _.strHas( got.status, '[new branch]      somebranch -> somebranch' ) )
+    test.is( _.strHas( got.status, '[new tag]         sometag -> sometag' ) )
+
+    test.contains( got, expected )
     return null;
   })
 
@@ -2756,7 +2809,7 @@ function statusLocalExplaining( test )
   }
 }
 
-statusLocalExplaining.timeOut = 30000;
+statusLocalExplainingTrivial.timeOut = 30000;
 
 //
 
@@ -5475,7 +5528,7 @@ var Proto =
     versionsPull,
 
     statusLocal,
-    statusLocalExplaining,
+    statusLocalExplainingTrivial,
     hasLocalChanges,
     hasRemoteChanges,
 
