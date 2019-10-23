@@ -2192,7 +2192,7 @@ function infoStatus( o )
   if( o.prs )
   o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
 
-  if( o.checkingLocalChanges || o.checkingUncommittedLocalChanges || o.checkingUnpushedLocalChanges || o.checkingRemoteChanges )
+  if( o.local || o.remote )
   {
     o.status = _.git.status
     ({
@@ -2203,8 +2203,8 @@ function infoStatus( o )
       detailing : o.detailing
     })
 
-    o.hasLocalChanges = o.status.local.status;
-    o.hasRemoteChanges = o.status.remote.status;
+    o.hasLocalChanges = !!o.status.local.status;
+    o.hasRemoteChanges = !!o.status.remote.status;
   }
 
   if( !o.prs.length && !o.hasLocalChanges && !o.hasRemoteChanges )
