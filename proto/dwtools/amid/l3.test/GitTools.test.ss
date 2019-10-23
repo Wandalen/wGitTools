@@ -4658,6 +4658,82 @@ hasChanges.timeOut = 30000;
 
 //
 
+function hasLocalChangesSpecial( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath );
+
+  /*  */
+
+  begin()
+  shell( 'git remote add origin ' + remotePath )
+  shell( 'git commit --allow-empty -m test' )
+  // shell( 'git status -b --porcelain -u' )
+  // shell( 'git push --dry-run' )
+  .then( () =>
+  {
+    debugger
+    var got = _.git.hasLocalChanges
+    ({
+      localPath,
+      unpushed : 1,
+      uncommitted : 1,
+      uncommittedIgnored : 1,
+      unpushedCommits : 1,
+      unpushedBranches : 1,
+      unpushedTags: 0
+    })
+
+    test.identical( got, true )
+
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /*  */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( localPath );
+      provider.dirMake( localPath );
+      return shell({ execPath : 'git init', ready : null });
+    })
+
+    return con;
+  }
+}
+
+//
+
 function isDownloaded( test )
 {
   let context = this;
@@ -5351,7 +5427,7 @@ function infoStatus( test )
     test.identical( got.isRepository, true )
     test.identical( got.hasLocalChanges, false )
     test.identical( got.hasRemoteChanges, false )
-    test.identical( got.status.status, false );
+    test.identical( got.status.status, '' );
 
     var expectedLocal =
     {
@@ -5380,8 +5456,6 @@ function infoStatus( test )
     }
     test.identical( got.status.remote, expectedRemote );
 
-    test.identical( got.info, null );
-
     return null;
   })
 
@@ -5406,7 +5480,7 @@ function infoStatus( test )
     test.identical( got.isRepository, true )
     test.identical( got.hasLocalChanges, true )
     test.identical( got.hasRemoteChanges, false )
-    test.identical( got.status.status, true );
+    test.is( _.strDefined( got.status.status ) );
 
     var expectedLocal =
     {
@@ -5418,13 +5492,13 @@ function infoStatus( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
-      unpushed: true,
       unpushedBranches: false,
-      unpushedCommits: true,
       unpushedTags: null,
-      status: true
     }
-    test.identical( got.status.local, expectedLocal );
+    test.contains( got.status.local, expectedLocal );
+    test.is( _.strDefined( got.status.local.unpushed ) );
+    test.is( _.strDefined( got.status.local.unpushedCommits ) );
+    test.is( _.strDefined( got.status.local.status ) );
 
     var expectedRemote =
     {
@@ -5434,8 +5508,6 @@ function infoStatus( test )
       status: false
     }
     test.identical( got.status.remote, expectedRemote );
-
-    // test.is( _.strHas( got.info, `Your branch is ahead of 'origin/master' by 1 commit` ) );
 
     return null;
   })
@@ -6795,6 +6867,7 @@ var Proto =
     hasLocalChanges,
     hasRemoteChanges,
     hasChanges,
+    hasLocalChangesSpecial,
 
     isDownloaded,
     isDownloadedFromRemote,
