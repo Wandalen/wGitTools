@@ -1545,7 +1545,6 @@ function repositoryInit( o )
   })
   .finally( ( err, arg ) =>
   {
-    debugger;
     if( err )
     if( !o.throwing )
     {
@@ -1588,7 +1587,7 @@ function repositoryInit( o )
       let github = require( 'octonode' );
       let client = github.client( o.token );
       let me = client.me();
-      debugger;
+
       return me.repoAsync
       ({
         'name' : parsed.repo,
@@ -1607,7 +1606,6 @@ function repositoryInit( o )
 
   function remoteInit()
   {
-    debugger;
     if( parsed.service === 'github.com' )
     return repositoryInitOnGithub();
     if( o.throwing )
@@ -1619,7 +1617,6 @@ function repositoryInit( o )
 
   function localInit()
   {
-    debugger;
     _.assert( _.uri.is( o.localPath ) && !_.uri.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
 
     o.localPath = _.path.canonize( o.localPath );
