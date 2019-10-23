@@ -2201,6 +2201,8 @@ function infoStatus( o )
       remote : o.checkingRemoteChanges,
       uncommitted : o.checkingUncommittedLocalChanges,
       unpushed : o.checkingUnpushedLocalChanges,
+      explaining : 1,
+      detailing : o.detailing
     })
 
     o.hasLocalChanges = o.status.local.status;
@@ -2252,7 +2254,7 @@ infoStatus.defaults =
   remote : 1,
   prs : 1,
   detailing : 1,
-  explaining : 1,
+  // explaining : 1,
   // checkingLocalChanges : 1,
   // uncommitted : 1,
   // unpushed : 1,
