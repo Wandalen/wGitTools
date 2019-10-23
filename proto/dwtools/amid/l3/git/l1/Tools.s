@@ -913,29 +913,46 @@ function statusLocal_body( o )
   if( o.uncommittedIgnored )
   statusArgs.push( '--ignored' );
 
-  let result = Object.create( null );
+  let result = resultPrepare();
 
-  _.each( statusLocal_body.uncommittedGroup, ( k ) => { result[ k ] = _.maybe } )
-  _.each( statusLocal_body.unpushedGroup, ( k ) => { result[ k ] = _.maybe } )
+  let optimizedCheck =  o.uncommittedUntracked && o.uncommittedAdded &&
+                        o.uncommittedChanged && o.uncommittedDeleted &&
+                        o.uncommittedRenamed && o.uncommittedCopied  &&
+                        !o.detailing;
 
   let ready = _.Consequence.Try( () => start({ execPath : 'git status', args : statusArgs }) )
 
   .then( ( got ) =>
   {
     let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+
     /*
     check for any changes, except new commits/tags/branches
     */
 
-    let optimizedCheck =  o.uncommittedUntracked && o.uncommittedAdded &&
-                          o.uncommittedChanged && o.uncommittedDeleted &&
-                          o.uncommittedRenamed && o.uncommittedCopied  &&
-                          !o.detailing;
-
     if( optimizedCheck )
     {
-      if( output.length > 1 )
-      return true;
+      result.uncommitted = output.length > 1;
+
+      _.each( statusLocal_body.uncommittedGroup, ( k ) =>
+      {
+        if( o[ k ] )
+        result[ k ] = result.uncommitted ? _.maybe : false;
+      })
+
+      if( result.uncommitted )
+      {
+        result.unpushed = _.maybe;
+        _.each( statusLocal_body.unpushedGroup, ( k ) =>
+        {
+          if( o[ k ] )
+          result[ k ] = _.maybe;
+        })
+
+        if( o.explaining )
+        result.uncommitted = got.output;
+        return true;
+      }
     }
     else
     {
@@ -970,24 +987,11 @@ function statusLocal_body( o )
       return true;
     }
 
-    /*
-    check for unpushed commits/tags/branches
-    */
-
-    if( o.unpushedCommits )
-    {
-      result.unpushedCommits = _.strHas( output[ 0 ], /\[ahead.*\]/ );
-      if( result.unpushedCommits )
-      {
-        if( o.explaining )
-        result.unpushedCommits = output[ 0 ];
-        if( !o.detailing )
-        return true;
-      }
-    }
-
     return false;
   })
+
+  if( o.unpushedCommits )
+  ready.then( checkUnpushedCommits )
 
   if( o.unpushedTags )
   ready.then( checkTags )
@@ -1009,32 +1013,85 @@ function statusLocal_body( o )
     if( err )
     throw _.err( err, `\nFailed to check if repository ${_.color.strFormat( String( o.localPath ), 'path' )} has local changes` );
 
-    result.status = statusMake( got );
+    statusMake();
 
     return result;
   }
 
   /* */
 
-  function statusMake( got )
+  function statusMake()
   {
-    if( !o.detailing )
-    return got;
-
     if( o.explaining )
     {
-      let status = '';
+      result.status = '';
+
+      if( optimizedCheck )
+      {
+        result.status += result.uncommitted + '\n'
+      }
+      else
+      {
+        explanationCollect( statusLocal_body.uncommittedGroup, 'uncommitted'  )
+      }
+
+      explanationCollect( statusLocal_body.unpushedGroup, 'unpushed' );
+    }
+    else
+    {
       for( let k in result )
-      if( _.strIs( result[ k ] ) )
-      status += result[ k ] + '\n';
-      return status;
+      {
+        if( result[ k ] === true )
+        {
+          result.status = true;
+          break
+        }
+        else if( result[ k ] === false )
+        {
+          result.status = result[ k ];
+        }
+      }
     }
 
-    for( let k in result )
-    if( result[ k ] === true )
-    return true;
 
-    return false;
+
+  }
+
+  function explanationCollect( checksMap, statusField )
+  {
+    let explanation = '';
+    _.each( checksMap, ( k ) =>
+    {
+      if( _.strIs( result[ k ] ) )
+      {
+        if( explanation.length )
+        explanation += '\n';
+        explanation += result[ k ];
+      }
+    })
+
+    if( !explanation )
+    return;
+
+    if( result.status.length )
+    result.status += '\n';
+    result.status += explanation;
+
+    result[ statusField ] = explanation;
+  }
+
+  function resultPrepare()
+  {
+    let result = Object.create( null );
+
+    result.uncommitted = null;
+    result.unpushed = null;
+    result.status = null;
+
+    _.each( statusLocal_body.uncommittedGroup, ( k ) => { result[ k ] = null } )
+    _.each( statusLocal_body.unpushedGroup, ( k ) => { result[ k ] = null } )
+
+    return result;
   }
 
   /* */
@@ -1042,13 +1099,24 @@ function statusLocal_body( o )
   function uncommittedDetailedCheck( output, check, regexp )
   {
     result[ check ] = _.strHas( output, regexp );
+
+    if( result.uncommitted === null )
+    result.uncommitted = result[ check ];
+
     if( result[ check ] )
     {
+      result.uncommitted = true;
+
       if( o.explaining )
-      result[ check ] = output.match( regexp );
+      {
+        result[ check ] = output.match( regexp );
+        if( _.arrayIs( result[ check ] ) )
+        result[ check ] = result[ check ].join( '\n' );
+      }
       if( !o.detailing )
       return true;
     }
+
     return false;
   }
 
@@ -1063,8 +1131,13 @@ function statusLocal_body( o )
     ready.then( ( got ) =>
     {
       result.unpushedTags = _.strHas( got.output, '[new tag]' )
+
+      if( result.unpushed === null )
+      result.unpushed = result.unpushedTags;
+
       if( result.unpushedTags )
       {
+        result.unpushed = true;
         if( o.explaining )
         result.unpushedTags = got.output;
         if( !o.detailing )
@@ -1082,12 +1155,41 @@ function statusLocal_body( o )
     if( got )
     return true;
 
-    let ready = _.Consequence.Try( () => start( 'git push --all --dry-run' ) );
+    let o =
+    {
+      execPath : 'git branch',
+      args :
+      [
+       '-vv',
+       `--format={ "branch" : "%(refname:short)", "upstream" : "%(upstream)" }`
+      ]
+    };
+
+    let ready = _.Consequence.Try( () => start( o ) );
     ready.then( ( got ) =>
     {
-      result.unpushedBranches = _.strHas( got.output, '[new branch]' );
+      let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+      let branches = output.map( ( src ) => JSON.parse( src ) );
+
+      result.unpushedBranches = false;
+
+      for( let i = 0; i < branches.length; i++ )
+      {
+        let branch = branches[ i ];
+        _.assert( _.strIs( branch.upstream ) );
+        if( !branch.upstream.length )
+        {
+          result.unpushedBranches = true;
+          break;
+        }
+      }
+
+      if( result.unpushed === null )
+      result.unpushed = result.unpushedBranches;
+
       if( result.unpushedBranches )
       {
+        result.unpushed = true;
         if( o.explaining )
         result.unpushedBranches = got.output;
         if( !o.detailing )
@@ -1095,6 +1197,38 @@ function statusLocal_body( o )
       }
       return false;
     })
+    return ready;
+  }
+
+  /* - */
+
+  function checkUnpushedCommits( got )
+  {
+    if( got )
+    return true;
+
+    let ready = _.Consequence.Try( () => start( 'git branch -vv' ) );
+
+    ready.then( ( got ) =>
+    {
+      result.unpushedCommits = _.strHas( got.output, /\[.*ahead .*\]/gm );
+
+      if( result.unpushed === null )
+      result.unpushed = result.unpushedCommits;
+
+      if( result.unpushedCommits )
+      {
+        result.unpushed = true;
+
+        if( o.explaining )
+        result.unpushedCommits = got.output;
+        if( !o.detailing )
+        return true;
+      }
+
+      return false;
+    })
+
     return ready;
   }
 
@@ -1118,7 +1252,7 @@ defaults.uncommittedIgnored = 0;
 defaults.unpushed = 1;
 defaults.unpushedCommits = null;
 defaults.unpushedTags = 0;
-defaults.unpushedBranches = 0;
+defaults.unpushedBranches = 1;
 
 defaults.detailing = 0;
 defaults.explaining = 0;
@@ -1148,8 +1282,15 @@ let statusLocal = _.routineFromPreAndBody( statusLocal_pre, statusLocal_body );
 function hasLocalChanges()
 {
   let result = statusLocal.apply( this, arguments );
+
   _.assert( result.status !== undefined );
+
+  if( _.boolIs( result.status ) )
   return result.status;
+  if( _.strIs( result.status ) && result.length )
+  return true;
+
+  return false;
 }
 
 _.routineExtend( hasLocalChanges, statusLocal )
@@ -1252,12 +1393,12 @@ _.routineExtend( hasLocalChanges, statusLocal )
   if branch is not listed in `git branch` but exists in ouput of reflog, then branch was deleted
 */
 
-function hasRemoteChanges( o )
+function statusRemote( o )
 {
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( hasRemoteChanges, o );
+  _.routineOptions( statusRemote, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
 
@@ -1267,13 +1408,21 @@ function hasRemoteChanges( o )
     mode : 'shell',
     sync : o.sync,
     deasync : 0,
-    throwingExitCode : 1,
+    throwingExitCode : 0,
     outputCollecting : 1,
     outputPiping : 0,
     inputMirroring : 0,
     stdio : [ 'pipe', 'pipe', 'ignore' ],
     verbosity : o.verbosity - 1
   });
+
+  let result =
+  {
+    commits : null,
+    branches : null,
+    tags : null,
+    status : null
+  }
 
   let remotes;
   let ready = _.Consequence.Try( () =>
@@ -1291,10 +1440,12 @@ function hasRemoteChanges( o )
     remotes = remotes.slice( 1 );
     return check();
   })
-  .catch( ( err ) =>
+  .finally( ( err, got ) =>
   {
     if( err )
     throw _.err( err, '\nFailed to check if remote repository has changes' );
+
+    return result;
   })
 
   if( o.sync )
@@ -1317,44 +1468,114 @@ function hasRemoteChanges( o )
     let ready = _.Consequence.Try( () => start( 'git show-ref --heads --tags' ) )
     .then( ( got ) =>
     {
+      let heads = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/heads' ) );
+      let tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) );
+
       if( o.branches || o.commits )
       {
-        let heads = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/heads' ) );
+        if( !heads.length )
+        {
+          if( o.branches )
+          result.branches = false;
+          if( o.commits )
+          result.commits = false;
+          if( result.status = null )
+          result.status = false;
+        }
+
         for( var h = 0; h < heads.length ; h++ )
         {
           let hash = heads[ h ][ 0 ];
           let ref = heads[ h ][ 1 ];
 
           if( o.branches )
-          if( !_.strHas( got.output, ref ) )
-          return true;
+          {
+            result.branches = !_.strHas( got.output, ref )
+
+            if( !result.status )
+            result.status = result.branches;
+
+            if( result.branches )
+            {
+              if( o.explaining )
+              result.status = got.output;
+              if( !o.detailing )
+              return noDetailingEnd();
+            }
+          }
 
           if( o.commits )
           {
-            let result = start
+            let startResult = start
             ({
               execPath : `git branch --contains ${hash} --quiet --format=%(refname)`,
               throwingExitCode : 0,
               sync : 1
             });
-            if( !_.strHas( result.output, ref ) )
-            return true;
+            result.commits = !_.strHas( startResult.output, ref );
+
+            if( !result.status )
+            result.status = result.commits;
+
+            if( result.commits )
+            {
+              if( o.explaining )
+              result.status = got.output;
+              if( !o.detailing )
+              return noDetailingEnd();
+            }
           }
         }
       }
 
       if( o.tags )
       {
-        let tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) );
+
+        if( !tags.length )
+        {
+          result.tags = false;
+          if( result.status === null )
+          result.status = false;
+        }
+
         for( var h = 0; h < tags.length ; h++ )
         {
           let ref = tags[ h ][ 1 ];
-          if( !_.strHas( got.output, ref ) )
-          return true;
+          result.tags = !_.strHas( got.output, ref );
+
+          if( !result.status )
+          result.status = result.tags;
+
+          if( result.tags )
+          {
+            if( o.explaining )
+            result.status = got.output;
+            if( !o.detailing )
+            return noDetailingEnd();
+          }
         }
       }
 
       return false;
+
+      /*  */
+
+      function noDetailingEnd()
+      {
+        if( o.branches )
+        if( result.branches === null )
+        result.branches = heads.length ? _.maybe : false;
+
+        if( o.commits )
+        if( result.commits === null )
+        result.commits = heads.length ? _.maybe : false;
+
+        if( o.tags )
+        if( result.tags === null )
+        result.tags = tags.length ? _.maybe : false;
+
+        return true;
+      }
     })
 
     return ready;
@@ -1364,15 +1585,35 @@ function hasRemoteChanges( o )
 
 }
 
-var defaults = hasRemoteChanges.defaults = Object.create( null );
+var defaults = statusRemote.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.commits = 1;
 defaults.branches = 0;
 defaults.tags = 1;
+defaults.detailing = 0;
+defaults.explaining = 0;
 // defaults.branches = 1; /* qqq : ? */
 // defaults.tags = 0; /* qqq : ? */
 defaults.sync = 1;
+
+//
+
+function hasRemoteChanges()
+{
+  let result = statusRemote.apply( this, arguments );
+
+  _.assert( result.status !== undefined );
+
+  if( _.boolIs( result.status ) )
+  return result.status;
+  if( _.strIs( result.status ) && result.length )
+  return true;
+
+  return false;
+}
+
+_.routineExtend( hasRemoteChanges, statusRemote )
 
 //
 
@@ -1380,25 +1621,49 @@ defaults.sync = 1;
 qqq : option returningMap required
 */
 
-function hasChanges( o )
+function status( o )
 {
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( hasChanges, o );
+  _.routineOptions( status, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
+
+  let result =
+  {
+    local : null,
+    remote : null,
+    status : null
+  }
 
   let ready = _.Consequence.Try( () =>
   {
     if( o.local )
-    return this.hasLocalChanges( _.mapOnly( o, this.hasLocalChanges.defaults ) );
-    return false;
+    return statusLocal.call( this, _.mapOnly( o, this.statusLocal.defaults ) );
+    return null;
   })
-  .then( ( result ) =>
+  .then( ( localStatus ) =>
   {
-    if( !result && o.remote )
-    return this.hasRemoteChanges( _.mapOnly( o, this.hasRemoteChanges.defaults ) );
+    result.local = localStatus;
+    return statusOk( result.local );
+  })
+
+  if( o.remote )
+  ready.then( remoteCheck );
+
+  ready.then( () =>
+  {
+    result.status = statusOk( result.local ) || statusOk( result.remote );
+
+    if( o.explaining )
+    {
+      if( result.status )
+      result.status = [ result.local.status, result.remote.status ].join( '\n' );
+      else
+      result.status = '';
+    }
+
     return result;
   })
 
@@ -1406,9 +1671,44 @@ function hasChanges( o )
   return ready.syncMaybe();
 
   return ready;
+
+  /*  */
+
+  function remoteCheck( prevStatus )
+  {
+    // if( prevStatus && !o.detailing )
+    // return true;
+
+    let ready = _.Consequence.Try( () =>
+    {
+      return statusRemote.call( this, _.mapOnly( o, statusRemote.defaults ) );
+    })
+
+    ready.then( ( remoteStatus ) =>
+    {
+      result.remote = remoteStatus;
+      return remoteStatus;
+    })
+
+    return ready;
+  }
+
+  function statusOk( statusMap )
+  {
+    if( !statusMap )
+    return false;
+
+    if( statusMap.status === true || _.strDefined( statusMap.status ) )
+    return true;
+
+    return false;
+  }
 }
 
-var defaults = hasChanges.defaults = Object.create( null );
+_.routineExtend( status, statusLocal )
+_.routineExtend( status, statusRemote )
+
+var defaults = status.defaults;
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.sync = 1;
@@ -1416,6 +1716,26 @@ defaults.remote = 1;
 defaults.uncommitted = 1;
 defaults.unpushed = 1;
 defaults.local = 1;
+defaults.detailing = 0;
+defaults.explaining = 0;
+
+//
+
+function hasChanges()
+{
+  let result = status.apply( this, arguments );
+
+  _.assert( result.status !== undefined );
+
+  if( _.boolIs( result.status ) )
+  return result.status;
+  if( _.strDefined( result.status ) )
+  return true;
+
+  return false;
+}
+
+_.routineExtend( hasChanges, status )
 
 //
 
@@ -1902,32 +2222,29 @@ function infoStatus( o )
   if( o.prs )
   o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
 
-  debugger;
-  let statusLocal;
-  let o2 = _.mapOnly( o, _.git.statusLocal.defaults );
-  // if( o.local || o.uncommitted || o.unpushed )
-  statusLocal = _.git.statusLocal( o2 );
+  if( o.local || o.remote )
+  {
+    o.status = _.git.status
+    ({
+      localPath : o.localPath,
+      local : o.local,
+      remote : o.remote,
+      explaining : 1,
+      detailing : o.detailing
+    })
 
-  if( o.remote )
-  o.hasRemoteChanges = _.git.hasRemoteChanges
-  ({
-    localPath : o.localPath,
-  });
+    o.hasLocalChanges = !!o.status.local.status;
+    o.hasRemoteChanges = !!o.status.remote.status;
+  }
 
-  debugger;
-  if( statusLocal )
-  _.mapExtend( o, statusLocal );
-
-  if( !o.prs.length && !o.status && !o.hasRemoteChanges )
+  if( !o.prs.length && !o.hasLocalChanges && !o.hasRemoteChanges )
   return o;
 
-  o.status = o.status || '';
-
   if( o.hasRemoteChanges )
-  o.status += 'Has some remote changes\n' + o.status;
+  o.status.status += 'Has some remote changes\n' + o.status.status;
 
   if( o.prs && o.prs.length )
-  o.status += `Has ${o.prs.length} opened pull requests\n` + o.status;
+  o.status.status += `Has ${o.prs.length} opened pull requests\n` + o.status.status;
 
   // _.process.start
   // ({
@@ -1963,7 +2280,7 @@ infoStatus.defaults =
   remote : 1,
   prs : 1,
   detailing : 1,
-  explaining : 1,
+  // explaining : 1,
   // checkingLocalChanges : 1,
   // uncommitted : 1,
   // unpushed : 1,
@@ -2424,6 +2741,8 @@ let Extend =
   versionsPull,
 
   statusLocal,
+  statusRemote,
+  status,
 
   hasLocalChanges,
   hasRemoteChanges,
