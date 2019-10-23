@@ -1369,7 +1369,7 @@ function statusRemote( o )
     mode : 'shell',
     sync : o.sync,
     deasync : 0,
-    throwingExitCode : 1,
+    throwingExitCode : 0,
     outputCollecting : 1,
     outputPiping : 0,
     inputMirroring : 0,
@@ -1405,8 +1405,6 @@ function statusRemote( o )
   {
     if( err )
     throw _.err( err, '\nFailed to check if remote repository has changes' );
-
-    _.assert( ( !o.commits && !o.branches && !o.tags  ) || result.status !== null, 'Unexpected result', result );
 
     return result;
   })
@@ -1546,25 +1544,45 @@ _.routineExtend( hasRemoteChanges, statusRemote )
 qqq : option returningMap required
 */
 
-function hasChanges( o )
+function status( o )
 {
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( hasChanges, o );
+  _.routineOptions( status, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
+
+  let result =
+  {
+    local : null,
+    remote : null,
+    status : null
+  }
 
   let ready = _.Consequence.Try( () =>
   {
     if( o.local )
-    return this.hasLocalChanges( _.mapOnly( o, this.hasLocalChanges.defaults ) );
-    return false;
+    return statusLocal.call( this, _.mapOnly( o, this.statusLocal.defaults ) );
+    return null;
   })
-  .then( ( result ) =>
+  .then( ( localStatus ) =>
   {
-    if( !result && o.remote )
-    return this.hasRemoteChanges( _.mapOnly( o, this.hasRemoteChanges.defaults ) );
+    result.local = localStatus;
+    return statusOk( result.local );
+  })
+
+  if( o.remote )
+  ready.then( remoteCheck );
+
+  ready.then( () =>
+  {
+    result.status = statusOk( result.local ) || statusOk( result.remote );
+
+    if( result.status )
+    if( o.explaining )
+    result.status = [ result.local, result.remote ].join( '\n' );
+
     return result;
   })
 
@@ -1572,9 +1590,44 @@ function hasChanges( o )
   return ready.syncMaybe();
 
   return ready;
+
+  /*  */
+
+  function remoteCheck( prevStatus )
+  {
+    if( prevStatus && !o.detailing )
+    return true;
+
+    let ready = _.Consequence.Try( () =>
+    {
+      return statusRemote.call( this, _.mapOnly( o, statusRemote.defaults ) );
+    })
+
+    ready.then( ( remoteStatus ) =>
+    {
+      result.remote = remoteStatus;
+      return remoteStatus;
+    })
+
+    return ready;
+  }
+
+  function statusOk( statusMap )
+  {
+    if( !statusMap )
+    return false;
+
+    if( statusMap.status === true || _.strDefined( statusMap.status ) )
+    return true;
+
+    return false;
+  }
 }
 
-var defaults = hasChanges.defaults = Object.create( null );
+_.routineExtend( status, statusLocal )
+_.routineExtend( status, statusRemote )
+
+var defaults = status.defaults;
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.sync = 1;
@@ -1582,6 +1635,26 @@ defaults.remote = 1;
 defaults.uncommitted = 1;
 defaults.unpushed = 1;
 defaults.local = 1;
+defaults.detailing = 0;
+defaults.explaining = 0;
+
+//
+
+function hasChanges()
+{
+  let result = status.apply( this, arguments );
+
+  _.assert( result.status !== undefined );
+
+  if( _.boolIs( result.status ) )
+  return result.status;
+  if( _.strDefined( result.status ) )
+  return true;
+
+  return false;
+}
+
+_.routineExtend( hasChanges, status )
 
 //
 
@@ -2542,6 +2615,7 @@ let Extend =
 
   statusLocal,
   statusRemote,
+  status,
 
   hasLocalChanges,
   hasRemoteChanges,
