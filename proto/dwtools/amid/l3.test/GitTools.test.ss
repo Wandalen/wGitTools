@@ -2689,13 +2689,15 @@ function statusLocalExplainingTrivial( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : null,
-      'unpushed' : '## master...origin/master [ahead 1]',
-      'unpushedCommits' : '## master...origin/master [ahead 1]',
       'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : '## master...origin/master [ahead 1]'
+      'unpushedBranches' : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
+
+    test.is( _.strHas( got.unpushed, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.is( _.strHas( got.status, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+
     return null;
   })
 
@@ -2735,16 +2737,20 @@ function statusLocalExplainingTrivial( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : null,
-      'unpushedCommits' : '## master...origin/master [ahead 1]',
     }
-    test.is( _.strHas( got.unpushed, '[new branch]      somebranch -> somebranch' ) )
-    test.is( _.strHas( got.unpushedBranches, '[new branch]      somebranch -> somebranch' ) )
-    test.is( _.strHas( got.unpushed, '[new tag]         sometag -> sometag' ) )
+
+    test.is( _.strHas( got.unpushed, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
     test.is( _.strHas( got.unpushedTags, '[new tag]         sometag -> sometag' ) )
 
+    test.is( _.strHas( got.unpushedBranches, '"branch" : "master", "upstream" : "refs/remotes/origin/master"' ) )
+    test.is( _.strHas( got.unpushedBranches, '"branch" : "somebranch", "upstream" : ""' ) )
+
     test.is( _.strHas( got.status, '?? newFile' ) )
-    test.is( _.strHas( got.status, '[new branch]      somebranch -> somebranch' ) )
-    test.is( _.strHas( got.status, '[new tag]         sometag -> sometag' ) )
+    test.is( _.strHas( got.status, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.is( _.strHas( got.status, '"branch" : "master", "upstream" : "refs/remotes/origin/master"' ) )
+    test.is( _.strHas( got.status, '"branch" : "somebranch", "upstream" : ""' ) )
+    test.is( _.strHas( got.status, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
 
     test.contains( got, expected )
     return null;
@@ -5098,28 +5104,28 @@ isUpToDate.timeOut = 30000;
 function insideRepository( test )
 {
   test.case = 'missing'
-  var localPath = _.path.join( __dirname, 'someFile' );
-  var got = _.git.insideRepository({ localPath })
+  var insidePath = _.path.join( __dirname, 'someFile' );
+  var got = _.git.insideRepository({ insidePath })
   test.identical( got,true )
 
   test.case = 'terminal'
-  var localPath = _.path.normalize( __filename );
-  var got = _.git.insideRepository({ localPath })
+  var insidePath = _.path.normalize( __filename );
+  var got = _.git.insideRepository({ insidePath })
   test.identical( got,true )
 
   test.case = 'testdir'
-  var localPath = _.path.normalize( __dirname );
-  var got = _.git.insideRepository({ localPath })
+  var insidePath = _.path.normalize( __dirname );
+  var got = _.git.insideRepository({ insidePath })
   test.identical( got,true )
 
   test.case = 'root of repo'
-  var localPath = _.path.join( __dirname, '../../../../..' );
-  var got = _.git.insideRepository({ localPath })
+  var insidePath = _.path.join( __dirname, '../../../..' );
+  var got = _.git.insideRepository({ insidePath })
   test.identical( got,true )
 
   test.case = 'outside of repo'
-  var localPath = _.path.join( __dirname, '../../../../../..' );
-  var got = _.git.insideRepository({ localPath })
+  var insidePath = _.path.join( __dirname, '../../../../..' );
+  var got = _.git.insideRepository({ insidePath })
   test.identical( got,false )
 }
 
