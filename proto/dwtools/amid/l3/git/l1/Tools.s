@@ -1052,9 +1052,6 @@ function statusLocal_body( o )
         }
       }
     }
-
-
-
   }
 
   function explanationCollect( checksMap, statusField )
@@ -1155,7 +1152,7 @@ function statusLocal_body( o )
     if( got )
     return true;
 
-    let o =
+    let startOptions =
     {
       execPath : 'git branch',
       args :
@@ -1165,7 +1162,7 @@ function statusLocal_body( o )
       ]
     };
 
-    let ready = _.Consequence.Try( () => start( o ) );
+    let ready = _.Consequence.Try( () => start( startOptions ) );
     ready.then( ( got ) =>
     {
       let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
