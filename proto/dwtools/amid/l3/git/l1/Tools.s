@@ -1226,7 +1226,7 @@ defaults.uncommittedIgnored = 0;
 defaults.unpushed = 1;
 defaults.unpushedCommits = null;
 defaults.unpushedTags = 0;
-defaults.unpushedBranches = 0;
+defaults.unpushedBranches = 1;
 
 defaults.detailing = 0;
 defaults.explaining = 0;
