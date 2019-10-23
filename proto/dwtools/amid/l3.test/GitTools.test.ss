@@ -4,11 +4,11 @@
 
 if( typeof module !== 'undefined' )
 {
-  let _ = require( '../../../Tools.s' );
+  let _ = require( '../../Tools.s' );
 
   _.include( 'wTesting' );
 
-  require( '../../l3/git/IncludeMid.s' );
+  require( '../l3/git/IncludeMid.s' );
 }
 
 //
@@ -5343,17 +5343,15 @@ function infoStatus( test )
     ({
       localPath : localPath,
       remotePath : repoPath,
-      checkingLocalChanges : 1,
-      checkingRemoteChanges : 1,
-      checkingPrs : 1,
-      checkingUncommittedLocalChanges : 1,
-      checkingUnpushedLocalChanges : 1
+      local : 1,
+      remote : 1,
+      prs : 1,
     });
 
     test.identical( got.isRepository, true )
     test.identical( got.hasLocalChanges, false )
     test.identical( got.hasRemoteChanges, false )
-    test.identical( got.changes.status, false );
+    test.identical( got.status.status, false );
 
     var expectedLocal =
     {
@@ -5366,12 +5364,12 @@ function infoStatus( test )
       uncommittedRenamed: false,
       uncommittedUntracked: false,
       unpushed: false,
-      unpushedBranches: null,
+      unpushedBranches: false,
       unpushedCommits: false,
       unpushedTags: null,
-      status: false
+      status: ''
     }
-    test.identical( got.changes.local, expectedLocal );
+    test.identical( got.status.local, expectedLocal );
 
     var expectedRemote =
     {
@@ -5380,7 +5378,7 @@ function infoStatus( test )
       tags: false,
       status: false
     }
-    test.identical( got.changes.remote, expectedRemote );
+    test.identical( got.status.remote, expectedRemote );
 
     test.identical( got.info, null );
 
@@ -5400,17 +5398,15 @@ function infoStatus( test )
     ({
       localPath : localPath,
       remotePath : repoPath,
-      checkingLocalChanges : 1,
-      checkingRemoteChanges : 1,
-      checkingPrs : 1,
-      checkingUncommittedLocalChanges : 1,
-      checkingUnpushedLocalChanges : 1
+      local : 1,
+      remote : 1,
+      prs : 1,
     });
 
     test.identical( got.isRepository, true )
     test.identical( got.hasLocalChanges, true )
     test.identical( got.hasRemoteChanges, false )
-    test.identical( got.changes.status, true );
+    test.identical( got.status.status, true );
 
     var expectedLocal =
     {
@@ -5423,12 +5419,12 @@ function infoStatus( test )
       uncommittedRenamed: false,
       uncommittedUntracked: false,
       unpushed: true,
-      unpushedBranches: null,
+      unpushedBranches: false,
       unpushedCommits: true,
       unpushedTags: null,
       status: true
     }
-    test.identical( got.changes.local, expectedLocal );
+    test.identical( got.status.local, expectedLocal );
 
     var expectedRemote =
     {
@@ -5437,9 +5433,9 @@ function infoStatus( test )
       tags: false,
       status: false
     }
-    test.identical( got.changes.remote, expectedRemote );
+    test.identical( got.status.remote, expectedRemote );
 
-    test.is( _.strHas( got.info, `Your branch is ahead of 'origin/master' by 1 commit` ) );
+    // test.is( _.strHas( got.info, `Your branch is ahead of 'origin/master' by 1 commit` ) );
 
     return null;
   })
