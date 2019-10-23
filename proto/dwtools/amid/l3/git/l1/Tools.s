@@ -1354,12 +1354,12 @@ _.routineExtend( hasLocalChanges, statusLocal )
   if branch is not listed in `git branch` but exists in ouput of reflog, then branch was deleted
 */
 
-function hasRemoteChanges( o )
+function statusRemote( o )
 {
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( hasRemoteChanges, o );
+  _.routineOptions( statusRemote, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
 
@@ -1377,6 +1377,14 @@ function hasRemoteChanges( o )
     verbosity : o.verbosity - 1
   });
 
+  let result =
+  {
+    commits : null,
+    branches : null,
+    tags : null,
+    status : null
+  }
+
   let remotes;
   let ready = _.Consequence.Try( () =>
   {
@@ -1393,10 +1401,14 @@ function hasRemoteChanges( o )
     remotes = remotes.slice( 1 );
     return check();
   })
-  .catch( ( err ) =>
+  .finally( ( err, got ) =>
   {
     if( err )
     throw _.err( err, '\nFailed to check if remote repository has changes' );
+
+    _.assert( ( !o.commits && !o.branches && !o.tags  ) || result.status !== null, 'Unexpected result', result );
+
+    return result;
   })
 
   if( o.sync )
@@ -1428,19 +1440,41 @@ function hasRemoteChanges( o )
           let ref = heads[ h ][ 1 ];
 
           if( o.branches )
-          if( !_.strHas( got.output, ref ) )
-          return true;
+          {
+            result.branches = !_.strHas( got.output, ref )
+
+            if( !result.status )
+            result.status = result.branches;
+
+            if( result.branches )
+            {
+              if( o.explaining )
+              result.status = got.output;
+              if( !o.detailing )
+              return true;
+            }
+          }
 
           if( o.commits )
           {
-            let result = start
+            let startResult = start
             ({
               execPath : `git branch --contains ${hash} --quiet --format=%(refname)`,
               throwingExitCode : 0,
               sync : 1
             });
-            if( !_.strHas( result.output, ref ) )
-            return true;
+            result.commits = !_.strHas( startResult.output, ref );
+
+            if( !result.status )
+            result.status = result.commits;
+
+            if( result.commits )
+            {
+              if( o.explaining )
+              result.status = got.output;
+              if( !o.detailing )
+              return true;
+            }
           }
         }
       }
@@ -1451,8 +1485,18 @@ function hasRemoteChanges( o )
         for( var h = 0; h < tags.length ; h++ )
         {
           let ref = tags[ h ][ 1 ];
-          if( !_.strHas( got.output, ref ) )
-          return true;
+          result.tags = !_.strHas( got.output, ref );
+
+          if( !result.status )
+          result.status = result.tags;
+
+          if( result.tags )
+          {
+            if( o.explaining )
+            result.status = got.output;
+            if( !o.detailing )
+            return true;
+          }
         }
       }
 
@@ -1466,15 +1510,35 @@ function hasRemoteChanges( o )
 
 }
 
-var defaults = hasRemoteChanges.defaults = Object.create( null );
+var defaults = statusRemote.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.commits = 1;
 defaults.branches = 0;
 defaults.tags = 1;
+defaults.detailing = 0;
+defaults.explaining = 0;
 // defaults.branches = 1; /* qqq : ? */
 // defaults.tags = 0; /* qqq : ? */
 defaults.sync = 1;
+
+//
+
+function hasRemoteChanges()
+{
+  let result = statusRemote.apply( this, arguments );
+
+  _.assert( result.status !== undefined );
+
+  if( _.boolIs( result.status ) )
+  return result.status;
+  if( _.strIs( result.status ) && result.length )
+  return true;
+
+  return false;
+}
+
+_.routineExtend( hasRemoteChanges, statusRemote )
 
 //
 
@@ -2477,6 +2541,7 @@ let Extend =
   versionsPull,
 
   statusLocal,
+  statusRemote,
 
   hasLocalChanges,
   hasRemoteChanges,

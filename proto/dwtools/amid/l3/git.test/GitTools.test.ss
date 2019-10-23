@@ -2813,6 +2813,438 @@ statusLocalExplainingTrivial.timeOut = 30000;
 
 //
 
+function statusRemote( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  repoNewCommit( 'test' )
+  .then( () =>
+  {
+    test.case = 'remote has new commit';
+
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : null,
+      tags : null,
+      status : null
+    }
+    test.identical( got, expected );
+
+    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : true,
+      branches : null,
+      tags : null,
+      status : true
+    }
+    test.identical( got, expected );
+
+    return null;
+  })
+  shell( 'git pull' )
+  .then( () =>
+  {
+    test.case = 'local pulled new commit from remote';
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : null,
+      tags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : false,
+      branches : null,
+      tags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    return null;
+  })
+
+  /*  */
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  repoNewCommitToBranch( 'test', 'test' )
+  .then( () =>
+  {
+    test.case = 'remote has new branch';
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : null,
+      tags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 1, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : true,
+      tags : null,
+      status : true
+    }
+    test.identical( got, expected );
+    return null;
+  })
+  shell( 'git fetch --all' )
+  .then( () =>
+  {
+    test.case = 'remote has new branch, local after fetch';
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : null,
+      tags : null,
+      status : null
+    }
+    test.identical( got, expected );
+
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 1, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : true,
+      tags : null,
+      status : true
+    }
+    test.identical( got, expected );
+    return null;
+  })
+  shell( 'git checkout test' )
+  .then( () =>
+  {
+    test.case = 'remote has new branch, local after checkout new branch';
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : null,
+      tags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 1, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : false,
+      tags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    return null;
+  })
+
+  //
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  repoNewTag( 'test' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag';
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : null,
+      tags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 1 });
+    var expected =
+    {
+      commits : null,
+      branches : null,
+      tags : true,
+      status : true
+    }
+    test.identical( got, expected );
+    return null;
+  })
+  shell( 'git fetch --all' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag, local after fetch';
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : null,
+      tags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 1 });
+    var expected =
+    {
+      commits : null,
+      branches : null,
+      tags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    return null;
+  })
+
+  //
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  repoNewTag( 'test' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag';
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : null,
+      tags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : false,
+      branches : null,
+      tags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 1 });
+    var expected =
+    {
+      commits : false,
+      branches : null,
+      tags : true,
+      status : true
+    }
+    test.identical( got, expected );
+    return null;
+  })
+  shell( 'git fetch --all' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag, local after fetch';
+    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : null,
+      branches : null,
+      tags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 0 });
+    var expected =
+    {
+      commits : false,
+      branches : null,
+      tags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 1 });
+    var expected =
+    {
+      commits : false,
+      branches : null,
+      tags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    shell2( 'git init --bare' );
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+
+  function repoNewCommit( message )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    con.then( () =>
+    {
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git -C secondary commit --allow-empty -m ' + message )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
+
+  function repoNewTag( tag )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    con.then( () =>
+    {
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git -C secondary tag ' + tag )
+    shell( 'git -C secondary push --tags' )
+
+    return con;
+  }
+
+  function repoNewCommitToBranch( message, branch )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    let create = true;
+    let secondRepoPath = path.join( testPath, 'secondary' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+
+    con.then( () =>
+    {
+      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
+      create = false;
+      return null;
+    })
+
+    con.then( () =>
+    {
+      let con2 = new _.Consequence().take( null );
+      let shell2 = _.process.starter
+      ({
+        currentPath : testPath,
+        ready : con2
+      })
+
+      if( create )
+      shell2( 'git -C secondary checkout -b ' + branch )
+      else
+      shell2( 'git -C secondary checkout ' + branch )
+
+      shell2( 'git -C secondary commit --allow-empty -m ' + message )
+
+      if( create )
+      shell2( 'git -C secondary push --set-upstream origin ' + branch )
+      else
+      shell2( 'git -C secondary push' )
+
+      return con2;
+    })
+
+    return con;
+  }
+
+}
+
+statusRemote.timeOut = 30000;
+
+//
+
 function hasLocalChanges( test )
 {
   let context = this;
@@ -5529,6 +5961,7 @@ var Proto =
 
     statusLocal,
     statusLocalExplainingTrivial,
+    statusRemote,
     hasLocalChanges,
     hasRemoteChanges,
 
