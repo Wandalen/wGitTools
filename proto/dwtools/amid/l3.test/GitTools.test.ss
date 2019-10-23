@@ -5098,28 +5098,28 @@ isUpToDate.timeOut = 30000;
 function insideRepository( test )
 {
   test.case = 'missing'
-  var localPath = _.path.join( __dirname, 'someFile' );
-  var got = _.git.insideRepository({ localPath })
+  var insidePath = _.path.join( __dirname, 'someFile' );
+  var got = _.git.insideRepository({ insidePath })
   test.identical( got,true )
 
   test.case = 'terminal'
-  var localPath = _.path.normalize( __filename );
-  var got = _.git.insideRepository({ localPath })
+  var insidePath = _.path.normalize( __filename );
+  var got = _.git.insideRepository({ insidePath })
   test.identical( got,true )
 
   test.case = 'testdir'
-  var localPath = _.path.normalize( __dirname );
-  var got = _.git.insideRepository({ localPath })
+  var insidePath = _.path.normalize( __dirname );
+  var got = _.git.insideRepository({ insidePath })
   test.identical( got,true )
 
   test.case = 'root of repo'
-  var localPath = _.path.join( __dirname, '../../../../..' );
-  var got = _.git.insideRepository({ localPath })
+  var insidePath = _.path.join( __dirname, '../../../..' );
+  var got = _.git.insideRepository({ insidePath })
   test.identical( got,true )
 
   test.case = 'outside of repo'
-  var localPath = _.path.join( __dirname, '../../../../../..' );
-  var got = _.git.insideRepository({ localPath })
+  var insidePath = _.path.join( __dirname, '../../../../..' );
+  var got = _.git.insideRepository({ insidePath })
   test.identical( got,false )
 }
 
