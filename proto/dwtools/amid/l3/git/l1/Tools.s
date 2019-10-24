@@ -977,7 +977,6 @@ function statusLocal_body( o )
         if( !_.strDefined( result[ k ] ) )
         continue;
 
-        result.uncommitted.push( _.strQuote( k ) + ':' );
         result.uncommitted.push( result[ k ] );
       }
       if( _.arrayIs( result.uncommitted ) )
@@ -999,7 +998,6 @@ function statusLocal_body( o )
       if( !_.strDefined( result[ k ] ) )
       continue;
 
-      result.unpushed.push( _.strQuote( k ) + ':' );
       result.unpushed.push( result[ k ] );
     }
     if( _.arrayIs( result.unpushed ) )
@@ -1010,10 +1008,17 @@ function statusLocal_body( o )
     result.status = null;
 
     if( _.strIs( result.uncommitted ) )
-    result.status = result.uncommitted;
+    {
+      if( result.uncommitted )
+      result.uncommitted = 'List of uncommited changes:\n' + result.uncommitted;
+      result.status = result.uncommitted;
+    }
 
     if( _.strIs( result.unpushed ) )
     {
+      if( result.unpushed )
+      result.unpushed = 'List of unpushed changes:\n' + result.unpushed;
+
       if( !result.status )
       result.status = result.unpushed;
       else if( result.unpushed )
