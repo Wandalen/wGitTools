@@ -911,48 +911,16 @@ function statusLocal_body( o )
     verbosity : o.verbosity - 1,
   });
 
-  let statusArgs = [ '-u', '--porcelain', '-b' ]
-  if( o.uncommittedIgnored )
-  statusArgs.push( '--ignored' );
-
   let result = resultPrepare();
 
-  let optimizingCheck =  o.uncommittedUntracked && o.uncommittedAdded &&
-                        o.uncommittedChanged && o.uncommittedDeleted &&
-                        o.uncommittedRenamed && o.uncommittedCopied  &&
-                        !o.detailing;
+  let optimizingCheck =  o.uncommittedUntracked && o.uncommittedAdded   &&
+                         o.uncommittedChanged   && o.uncommittedDeleted &&
+                         o.uncommittedRenamed   && o.uncommittedCopied  &&
+                         !o.detailing;
 
-  // let ready = _.Consequence.Try( () => start({ execPath : 'git status', args : statusArgs }) )
   let ready = new _.Consequence().take( null );
 
-  ready.then( ( got ) =>
-  {
-    // debugger;
-    return start({ execPath : 'git status', args : statusArgs })
-  });
-
-  ready.then( ( got ) =>
-  {
-    let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
-
-    /*
-    check for any changes, except new commits/tags/branches
-    */
-
-    // debugger;
-
-    if( optimizingCheck )
-    {
-      return optimizedCheck( output );
-    }
-    else
-    {
-      return detailedCheck( output );
-    }
-
-    // debugger;
-    // return false;
-  })
+  ready.then( uncommittedCheck );
 
   if( o.unpushedCommits )
   ready.then( checkUnpushedCommits )
@@ -1021,6 +989,39 @@ function statusLocal_body( o )
         }
       }
     }
+  }
+
+  /* */
+
+  function uncommittedCheck( got )
+  {
+    let gitStatusArgs = [ '-u', '--porcelain', '-b' ]
+    if( o.uncommittedIgnored )
+    gitStatusArgs.push( '--ignored' );
+
+    return start({ execPath : 'git status', args : gitStatusArgs })
+    .then( ( got ) =>
+    {
+      let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+
+      /*
+      check for any changes, except new commits/tags/branches
+      */
+
+      // debugger;
+
+      if( optimizingCheck )
+      {
+        return optimizedCheck( output );
+      }
+      else
+      {
+        return detailedCheck( output );
+      }
+
+      // debugger;
+      // return false;
+    })
   }
 
   /* */
