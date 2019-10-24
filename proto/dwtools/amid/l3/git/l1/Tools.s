@@ -964,64 +964,46 @@ function statusLocal_body( o )
 
     if( !optimizingCheck )
     {
+      result.uncommitted = [];
       for( let i = 0; i < statusLocal_body.uncommittedGroup.length; i++ )
       {
         let k = statusLocal_body.uncommittedGroup[ i ];
 
-        if( o[ k ] )
-        if( !result[ k ] )
-        {
-          result.uncommitted = '';
-          break;
-        }
-
-        if( result.uncommitted === null )
-        result.uncommitted = [];
+        if( !_.strDefined( result[ k ] ) )
+        continue;
 
         result.uncommitted.push( _.strQuote( k ) + ':' );
         result.uncommitted.push( result[ k ] );
       }
-      if( _.arrayIs( result.uncommitted ) )
       result.uncommitted = result.uncommitted.join( '\n' )
     }
 
     /*  */
 
+    result.unpushed = [];
     for( let i = 0; i < statusLocal_body.unpushedGroup.length; i++ )
     {
       let k = statusLocal_body.unpushedGroup[ i ];
 
-      if( o[ k ] )
-      if( !result[ k ] )
-      {
-        result.unpushed = '';
-        break;
-      }
-
-      if( result.unpushed === null )
-      result.unpushed = [];
+      if( !_.strDefined( result[ k ] ) )
+      continue;
 
       result.unpushed.push( _.strQuote( k ) + ':' );
       result.unpushed.push( result[ k ] );
     }
-
-    if( _.arrayIs( result.unpushed ) )
     result.unpushed = result.unpushed.join( '\n' );
 
     /*  */
 
-    if( _.strIs( result.uncommitted ) )
+    result.status = '';
+
+    if( _.strDefined( result.uncommitted ) )
     result.status = result.uncommitted;
 
-    if( _.strIs( result.unpushed ) )
-    {
-      if( !result.status )
-      result.status = result.uncommitted;
-      else
-      result.status += '\n' + result.uncommitted;
-    }
+    if( _.strDefined( result.unpushed ) )
+    result.status += '\n' + result.uncommitted;
 
-    _.assert( _.strIs( result.status ) || result.status === null );
+    _.assert( _.strIs( result.status ) );
 
     /*  */
 
@@ -1166,7 +1148,8 @@ function statusLocal_body( o )
     if( match )
     result[ check ] = match.join( '\n' )
 
-    return result[ check ];
+    // return result[ check ];
+    return false ; //Vova:xxx
   }
 
   /* */

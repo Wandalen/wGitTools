@@ -363,127 +363,208 @@ function statusLocal( test )
     ({
       localPath,
       uncommitted : 1,
-      uncommittedIgnored : 0,
+      uncommittedUntracked : 1,
+      uncommittedAdded : 1,
+      uncommittedChanged : 1,
+      uncommittedDeleted : 1,
+      uncommittedRenamed : 1,
+      uncommittedCopied : 1,
+      uncommittedIgnored : 1,
       unpushed : 1,
+      unpushedCommits : 1,
       unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    test.case = 'check after fresh clone, defaults + detailing'
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
+      unpushedBranches : 1,
+      explaining : 1,
       detailing : 1,
-      explaining : 0
+      sync : 1
     });
     var expected =
     {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
+      'uncommitted' : '',
+      'uncommittedUntracked' : '',
+      'uncommittedAdded' : '',
+      'uncommittedChanged' : '',
+      'uncommittedDeleted' : '',
+      'uncommittedRenamed' : '',
+      'uncommittedCopied' : '',
+      'uncommittedIgnored' : '',
+      'unpushed' : '',
+      'unpushedCommits' : '',
       'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    test.case = 'check after fresh clone, defaults + detailing + explaining'
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 1
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
+      'unpushedBranches' : '',
       'status' : ''
     }
     test.identical( got, expected )
 
-    test.case = 'check after fresh clone, everything off'
-
     var got = _.git.statusLocal
     ({
       localPath,
-      uncommitted : 0,
-      uncommittedIgnored : 0,
-      unpushed : 0,
+      uncommitted : 1,
+      uncommittedUntracked : 1,
+      uncommittedAdded : 1,
+      uncommittedChanged : 1,
+      uncommittedDeleted : 1,
+      uncommittedRenamed : 1,
+      uncommittedCopied : 1,
+      uncommittedIgnored : 1,
+      unpushed : 1,
+      unpushedCommits : 1,
       unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
+      unpushedBranches : 1,
+      explaining : 0,
+      detailing : 1,
+      sync : 1
     });
     var expected =
     {
-      'uncommitted' : null,
-      'uncommittedUntracked' : null,
-      'uncommittedAdded' : null,
-      'uncommittedChanged' : null,
-      'uncommittedDeleted' : null,
-      'uncommittedRenamed' : null,
-      'uncommittedCopied' : null,
-      'uncommittedIgnored' : null,
-      'unpushed' : null,
-      'unpushedCommits' : null,
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : null
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
     return null;
   })
 
-  /* */
+  // begin()
+  // .then( () =>
+  // {
+  //   test.case = 'check after fresh clone, defaults'
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   test.case = 'check after fresh clone, defaults + detailing'
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   test.case = 'check after fresh clone, defaults + detailing + explaining'
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 1
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : ''
+  //   }
+  //   test.identical( got, expected )
+
+  //   test.case = 'check after fresh clone, everything off'
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 0,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 0,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : null,
+  //     'uncommittedUntracked' : null,
+  //     'uncommittedAdded' : null,
+  //     'uncommittedChanged' : null,
+  //     'uncommittedDeleted' : null,
+  //     'uncommittedRenamed' : null,
+  //     'uncommittedCopied' : null,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : null,
+  //     'unpushedCommits' : null,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : null
+  //   }
+  //   test.identical( got, expected )
+
+  //   return null;
+  // })
+
+  // /* */
 
   begin()
   .then( () =>
@@ -491,32 +572,46 @@ function statusLocal( test )
     test.case = 'new untraked file'
     provider.fileWrite( filePath, filePath );
 
+    debugger
     var got = _.git.statusLocal
     ({
       localPath,
       uncommitted : 1,
-      uncommittedIgnored : 0,
+      uncommittedUntracked : 1,
+      uncommittedAdded : 1,
+      uncommittedChanged : 1,
+      uncommittedDeleted : 1,
+      uncommittedRenamed : 1,
+      uncommittedCopied : 1,
+      uncommittedIgnored : 1,
       unpushed : 1,
+      unpushedCommits : 1,
       unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
+      unpushedBranches : 1,
+      explaining : 1,
+      detailing : 1,
+      sync : 1
     });
+
+    var expectedStatus =
+    `uncommittedUntracked":
+    ?? newFile`;
+
     var expected =
     {
-      'uncommitted' : true,
-      'uncommittedUntracked' : _.maybe,
-      'uncommittedAdded' : _.maybe,
-      'uncommittedChanged' : _.maybe,
-      'uncommittedDeleted' : _.maybe,
-      'uncommittedRenamed' : _.maybe,
-      'uncommittedCopied' : _.maybe,
-      'uncommittedIgnored' : null,
-      'unpushed' : _.maybe,
-      'unpushedCommits' : _.maybe,
+      'uncommitted' : '',
+      'uncommittedUntracked' : '?? newFile',
+      'uncommittedAdded' : '',
+      'uncommittedChanged' : '',
+      'uncommittedDeleted' : '',
+      'uncommittedRenamed' : '',
+      'uncommittedCopied' : '',
+      'uncommittedIgnored' : '',
+      'unpushed' : '',
+      'unpushedCommits' : '',
       'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
+      'unpushedBranches' : '',
+      'status' : expectedStatus
     }
     test.identical( got, expected )
 
@@ -524,27 +619,35 @@ function statusLocal( test )
     ({
       localPath,
       uncommitted : 1,
-      uncommittedIgnored : 0,
+      uncommittedUntracked : 1,
+      uncommittedAdded : 1,
+      uncommittedChanged : 1,
+      uncommittedDeleted : 1,
+      uncommittedRenamed : 1,
+      uncommittedCopied : 1,
+      uncommittedIgnored : 1,
       unpushed : 1,
+      unpushedCommits : 1,
       unpushedTags : 0,
-      unpushedBranches : 0,
+      unpushedBranches : 1,
+      explaining : 0,
       detailing : 1,
-      explaining : 0
+      sync : 1
     });
     var expected =
     {
-      'uncommitted' : true,
+      'uncommitted' : false,
       'uncommittedUntracked' : true,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
       'uncommittedDeleted' : false,
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
+      'uncommittedIgnored' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : null,
+      'unpushedBranches' : false,
       'status' : true
     }
     test.identical( got, expected )
@@ -574,28 +677,40 @@ function statusLocal( test )
     ({
       localPath,
       uncommitted : 1,
-      uncommittedIgnored : 0,
+      uncommittedUntracked : 1,
+      uncommittedAdded : 1,
+      uncommittedChanged : 1,
+      uncommittedDeleted : 1,
+      uncommittedRenamed : 1,
+      uncommittedCopied : 1,
+      uncommittedIgnored : 1,
       unpushed : 1,
+      unpushedCommits : 1,
       unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
+      unpushedBranches : 1,
+      explaining : 1,
+      detailing : 1,
+      sync : 1
     });
+
+    var expectedStatus =
+    `uncommittedChanged":
+    M README`;
     var expected =
     {
-      'uncommitted' : true,
-      'uncommittedUntracked' : _.maybe,
-      'uncommittedAdded' : _.maybe,
-      'uncommittedChanged' : _.maybe,
-      'uncommittedDeleted' : _.maybe,
-      'uncommittedRenamed' : _.maybe,
-      'uncommittedCopied' : _.maybe,
-      'uncommittedIgnored' : null,
-      'unpushed' : _.maybe,
-      'unpushedCommits' : _.maybe,
+      'uncommitted' : '',
+      'uncommittedUntracked' : '',
+      'uncommittedAdded' : '',
+      'uncommittedChanged' : 'M README',
+      'uncommittedDeleted' : '',
+      'uncommittedRenamed' : '',
+      'uncommittedCopied' : '',
+      'uncommittedIgnored' : '',
+      'unpushed' : '',
+      'unpushedCommits' : '',
       'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
+      'unpushedBranches' : '',
+      'status' : expectedStatus
     }
     test.identical( got, expected )
 
@@ -603,27 +718,35 @@ function statusLocal( test )
     ({
       localPath,
       uncommitted : 1,
-      uncommittedIgnored : 0,
+      uncommittedUntracked : 1,
+      uncommittedAdded : 1,
+      uncommittedChanged : 1,
+      uncommittedDeleted : 1,
+      uncommittedRenamed : 1,
+      uncommittedCopied : 1,
+      uncommittedIgnored : 1,
       unpushed : 1,
+      unpushedCommits : 1,
       unpushedTags : 0,
-      unpushedBranches : 0,
+      unpushedBranches : 1,
+      explaining : 0,
       detailing : 1,
-      explaining : 0
+      sync : 1
     });
     var expected =
     {
-      'uncommitted' : true,
+      'uncommitted' : false,
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : true,
       'uncommittedDeleted' : false,
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
+      'uncommittedIgnored' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : null,
+      'unpushedBranches' : false,
       'status' : true
     }
     test.identical( got, expected )
@@ -639,1683 +762,57 @@ function statusLocal( test )
     ({
       localPath,
       uncommitted : 1,
-      uncommittedIgnored : 0,
+      uncommittedUntracked : 1,
+      uncommittedAdded : 1,
+      uncommittedChanged : 1,
+      uncommittedDeleted : 1,
+      uncommittedRenamed : 1,
+      uncommittedCopied : 1,
+      uncommittedIgnored : 1,
       unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    return null;
-  })
-
-  /* */
-
-  begin()
-  repoNewCommit( 'testCommit' )
-  .then( () =>
-  {
-    test.case = 'remote has new commit';
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    return null;
-  })
-
-  /* */
-
-  begin()
-  repoNewCommit( 'testCommit' )
-  shell( 'git fetch' )
-  .then( () =>
-  {
-    test.case = 'remote has new commit, local executed fetch without merge';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    return null;
-  })
-  shell( 'git merge' )
-  .then( () =>
-  {
-    test.case = 'merge after fetch, remote had new commit';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-    return null;
-  })
-
-  /*  */
-
-  begin()
-  shell( 'git commit --allow-empty -m test' )
-  .then( () =>
-  {
-    test.case = 'new local commit'
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : true,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : true,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    return null;
-  })
-
-  /* */
-
-  begin()
-  repoNewCommit( 'testCommit' )
-  shell( 'git commit --allow-empty -m test' )
-  .then( () =>
-  {
-    test.case = 'local and remote has has new commit';
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : true,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : true,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    return null;
-  })
-
-  /* */
-
-  prepareRepo()
-  repoNewCommit( 'init' )
-  begin()
-  repoNewCommitToBranch( 'testCommit', 'feature' )
-  shell( 'git fetch' )
-  .then( () =>
-  {
-    test.case = 'remote has commit to other branch, local executed fetch without merge';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    return null;
-  })
-
-  /* */
-
-  prepareRepo()
-  repoNewCommit( 'init' )
-  begin()
-  repoNewCommitToBranch( 'testCommit', 'feature' )
-  shell( 'git commit --allow-empty -m test' )
-  shell( 'git fetch' )
-  shell( 'git status' )
-  .then( () =>
-  {
-    test.case = 'remote has commit to other branch, local has commit to master,fetch without merge';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : true,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : true,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-    return null;
-  })
-
-  /* */
-
-  prepareRepo()
-  repoNewCommit( 'init' )
-  begin()
-  shell( 'git tag sometag' )
-  .then( () =>
-  {
-    test.case = 'local has unpushed tag';
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 1,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : false,
-      'unpushedTags' : true,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 1,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : false,
-      'unpushedTags' : true,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    return null;
-
-  })
-  shell( 'git push --tags' )
-  .then( () =>
-  {
-    test.case = 'local has pushed tag';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 1,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : false,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 1,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : false,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-    return null;
-  })
-
-  /*  */
-
-  prepareRepo()
-  repoNewCommit( 'init' )
-  begin()
-  shell( 'git tag -a sometag -m "testtag"' )
-  .then( () =>
-  {
-    test.case = 'local has unpushed annotated tag';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 1,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : false,
-      'unpushedTags' : true,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 1,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : false,
-      'unpushedTags' : true,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-    return null;
-  })
-  shell( 'git push --follow-tags' )
-  .then( () =>
-  {
-    test.case = 'local has pushed annotated tag';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 1,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : false,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 1,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : false,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-    return null;
-  })
-
-  /*  */
-
-  prepareRepo()
-  repoNewCommit( 'init' )
-  begin()
-  .then( () =>
-  {
-    provider.fileWrite( readmePath, readmePath );
-    return null;
-  })
-  shell( 'git add README' )
-  shell( 'git commit -m test' )
-  shell( 'git push' )
-  .then( () =>
-  {
-    test.case = 'unstaged after rename';
-    provider.fileRename( readmePath + '_', readmePath );
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : true,
-      'uncommittedUntracked' : _.maybe,
-      'uncommittedAdded' : _.maybe,
-      'uncommittedChanged' : _.maybe,
-      'uncommittedDeleted' : _.maybe,
-      'uncommittedRenamed' : _.maybe,
-      'uncommittedCopied' : _.maybe,
-      'uncommittedIgnored' : null,
-      'unpushed' : _.maybe,
-      'unpushedCommits' : _.maybe,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : true,
-      'uncommittedUntracked' : true,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : true,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-    return null;
-  })
-  shell( 'git add .' )
-  .then( () =>
-  {
-    test.case = 'staged after rename';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : true,
-      'uncommittedUntracked' : _.maybe,
-      'uncommittedAdded' : _.maybe,
-      'uncommittedChanged' : _.maybe,
-      'uncommittedDeleted' : _.maybe,
-      'uncommittedRenamed' : _.maybe,
-      'uncommittedCopied' : _.maybe,
-      'uncommittedIgnored' : null,
-      'unpushed' : _.maybe,
-      'unpushedCommits' : _.maybe,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : true,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : true,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-    return null;
-  })
-  shell( 'git commit -m test' )
-  .then( () =>
-  {
-    test.case = 'comitted after rename';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : true,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : true,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-    return null;
-  })
-  shell( 'git push' )
-  .then( () =>
-  {
-    test.case = 'pushed after rename';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-    return null;
-  })
-
-  /*  */
-
-  prepareRepo()
-  repoNewCommit( 'init' )
-  begin()
-  .then( () =>
-  {
-    provider.fileWrite( readmePath, readmePath );
-    return null;
-  })
-  shell( 'git add README' )
-  shell( 'git commit -m test' )
-  shell( 'git push' )
-  .then( () =>
-  {
-    test.case = 'unstaged after delete';
-    provider.fileDelete( readmePath );
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : true,
-      'uncommittedUntracked' : _.maybe,
-      'uncommittedAdded' : _.maybe,
-      'uncommittedChanged' : _.maybe,
-      'uncommittedDeleted' : _.maybe,
-      'uncommittedRenamed' : _.maybe,
-      'uncommittedCopied' : _.maybe,
-      'uncommittedIgnored' : null,
-      'unpushed' : _.maybe,
-      'unpushedCommits' : _.maybe,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : true,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : true,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    return null;
-  })
-  shell( 'git add .' )
-  .then( () =>
-  {
-    test.case = 'staged after delete';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : true,
-      'uncommittedUntracked' : _.maybe,
-      'uncommittedAdded' : _.maybe,
-      'uncommittedChanged' : _.maybe,
-      'uncommittedDeleted' : _.maybe,
-      'uncommittedRenamed' : _.maybe,
-      'uncommittedCopied' : _.maybe,
-      'uncommittedIgnored' : null,
-      'unpushed' : _.maybe,
-      'unpushedCommits' : _.maybe,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : true,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : true,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    return null;
-  })
-  shell( 'git commit -m test' )
-  .then( () =>
-  {
-    test.case = 'comitted after delete';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : true,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : true,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    return null;
-  })
-  shell( 'git push' )
-  .then( () =>
-  {
-    test.case = 'pushed after delete';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    return null;
-  })
-
-  /*  */
-
-  prepareRepo()
-  repoNewCommit( 'init' )
-  begin()
-  shell( 'git checkout -b testbranch' )
-  .then( () =>
-  {
-    test.case = 'local clone has unpushed branch';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got, expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
+      unpushedCommits : 1,
       unpushedTags : 0,
       unpushedBranches : 1,
+      explaining : 1,
       detailing : 1,
-      explaining : 0
+      sync : 1
     });
     var expected =
     {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : false,
+      'uncommitted' : '',
+      'uncommittedUntracked' : '',
+      'uncommittedAdded' : '',
+      'uncommittedChanged' : '',
+      'uncommittedDeleted' : '',
+      'uncommittedRenamed' : '',
+      'uncommittedCopied' : '',
+      'uncommittedIgnored' : '',
+      'unpushed' : '',
+      'unpushedCommits' : '',
       'unpushedTags' : null,
-      'unpushedBranches' : true,
-      'status' : true
+      'unpushedBranches' : '',
+      'status' : ''
     }
-    return null;
-  })
-  shell( 'git push -u origin testbranch' )
-  .then( () =>
-  {
-    test.case = 'local clone does not have unpushed branch';
+    test.identical( got, expected )
 
     var got = _.git.statusLocal
     ({
       localPath,
       uncommitted : 1,
-      uncommittedIgnored : 0,
+      uncommittedUntracked : 1,
+      uncommittedAdded : 1,
+      uncommittedChanged : 1,
+      uncommittedDeleted : 1,
+      uncommittedRenamed : 1,
+      uncommittedCopied : 1,
+      uncommittedIgnored : 1,
       unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got,expected )
-
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
+      unpushedCommits : 1,
       unpushedTags : 0,
       unpushedBranches : 1,
+      explaining : 0,
       detailing : 1,
-      explaining : 0
+      sync : 1
     });
     var expected =
     {
@@ -2326,200 +823,1842 @@ function statusLocal( test )
       'uncommittedDeleted' : false,
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
+      'uncommittedIgnored' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
       'status' : false
     }
-    test.identical( got,expected )
+    test.identical( got, expected )
 
     return null;
   })
 
-  /*  */
+  // /* */
 
-  prepareRepo()
-  repoNewCommit( 'init' )
-  begin()
-  shell( 'git tag testtag' )
-  .then( () =>
-  {
-    test.case = 'local clone has unpushed tag';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got,expected )
+  // begin()
+  // repoNewCommit( 'testCommit' )
+  // .then( () =>
+  // {
+  //   test.case = 'remote has new commit';
 
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 1,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : true,
-      'unpushedCommits' : false,
-      'unpushedTags' : true,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got,expected )
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
 
-    return null;
-  })
-  shell( 'git push --tags' )
-  .then( () =>
-  {
-    test.case = 'local clone doesnt have unpushed tag';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 0,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got,expected )
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
 
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 0,
-      unpushed : 1,
-      unpushedTags : 1,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : false,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : null,
-      'unpushed' : false,
-      'unpushedCommits' : false,
-      'unpushedTags' : false,
-      'unpushedBranches' : null,
-      'status' : false
-    }
-    test.identical( got,expected )
-    return null;
-  })
+  //   return null;
+  // })
 
-  /*  */
+  // /* */
 
-  prepareRepo()
-  repoNewCommit( 'init' )
-  begin()
-  .then( () =>
-  {
-    test.case = 'local clone has ignored file';
-    let ignoredFilePath = path.join( localPath, 'file' );
-    provider.fileWrite( ignoredFilePath,ignoredFilePath )
-    _.git.ignoreAdd( localPath, { 'file' : null } )
-    return null;
-  })
-  shell( 'git add --all' )
-  shell( 'git commit -am "no desc"' )
-  .then( () =>
-  {
-    test.case = 'has ignored file';
-    var got = _.git.statusLocal
-    ({
-      localPath,
-      uncommitted : 1,
-      uncommittedIgnored : 1,
-      unpushed : 1,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      detailing : 1,
-      explaining : 0
-    });
-    var expected =
-    {
-      'uncommitted' : true,
-      'uncommittedUntracked' : false,
-      'uncommittedAdded' : false,
-      'uncommittedChanged' : false,
-      'uncommittedDeleted' : false,
-      'uncommittedRenamed' : false,
-      'uncommittedCopied' : false,
-      'uncommittedIgnored' : true,
-      'unpushed' : true,
-      'unpushedCommits' : true,
-      'unpushedTags' : null,
-      'unpushedBranches' : null,
-      'status' : true
-    }
-    test.identical( got,expected )
+  // begin()
+  // repoNewCommit( 'testCommit' )
+  // shell( 'git fetch' )
+  // .then( () =>
+  // {
+  //   test.case = 'remote has new commit, local executed fetch without merge';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
 
-    return null;
-  })
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   return null;
+  // })
+  // shell( 'git merge' )
+  // .then( () =>
+  // {
+  //   test.case = 'merge after fetch, remote had new commit';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+  //   return null;
+  // })
+
+  // /*  */
+
+  // begin()
+  // shell( 'git commit --allow-empty -m test' )
+  // .then( () =>
+  // {
+  //   test.case = 'new local commit'
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : true,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : true,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   return null;
+  // })
+
+  // /* */
+
+  // begin()
+  // repoNewCommit( 'testCommit' )
+  // shell( 'git commit --allow-empty -m test' )
+  // .then( () =>
+  // {
+  //   test.case = 'local and remote has has new commit';
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : true,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : true,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   return null;
+  // })
+
+  // /* */
+
+  // prepareRepo()
+  // repoNewCommit( 'init' )
+  // begin()
+  // repoNewCommitToBranch( 'testCommit', 'feature' )
+  // shell( 'git fetch' )
+  // .then( () =>
+  // {
+  //   test.case = 'remote has commit to other branch, local executed fetch without merge';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   return null;
+  // })
+
+  // /* */
+
+  // prepareRepo()
+  // repoNewCommit( 'init' )
+  // begin()
+  // repoNewCommitToBranch( 'testCommit', 'feature' )
+  // shell( 'git commit --allow-empty -m test' )
+  // shell( 'git fetch' )
+  // shell( 'git status' )
+  // .then( () =>
+  // {
+  //   test.case = 'remote has commit to other branch, local has commit to master,fetch without merge';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : true,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : true,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+  //   return null;
+  // })
+
+  // /* */
+
+  // prepareRepo()
+  // repoNewCommit( 'init' )
+  // begin()
+  // shell( 'git tag sometag' )
+  // .then( () =>
+  // {
+  //   test.case = 'local has unpushed tag';
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 1,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : true,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 1,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : true,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   return null;
+
+  // })
+  // shell( 'git push --tags' )
+  // .then( () =>
+  // {
+  //   test.case = 'local has pushed tag';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 1,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : false,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 1,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : false,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+  //   return null;
+  // })
+
+  // /*  */
+
+  // prepareRepo()
+  // repoNewCommit( 'init' )
+  // begin()
+  // shell( 'git tag -a sometag -m "testtag"' )
+  // .then( () =>
+  // {
+  //   test.case = 'local has unpushed annotated tag';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 1,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : true,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 1,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : true,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+  //   return null;
+  // })
+  // shell( 'git push --follow-tags' )
+  // .then( () =>
+  // {
+  //   test.case = 'local has pushed annotated tag';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 1,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : false,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 1,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : false,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+  //   return null;
+  // })
+
+  // /*  */
+
+  // prepareRepo()
+  // repoNewCommit( 'init' )
+  // begin()
+  // .then( () =>
+  // {
+  //   provider.fileWrite( readmePath, readmePath );
+  //   return null;
+  // })
+  // shell( 'git add README' )
+  // shell( 'git commit -m test' )
+  // shell( 'git push' )
+  // .then( () =>
+  // {
+  //   test.case = 'unstaged after rename';
+  //   provider.fileRename( readmePath + '_', readmePath );
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : true,
+  //     'uncommittedUntracked' : _.maybe,
+  //     'uncommittedAdded' : _.maybe,
+  //     'uncommittedChanged' : _.maybe,
+  //     'uncommittedDeleted' : _.maybe,
+  //     'uncommittedRenamed' : _.maybe,
+  //     'uncommittedCopied' : _.maybe,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : _.maybe,
+  //     'unpushedCommits' : _.maybe,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : true,
+  //     'uncommittedUntracked' : true,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : true,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+  //   return null;
+  // })
+  // shell( 'git add .' )
+  // .then( () =>
+  // {
+  //   test.case = 'staged after rename';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : true,
+  //     'uncommittedUntracked' : _.maybe,
+  //     'uncommittedAdded' : _.maybe,
+  //     'uncommittedChanged' : _.maybe,
+  //     'uncommittedDeleted' : _.maybe,
+  //     'uncommittedRenamed' : _.maybe,
+  //     'uncommittedCopied' : _.maybe,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : _.maybe,
+  //     'unpushedCommits' : _.maybe,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : true,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : true,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+  //   return null;
+  // })
+  // shell( 'git commit -m test' )
+  // .then( () =>
+  // {
+  //   test.case = 'comitted after rename';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : true,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : true,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+  //   return null;
+  // })
+  // shell( 'git push' )
+  // .then( () =>
+  // {
+  //   test.case = 'pushed after rename';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+  //   return null;
+  // })
+
+  // /*  */
+
+  // prepareRepo()
+  // repoNewCommit( 'init' )
+  // begin()
+  // .then( () =>
+  // {
+  //   provider.fileWrite( readmePath, readmePath );
+  //   return null;
+  // })
+  // shell( 'git add README' )
+  // shell( 'git commit -m test' )
+  // shell( 'git push' )
+  // .then( () =>
+  // {
+  //   test.case = 'unstaged after delete';
+  //   provider.fileDelete( readmePath );
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : true,
+  //     'uncommittedUntracked' : _.maybe,
+  //     'uncommittedAdded' : _.maybe,
+  //     'uncommittedChanged' : _.maybe,
+  //     'uncommittedDeleted' : _.maybe,
+  //     'uncommittedRenamed' : _.maybe,
+  //     'uncommittedCopied' : _.maybe,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : _.maybe,
+  //     'unpushedCommits' : _.maybe,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : true,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : true,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   return null;
+  // })
+  // shell( 'git add .' )
+  // .then( () =>
+  // {
+  //   test.case = 'staged after delete';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : true,
+  //     'uncommittedUntracked' : _.maybe,
+  //     'uncommittedAdded' : _.maybe,
+  //     'uncommittedChanged' : _.maybe,
+  //     'uncommittedDeleted' : _.maybe,
+  //     'uncommittedRenamed' : _.maybe,
+  //     'uncommittedCopied' : _.maybe,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : _.maybe,
+  //     'unpushedCommits' : _.maybe,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : true,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : true,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   return null;
+  // })
+  // shell( 'git commit -m test' )
+  // .then( () =>
+  // {
+  //   test.case = 'comitted after delete';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : true,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : true,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   return null;
+  // })
+  // shell( 'git push' )
+  // .then( () =>
+  // {
+  //   test.case = 'pushed after delete';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   return null;
+  // })
+
+  // /*  */
+
+  // prepareRepo()
+  // repoNewCommit( 'init' )
+  // begin()
+  // shell( 'git checkout -b testbranch' )
+  // .then( () =>
+  // {
+  //   test.case = 'local clone has unpushed branch';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got, expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 1,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : true,
+  //     'status' : true
+  //   }
+  //   return null;
+  // })
+  // shell( 'git push -u origin testbranch' )
+  // .then( () =>
+  // {
+  //   test.case = 'local clone does not have unpushed branch';
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got,expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 1,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : false,
+  //     'status' : false
+  //   }
+  //   test.identical( got,expected )
+
+  //   return null;
+  // })
+
+  // /*  */
+
+  // prepareRepo()
+  // repoNewCommit( 'init' )
+  // begin()
+  // shell( 'git tag testtag' )
+  // .then( () =>
+  // {
+  //   test.case = 'local clone has unpushed tag';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got,expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 1,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : true,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got,expected )
+
+  //   return null;
+  // })
+  // shell( 'git push --tags' )
+  // .then( () =>
+  // {
+  //   test.case = 'local clone doesnt have unpushed tag';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 0,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got,expected )
+
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 0,
+  //     unpushed : 1,
+  //     unpushedTags : 1,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : false,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : null,
+  //     'unpushed' : false,
+  //     'unpushedCommits' : false,
+  //     'unpushedTags' : false,
+  //     'unpushedBranches' : null,
+  //     'status' : false
+  //   }
+  //   test.identical( got,expected )
+  //   return null;
+  // })
+
+  // /*  */
+
+  // prepareRepo()
+  // repoNewCommit( 'init' )
+  // begin()
+  // .then( () =>
+  // {
+  //   test.case = 'local clone has ignored file';
+  //   let ignoredFilePath = path.join( localPath, 'file' );
+  //   provider.fileWrite( ignoredFilePath,ignoredFilePath )
+  //   _.git.ignoreAdd( localPath, { 'file' : null } )
+  //   return null;
+  // })
+  // shell( 'git add --all' )
+  // shell( 'git commit -am "no desc"' )
+  // .then( () =>
+  // {
+  //   test.case = 'has ignored file';
+  //   var got = _.git.statusLocal
+  //   ({
+  //     localPath,
+  //     uncommitted : 1,
+  //     uncommittedIgnored : 1,
+  //     unpushed : 1,
+  //     unpushedTags : 0,
+  //     unpushedBranches : 0,
+  //     detailing : 1,
+  //     explaining : 0
+  //   });
+  //   var expected =
+  //   {
+  //     'uncommitted' : true,
+  //     'uncommittedUntracked' : false,
+  //     'uncommittedAdded' : false,
+  //     'uncommittedChanged' : false,
+  //     'uncommittedDeleted' : false,
+  //     'uncommittedRenamed' : false,
+  //     'uncommittedCopied' : false,
+  //     'uncommittedIgnored' : true,
+  //     'unpushed' : true,
+  //     'unpushedCommits' : true,
+  //     'unpushedTags' : null,
+  //     'unpushedBranches' : null,
+  //     'status' : true
+  //   }
+  //   test.identical( got,expected )
+
+  //   return null;
+  // })
 
   /*  */
 
@@ -2637,6 +2776,196 @@ function statusLocal( test )
 }
 
 statusLocal.timeOut = 30000;
+
+//
+
+function statusLocalAsync( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+  prepareRepo()
+
+  /* */
+
+  begin()
+  .then( () =>
+  {
+    test.case = 'check after fresh clone, defaults'
+    return _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      uncommittedIgnored : 1,
+      unpushed : 1,
+      unpushedTags : 0,
+      unpushedBranches : 1,
+      detailing : 1,
+      explaining : 0,
+      sync : 0
+    })
+    .then( ( got ) =>
+    {
+      var expected =
+      {
+        'uncommitted' : false,
+        'uncommittedUntracked' : false,
+        'uncommittedAdded' : false,
+        'uncommittedChanged' : false,
+        'uncommittedDeleted' : false,
+        'uncommittedRenamed' : false,
+        'uncommittedCopied' : false,
+        'uncommittedIgnored' : null,
+        'unpushed' : false,
+        'unpushedCommits' : false,
+        'unpushedTags' : null,
+        'unpushedBranches' : false,
+        'status' : false
+      }
+      test.identical( got, expected )
+      return null;
+    })
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    shell2( 'git init --bare' );
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+
+  function repoNewCommit( message )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    con.then( () =>
+    {
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git -C secondary commit --allow-empty -m ' + message )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
+
+  function repoNewCommitToBranch( message, branch )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    let create = true;
+    let secondRepoPath = path.join( testPath, 'secondary' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+
+    con.then( () =>
+    {
+      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
+      create = false;
+      return null;
+    })
+
+    con.then( () =>
+    {
+      let con2 = new _.Consequence().take( null );
+      let shell2 = _.process.starter
+      ({
+        currentPath : testPath,
+        ready : con2
+      })
+
+      if( create )
+      shell2( 'git -C secondary checkout -b ' + branch )
+      else
+      shell2( 'git -C secondary checkout ' + branch )
+
+      shell2( 'git -C secondary commit --allow-empty -m ' + message )
+
+      if( create )
+      shell2( 'git -C secondary push --set-upstream origin ' + branch )
+      else
+      shell2( 'git -C secondary push' )
+
+      return con2;
+    })
+
+    return con;
+  }
+
+}
+
+statusLocalAsync.timeOut = 30000;
 
 //
 
@@ -6868,6 +7197,7 @@ var Proto =
     versionsPull,
 
     statusLocal,
+    statusLocalAsync,
     statusLocalExplainingTrivial,
     statusRemote,
     hasLocalChanges,
