@@ -1709,13 +1709,21 @@ function status( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
 
-  let o2 = _.mapOnly( o, self.statusLocal.defaults );
-  o2.sync = 0;
-  let localReady = self.statusLocal.call( this, o2 );
+  let localReady = null;
+  if( o.local )
+  {
+    let o2 = _.mapOnly( o, self.statusLocal.defaults );
+    o2.sync = 0;
+    localReady = self.statusLocal.call( this, o2 );
+  }
 
-  let o3 = _.mapOnly( o, self.statusRemote.defaults );
-  o3.sync = 0;
-  let remoteReady = self.statusRemote.call( this, o3 );
+  let remoteReady = null;
+  if( o.remote && 0 )
+  {
+    let o3 = _.mapOnly( o, self.statusRemote.defaults );
+    o3.sync = 0;
+    remoteReady = self.statusRemote.call( this, o3 );
+  }
 
   debugger;
   let ready = _.Consequence.AndKeep([ localReady, remoteReady ])
@@ -1724,7 +1732,7 @@ function status( o )
     debugger;
     if( err )
     throw err;
-    return _.mapExtend( null, arg[ 0 ], arg[ 1 ] );
+    return _.mapExtend( null, arg[ 0 ] || {}, arg[ 1 ] || {} );
     // return arg;
   });
 
