@@ -959,36 +959,59 @@ function statusLocal_body( o )
 
   function statusMake()
   {
+
     if( o.explaining )
     {
-      result.status = '';
-
-      if( optimizingCheck )
+      let explanation = [];
+      for( let k in result )
       {
-        result.status += result.uncommitted + '\n'
+        if( !_.strDefined( result[ k ] ) )
+        continue;
+        explanation.push( _.strQuote( k ) + ':' );
+        explanation.push( result[ k ] );
       }
-      else
-      {
-        explanationCollect( statusLocal_body.uncommittedGroup, 'uncommitted'  )
-      }
-
-      explanationCollect( statusLocal_body.unpushedGroup, 'unpushed' );
+      result.status = explanation.join( '\n' );
     }
     else
     {
       for( let k in result )
       {
-        if( result[ k ] === true )
-        {
-          result.status = true;
-          break
-        }
-        else if( result[ k ] === false )
-        {
-          result.status = false;
-        }
+        result.status = result[ k ];
+        if( result.status === true )
+        break;
       }
     }
+
+    // if( o.explaining )
+    // {
+    //   result.status = '';
+
+    //   if( optimizingCheck )
+    //   {
+    //     result.status += result.uncommitted + '\n'
+    //   }
+    //   else
+    //   {
+    //     explanationCollect( statusLocal_body.uncommittedGroup, 'uncommitted'  )
+    //   }
+
+    //   explanationCollect( statusLocal_body.unpushedGroup, 'unpushed' );
+    // }
+    // else
+    // {
+    //   for( let k in result )
+    //   {
+    //     if( result[ k ] === true )
+    //     {
+    //       result.status = true;
+    //       break
+    //     }
+    //     else if( result[ k ] === false )
+    //     {
+    //       result.status = false;
+    //     }
+    //   }
+    // }
   }
 
   /* */
