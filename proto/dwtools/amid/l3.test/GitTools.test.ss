@@ -6022,7 +6022,6 @@ function infoStatus( test )
       prs : 1,
     });
 
-    test.identical( got.isRepository, true )
     test.identical( got.hasLocalChanges, false )
     test.identical( got.hasRemoteChanges, false )
     test.identical( got.status.status, '' );
@@ -6043,7 +6042,7 @@ function infoStatus( test )
       unpushedTags: null,
       status: ''
     }
-    test.identical( got.status.local, expectedLocal );
+    test.identical( got.status, expectedLocal );
 
     var expectedRemote =
     {
@@ -6052,7 +6051,7 @@ function infoStatus( test )
       tags: false,
       status: false
     }
-    test.identical( got.status.remote, expectedRemote );
+    test.identical( got.status, expectedRemote );
 
     return null;
   })
@@ -6093,10 +6092,10 @@ function infoStatus( test )
       unpushedBranches: false,
       unpushedTags: null,
     }
-    test.contains( got.status.local, expectedLocal );
-    test.is( _.strDefined( got.status.local.unpushed ) );
-    test.is( _.strDefined( got.status.local.unpushedCommits ) );
-    test.is( _.strDefined( got.status.local.status ) );
+    test.contains( got.status, expectedLocal );
+    test.is( _.strDefined( got.status.unpushed ) );
+    test.is( _.strDefined( got.status.unpushedCommits ) );
+    test.is( _.strDefined( got.status.status ) );
 
     var expectedRemote =
     {
@@ -6105,7 +6104,7 @@ function infoStatus( test )
       tags: false,
       status: false
     }
-    test.identical( got.status.remote, expectedRemote );
+    test.identical( got.status, expectedRemote );
 
     return null;
   })

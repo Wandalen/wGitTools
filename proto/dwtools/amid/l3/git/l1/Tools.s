@@ -1698,8 +1698,24 @@ function status( o )
     debugger;
     if( err )
     throw err;
-    return _.mapExtend( null, arg[ 0 ] || {}, arg[ 1 ] || {} );
-    // return arg;
+
+    let result = _.mapExtend( null, arg[ 0 ] || {}, arg[ 1 ] || {} );
+
+    if( arg[ 0 ] )
+    result.status = arg[ 0 ].status;
+
+    if( arg[ 1 ] )
+    {
+      if( !result.status )
+      result.status = arg[ 1 ].status;
+
+      if( o.explaining )
+      result.status += '\n' + arg[ 1 ].status;
+      else
+      result.status = arg[ 0 ].status || arg[ 1 ].status
+    }
+
+    return result;
   });
 
   debugger;
@@ -2293,9 +2309,7 @@ function infoStatus( o )
 
   o = _.routineOptions( infoStatus, arguments );
 
-  o.info = null;
-  o.hasLocalChanges = null;
-  o.hasRemoteChanges = null;
+  // o.info = null;
   o.isRepository = null;
   if( o.prs )
   o.prs = [];
@@ -2315,29 +2329,38 @@ function infoStatus( o )
   o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
 
   if( o.local || o.remote )
-  {
-    o.status = _.git.status
-    ({
-      localPath : o.localPath,
-      local : o.local,
-      remote : o.remote,
-      explaining : 1,
-      detailing : o.detailing
-    })
-    return o.status;
+  o.status = _.git.status
+  ({
+    localPath : o.localPath,
+    local : o.local,
+    remote : o.remote,
+    explaining : 1,
+    detailing : o.detailing
+  })
 
-    o.hasLocalChanges = !!o.status.local.status;
-    o.hasRemoteChanges = !!o.status.remote.status;
+  o.status.prs = o.prs.length;
+
+  if( !o.prs.length && !o.status.status )
+  {
+    if( o.status.status === null )
+    o.status.status = false;
+    return o.status;
   }
 
-  if( !o.prs.length && !o.hasLocalChanges && !o.hasRemoteChanges )
-  return o;
-
-  if( o.hasRemoteChanges )
-  o.status.status += 'Has some remote changes\n' + o.status.status;
+  // if( o.hasRemoteChanges )
+  // o.status.status += 'Has some remote changes\n' + o.status.status;
 
   if( o.prs && o.prs.length )
-  o.status.status += `Has ${o.prs.length} opened pull requests\n` + o.status.status;
+  {
+    let prsExplanation= `Has ${o.prs.length} opened pull requests\n` + o.status.status;
+
+    if( o.status.status === null )
+    o.status.status = prsExplanation;
+    else if( _.strIs( o.status.status ) )
+    o.status.status += '\n' + prsExplanation;
+    else
+    o.status.status = true;
+  }
 
   // _.process.start
   // ({
@@ -2361,7 +2384,7 @@ function infoStatus( o )
   // })
   // .catchBrief();
 
-  return o;
+  return o.status;
 }
 
 infoStatus.defaults =
