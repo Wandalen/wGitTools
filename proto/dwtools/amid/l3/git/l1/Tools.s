@@ -877,17 +877,23 @@ function statusLocal_pre( routine, args )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( args.length === 1 );
 
+  if( o.uncommitted != null )
   _.each( routine.uncommittedGroup, ( k ) =>
   {
     if( o[ k ] === null )
     o[ k ] = o.uncommitted;
   })
 
+  if( o.unpushed != null )
   _.each( routine.unpushedGroup, ( k ) =>
   {
     if( o[ k ] === null )
     o[ k ] = o.unpushed;
   })
+
+  for( let k in o  )
+  if( o[ k ] === null )
+  o[ k ] = true;
 
   return o;
 }
@@ -1287,7 +1293,7 @@ defaults.localPath = null;
 defaults.sync = 1;
 defaults.verbosity = 0;
 
-defaults.uncommitted = 1;
+defaults.uncommitted = null;
 defaults.uncommittedUntracked = null;
 defaults.uncommittedAdded = null;
 defaults.uncommittedChanged = null;
@@ -1296,10 +1302,10 @@ defaults.uncommittedRenamed = null;
 defaults.uncommittedCopied = null;
 defaults.uncommittedIgnored = 0;
 
-defaults.unpushed = 1;
+defaults.unpushed = null;
 defaults.unpushedCommits = null;
 defaults.unpushedTags = 0;
-defaults.unpushedBranches = 1;
+defaults.unpushedBranches = null;
 
 defaults.detailing = 0;
 defaults.explaining = 0;
@@ -1423,14 +1429,31 @@ _.routineExtend( hasLocalChanges, statusLocal )
   if branch is not listed in `git branch` but exists in ouput of reflog, then branch was deleted
 */
 
-function statusRemote( o )
+
+function statusRemote_pre( routine, args )
 {
+  let o = args[ 0 ];
+
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( statusRemote, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.routineOptions( routine, o );
+  _.assert( arguments.length === 2 );
+  _.assert( args.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
+
+  for( let k in o  )
+  if( o[ k ] === null )
+  o[ k ] = true;
+
+  return o;
+}
+
+//
+
+function statusRemote_body( o )
+{
+  _.assert( arguments.length === 1, 'Expects single argument' );
 
   let ready = new _.Consequence();
   let start =  _.process.starter
@@ -1633,17 +1656,21 @@ function statusRemote( o )
 
 }
 
-var defaults = statusRemote.defaults = Object.create( null );
+var defaults = statusRemote_body.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
-defaults.commits = 1;
+defaults.commits = null;
 defaults.branches = 0;
-defaults.tags = 1;
+defaults.tags = null;
 defaults.detailing = 0;
 defaults.explaining = 0;
 // defaults.branches = 1; /* qqq : ? */
 // defaults.tags = 0; /* qqq : ? */
 defaults.sync = 1;
+
+//
+
+let statusRemote = _.routineFromPreAndBody( statusRemote_pre, statusRemote_body );
 
 //
 
@@ -1665,31 +1692,50 @@ _.routineExtend( hasRemoteChanges, statusRemote )
 
 //
 
-function status( o )
+function status_pre( routine, args )
 {
-  let self = this;
+  let o = args[ 0 ];
+
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( status, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.routineOptions( routine, o );
+  _.assert( arguments.length === 2 );
+  _.assert( args.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
 
+  if( o.unpushed === null )
+  o.unpushed = o.local;
+  if( o.uncommitted === null )
+  o.uncommitted = o.local;
+
+  if( o.commits === null )
+  o.commits = o.remote;
+  if( o.branches === null )
+  o.branches = o.remote;
+  if( o.tags === null )
+  o.tags = o.remote;
+
+  return o;
+}
+
+//
+
+function status_body( o )
+{
+  let self = this;
+
+  _.assert( arguments.length === 1, 'Expects single argument' );
+
   let localReady = null;
-  if( o.local )
-  {
-    let o2 = _.mapOnly( o, self.statusLocal.defaults );
-    o2.sync = 0;
-    localReady = self.statusLocal.call( this, o2 );
-  }
+  let o2 = _.mapOnly( o, self.statusLocal.defaults );
+  o2.sync = 0;
+  localReady = self.statusLocal.call( this, o2 );
 
   let remoteReady = null;
-  if( o.remote && 0 )
-  {
-    let o3 = _.mapOnly( o, self.statusRemote.defaults );
-    o3.sync = 0;
-    remoteReady = self.statusRemote.call( this, o3 );
-  }
+  let o3 = _.mapOnly( o, self.statusRemote.defaults );
+  o3.sync = 0;
+  remoteReady = self.statusRemote.call( this, o3 );
 
   debugger;
   let ready = _.Consequence.AndKeep([ localReady, remoteReady ])
@@ -1702,17 +1748,20 @@ function status( o )
     let result = _.mapExtend( null, arg[ 0 ] || {}, arg[ 1 ] || {} );
 
     if( arg[ 0 ] )
+    if( arg[ 0 ].status !== null )
     result.status = arg[ 0 ].status;
 
     if( arg[ 1 ] )
+    if( arg[ 1 ].status !== null )
     {
       if( !result.status )
-      result.status = arg[ 1 ].status;
+      {
+        result.status = arg[ 1 ].status;
+        return result;
+      }
 
-      if( o.explaining )
+      if( o.explaining && arg[ 1 ].status )
       result.status += '\n' + arg[ 1 ].status;
-      else
-      result.status = arg[ 0 ].status || arg[ 1 ].status
     }
 
     return result;
@@ -1816,10 +1865,10 @@ function status( o )
 
 }
 
-_.routineExtend( status, statusLocal )
-_.routineExtend( status, statusRemote )
+_.routineExtend( status_body, statusLocal )
+_.routineExtend( status_body, statusRemote )
 
-var defaults = status.defaults;
+var defaults = status_body.defaults;
 defaults.localPath = null;
 // defaults.verbosity = 0;
 // defaults.sync = 1;
@@ -1829,6 +1878,8 @@ defaults.remote = 1;
 defaults.local = 1;
 defaults.detailing = 0;
 defaults.explaining = 0;
+
+let status = _.routineFromPreAndBody( status_pre, status_body );
 
 //
 
@@ -2328,19 +2379,14 @@ function infoStatus( o )
   if( o.prs )
   o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
 
-  if( o.local || o.remote )
-  o.status = _.git.status
-  ({
-    localPath : o.localPath,
-    local : o.local,
-    remote : o.remote,
-    explaining : 1,
-    detailing : o.detailing
-  })
+  // if( o.local || o.remote )
+  o.status = _.git.status( _.mapOnly( o, status.defaults ) )
 
-  o.status.prs = o.prs.length;
+  debugger
 
-  if( !o.prs.length && !o.status.status )
+  o.status.prs = o.prs ? o.prs.length : null;
+
+  if( o.prs && !o.prs.length && !o.status.status )
   {
     if( o.status.status === null )
     o.status.status = false;
@@ -2351,15 +2397,18 @@ function infoStatus( o )
   // o.status.status += 'Has some remote changes\n' + o.status.status;
 
   if( o.prs && o.prs.length )
+  if( !o.explaining )
+  {
+    o.status.status = true;
+  }
+  else
   {
     let prsExplanation= `Has ${o.prs.length} opened pull requests\n` + o.status.status;
 
-    if( o.status.status === null )
+    if( !o.status.status )
     o.status.status = prsExplanation;
-    else if( _.strIs( o.status.status ) )
-    o.status.status += '\n' + prsExplanation;
     else
-    o.status.status = true;
+    o.status.status += '\n' + prsExplanation;
   }
 
   // _.process.start
@@ -2404,7 +2453,7 @@ infoStatus.defaults =
   // checkingPrs : 1,
 }
 
-_.mapSupplement( infoStatus.defaults, statusLocal.defaults );
+_.mapSupplement( infoStatus.defaults, status.defaults );
 
 //
 
