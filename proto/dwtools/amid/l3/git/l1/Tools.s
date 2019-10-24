@@ -902,8 +902,10 @@ function statusLocal_body( o )
   ({
     currentPath : o.localPath,
     mode : 'spawn',
-    sync : o.sync,
-    deasync : 0,
+    // sync : o.sync,
+    // deasync : 0,
+    sync : 0,
+    deasync : o.sync,
     throwingExitCode : 1,
     outputCollecting : 1,
     verbosity : o.verbosity - 1,
@@ -915,14 +917,21 @@ function statusLocal_body( o )
 
   let result = resultPrepare();
 
-  let optimizedCheck =  o.uncommittedUntracked && o.uncommittedAdded &&
+  let optimizingCheck =  o.uncommittedUntracked && o.uncommittedAdded &&
                         o.uncommittedChanged && o.uncommittedDeleted &&
                         o.uncommittedRenamed && o.uncommittedCopied  &&
                         !o.detailing;
 
-  let ready = _.Consequence.Try( () => start({ execPath : 'git status', args : statusArgs }) )
+  // let ready = _.Consequence.Try( () => start({ execPath : 'git status', args : statusArgs }) )
+  let ready = new _.Consequence().take( null );
 
-  .then( ( got ) =>
+  ready.then( ( got ) =>
+  {
+    // debugger;
+    return start({ execPath : 'git status', args : statusArgs })
+  });
+
+  ready.then( ( got ) =>
   {
     let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
 
@@ -930,64 +939,19 @@ function statusLocal_body( o )
     check for any changes, except new commits/tags/branches
     */
 
-    if( optimizedCheck )
+    // debugger;
+
+    if( optimizingCheck )
     {
-      result.uncommitted = output.length > 1;
-
-      _.each( statusLocal_body.uncommittedGroup, ( k ) =>
-      {
-        if( o[ k ] )
-        result[ k ] = result.uncommitted ? _.maybe : false;
-      })
-
-      if( result.uncommitted )
-      {
-        result.unpushed = _.maybe;
-        _.each( statusLocal_body.unpushedGroup, ( k ) =>
-        {
-          if( o[ k ] )
-          result[ k ] = _.maybe;
-        })
-
-        if( o.explaining )
-        result.uncommitted = got.output;
-        return true;
-      }
+      return optimizedCheck( output );
     }
     else
     {
-      let outputStripped = output.join( '\n' );
-
-      if( o.uncommittedUntracked )
-      if( uncommittedDetailedCheck( outputStripped, 'uncommittedUntracked', /^\?{1,2} .*/gm ) )
-      return true;
-
-      if( o.uncommittedAdded )
-      if( uncommittedDetailedCheck( outputStripped, 'uncommittedAdded', /^A .*/gm ) )
-      return true;
-
-      if( o.uncommittedChanged )
-      if( uncommittedDetailedCheck( outputStripped, 'uncommittedChanged', /^M .*/gm ) )
-      return true;
-
-      if( o.uncommittedDeleted )
-      if( uncommittedDetailedCheck( outputStripped, 'uncommittedDeleted', /^D .*/gm ) )
-      return true;
-
-      if( o.uncommittedRenamed )
-      if( uncommittedDetailedCheck( outputStripped, 'uncommittedRenamed', /^R .*/gm ) )
-      return true;
-
-      if( o.uncommittedCopied )
-      if( uncommittedDetailedCheck( outputStripped, 'uncommittedCopied', /^C .*/gm ) )
-      return true;
-
-      if( o.uncommittedIgnored )
-      if( uncommittedDetailedCheck( outputStripped, 'uncommittedIgnored', /^!{1,2} .*/gm ) )
-      return true;
+      return detailedCheck( output );
     }
 
-    return false;
+    // debugger;
+    // return false;
   })
 
   if( o.unpushedCommits )
@@ -1001,8 +965,12 @@ function statusLocal_body( o )
 
   ready.finally( end );
 
+  // debugger;
   if( o.sync )
-  return ready.syncMaybe();
+  return ready.deasync();
+
+  // if( o.sync )
+  // return ready.syncMaybe();
 
   return ready;
 
@@ -1010,6 +978,7 @@ function statusLocal_body( o )
 
   function end( err, got )
   {
+
     if( err )
     throw _.err( err, `\nFailed to check if repository ${_.color.strFormat( String( o.localPath ), 'path' )} has local changes` );
 
@@ -1026,7 +995,7 @@ function statusLocal_body( o )
     {
       result.status = '';
 
-      if( optimizedCheck )
+      if( optimizingCheck )
       {
         result.status += result.uncommitted + '\n'
       }
@@ -1048,15 +1017,84 @@ function statusLocal_body( o )
         }
         else if( result[ k ] === false )
         {
-          result.status = result[ k ];
+          result.status = false;
         }
       }
     }
   }
 
+  /* */
+
+  function optimizedCheck( output )
+  {
+    result.uncommitted = output.length > 1;
+
+    _.each( statusLocal_body.uncommittedGroup, ( k ) =>
+    {
+      if( o[ k ] )
+      result[ k ] = result.uncommitted ? _.maybe : false;
+    })
+
+    if( result.uncommitted )
+    {
+      result.unpushed = _.maybe;
+      _.each( statusLocal_body.unpushedGroup, ( k ) =>
+      {
+        if( o[ k ] )
+        result[ k ] = _.maybe;
+      })
+
+      if( o.explaining )
+      result.uncommitted = got.output;
+      return true;
+    }
+
+    return false;
+  }
+
+  /* */
+
+  function detailedCheck( output )
+  {
+    let outputStripped = output.join( '\n' );
+
+    if( o.uncommittedUntracked )
+    if( uncommittedDetailedCheck( outputStripped, 'uncommittedUntracked', /^\?{1,2} .*/gm ) )
+    return true;
+
+    if( o.uncommittedAdded )
+    if( uncommittedDetailedCheck( outputStripped, 'uncommittedAdded', /^A .*/gm ) )
+    return true;
+
+    if( o.uncommittedChanged )
+    if( uncommittedDetailedCheck( outputStripped, 'uncommittedChanged', /^M .*/gm ) )
+    return true;
+
+    if( o.uncommittedDeleted )
+    if( uncommittedDetailedCheck( outputStripped, 'uncommittedDeleted', /^D .*/gm ) )
+    return true;
+
+    if( o.uncommittedRenamed )
+    if( uncommittedDetailedCheck( outputStripped, 'uncommittedRenamed', /^R .*/gm ) )
+    return true;
+
+    if( o.uncommittedCopied )
+    if( uncommittedDetailedCheck( outputStripped, 'uncommittedCopied', /^C .*/gm ) )
+    return true;
+
+    if( o.uncommittedIgnored )
+    if( uncommittedDetailedCheck( outputStripped, 'uncommittedIgnored', /^!{1,2} .*/gm ) )
+    return true;
+
+    return false;
+  }
+
+  /* */
+
   function explanationCollect( checksMap, statusField )
   {
     let explanation = '';
+
     _.each( checksMap, ( k ) =>
     {
       if( _.strIs( result[ k ] ) )
@@ -1076,6 +1114,8 @@ function statusLocal_body( o )
 
     result[ statusField ] = explanation;
   }
+
+  /* */
 
   function resultPrepare()
   {
@@ -1121,11 +1161,13 @@ function statusLocal_body( o )
 
   function checkTags( got )
   {
-    if( got )
-    return true;
+    // debugger;
+    // if( got )
+    // return true;
 
-    let ready = _.Consequence.Try( () => start( 'git push --tags --dry-run' ) );
-    ready.then( ( got ) =>
+    // let ready = _.Consequence.Try( () => start( 'git push --tags --dry-run' ) );
+    return start( 'git push --tags --dry-run' )
+    .then( ( got ) =>
     {
       result.unpushedTags = _.strHas( got.output, '[new tag]' )
 
@@ -1142,15 +1184,18 @@ function statusLocal_body( o )
       }
       return false;
     })
-    return ready;
+
+    // return ready;
+    // return got;
   }
 
   /* */
 
   function checkBranches( got )
   {
-    if( got )
-    return true;
+    // debugger;
+    // if( got )
+    // return true;
 
     let startOptions =
     {
@@ -1162,8 +1207,9 @@ function statusLocal_body( o )
       ]
     };
 
-    let ready = _.Consequence.Try( () => start( startOptions ) );
-    ready.then( ( got ) =>
+    // let ready = _.Consequence.Try( () => start( startOptions ) );
+    return start( startOptions )
+    .then( ( got ) =>
     {
       let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
       let branches = output.map( ( src ) => JSON.parse( src ) );
@@ -1194,20 +1240,25 @@ function statusLocal_body( o )
       }
       return false;
     })
-    return ready;
+
+    // return ready;
+    // return got;
   }
 
   /* - */
 
   function checkUnpushedCommits( got )
   {
-    if( got )
-    return true;
+    // debugger;
+    // if( got )
+    // return true;
 
-    let ready = _.Consequence.Try( () => start( 'git branch -vv' ) );
+    // let ready = _.Consequence.Try( () => start( 'git branch -vv' ) );
 
-    ready.then( ( got ) =>
+    return start( 'git branch -vv' )
+    .then( ( got ) =>
     {
+      // debugger;
       result.unpushedCommits = _.strHas( got.output, /\[.*ahead .*\]/gm );
 
       if( result.unpushed === null )
@@ -1226,10 +1277,29 @@ function statusLocal_body( o )
       return false;
     })
 
-    return ready;
+    // return ready;
+    // return got;
   }
 
 }
+
+statusLocal_body.uncommittedGroup =
+[
+  'uncommittedUntracked',
+  'uncommittedAdded',
+  'uncommittedChanged',
+  'uncommittedDeleted',
+  'uncommittedRenamed',
+  'uncommittedCopied',
+  'uncommittedIgnored'
+]
+
+statusLocal_body.unpushedGroup =
+[
+  'unpushedCommits',
+  'unpushedTags',
+  'unpushedBranches',
+]
 
 var defaults = statusLocal_body.defaults = Object.create( null );
 
@@ -1254,31 +1324,14 @@ defaults.unpushedBranches = 1;
 defaults.detailing = 0;
 defaults.explaining = 0;
 
-statusLocal_body.uncommittedGroup =
-[
-  'uncommittedUntracked',
-  'uncommittedAdded',
-  'uncommittedChanged',
-  'uncommittedDeleted',
-  'uncommittedRenamed',
-  'uncommittedCopied',
-  'uncommittedIgnored'
-]
-
-statusLocal_body.unpushedGroup =
-[
-  'unpushedCommits',
-  'unpushedTags',
-  'unpushedBranches',
-]
-
 let statusLocal = _.routineFromPreAndBody( statusLocal_pre, statusLocal_body );
 
 //
 
 function hasLocalChanges()
 {
-  let result = statusLocal.apply( this, arguments );
+  let self = this;
+  let result = self.statusLocal.apply( this, arguments );
 
   _.assert( result.status !== undefined );
 
@@ -1403,8 +1456,8 @@ function statusRemote( o )
   ({
     currentPath : o.localPath,
     mode : 'shell',
-    sync : o.sync,
-    deasync : 0,
+    sync : 0,
+    deasync : o.sync,
     throwingExitCode : 0,
     outputCollecting : 1,
     outputPiping : 0,
@@ -1422,7 +1475,16 @@ function statusRemote( o )
   }
 
   let remotes;
-  let ready = _.Consequence.Try( () =>
+  // let ready = _.Consequence.Try( () =>
+  // {
+  //   if( o.commits || o.branches || o.tags )
+  //   return start( 'git ls-remote' );
+  //   return false;
+  // })
+
+  let ready = new _.Consequence().take( null );
+
+  ready.then( () =>
   {
     if( o.commits || o.branches || o.tags )
     return start( 'git ls-remote' );
@@ -1431,8 +1493,8 @@ function statusRemote( o )
 
   .then( ( arg ) =>
   {
-    if( !arg )
-    return false;
+    // if( !arg )
+    // return false;
     remotes = parseRefs( arg.output );
     remotes = remotes.slice( 1 );
     return check();
@@ -1441,12 +1503,14 @@ function statusRemote( o )
   {
     if( err )
     throw _.err( err, '\nFailed to check if remote repository has changes' );
-
     return result;
   })
 
+  // if( o.sync )
+  // return ready.syncMaybe();
+
   if( o.sync )
-  return ready.syncMaybe();
+  return ready.deasync();
 
   return ready;
 
@@ -1503,12 +1567,32 @@ function statusRemote( o )
 
           if( o.commits )
           {
-            let startResult = start
+
+            // let startResult = start
+            // ({
+            //   execPath : `git branch --contains ${hash} --quiet --format=%(refname)`,
+            //   throwingExitCode : 0,
+            //   sync : 1,
+            //   deasync : 1,
+            // });
+
+            /* qqq : why not async? */
+
+            let startResult =  _.process.start
             ({
+              currentPath : o.localPath,
               execPath : `git branch --contains ${hash} --quiet --format=%(refname)`,
+              mode : 'shell',
+              sync : 1,
+              deasync : 0,
               throwingExitCode : 0,
-              sync : 1
+              outputCollecting : 1,
+              outputPiping : 0,
+              inputMirroring : 0,
+              stdio : [ 'pipe', 'pipe', 'ignore' ],
+              verbosity : o.verbosity - 1
             });
+
             result.commits = !_.strHas( startResult.output, ref );
 
             if( !result.status )
@@ -1573,6 +1657,7 @@ function statusRemote( o )
 
         return true;
       }
+
     })
 
     return ready;
@@ -1614,12 +1699,9 @@ _.routineExtend( hasRemoteChanges, statusRemote )
 
 //
 
-/*
-qqq : option returningMap required
-*/
-
 function status( o )
 {
+  let self = this;
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
@@ -1627,79 +1709,121 @@ function status( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
 
-  let result =
+  let o2 = _.mapOnly( o, self.statusLocal.defaults );
+  o2.sync = 0;
+  let localReady = self.statusLocal.call( this, o2 );
+
+  let o3 = _.mapOnly( o, self.statusRemote.defaults );
+  o3.sync = 0;
+  let remoteReady = self.statusRemote.call( this, o3 );
+
+  debugger;
+  let ready = _.Consequence.AndKeep([ localReady, remoteReady ])
+  .finally( ( err, arg ) =>
   {
-    local : null,
-    remote : null,
-    status : null
-  }
+    debugger;
+    if( err )
+    throw err;
+    return _.mapExtend( null, arg[ 0 ], arg[ 1 ] );
+    // return arg;
+  });
 
-  let ready = _.Consequence.Try( () =>
-  {
-    if( o.local )
-    return statusLocal.call( this, _.mapOnly( o, this.statusLocal.defaults ) );
-    return null;
-  })
-  .then( ( localStatus ) =>
-  {
-    result.local = localStatus;
-    return statusOk( result.local );
-  })
-
-  if( o.remote )
-  ready.then( remoteCheck );
-
-  ready.then( () =>
-  {
-    result.status = statusOk( result.local ) || statusOk( result.remote );
-
-    if( o.explaining )
-    {
-      if( result.status )
-      result.status = [ result.local.status, result.remote.status ].join( '\n' );
-      else
-      result.status = '';
-    }
-
-    return result;
-  })
-
+  debugger;
   if( o.sync )
-  return ready.syncMaybe();
-
+  return ready.deasync();
   return ready;
 
-  /*  */
+  // let localStatus, remoteStatus;
+  // let result =
+  // {
+  //   // local : null,
+  //   // remote : null,
+  //   // status : null
+  // }
+  //
+  // let ready = _.Consequence.Try( () =>
+  // {
+  //   if( o.local )
+  //   return statusLocal.call( this, _.mapOnly( o, this.statusLocal.defaults ) );
+  //   return null;
+  // })
+  // .then( ( arg ) =>
+  // {
+  //   localStatus = arg;
+  //   // return statusOk( result.local );
+  //   if( !o.remote )
+  //   return null;
+  //   let o2 = _.mapOnly( o, statusRemote.defaults );
+  //   o2.sync = 0;
+  //   return statusRemote.call( this, o2 );
+  // })
+  //
+  // // if( o.remote )
+  // // ready.then( remoteCheck );
+  //
+  //   let ready = _.Consequence.Try( () =>
+  //   {
+  //     return statusRemote.call( this, _.mapOnly( o, statusRemote.defaults ) );
+  //   })
+  //
+  //   ready.then( ( remoteStatus ) =>
+  //   {
+  //     result.remote = remoteStatus;
+  //     return remoteStatus;
+  //   })
+  //
+  // ready.then( () =>
+  // {
+  //   result.status = statusOk( result.local ) || statusOk( result.remote );
+  //
+  //   if( o.explaining )
+  //   {
+  //     if( result.status )
+  //     result.status = [ result.local.status, result.remote.status ].join( '\n' );
+  //     else
+  //     result.status = '';
+  //   }
+  //
+  //   return result;
+  // })
+  //
+  // if( o.sync )
+  // return ready.syncMaybe();
+  //
+  // return ready;
+  //
+  // /*  */
+  //
+  // // function remoteCheck( prevStatus )
+  // // {
+  // //   // if( prevStatus && !o.detailing )
+  // //   // return true;
+  // //
+  // //   let ready = _.Consequence.Try( () =>
+  // //   {
+  // //     return statusRemote.call( this, _.mapOnly( o, statusRemote.defaults ) );
+  // //   })
+  // //
+  // //   ready.then( ( remoteStatus ) =>
+  // //   {
+  // //     result.remote = remoteStatus;
+  // //     return remoteStatus;
+  // //   })
+  // //
+  // //   return ready;
+  // // }
+  //
+  // function statusOk( statusMap )
+  // {
+  //   if( !statusMap )
+  //   return false;
+  //
+  //   if( statusMap.status === true || _.strDefined( statusMap.status ) )
+  //   return true;
+  //
+  //   return false;
+  // }
 
-  function remoteCheck( prevStatus )
-  {
-    // if( prevStatus && !o.detailing )
-    // return true;
-
-    let ready = _.Consequence.Try( () =>
-    {
-      return statusRemote.call( this, _.mapOnly( o, statusRemote.defaults ) );
-    })
-
-    ready.then( ( remoteStatus ) =>
-    {
-      result.remote = remoteStatus;
-      return remoteStatus;
-    })
-
-    return ready;
-  }
-
-  function statusOk( statusMap )
-  {
-    if( !statusMap )
-    return false;
-
-    if( statusMap.status === true || _.strDefined( statusMap.status ) )
-    return true;
-
-    return false;
-  }
 }
 
 _.routineExtend( status, statusLocal )
@@ -1707,11 +1831,11 @@ _.routineExtend( status, statusRemote )
 
 var defaults = status.defaults;
 defaults.localPath = null;
-defaults.verbosity = 0;
-defaults.sync = 1;
+// defaults.verbosity = 0;
+// defaults.sync = 1;
 defaults.remote = 1;
-defaults.uncommitted = 1;
-defaults.unpushed = 1;
+// defaults.uncommitted = 1;
+// defaults.unpushed = 1;
 defaults.local = 1;
 defaults.detailing = 0;
 defaults.explaining = 0;
@@ -2226,6 +2350,7 @@ function infoStatus( o )
       explaining : 1,
       detailing : o.detailing
     })
+    return o.status;
 
     o.hasLocalChanges = !!o.status.local.status;
     o.hasRemoteChanges = !!o.status.remote.status;
