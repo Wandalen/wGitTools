@@ -1531,13 +1531,11 @@ function statusRemote( o )
 
       if( !_.strHas( output, ref ) )
       {
-        let explanation = 'Remote has new branch:' + _.strQuote( ref );
-
         if( result.branches )
         result.branches += '\n';
-        result.branches += explanation;
-        _.arrayAppendOnce( status, '"branches":' )
-        status.push( explanation );
+        result.branches += ref;
+        _.arrayAppendOnce( status, 'List of new remote branches:' )
+        status.push( ref );
       }
     }
 
@@ -1570,23 +1568,17 @@ function statusRemote( o )
 
       con.then( () =>
       {
-        if( !result.commits )
         return start({ execPath, ready : null })
-        return result.commits;
       })
       .then( ( got ) =>
       {
-        if( result.commits )
-        return result.commits;
         if( !_.strHas( got.output, ref ) )
         {
-          let explanation = 'Remote has new commit(s) at ref:' + _.strQuote( ref );
-
           if( result.commits )
           result.commits += '\n';
-          result.commits += explanation;
-          _.arrayAppendOnce( status, '"commits":' )
-          status.push( explanation );
+          result.commits += ref;
+          _.arrayAppendOnce( status, 'List of remote branches that have new commits:' )
+          status.push( ref );
         }
         return result.commits;
       })
@@ -1612,13 +1604,11 @@ function statusRemote( o )
 
       if( !_.strHas( output, tag ) )
       {
-        let explanation = 'Remote has new tag:' + _.strQuote( tag );
         if( result.tags )
         result.tags += '\n';
-        result.tags += explanation;
-        _.arrayAppendOnce( status, '"tags":' )
-        status.push( explanation );
-        break;
+        result.tags += tag;
+        _.arrayAppendOnce( status, 'List of new remote tags:' )
+        status.push( tag );
       }
     }
 
