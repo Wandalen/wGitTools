@@ -959,54 +959,104 @@ function statusLocal_body( o )
 
   function statusMake()
   {
-    let status = null;
 
-    for( let k in result )
+    /*  */
+
+    if( !optimizedCheck )
     {
-      _.assert( result[ k ] === null || _.strIs( result[ k ] ) || _.boolIs( result[ k ] ), 'Wrong value of status field', _.strQuote( k ), result[ k ] );
+      for( let i = 0; i < statusLocal_body.uncommittedGroup.length; i++ )
+      {
+        let k = statusLocal_body.uncommittedGroup[ i ];
 
-      status = !!result[ k ];
-      if( status )
-      break;
+        if( o[ k ] )
+        if( !result[ k ] )
+        {
+          result.uncommitted = '';
+          break;
+        }
+
+        if( result.uncommitted === null )
+        result.uncommitted = [];
+
+        result.uncommitted.push( _.strQuote( k ) + ':' );
+        result.uncommitted.push( result[ k ] );
+      }
+      if( _.arrayIs( result.uncommitted ) )
+      result.uncommitted = result.uncommitted.join( '\n' )
     }
 
-    for( let k in result )
+    /*  */
+
+    for( let i = 0; i < statusLocal_body.unpushedGroup.length; i++ )
     {
-      if( !o[ k ] )
+      let k = statusLocal_body.unpushedGroup[ i ];
+
+      if( o[ k ] )
+      if( !result[ k ] )
       {
-        _.sure( result[ k ] === null );
+        result.unpushed = '';
+        break;
       }
-      else if( o.detailing )
+
+      if( result.unpushed === null )
+      result.unpushed = [];
+
+      result.unpushed.push( _.strQuote( k ) + ':' );
+      result.unpushed.push( result[ k ] );
+    }
+
+    if( _.arrayIs( result.unpushed ) )
+    result.unpushed = result.unpushed.join( '\n' );
+
+    /*  */
+
+    if( _.strIs( result.uncommitted ) )
+    result.status = result.uncommitted;
+
+    if( _.strIs( result.unpushed ) )
+    {
+      if( !result.status )
+      result.status = result.uncommitted;
+      else
+      result.status += '\n' + result.uncommitted;
+    }
+
+    _.assert( _.strIs( result.status ) || result.status === null );
+
+    /*  */
+
+    if( optimizedCheck )
+    {
+      let uncommitted = !!result.uncommitted;
+
+      if( uncommitted )
+      _.each( statusLocal_body.uncommittedGroup, ( k ) =>
       {
-        _.sure( _.boolIs( result[ k ] ) );
-      }
-      else if( status && result[ k ] === null )
+        if( !o[ k ] )
+        return;
+        _.assert( result[ k ] === null )
+        result[ k ] = uncommitted ? _.maybe : '';
+      })
+
+      if( uncommitted )
       {
-        result[ k ] = _.maybe;
+        result.uncommitted = _.maybe;
+        _.each( statusLocal_body.unpushedGroup, ( k ) =>
+        {
+          if( !o[ k ] )
+          return;
+          _.assert( result[ k ] === null )
+          result[ k ] = _.maybe;
+        })
       }
     }
 
     if( !o.explaining )
     {
-      result.status = status;
-      return;
+      for( let k in result )
+      if( _.strIs( result[ k ] ) )
+      result[ k ] = !!result[ k ];
     }
-
-    if( !status )
-    {
-      result.status = '';
-      return;
-    }
-
-    let explanation = [];
-    for( let k in result )
-    {
-      if( !_.strDefined( result[ k ] ) )
-      continue;
-      explanation.push( _.strQuote( k ) + ':' );
-      explanation.push( result[ k ] );
-    }
-    result.status = explanation.join( '\n' );
   }
 
   /* */
@@ -1046,29 +1096,12 @@ function statusLocal_body( o )
 
   function optimizedCheck( output )
   {
-    result.uncommitted = output.length > 1;
+    result.uncommitted = '';
 
-    // _.each( statusLocal_body.uncommittedGroup, ( k ) =>
-    // {
-    //   if( o[ k ] )
-    //   result[ k ] = result.uncommitted ? _.maybe : false;
-    // })
+    if( output.length > 1 )
+    result.uncommitted = output.join( '\n' );
 
-    if( result.uncommitted )
-    {
-      // result.unpushed = _.maybe;
-      // _.each( statusLocal_body.unpushedGroup, ( k ) =>
-      // {
-      //   if( o[ k ] )
-      //   result[ k ] = _.maybe;
-      // })
-
-      if( o.explaining )
-      result.uncommitted = output.join( '\n' );
-      return true;
-    }
-
-    return false;
+    return result.uncommitted;
   }
 
   /* */
@@ -1110,32 +1143,6 @@ function statusLocal_body( o )
 
   /* */
 
-  function explanationCollect( checksMap, statusField )
-  {
-    let explanation = '';
-
-    _.each( checksMap, ( k ) =>
-    {
-      if( _.strIs( result[ k ] ) )
-      {
-        if( explanation.length )
-        explanation += '\n';
-        explanation += result[ k ];
-      }
-    })
-
-    if( !explanation )
-    return;
-
-    if( result.status.length )
-    result.status += '\n';
-    result.status += explanation;
-
-    result[ statusField ] = explanation;
-  }
-
-  /* */
-
   function resultPrepare()
   {
     let result = Object.create( null );
@@ -1153,69 +1160,37 @@ function statusLocal_body( o )
 
   function uncommittedDetailedCheck( output, check, regexp )
   {
-    result[ check ] = _.strHas( output, regexp );
+    let match = output.match( regexp );
 
-    if( result.uncommitted === null )
-    result.uncommitted = result[ check ];
+    result[ check ] = '';
 
-    if( result[ check ] )
-    {
-      result.uncommitted = true;
+    if( match )
+    result[ check ] = match.join( '\n' )
 
-      if( o.explaining )
-      {
-        result[ check ] = output.match( regexp );
-        if( _.arrayIs( result[ check ] ) )
-        result[ check ] = result[ check ].join( '\n' );
-      }
-      if( !o.detailing )
-      return true;
-    }
-
-    return false;
+    return result[ check ];
   }
 
   /* */
 
   function checkTags( got )
   {
-    // debugger;
-    // if( got )
-    // return true;
-
-    // let ready = _.Consequence.Try( () => start( 'git push --tags --dry-run' ) );
     return start( 'git push --tags --dry-run' )
     .then( ( got ) =>
     {
       let match = got.output.match( /^.*\[new tag\].*$/gm );
-      result.unpushedTags = !!match;
+      result.unpushedTags = '';
 
-      if( result.unpushed === null )
-      result.unpushed = result.unpushedTags;
+      if( match )
+      result.unpushedTags = match.join( '\n' );
 
-      if( result.unpushedTags )
-      {
-        result.unpushed = true;
-        if( o.explaining )
-        result.unpushedTags = match.join( '\n' );
-        if( !o.detailing )
-        return true;
-      }
-      return false;
+      return result.unpushedTags;
     })
-
-    // return ready;
-    // return got;
   }
 
   /* */
 
   function checkBranches( got )
   {
-    // debugger;
-    // if( got )
-    // return true;
-
     let startOptions =
     {
       execPath : 'git branch',
@@ -1233,79 +1208,43 @@ function statusLocal_body( o )
       let branches = output.map( ( src ) => JSON.parse( src ) );
       let explanation = [];
 
-      result.unpushedBranches = false;
+      result.unpushedBranches = '';
 
       for( let i = 0; i < branches.length; i++ )
       {
         let record = branches[ i ];
+
         _.assert( _.strIs( record.upstream ) );
 
         if( record.upstream.length )
         continue;
 
-        result.unpushedBranches = true;
-
-        if( !o.explaining )
-        break;
-
-        explanation.push( `There is no tracking information for the branch: "${record.branch}".` )
+        explanation.push( `There is no tracking information for the branch: "${record.branch}".` );
       }
 
-      if( result.unpushed === null )
-      result.unpushed = result.unpushedBranches;
+      if( explanation.length )
+      result.unpushedBranches = explanation.join( '\n' );
 
-      if( result.unpushedBranches )
-      {
-        result.unpushed = true;
-        if( o.explaining )
-        result.unpushedBranches = explanation.join( '\n' );
-        if( !o.detailing )
-        return true;
-      }
-      return false;
+      return result.unpushedBranches;
     })
-
-    // return ready;
-    // return got;
   }
 
   /* - */
 
   function unpushedCommitsCheck( got )
   {
-    // debugger;
-    // if( got )
-    // return true;
-
-    // let ready = _.Consequence.Try( () => start( 'git branch -vv' ) );
-
     return start( 'git branch -vv' )
     .then( ( got ) =>
     {
-      // debugger;
+
       let match = got.output.match( /^.*\[.*ahead .*\].*$/gm );
-      result.unpushedCommits = !!match;
+      result.unpushedCommits = '';
+      if( match )
+      result.unpushedCommits = match.join( '\n' );
 
-      if( result.unpushed === null )
-      result.unpushed = result.unpushedCommits;
-
-      if( result.unpushedCommits )
-      {
-        result.unpushed = true;
-
-        if( o.explaining )
-        result.unpushedCommits = match.join( '\n' );
-        if( !o.detailing )
-        return true;
-      }
-
-      return false;
+      return result.unpushedCommits;
     })
-
-    // return ready;
-    // return got;
   }
-
 }
 
 statusLocal_body.uncommittedGroup =
