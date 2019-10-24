@@ -964,10 +964,15 @@ function statusLocal_body( o )
 
     if( !optimizingCheck )
     {
-      result.uncommitted = [];
       for( let i = 0; i < statusLocal_body.uncommittedGroup.length; i++ )
       {
         let k = statusLocal_body.uncommittedGroup[ i ];
+
+        if( !_.strIs( result[ k ] ) )
+        continue;
+
+        if( result.uncommitted === null )
+        result.uncommitted = [];
 
         if( !_.strDefined( result[ k ] ) )
         continue;
@@ -975,15 +980,21 @@ function statusLocal_body( o )
         result.uncommitted.push( _.strQuote( k ) + ':' );
         result.uncommitted.push( result[ k ] );
       }
+      if( _.arrayIs( result.uncommitted ) )
       result.uncommitted = result.uncommitted.join( '\n' )
     }
 
     /*  */
 
-    result.unpushed = [];
     for( let i = 0; i < statusLocal_body.unpushedGroup.length; i++ )
     {
       let k = statusLocal_body.unpushedGroup[ i ];
+
+      if( !_.strIs( result[ k ] ) )
+      continue;
+
+      if( result.unpushed === null )
+      result.unpushed = [];
 
       if( !_.strDefined( result[ k ] ) )
       continue;
@@ -991,23 +1002,25 @@ function statusLocal_body( o )
       result.unpushed.push( _.strQuote( k ) + ':' );
       result.unpushed.push( result[ k ] );
     }
+    if( _.arrayIs( result.unpushed ) )
     result.unpushed = result.unpushed.join( '\n' );
 
     /*  */
 
-    result.status = '';
+    result.status = null;
 
-    if( _.strDefined( result.uncommitted ) )
+    if( _.strIs( result.uncommitted ) )
     result.status = result.uncommitted;
 
-    if( _.strDefined( result.unpushed ) )
+    if( _.strIs( result.unpushed ) )
     {
-      if( result.status )
-      result.status += '\n'
-      result.status += result.unpushed;
+      if( !result.status )
+      result.status = result.unpushed;
+      else if( result.unpushed )
+      result.status += '\n' + result.unpushed;
     }
 
-    _.assert( _.strIs( result.status ) );
+    _.assert( _.strIs( result.status ) || result.status === null );
 
     /*  */
 
