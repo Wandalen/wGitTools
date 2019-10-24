@@ -1029,7 +1029,6 @@ function statusLocal_body( o )
     {
       let uncommitted = !!result.uncommitted;
 
-      if( uncommitted )
       _.each( statusLocal_body.uncommittedGroup, ( k ) =>
       {
         if( !o[ k ] )
@@ -1040,7 +1039,7 @@ function statusLocal_body( o )
 
       if( uncommitted )
       {
-        result.uncommitted = _.maybe;
+        result.unpushed = _.maybe;
         _.each( statusLocal_body.unpushedGroup, ( k ) =>
         {
           if( !o[ k ] )
