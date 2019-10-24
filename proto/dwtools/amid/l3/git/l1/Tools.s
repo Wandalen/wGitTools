@@ -1049,11 +1049,15 @@ function statusLocal_body( o )
       }
     }
 
-    if( !o.explaining )
     for( let k in result )
     {
       if( _.strIs( result[ k ] ) )
-      result[ k ] = !!result[ k ];
+      {
+        if( !o.explaining )
+        result[ k ] = !!result[ k ];
+        else if( o.detailing && !result[ k ] )
+        result[ k ] = false;
+      }
     }
   }
 

@@ -380,19 +380,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
-      'status' : ''
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -514,19 +514,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
       'uncommittedIgnored' : null,
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : null,
-      'status' : ''
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -606,16 +606,16 @@ function statusLocal( test )
     {
       'uncommitted' : expectedStatus,
       'uncommittedUntracked' : '?? newFile',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
       'status' : expectedStatus
     }
     test.identical( got, expected )
@@ -702,17 +702,17 @@ function statusLocal( test )
     var expected =
     {
       'uncommitted' : expectedStatus,
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
       'uncommittedChanged' : 'M README',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
       'status' : expectedStatus
     }
     test.identical( got, expected )
@@ -782,19 +782,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
-      'status' : ''
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -867,19 +867,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
-      'status' : ''
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -952,19 +952,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
-      'status' : ''
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -1032,19 +1032,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
-      'status' : ''
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -1115,16 +1115,16 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
     }
     test.contains( got, expected )
     test.is( _.strHas( got.status, /"unpushedCommits":\n\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -1201,16 +1201,16 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
     }
     test.contains( got, expected )
     test.is( _.strHas( got.status, /"unpushedCommits":\n\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -1288,19 +1288,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
-      'status' : ''
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -1377,16 +1377,16 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
     }
     test.contains( got, expected )
     test.is( _.strHas( got.status, /"unpushedCommits":\n\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -1463,18 +1463,18 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
       'unpushed' : '"unpushedTags":\n * [new tag]         sometag -> sometag',
-      'unpushedCommits' : '',
+      'unpushedCommits' : false,
       'unpushedTags' : ' * [new tag]         sometag -> sometag',
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
       'status' : '"unpushedTags":\n * [new tag]         sometag -> sometag'
     }
     test.identical( got, expected )
@@ -1544,19 +1544,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
-      'unpushedTags' : '',
-      'unpushedBranches' : '',
-      'status' : ''
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
+      'unpushedTags' : false,
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -1630,18 +1630,18 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
       'unpushed' : '"unpushedTags":\n * [new tag]         sometag -> sometag',
-      'unpushedCommits' : '',
+      'unpushedCommits' : false,
       'unpushedTags' : ' * [new tag]         sometag -> sometag',
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
       'status' : '"unpushedTags":\n * [new tag]         sometag -> sometag'
     }
     test.identical( got, expected )
@@ -1710,19 +1710,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
-      'unpushedTags' : '',
-      'unpushedBranches' : '',
-      'status' : ''
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
+      'unpushedTags' : false,
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -1806,16 +1806,16 @@ function statusLocal( test )
     {
       'uncommitted' : '"uncommittedUntracked":\n?? README_\n"uncommittedDeleted":\nD README',
       'uncommittedUntracked' : '?? README_',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
       'uncommittedDeleted' : 'D README',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
       'status' : '"uncommittedUntracked":\n?? README_\n"uncommittedDeleted":\nD README'
     }
     test.identical( got, expected )
@@ -1885,17 +1885,17 @@ function statusLocal( test )
     var expected =
     {
       'uncommitted' : '"uncommittedRenamed":\nR  README -> README_',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
       'uncommittedRenamed' : 'R  README -> README_',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
       'status' : '"uncommittedRenamed":\nR  README -> README_'
     }
     test.identical( got, expected )
@@ -1963,16 +1963,16 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
     }
     test.contains( got, expected )
     test.is( _.strHas( got.status, /"unpushedCommits":\n\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -2042,19 +2042,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
-      'unpushedTags' : '',
-      'unpushedBranches' : '',
-      'status' : ''
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
+      'unpushedTags' : false,
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -2136,17 +2136,17 @@ function statusLocal( test )
     var expected =
     {
       'uncommitted' : '"uncommittedDeleted":\nD README',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
       'uncommittedDeleted' : 'D README',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
       'status' : '"uncommittedDeleted":\nD README'
     }
     test.identical( got, expected )
@@ -2216,17 +2216,17 @@ function statusLocal( test )
     var expected =
     {
       'uncommitted' : '"uncommittedDeleted":\nD  README',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
       'uncommittedDeleted' : 'D  README',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
       'status' : '"uncommittedDeleted":\nD  README'
     }
     test.identical( got, expected )
@@ -2295,16 +2295,16 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
       'unpushedTags' : null,
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
     }
     test.contains( got, expected )
     test.is( _.strHas( got.status, /"unpushedCommits":\n\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -2374,19 +2374,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
-      'unpushedTags' : '',
-      'unpushedBranches' : '',
-      'status' : ''
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
+      'unpushedTags' : false,
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -2459,17 +2459,17 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
       'unpushed' : '"unpushedBranches":\nThere is no tracking information for the branch: "testbranch".',
-      'unpushedCommits' : '',
-      'unpushedTags' : '',
+      'unpushedCommits' : false,
+      'unpushedTags' : false,
       'unpushedBranches' : 'There is no tracking information for the branch: "testbranch".',
       'status' : '"unpushedBranches":\nThere is no tracking information for the branch: "testbranch".'
     }
@@ -2539,19 +2539,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
-      'unpushedTags' : '',
-      'unpushedBranches' : '',
-      'status' : ''
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
+      'unpushedTags' : false,
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -2625,18 +2625,18 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
       'unpushed' : '"unpushedTags":\n * [new tag]         testtag -> testtag',
-      'unpushedCommits' : '',
+      'unpushedCommits' : false,
       'unpushedTags' : ' * [new tag]         testtag -> testtag',
-      'unpushedBranches' : '',
+      'unpushedBranches' : false,
       'status' : '"unpushedTags":\n * [new tag]         testtag -> testtag'
     }
     test.identical( got, expected )
@@ -2705,19 +2705,19 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : '',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
-      'uncommittedIgnored' : '',
-      'unpushed' : '',
-      'unpushedCommits' : '',
-      'unpushedTags' : '',
-      'unpushedBranches' : '',
-      'status' : ''
+      'uncommitted' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
+      'uncommittedIgnored' : false,
+      'unpushed' : false,
+      'unpushedCommits' : false,
+      'unpushedTags' : false,
+      'unpushedBranches' : false,
+      'status' : false
     }
     test.identical( got, expected )
 
@@ -2800,15 +2800,15 @@ function statusLocal( test )
     var expected =
     {
       'uncommitted' : '"uncommittedIgnored":\n!! file',
-      'uncommittedUntracked' : '',
-      'uncommittedAdded' : '',
-      'uncommittedChanged' : '',
-      'uncommittedDeleted' : '',
-      'uncommittedRenamed' : '',
-      'uncommittedCopied' : '',
+      'uncommittedUntracked' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedRenamed' : false,
+      'uncommittedCopied' : false,
       'uncommittedIgnored' : '!! file',
-      'unpushedTags' : '',
-      'unpushedBranches' : '',
+      'unpushedTags' : false,
+      'unpushedBranches' : false,
     }
     test.contains( got, expected )
 
