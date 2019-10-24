@@ -1001,7 +1001,11 @@ function statusLocal_body( o )
     result.status = result.uncommitted;
 
     if( _.strDefined( result.unpushed ) )
-    result.status += '\n' + result.uncommitted;
+    {
+      if( result.status )
+      result.status += '\n'
+      result.status += result.unpushed;
+    }
 
     _.assert( _.strIs( result.status ) );
 
