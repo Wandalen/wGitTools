@@ -962,7 +962,7 @@ function statusLocal_body( o )
 
     /*  */
 
-    if( !optimizedCheck )
+    if( !optimizingCheck )
     {
       for( let i = 0; i < statusLocal_body.uncommittedGroup.length; i++ )
       {
@@ -1025,7 +1025,7 @@ function statusLocal_body( o )
 
     /*  */
 
-    if( optimizedCheck )
+    if( optimizingCheck )
     {
       let uncommitted = !!result.uncommitted;
 
