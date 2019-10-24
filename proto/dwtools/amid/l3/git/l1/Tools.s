@@ -1037,8 +1037,8 @@ function statusLocal_body( o )
     }
 
     if( !o.explaining )
+    for( let k in result )
     {
-      for( let k in result )
       if( _.strIs( result[ k ] ) )
       result[ k ] = !!result[ k ];
     }
@@ -1152,14 +1152,16 @@ function statusLocal_body( o )
     if( match )
     result[ check ] = match.join( '\n' )
 
-    // return result[ check ];
-    return false ; //Vova:xxx
+    return result[ check ] && !o.detailing;
   }
 
   /* */
 
   function checkTags( got )
   {
+    if( got && !o.detailing )
+    return got;
+
     return start( 'git push --tags --dry-run' )
     .then( ( got ) =>
     {
@@ -1177,6 +1179,9 @@ function statusLocal_body( o )
 
   function checkBranches( got )
   {
+    if( got && !o.detailing )
+    return got;
+
     let startOptions =
     {
       execPath : 'git branch',
@@ -1219,6 +1224,9 @@ function statusLocal_body( o )
 
   function unpushedCommitsCheck( got )
   {
+    if( got && !o.detailing )
+    return got;
+
     return start( 'git branch -vv' )
     .then( ( got ) =>
     {
