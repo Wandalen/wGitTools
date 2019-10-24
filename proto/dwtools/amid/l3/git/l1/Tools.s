@@ -959,59 +959,54 @@ function statusLocal_body( o )
 
   function statusMake()
   {
+    let status = null;
 
-    if( o.explaining )
+    for( let k in result )
     {
-      let explanation = [];
-      for( let k in result )
-      {
-        if( !_.strDefined( result[ k ] ) )
-        continue;
-        explanation.push( _.strQuote( k ) + ':' );
-        explanation.push( result[ k ] );
-      }
-      result.status = explanation.join( '\n' );
-    }
-    else
-    {
-      for( let k in result )
-      {
-        result.status = result[ k ];
-        if( result.status === true )
-        break;
-      }
+      _.assert( result[ k ] === null || _.strIs( result[ k ] ) || _.boolIs( result[ k ] ), 'Wrong value of status field', _.strQuote( k ), result[ k ] );
+
+      status = !!result[ k ];
+      if( status )
+      break;
     }
 
-    // if( o.explaining )
-    // {
-    //   result.status = '';
+    for( let k in result )
+    {
+      if( !o[ k ] )
+      {
+        _.sure( result[ k ] === null );
+      }
+      else if( o.detailing )
+      {
+        _.sure( _.boolIs( result[ k ] ) );
+      }
+      else if( status && result[ k ] === null )
+      {
+        result[ k ] = _.maybe;
+      }
+    }
 
-    //   if( optimizingCheck )
-    //   {
-    //     result.status += result.uncommitted + '\n'
-    //   }
-    //   else
-    //   {
-    //     explanationCollect( statusLocal_body.uncommittedGroup, 'uncommitted'  )
-    //   }
+    if( !o.explaining )
+    {
+      result.status = status;
+      return;
+    }
 
-    //   explanationCollect( statusLocal_body.unpushedGroup, 'unpushed' );
-    // }
-    // else
-    // {
-    //   for( let k in result )
-    //   {
-    //     if( result[ k ] === true )
-    //     {
-    //       result.status = true;
-    //       break
-    //     }
-    //     else if( result[ k ] === false )
-    //     {
-    //       result.status = false;
-    //     }
-    //   }
-    // }
+    if( !status )
+    {
+      result.status = '';
+      return;
+    }
+
+    let explanation = [];
+    for( let k in result )
+    {
+      if( !_.strDefined( result[ k ] ) )
+      continue;
+      explanation.push( _.strQuote( k ) + ':' );
+      explanation.push( result[ k ] );
+    }
+    result.status = explanation.join( '\n' );
   }
 
   /* */
@@ -1053,20 +1048,20 @@ function statusLocal_body( o )
   {
     result.uncommitted = output.length > 1;
 
-    _.each( statusLocal_body.uncommittedGroup, ( k ) =>
-    {
-      if( o[ k ] )
-      result[ k ] = result.uncommitted ? _.maybe : false;
-    })
+    // _.each( statusLocal_body.uncommittedGroup, ( k ) =>
+    // {
+    //   if( o[ k ] )
+    //   result[ k ] = result.uncommitted ? _.maybe : false;
+    // })
 
     if( result.uncommitted )
     {
-      result.unpushed = _.maybe;
-      _.each( statusLocal_body.unpushedGroup, ( k ) =>
-      {
-        if( o[ k ] )
-        result[ k ] = _.maybe;
-      })
+      // result.unpushed = _.maybe;
+      // _.each( statusLocal_body.unpushedGroup, ( k ) =>
+      // {
+      //   if( o[ k ] )
+      //   result[ k ] = _.maybe;
+      // })
 
       if( o.explaining )
       result.uncommitted = output.join( '\n' );
@@ -1147,10 +1142,6 @@ function statusLocal_body( o )
 
     result.uncommitted = null;
     result.unpushed = null;
-    result.status = null;
-
-    if( o.explaining )
-    result.status = '';
 
     _.each( statusLocal_body.uncommittedGroup, ( k ) => { result[ k ] = null } )
     _.each( statusLocal_body.unpushedGroup, ( k ) => { result[ k ] = null } )
