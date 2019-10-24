@@ -1427,6 +1427,7 @@ function statusRemote( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
 
+  let ready = new _.Consequence();
   let start =  _.process.starter
   ({
     currentPath : o.localPath,
@@ -1438,7 +1439,8 @@ function statusRemote( o )
     outputPiping : 0,
     inputMirroring : 0,
     stdio : [ 'pipe', 'pipe', 'ignore' ],
-    verbosity : o.verbosity - 1
+    verbosity : o.verbosity - 1,
+    ready : ready
   });
 
   let result =
@@ -1449,64 +1451,195 @@ function statusRemote( o )
     status : null
   }
 
-  let remotes;
-  // let ready = _.Consequence.Try( () =>
-  // {
-  //   if( o.commits || o.branches || o.tags )
-  //   return start( 'git ls-remote' );
-  //   return false;
-  // })
-
-  let ready = new _.Consequence().take( null );
-
-  ready.then( () =>
+  if( !o.commits && !o.branches && !o.tags )
   {
-    if( o.commits || o.branches || o.tags )
-    return start( 'git ls-remote' );
-    return false;
+    ready.take( result );
+    return end();
+  }
+
+  ready.take( null );
+
+  let remotes,tags,heads,output;
+  let status = [];
+
+  start( 'git ls-remote' )
+  ready.then( parse )
+  start( 'git show-ref --heads --tags' )
+  ready.then( ( got ) =>
+  {
+    output = got.output;
+    return null;
   })
 
-  .then( ( arg ) =>
-  {
-    // if( !arg )
-    // return false;
-    remotes = parseRefs( arg.output );
-    remotes = remotes.slice( 1 );
-    return check();
-  })
-  .finally( ( err, got ) =>
+  if( o.branches )
+  ready.then( branchesCheck )
+  if( o.commits )
+  ready.then( commitsCheck )
+  if( o.tags )
+  ready.then( tagsCheck )
+
+  ready.finally( ( err, got ) =>
   {
     if( err )
     throw _.err( err, '\nFailed to check if remote repository has changes' );
+
+    statusMake();
+
     return result;
   })
 
-  // if( o.sync )
-  // return ready.syncMaybe();
+  /*  */
 
-  if( o.sync )
-  return ready.deasync();
-
-  return ready;
+  return end();
 
   /* - */
 
-  function parseRefs( src )
+  function end()
   {
-    let result = _.strSplitNonPreserving({ src : src, delimeter : '\n' });
-    return result.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
+    if( o.sync )
+    return ready.deasync();
+
+    return ready;
   }
 
   /* */
+
+  function parse( arg )
+  {
+    remotes = _.strSplitNonPreserving({ src : arg.output, delimeter : '\n' });
+    remotes = remotes.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
+    remotes = remotes.slice( 1 );
+
+    heads = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/heads' ) );
+    tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) );
+
+    return null;
+  }
+
+  function branchesCheck( got )
+  {
+    result.branches = '';
+
+    for( var h = 0; h < heads.length ; h++ )
+    {
+      let ref = heads[ h ][ 1 ];
+
+      if( !_.strHas( output, ref ) )
+      {
+        let explanation = 'Remote has new branch:' + _.strQuote( ref );
+
+        if( result.branches )
+        result.branches += '\n';
+        result.branches += explanation;
+        _.arrayAppendOnce( status, '"branches":' )
+        status.push( explanation );
+      }
+    }
+
+    return result.branches
+  }
+
+  function commitsCheck( got )
+  {
+    result.commits = '';
+
+    if( got && !o.detailing )
+    {
+      if( heads.length )
+      result.commits = _.maybe;
+      return got;
+    }
+
+    if( !heads.length )
+    return result.commits;
+
+    let con = new _.Consequence().take( null );
+
+    /*  */
+
+    _.each( heads, ( head ) =>
+    {
+      let hash = head[ 0 ];
+      let ref = head[ 1 ];
+      let execPath = `git branch --contains ${hash} --quiet --format=%(refname)`;
+
+      con.then( () =>
+      {
+        if( !result.commits )
+        return start({ execPath, ready : null })
+        return result.commits;
+      })
+      .then( ( got ) =>
+      {
+        if( result.commits )
+        return result.commits;
+        if( !_.strHas( got.output, ref ) )
+        {
+          let explanation = 'Remote has new commit(s) at ref:' + _.strQuote( ref );
+
+          if( result.commits )
+          result.commits += '\n';
+          result.commits += explanation;
+          _.arrayAppendOnce( status, '"commits":' )
+          status.push( explanation );
+        }
+        return result.commits;
+      })
+    })
+
+    return con;
+  }
+
+  function tagsCheck( got )
+  {
+    result.tags = '';
+
+    if( got && !o.detailing )
+    {
+      if( tags.length )
+      result.tags = _.maybe;
+      return got;
+    }
+
+    for( var h = 0; h < tags.length ; h++ )
+    {
+      let tag = tags[ h ][ 1 ];
+
+      if( !_.strHas( output, tag ) )
+      {
+        let explanation = 'Remote has new tag:' + _.strQuote( tag );
+        if( result.tags )
+        result.tags += '\n';
+        result.tags += explanation;
+        _.arrayAppendOnce( status, '"tags":' )
+        status.push( explanation );
+        break;
+      }
+    }
+
+    return result.tags;
+  }
+
+  function statusMake()
+  {
+    debugger
+    result.status = status.join( '\n' );
+
+    for( let k in result )
+    if( _.strIs( result[ k ] ) )
+    {
+      if( !o.explaining )
+      result[ k ] = !!result[ k ];
+      else if( o.detailing && !result[ k ] )
+      result[ k ] = false;
+    }
+  }
 
   function check()
   {
     let ready = _.Consequence.Try( () => start( 'git show-ref --heads --tags' ) )
     .then( ( got ) =>
     {
-      let heads = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/heads' ) );
-      let tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) );
-
       if( o.branches || o.commits )
       {
         if( !heads.length )

@@ -3407,6 +3407,71 @@ function statusRemote( test )
     test.identical( got, expected );
 
     return null;
+
+  })
+  .then( () =>
+  {
+    return _.git.statusRemote({ localPath, commits : 1, branches : 1, tags : 1, sync : 0 })
+    .then( ( got ) =>
+    {
+      var expected =
+      {
+        commits : true,
+        branches : false,
+        tags : false,
+        status : true
+      }
+      test.identical( got, expected );
+      return null;
+    })
+  })
+  .then( () =>
+  {
+    return _.git.statusRemote({ localPath, commits : 1, branches : 1, tags : 1, explaining : 1, sync : 0 })
+    .then( ( got ) =>
+    {
+      var expected =
+      {
+        commits : 'Remote has new commit(s) at ref:"refs/heads/master"',
+        branches : '',
+        tags : '',
+        status : '"commits":\nRemote has new commit(s) at ref:"refs/heads/master"'
+      }
+      test.identical( got, expected );
+      return null;
+    })
+  })
+  .then( () =>
+  {
+    return _.git.statusRemote({ localPath, commits : 1, branches : 1, tags : 1, explaining : 1, detailing : 1, sync : 0 })
+    .then( ( got ) =>
+    {
+      var expected =
+      {
+        commits : 'Remote has new commit(s) at ref:"refs/heads/master"',
+        branches : false,
+        tags : false,
+        status : '"commits":\nRemote has new commit(s) at ref:"refs/heads/master"'
+      }
+      test.identical( got, expected );
+      return null;
+    })
+  })
+  .then( () =>
+  {
+    return _.git.statusRemote({ localPath, commits : 1, branches : 1, tags : 1, explaining : 0, detailing : 0, sync : 0 })
+    .then( ( got ) =>
+    {
+      var expected =
+      {
+        commits : true,
+        branches : false,
+        tags : false,
+        status : true
+      }
+      test.identical( got, expected );
+      return null;
+    })
   })
   shell( 'git pull' )
   .then( () =>
