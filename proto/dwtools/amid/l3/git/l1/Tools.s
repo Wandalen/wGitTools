@@ -911,51 +911,19 @@ function statusLocal_body( o )
     verbosity : o.verbosity - 1,
   });
 
-  let statusArgs = [ '-u', '--porcelain', '-b' ]
-  if( o.uncommittedIgnored )
-  statusArgs.push( '--ignored' );
-
   let result = resultPrepare();
 
-  let optimizingCheck =  o.uncommittedUntracked && o.uncommittedAdded &&
-                        o.uncommittedChanged && o.uncommittedDeleted &&
-                        o.uncommittedRenamed && o.uncommittedCopied  &&
-                        !o.detailing;
+  let optimizingCheck =  o.uncommittedUntracked && o.uncommittedAdded   &&
+                         o.uncommittedChanged   && o.uncommittedDeleted &&
+                         o.uncommittedRenamed   && o.uncommittedCopied  &&
+                         !o.detailing;
 
-  // let ready = _.Consequence.Try( () => start({ execPath : 'git status', args : statusArgs }) )
   let ready = new _.Consequence().take( null );
 
-  ready.then( ( got ) =>
-  {
-    // debugger;
-    return start({ execPath : 'git status', args : statusArgs })
-  });
-
-  ready.then( ( got ) =>
-  {
-    let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
-
-    /*
-    check for any changes, except new commits/tags/branches
-    */
-
-    // debugger;
-
-    if( optimizingCheck )
-    {
-      return optimizedCheck( output );
-    }
-    else
-    {
-      return detailedCheck( output );
-    }
-
-    // debugger;
-    // return false;
-  })
+  ready.then( uncommittedCheck );
 
   if( o.unpushedCommits )
-  ready.then( checkUnpushedCommits )
+  ready.then( unpushedCommitsCheck )
 
   if( o.unpushedTags )
   ready.then( checkTags )
@@ -991,65 +959,151 @@ function statusLocal_body( o )
 
   function statusMake()
   {
-    if( o.explaining )
+
+    /*  */
+
+    if( !optimizingCheck )
     {
-      result.status = '';
-
-      if( optimizingCheck )
+      for( let i = 0; i < statusLocal_body.uncommittedGroup.length; i++ )
       {
-        result.status += result.uncommitted + '\n'
-      }
-      else
-      {
-        explanationCollect( statusLocal_body.uncommittedGroup, 'uncommitted'  )
-      }
+        let k = statusLocal_body.uncommittedGroup[ i ];
 
-      explanationCollect( statusLocal_body.unpushedGroup, 'unpushed' );
+        if( !_.strIs( result[ k ] ) )
+        continue;
+
+        if( result.uncommitted === null )
+        result.uncommitted = [];
+
+        if( !_.strDefined( result[ k ] ) )
+        continue;
+
+        result.uncommitted.push( _.strQuote( k ) + ':' );
+        result.uncommitted.push( result[ k ] );
+      }
+      if( _.arrayIs( result.uncommitted ) )
+      result.uncommitted = result.uncommitted.join( '\n' )
     }
-    else
+
+    /*  */
+
+    for( let i = 0; i < statusLocal_body.unpushedGroup.length; i++ )
     {
-      for( let k in result )
+      let k = statusLocal_body.unpushedGroup[ i ];
+
+      if( !_.strIs( result[ k ] ) )
+      continue;
+
+      if( result.unpushed === null )
+      result.unpushed = [];
+
+      if( !_.strDefined( result[ k ] ) )
+      continue;
+
+      result.unpushed.push( _.strQuote( k ) + ':' );
+      result.unpushed.push( result[ k ] );
+    }
+    if( _.arrayIs( result.unpushed ) )
+    result.unpushed = result.unpushed.join( '\n' );
+
+    /*  */
+
+    result.status = null;
+
+    if( _.strIs( result.uncommitted ) )
+    result.status = result.uncommitted;
+
+    if( _.strIs( result.unpushed ) )
+    {
+      if( !result.status )
+      result.status = result.unpushed;
+      else if( result.unpushed )
+      result.status += '\n' + result.unpushed;
+    }
+
+    _.assert( _.strIs( result.status ) || result.status === null );
+
+    /*  */
+
+    if( optimizingCheck )
+    {
+      let uncommitted = !!result.uncommitted;
+
+      _.each( statusLocal_body.uncommittedGroup, ( k ) =>
       {
-        if( result[ k ] === true )
+        if( !o[ k ] )
+        return;
+        _.assert( result[ k ] === null )
+        result[ k ] = uncommitted ? _.maybe : '';
+      })
+
+      if( uncommitted )
+      {
+        result.unpushed = _.maybe;
+        _.each( statusLocal_body.unpushedGroup, ( k ) =>
         {
-          result.status = true;
-          break
-        }
-        else if( result[ k ] === false )
-        {
-          result.status = false;
-        }
+          if( !o[ k ] )
+          return;
+          _.assert( result[ k ] === null )
+          result[ k ] = _.maybe;
+        })
+      }
+    }
+
+    for( let k in result )
+    {
+      if( _.strIs( result[ k ] ) )
+      {
+        if( !o.explaining )
+        result[ k ] = !!result[ k ];
+        else if( o.detailing && !result[ k ] )
+        result[ k ] = false;
       }
     }
   }
 
   /* */
 
+  function uncommittedCheck( got )
+  {
+    let gitStatusArgs = [ '-u', '--porcelain', '-b' ]
+    if( o.uncommittedIgnored )
+    gitStatusArgs.push( '--ignored' );
+
+    return start({ execPath : 'git status', args : gitStatusArgs })
+    .then( ( got ) =>
+    {
+      let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+
+      /*
+      check for any changes, except new commits/tags/branches
+      */
+
+      // debugger;
+
+      if( optimizingCheck )
+      {
+        return optimizedCheck( output );
+      }
+      else
+      {
+        return detailedCheck( output );
+      }
+
+      // debugger;
+      // return false;
+    })
+  }
+
+  /* */
+
   function optimizedCheck( output )
   {
-    result.uncommitted = output.length > 1;
+    result.uncommitted = '';
 
-    _.each( statusLocal_body.uncommittedGroup, ( k ) =>
-    {
-      if( o[ k ] )
-      result[ k ] = result.uncommitted ? _.maybe : false;
-    })
+    if( output.length > 1 )
+    result.uncommitted = output.join( '\n' );
 
-    if( result.uncommitted )
-    {
-      result.unpushed = _.maybe;
-      _.each( statusLocal_body.unpushedGroup, ( k ) =>
-      {
-        if( o[ k ] )
-        result[ k ] = _.maybe;
-      })
-
-      if( o.explaining )
-      result.uncommitted = got.output;
-      return true;
-    }
-
-    return false;
+    return result.uncommitted;
   }
 
   /* */
@@ -1091,39 +1145,12 @@ function statusLocal_body( o )
 
   /* */
 
-  function explanationCollect( checksMap, statusField )
-  {
-    let explanation = '';
-
-    _.each( checksMap, ( k ) =>
-    {
-      if( _.strIs( result[ k ] ) )
-      {
-        if( explanation.length )
-        explanation += '\n';
-        explanation += result[ k ];
-      }
-    })
-
-    if( !explanation )
-    return;
-
-    if( result.status.length )
-    result.status += '\n';
-    result.status += explanation;
-
-    result[ statusField ] = explanation;
-  }
-
-  /* */
-
   function resultPrepare()
   {
     let result = Object.create( null );
 
     result.uncommitted = null;
     result.unpushed = null;
-    result.status = null;
 
     _.each( statusLocal_body.uncommittedGroup, ( k ) => { result[ k ] = null } )
     _.each( statusLocal_body.unpushedGroup, ( k ) => { result[ k ] = null } )
@@ -1135,67 +1162,42 @@ function statusLocal_body( o )
 
   function uncommittedDetailedCheck( output, check, regexp )
   {
-    result[ check ] = _.strHas( output, regexp );
+    let match = output.match( regexp );
 
-    if( result.uncommitted === null )
-    result.uncommitted = result[ check ];
+    result[ check ] = '';
 
-    if( result[ check ] )
-    {
-      result.uncommitted = true;
+    if( match )
+    result[ check ] = match.join( '\n' )
 
-      if( o.explaining )
-      {
-        result[ check ] = output.match( regexp );
-        if( _.arrayIs( result[ check ] ) )
-        result[ check ] = result[ check ].join( '\n' );
-      }
-      if( !o.detailing )
-      return true;
-    }
-
-    return false;
+    return result[ check ] && !o.detailing;
   }
 
   /* */
 
   function checkTags( got )
   {
-    // debugger;
-    // if( got )
-    // return true;
+    if( got && !o.detailing )
+    return got;
 
-    // let ready = _.Consequence.Try( () => start( 'git push --tags --dry-run' ) );
     return start( 'git push --tags --dry-run' )
     .then( ( got ) =>
     {
-      result.unpushedTags = _.strHas( got.output, '[new tag]' )
+      let match = got.output.match( /^.*\[new tag\].*$/gm );
+      result.unpushedTags = '';
 
-      if( result.unpushed === null )
-      result.unpushed = result.unpushedTags;
+      if( match )
+      result.unpushedTags = match.join( '\n' );
 
-      if( result.unpushedTags )
-      {
-        result.unpushed = true;
-        if( o.explaining )
-        result.unpushedTags = got.output;
-        if( !o.detailing )
-        return true;
-      }
-      return false;
+      return result.unpushedTags;
     })
-
-    // return ready;
-    // return got;
   }
 
   /* */
 
   function checkBranches( got )
   {
-    // debugger;
-    // if( got )
-    // return true;
+    if( got && !o.detailing )
+    return got;
 
     let startOptions =
     {
@@ -1207,80 +1209,53 @@ function statusLocal_body( o )
       ]
     };
 
-    // let ready = _.Consequence.Try( () => start( startOptions ) );
     return start( startOptions )
     .then( ( got ) =>
     {
       let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
       let branches = output.map( ( src ) => JSON.parse( src ) );
+      let explanation = [];
 
-      result.unpushedBranches = false;
+      result.unpushedBranches = '';
 
       for( let i = 0; i < branches.length; i++ )
       {
-        let branch = branches[ i ];
-        _.assert( _.strIs( branch.upstream ) );
-        if( !branch.upstream.length )
-        {
-          result.unpushedBranches = true;
-          break;
-        }
+        let record = branches[ i ];
+
+        _.assert( _.strIs( record.upstream ) );
+
+        if( record.upstream.length )
+        continue;
+
+        explanation.push( `There is no tracking information for the branch: "${record.branch}".` );
       }
 
-      if( result.unpushed === null )
-      result.unpushed = result.unpushedBranches;
+      if( explanation.length )
+      result.unpushedBranches = explanation.join( '\n' );
 
-      if( result.unpushedBranches )
-      {
-        result.unpushed = true;
-        if( o.explaining )
-        result.unpushedBranches = got.output;
-        if( !o.detailing )
-        return true;
-      }
-      return false;
+      return result.unpushedBranches;
     })
-
-    // return ready;
-    // return got;
   }
 
   /* - */
 
-  function checkUnpushedCommits( got )
+  function unpushedCommitsCheck( got )
   {
-    // debugger;
-    // if( got )
-    // return true;
-
-    // let ready = _.Consequence.Try( () => start( 'git branch -vv' ) );
+    if( got && !o.detailing )
+    return got;
 
     return start( 'git branch -vv' )
     .then( ( got ) =>
     {
-      // debugger;
-      result.unpushedCommits = _.strHas( got.output, /\[.*ahead .*\]/gm );
 
-      if( result.unpushed === null )
-      result.unpushed = result.unpushedCommits;
+      let match = got.output.match( /^.*\[.*ahead .*\].*$/gm );
+      result.unpushedCommits = '';
+      if( match )
+      result.unpushedCommits = match.join( '\n' );
 
-      if( result.unpushedCommits )
-      {
-        result.unpushed = true;
-
-        if( o.explaining )
-        result.unpushedCommits = got.output;
-        if( !o.detailing )
-        return true;
-      }
-
-      return false;
+      return result.unpushedCommits;
     })
-
-    // return ready;
-    // return got;
   }
-
 }
 
 statusLocal_body.uncommittedGroup =
@@ -1452,6 +1427,7 @@ function statusRemote( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
 
+  let ready = new _.Consequence();
   let start =  _.process.starter
   ({
     currentPath : o.localPath,
@@ -1463,7 +1439,8 @@ function statusRemote( o )
     outputPiping : 0,
     inputMirroring : 0,
     stdio : [ 'pipe', 'pipe', 'ignore' ],
-    verbosity : o.verbosity - 1
+    verbosity : o.verbosity - 1,
+    ready : ready
   });
 
   let result =
@@ -1474,193 +1451,187 @@ function statusRemote( o )
     status : null
   }
 
-  let remotes;
-  // let ready = _.Consequence.Try( () =>
-  // {
-  //   if( o.commits || o.branches || o.tags )
-  //   return start( 'git ls-remote' );
-  //   return false;
-  // })
-
-  let ready = new _.Consequence().take( null );
-
-  ready.then( () =>
+  if( !o.commits && !o.branches && !o.tags )
   {
-    if( o.commits || o.branches || o.tags )
-    return start( 'git ls-remote' );
-    return false;
+    ready.take( result );
+    return end();
+  }
+
+  ready.take( null );
+
+  let remotes,tags,heads,output;
+  let status = [];
+
+  start( 'git ls-remote' )
+  ready.then( parse )
+  start( 'git show-ref --heads --tags' )
+  ready.then( ( got ) =>
+  {
+    output = got.output;
+    return null;
   })
 
-  .then( ( arg ) =>
-  {
-    // if( !arg )
-    // return false;
-    remotes = parseRefs( arg.output );
-    remotes = remotes.slice( 1 );
-    return check();
-  })
-  .finally( ( err, got ) =>
+  if( o.branches )
+  ready.then( branchesCheck )
+  if( o.commits )
+  ready.then( commitsCheck )
+  if( o.tags )
+  ready.then( tagsCheck )
+
+  ready.finally( ( err, got ) =>
   {
     if( err )
     throw _.err( err, '\nFailed to check if remote repository has changes' );
+
+    statusMake();
+
     return result;
   })
 
-  // if( o.sync )
-  // return ready.syncMaybe();
+  /*  */
 
-  if( o.sync )
-  return ready.deasync();
-
-  return ready;
+  return end();
 
   /* - */
 
-  function parseRefs( src )
+  function end()
   {
-    let result = _.strSplitNonPreserving({ src : src, delimeter : '\n' });
-    return result.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
+    if( o.sync )
+    return ready.deasync();
+
+    return ready;
   }
 
   /* */
 
-  function check()
+  function parse( arg )
   {
-    let ready = _.Consequence.Try( () => start( 'git show-ref --heads --tags' ) )
-    .then( ( got ) =>
+    remotes = _.strSplitNonPreserving({ src : arg.output, delimeter : '\n' });
+    remotes = remotes.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
+    remotes = remotes.slice( 1 );
+
+    heads = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/heads' ) );
+    tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) );
+
+    return null;
+  }
+
+  function branchesCheck( got )
+  {
+    result.branches = '';
+
+    for( var h = 0; h < heads.length ; h++ )
     {
-      let heads = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/heads' ) );
-      let tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) );
+      let ref = heads[ h ][ 1 ];
 
-      if( o.branches || o.commits )
+      if( !_.strHas( output, ref ) )
       {
-        if( !heads.length )
-        {
-          if( o.branches )
-          result.branches = false;
-          if( o.commits )
-          result.commits = false;
-          if( result.status = null )
-          result.status = false;
-        }
+        let explanation = 'Remote has new branch:' + _.strQuote( ref );
 
-        for( var h = 0; h < heads.length ; h++ )
-        {
-          let hash = heads[ h ][ 0 ];
-          let ref = heads[ h ][ 1 ];
-
-          if( o.branches )
-          {
-            result.branches = !_.strHas( got.output, ref )
-
-            if( !result.status )
-            result.status = result.branches;
-
-            if( result.branches )
-            {
-              if( o.explaining )
-              result.status = got.output;
-              if( !o.detailing )
-              return noDetailingEnd();
-            }
-          }
-
-          if( o.commits )
-          {
-
-            // let startResult = start
-            // ({
-            //   execPath : `git branch --contains ${hash} --quiet --format=%(refname)`,
-            //   throwingExitCode : 0,
-            //   sync : 1,
-            //   deasync : 1,
-            // });
-
-            /* qqq : why not async? */
-
-            let startResult =  _.process.start
-            ({
-              currentPath : o.localPath,
-              execPath : `git branch --contains ${hash} --quiet --format=%(refname)`,
-              mode : 'shell',
-              sync : 1,
-              deasync : 0,
-              throwingExitCode : 0,
-              outputCollecting : 1,
-              outputPiping : 0,
-              inputMirroring : 0,
-              stdio : [ 'pipe', 'pipe', 'ignore' ],
-              verbosity : o.verbosity - 1
-            });
-
-            result.commits = !_.strHas( startResult.output, ref );
-
-            if( !result.status )
-            result.status = result.commits;
-
-            if( result.commits )
-            {
-              if( o.explaining )
-              result.status = got.output;
-              if( !o.detailing )
-              return noDetailingEnd();
-            }
-          }
-        }
+        if( result.branches )
+        result.branches += '\n';
+        result.branches += explanation;
+        _.arrayAppendOnce( status, '"branches":' )
+        status.push( explanation );
       }
+    }
 
-      if( o.tags )
+    return result.branches
+  }
+
+  function commitsCheck( got )
+  {
+    result.commits = '';
+
+    if( got && !o.detailing )
+    {
+      if( heads.length )
+      result.commits = _.maybe;
+      return got;
+    }
+
+    if( !heads.length )
+    return result.commits;
+
+    let con = new _.Consequence().take( null );
+
+    /*  */
+
+    _.each( heads, ( head ) =>
+    {
+      let hash = head[ 0 ];
+      let ref = head[ 1 ];
+      let execPath = `git branch --contains ${hash} --quiet --format=%(refname)`;
+
+      con.then( () =>
       {
-
-        if( !tags.length )
-        {
-          result.tags = false;
-          if( result.status === null )
-          result.status = false;
-        }
-
-        for( var h = 0; h < tags.length ; h++ )
-        {
-          let ref = tags[ h ][ 1 ];
-          result.tags = !_.strHas( got.output, ref );
-
-          if( !result.status )
-          result.status = result.tags;
-
-          if( result.tags )
-          {
-            if( o.explaining )
-            result.status = got.output;
-            if( !o.detailing )
-            return noDetailingEnd();
-          }
-        }
-      }
-
-      return false;
-
-      /*  */
-
-      function noDetailingEnd()
+        if( !result.commits )
+        return start({ execPath, ready : null })
+        return result.commits;
+      })
+      .then( ( got ) =>
       {
-        if( o.branches )
-        if( result.branches === null )
-        result.branches = heads.length ? _.maybe : false;
+        if( result.commits )
+        return result.commits;
+        if( !_.strHas( got.output, ref ) )
+        {
+          let explanation = 'Remote has new commit(s) at ref:' + _.strQuote( ref );
 
-        if( o.commits )
-        if( result.commits === null )
-        result.commits = heads.length ? _.maybe : false;
-
-        if( o.tags )
-        if( result.tags === null )
-        result.tags = tags.length ? _.maybe : false;
-
-        return true;
-      }
-
+          if( result.commits )
+          result.commits += '\n';
+          result.commits += explanation;
+          _.arrayAppendOnce( status, '"commits":' )
+          status.push( explanation );
+        }
+        return result.commits;
+      })
     })
 
-    return ready;
+    return con;
+  }
+
+  function tagsCheck( got )
+  {
+    result.tags = '';
+
+    if( got && !o.detailing )
+    {
+      if( tags.length )
+      result.tags = _.maybe;
+      return got;
+    }
+
+    for( var h = 0; h < tags.length ; h++ )
+    {
+      let tag = tags[ h ][ 1 ];
+
+      if( !_.strHas( output, tag ) )
+      {
+        let explanation = 'Remote has new tag:' + _.strQuote( tag );
+        if( result.tags )
+        result.tags += '\n';
+        result.tags += explanation;
+        _.arrayAppendOnce( status, '"tags":' )
+        status.push( explanation );
+        break;
+      }
+    }
+
+    return result.tags;
+  }
+
+  function statusMake()
+  {
+    result.status = status.join( '\n' );
+
+    for( let k in result )
+    if( _.strIs( result[ k ] ) )
+    {
+      if( !o.explaining )
+      result[ k ] = !!result[ k ];
+      else if( o.detailing && !result[ k ] )
+      result[ k ] = false;
+    }
   }
 
   /* */
