@@ -1492,7 +1492,7 @@ function statusRemote_body( o )
 
   start( 'git ls-remote' )
   ready.then( parse )
-  start( 'git show-ref --heads --tags' )
+  start( 'git show-ref --heads --tags -d' )
   ready.then( ( got ) =>
   {
     output = got.output;

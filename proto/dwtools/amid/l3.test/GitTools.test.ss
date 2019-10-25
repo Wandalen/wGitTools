@@ -3845,6 +3845,103 @@ statusRemote.timeOut = 30000;
 
 //
 
+function statusRemoteTags( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let remotePath = 'https://github.com/Wandalen/willbe.git';
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  begin()
+  .then( () =>
+  {
+    test.case = 'check tags on fresh clone';
+
+    var got = _.git.statusRemote
+    ({
+      localPath,
+      commits : 1,
+      branches : 1,
+      tags : 1,
+      detailing : 1,
+      explaining : 1
+    });
+    var expected =
+    {
+      commits : false,
+      branches : false,
+      tags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    return null;
+  })
+  shell( 'git tag -d v0.5.6' )
+  .then( () =>
+  {
+    test.case = 'compare with remore after remove';
+
+    var got = _.git.statusRemote
+    ({
+      localPath,
+      commits : 1,
+      branches : 1,
+      tags : 1,
+      detailing : 1,
+      explaining : 1
+    });
+    var expected =
+    {
+      commits : false,
+      branches : false,
+      tags : 'refs/tags/v0.5.6\nrefs/tags/v0.5.6^{}',
+      status : 'List of new remote tags:\nrefs/tags/v0.5.6\nrefs/tags/v0.5.6^{}'
+    }
+    test.identical( got, expected );
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + remotePath + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+}
+
+statusRemoteTags.timeOut = 30000;
+
+//
+
 function hasLocalChanges( test )
 {
   let context = this;
@@ -9037,6 +9134,7 @@ var Proto =
     statusLocalAsync,
     statusLocalExplainingTrivial,
     statusRemote,
+    statusRemoteTags,
     status,
     hasLocalChanges,
     hasRemoteChanges,
