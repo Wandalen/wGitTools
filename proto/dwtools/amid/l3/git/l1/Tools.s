@@ -1636,21 +1636,29 @@ function status_body( o )
     let result = _.mapExtend( null, arg[ 0 ] || {}, arg[ 1 ] || {} );
 
     if( arg[ 0 ] )
-    if( arg[ 0 ].status !== null )
-    result.status = arg[ 0 ].status;
+    {
+      result.local = arg[ 0 ].status;
+      if( arg[ 0 ].status !== null )
+      result.status = arg[ 0 ].status;
+    }
+
 
     if( arg[ 1 ] )
-    if( arg[ 1 ].status !== null )
     {
-      if( !result.status )
+      result.remote = arg[ 1 ].status;
+      if( arg[ 1 ].status !== null )
       {
-        result.status = arg[ 1 ].status;
-        return result;
-      }
+        if( !result.status )
+        {
+          result.status = arg[ 1 ].status;
+          return result;
+        }
 
-      if( o.explaining && arg[ 1 ].status )
-      result.status += '\n' + arg[ 1 ].status;
+        if( o.explaining && arg[ 1 ].status )
+        result.status += '\n' + arg[ 1 ].status;
+      }
     }
+
 
     return result;
   });
