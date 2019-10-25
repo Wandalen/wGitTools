@@ -1737,13 +1737,13 @@ function status_body( o )
   o3.sync = 0;
   remoteReady = self.statusRemote.call( this, o3 );
 
-  debugger;
   let ready = _.Consequence.AndKeep([ localReady, remoteReady ])
   .finally( ( err, arg ) =>
   {
+    if( err )
     debugger;
     if( err )
-    throw err;
+    throw _.err( err );
 
     let result = _.mapExtend( null, arg[ 0 ] || {}, arg[ 1 ] || {} );
 
@@ -1767,7 +1767,6 @@ function status_body( o )
     return result;
   });
 
-  debugger;
   if( o.sync )
   return ready.deasync();
   return ready;
@@ -2199,7 +2198,8 @@ function repositoryInit( o )
       {
         debugger;
         _.fileProvider.filesDelete( downloadPath );
-        throw err;
+        if( err )
+        throw _.err( err );
       }
       try
       {
@@ -2376,64 +2376,65 @@ function infoStatus( o )
   if( !o.remotePath )
   o.remotePath = _.git.remotePathFromLocal( o.localPath );
 
+  let o2 = _.mapOnly( o, status.defaults );
+  o2.sync = 0;
+  let statusReady = _.git.status( o2 )
+
+  let prsReady = new _.Consequence().take( null );
   if( o.prs )
-  o.prs = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 1 }) || [];
+  prsReady = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0 });
 
-  // if( o.local || o.remote )
-  o.status = _.git.status( _.mapOnly( o, status.defaults ) )
-
-  debugger
-
-  o.status.prs = o.prs ? o.prs.length : null;
-
-  if( o.prs && !o.prs.length && !o.status.status )
+  let ready = _.Consequence.AndKeep([ statusReady, prsReady ])
+  .finally( ( err, arg ) =>
   {
-    if( o.status.status === null )
-    o.status.status = false;
-    return o.status;
-  }
+    if( err )
+    throw _.err( err );
+    let status = arg[ 0 ];
+    let prs = arg[ 1 ];
+    statusAdjust( status, prs );
+    return status;
+  });
 
-  // if( o.hasRemoteChanges )
-  // o.status.status += 'Has some remote changes\n' + o.status.status;
+  if( o.sync )
+  return ready.deasync();
+  return ready;
 
-  if( o.prs && o.prs.length )
-  if( !o.explaining )
+  /* */
+
+  function statusAdjust( status, prs )
   {
-    o.status.status = true;
-  }
-  else
-  {
-    let prsExplanation= `Has ${o.prs.length} opened pull requests\n` + o.status.status;
 
-    if( !o.status.status )
-    o.status.status = prsExplanation;
+    debugger;
+
+    status.prs = prs;
+    if( !status.prs )
+    status.prs = o.prs ? _.maybe : null;
+
+    if( prs && !prs.length && !status.status )
+    {
+      if( status.status === null )
+      status.status = false;
+      return status;
+    }
+
+    if( prs && prs.length )
+    if( !o.explaining )
+    {
+      status.status = true;
+    }
     else
-    o.status.status += '\n' + prsExplanation;
+    {
+      let prsExplanation= `Has ${prs.length} opened pull requests\n` + status.status;
+
+      if( !status.status )
+      status.status = prsExplanation;
+      else
+      status.status += '\n' + prsExplanation;
+    }
+
+    return status;
   }
 
-  // _.process.start
-  // ({
-  //   execPath : 'git status',
-  //   outputPiping : 0,
-  //   inputMirroring : 0,
-  //   currentPath : o.localPath,
-  //   outputCollecting : 1,
-  //   outputGraying : 1,
-  //   mode : 'spawn',
-  //   deasync : 1,
-  //   sync : 0,
-  // })
-  // .then( ( op ) =>
-  // {
-  //   o.info = '';
-  //   if( o.prs && o.prs.length )
-  //   o.info += `Has ${o.prs.length} opened pull requests\n`;
-  //   o.info += op.output + '\n';
-  //   return op;
-  // })
-  // .catchBrief();
-
-  return o.status;
 }
 
 infoStatus.defaults =
@@ -2445,7 +2446,8 @@ infoStatus.defaults =
   remote : 1,
   prs : 1,
   detailing : 1,
-  // explaining : 1,
+  explaining : 1,
+  sync : 1,
   // checkingLocalChanges : 1,
   // uncommitted : 1,
   // unpushed : 1,
@@ -2480,7 +2482,7 @@ function hookRegister( o )
   catch( err )
   {
     if( o.throwing )
-    throw err;
+    throw _.err( err );
     return null;
   }
 
@@ -2630,7 +2632,7 @@ function hookUnregister( o )
   catch( err )
   {
     if( o.throwing )
-    throw err;
+    throw _.err( err );
     return null;
   }
 }
@@ -2673,7 +2675,7 @@ function hookPreservingHardLinksRegister( repoPath )
   }
   catch( err )
   {
-    throw err;
+    throw _.err( err );
   }
   finally
   {
