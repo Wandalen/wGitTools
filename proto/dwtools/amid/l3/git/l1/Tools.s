@@ -1209,19 +1209,60 @@ function statusLocal_body( o )
     if( got && !o.detailing )
     return got;
 
-    return start( 'git push --tags --dry-run' )
-    .then( ( got ) =>
+    /* Nothing to check if there no tags*/
+
+    let tagsDirPath = _.path.join( o.localPath, '.git/refs/tags' );
+    let tags = _.fileProvider.dirRead({ filePath : tagsDirPath, throwing : 0 })
+    if( !tags || !tags.length )
     {
-      let match = got.output.match( /\[new tag\].*$/gm );
+      result.unpushedTags = '';
+      return result.unpushedTags;
+    }
+
+    /* if origin is no defined include all tags to list, with "?" at right side */
+
+    let config = configRead.call( this, o.localPath );
+    if( !config[ 'remote "origin"' ] )
+    {
       result.unpushedTags = '';
 
-      if( match )
+      if( tags && tags.length )
       {
         result.unpushedTags = 'List of unpushed:\n';
-        match = _.strLinesStrip( match );
-        match[ 0 ] = '  ' + match[ 0 ];
-        result.unpushedTags += _.strIndentation( match, '  ' );
+        tags = tags.map( ( tag ) => `  [new tag]   ${tag} -> ?` )
+        result.unpushedTags += tags.join( '\n' )
       }
+
+      return result.unpushedTags;
+    }
+
+    /* check tags */
+
+    return start( 'git for-each-ref */tags/* --format=%(refname:short)' )
+    .then( ( got ) =>
+    {
+      tags = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+      _.assert( tags.length );
+      return start
+      ({
+        execPath : 'git ls-remote --tags --refs',
+        ready : null
+      })
+    })
+    .then( ( got ) =>
+    {
+      debugger
+      result.unpushedTags = '';
+      let unpushedTags = [];
+      _.each( tags, ( tag ) =>
+      {
+        if( _.strHas( got.output, tag ) )
+        return;
+        unpushedTags.push( `  [new tag]   ${tag} -> ${tag}` );
+      })
+
+      if( unpushedTags.length )
+      result.unpushedTags = 'List of unpushed:\n' + unpushedTags.join( '\n' );
 
       return result.unpushedTags;
     })
