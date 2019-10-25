@@ -977,6 +977,8 @@ function statusLocal_body( o )
         if( !_.strDefined( result[ k ] ) )
         continue;
 
+        result[ k ] = ' ' + result[ k ];
+
         result.uncommitted.push( _.strIndentation( result[ k ], ' ' ) );
       }
       if( _.arrayIs( result.uncommitted ) )
@@ -1459,7 +1461,7 @@ function statusRemote_body( o )
         result.remoteBranches += '\n';
         result.remoteBranches += ref;
         _.arrayAppendOnce( status, 'List of new remote branches:' )
-        status.push( ref );
+        status.push( '  ' + ref );
       }
     }
 
@@ -1505,7 +1507,7 @@ function statusRemote_body( o )
           result.remoteCommits += '\n';
           result.remoteCommits += ref;
           _.arrayAppendOnce( status, 'List of remote branches that have new commits:' )
-          status.push( ref );
+          status.push( '  ' + ref );
         }
         return result.remoteCommits;
       })
@@ -1537,7 +1539,7 @@ function statusRemote_body( o )
         result.remoteTags += '\n';
         result.remoteTags += tag;
         _.arrayAppendOnce( status, 'List of new remote tags:' )
-        status.push( tag );
+        status.push( '  ' + tag );
       }
     }
 
