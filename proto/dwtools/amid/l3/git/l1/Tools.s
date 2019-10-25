@@ -1018,7 +1018,7 @@ function statusLocal_body( o )
       if( result.uncommitted )
       {
         result.uncommitted = '  ' + result.uncommitted;
-        result.uncommitted = 'List of uncommited changes:\n' + _.strIndentation( result.uncommitted, '  ' );
+        result.uncommitted = 'List of uncommited changes in files:\n' + _.strIndentation( result.uncommitted, '  ' );
       }
       result.status = result.uncommitted;
     }
@@ -1199,12 +1199,12 @@ function statusLocal_body( o )
     return start( 'git push --tags --dry-run' )
     .then( ( got ) =>
     {
-      let match = got.output.match( /^.*\[new tag\].*$/gm );
+      let match = got.output.match( /\[new tag\].*$/gm );
       result.unpushedTags = '';
 
       if( match )
       {
-        result.unpushedTags = 'List of unpushed tags:\n';
+        result.unpushedTags = 'List of new:\n';
         match = _.strLinesStrip( match );
         match[ 0 ] = '  ' + match[ 0 ];
         result.unpushedTags += _.strIndentation( match, '  ' );
@@ -1249,12 +1249,13 @@ function statusLocal_body( o )
         if( record.upstream.length )
         continue;
 
-        explanation.push( `There is no tracking information for the branch: "${record.branch}".` );
+        explanation.push( `[new branch]        ${record.branch} -> ?` );
       }
 
       if( explanation.length )
       {
-        result.unpushedBranches = 'List of unpushed branches:\n';
+        if( !result.unpushedTags )
+        result.unpushedBranches = 'List of new:\n';
         explanation = _.strLinesStrip( explanation );
         explanation[ 0 ] = '  ' + explanation[ 0 ];
         result.unpushedBranches += _.strIndentation( explanation, '  ' );
