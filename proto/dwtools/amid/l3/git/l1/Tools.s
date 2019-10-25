@@ -289,6 +289,16 @@ remotePathFromLocal.defaults =
 
 //
 
+function insideRepository( o )
+{
+  return !!this.localPathFromInside( o );
+}
+
+var defaults = insideRepository.defaults = Object.create( null );
+defaults.insidePath = null;
+
+//
+
 function localPathFromInside( o )
 {
   let localProvider = _.fileProvider;
@@ -309,16 +319,6 @@ function localPathFromInside( o )
 }
 
 var defaults = localPathFromInside.defaults = Object.create( null );
-defaults.insidePath = null;
-
-//
-
-function insideRepository( o )
-{
-  return !!this.localPathFromInside( o );
-}
-
-var defaults = insideRepository.defaults = Object.create( null );
 defaults.insidePath = null;
 
 //
@@ -1313,25 +1313,6 @@ defaults.explaining = 0;
 let statusLocal = _.routineFromPreAndBody( statusLocal_pre, statusLocal_body );
 
 //
-
-function hasLocalChanges()
-{
-  let self = this;
-  let result = self.statusLocal.apply( this, arguments );
-
-  _.assert( result.status !== undefined );
-
-  if( _.boolIs( result.status ) )
-  return result.status;
-  if( _.strIs( result.status ) && result.length )
-  return true;
-
-  return false;
-}
-
-_.routineExtend( hasLocalChanges, statusLocal )
-
-//
 //
 // function hasLocalChangesComplex( o )
 // {
@@ -1672,24 +1653,6 @@ let statusRemote = _.routineFromPreAndBody( statusRemote_pre, statusRemote_body 
 
 //
 
-function hasRemoteChanges()
-{
-  let result = statusRemote.apply( this, arguments );
-
-  _.assert( result.status !== undefined );
-
-  if( _.boolIs( result.status ) )
-  return result.status;
-  if( _.strIs( result.status ) && result.length )
-  return true;
-
-  return false;
-}
-
-_.routineExtend( hasRemoteChanges, statusRemote )
-
-//
-
 function status_pre( routine, args )
 {
   let o = args[ 0 ];
@@ -1877,6 +1840,43 @@ defaults.detailing = 0;
 defaults.explaining = 0;
 
 let status = _.routineFromPreAndBody( status_pre, status_body );
+
+//
+
+function hasLocalChanges()
+{
+  let self = this;
+  let result = self.statusLocal.apply( this, arguments );
+
+  _.assert( result.status !== undefined );
+
+  if( _.boolIs( result.status ) )
+  return result.status;
+  if( _.strIs( result.status ) && result.length )
+  return true;
+
+  return false;
+}
+
+_.routineExtend( hasLocalChanges, statusLocal )
+
+//
+
+function hasRemoteChanges()
+{
+  let result = statusRemote.apply( this, arguments );
+
+  _.assert( result.status !== undefined );
+
+  if( _.boolIs( result.status ) )
+  return result.status;
+  if( _.strIs( result.status ) && result.length )
+  return true;
+
+  return false;
+}
+
+_.routineExtend( hasRemoteChanges, statusRemote )
 
 //
 
