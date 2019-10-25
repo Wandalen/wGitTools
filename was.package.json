@@ -23,9 +23,9 @@
     "wFiles" : "",
     "wfilesarchive" : "",
     "wappbasic" : "",
-    "wgittools" : "file:.",
     "ini" : "",
-    "octonode" : ""
+    "octonode" : "0.9.5",
+    "wgittools" : "file:."
   },
   "devDependencies" : { "wTesting" : "" },
   "keywords" : [ "wTools" ]
