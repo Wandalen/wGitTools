@@ -1510,9 +1510,7 @@ function statusRemote_body( o )
   {
     if( err )
     throw _.err( err, '\nFailed to check if remote repository has changes' );
-
     statusMake();
-
     return result;
   })
 
@@ -2424,7 +2422,7 @@ function infoStatus( o )
     }
     else
     {
-      let prsExplanation= `Has ${prs.length} opened pull requests\n` + status.status;
+      let prsExplanation= `Has ${prs.length} opened pull requests\n`;
 
       if( !status.status )
       status.status = prsExplanation;
