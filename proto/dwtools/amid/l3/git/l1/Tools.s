@@ -1209,6 +1209,27 @@ function statusLocal_body( o )
     if( got && !o.detailing )
     return got;
 
+    /* if origin is no defined include all tags to list, with "?" at right side */
+
+    let config = configRead.call( this, o.localPath );
+    if( !config[ 'remote "origin"' ] )
+    {
+      let tagsDirPath = _.path.join( o.localPath, '.git/refs/tags' );
+      let tags = _.fileProvider.dirRead({ filePath : tagsDirPath, throwing : 0 })
+      result.unpushedTags = '';
+
+      if( tags && tags.length )
+      {
+        result.unpushedTags = 'List of unpushed:\n';
+        tags = tags.map( ( tag ) => `  [new tag]   ${tag} -> ?` )
+        result.unpushedTags += tags.join( '\n' )
+      }
+
+      return result.unpushedTags;
+    }
+
+    /* check for tags if origin exists */
+
     return start( 'git push --tags --dry-run' )
     .then( ( got ) =>
     {
