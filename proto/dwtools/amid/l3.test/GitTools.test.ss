@@ -3914,6 +3914,79 @@ function statusRemoteTags( test )
     test.identical( got, expected );
     return null;
   })
+  shell( 'git fetch --all' )
+  .then( () =>
+  {
+    test.case = 'check tags after fetching';
+
+    var got = _.git.statusRemote
+    ({
+      localPath,
+      commits : 1,
+      branches : 1,
+      tags : 1,
+      detailing : 1,
+      explaining : 1
+    });
+    var expected =
+    {
+      commits : false,
+      branches : false,
+      tags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    return null;
+  })
+  shell( 'git tag sometag' )
+  .then( () =>
+  {
+    test.case = 'check after creating tag locally';
+
+    var got = _.git.statusRemote
+    ({
+      localPath,
+      commits : 1,
+      branches : 1,
+      tags : 1,
+      detailing : 1,
+      explaining : 1
+    });
+    var expected =
+    {
+      commits : false,
+      branches : false,
+      tags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    return null;
+  })
+  shell( 'git tag new v0.5.6' )
+  shell( 'git tag -d v0.5.6' )
+  .then( () =>
+  {
+    test.case = 'check after renaming';
+
+    var got = _.git.statusRemote
+    ({
+      localPath,
+      commits : 1,
+      branches : 1,
+      tags : 1,
+      detailing : 1,
+      explaining : 1
+    });
+    var expected =
+    {
+      commits : false,
+      branches : false,
+      tags : 'refs/tags/v0.5.6\nrefs/tags/v0.5.6^{}',
+      status : 'List of new remote tags:\nrefs/tags/v0.5.6\nrefs/tags/v0.5.6^{}'
+    }
+    test.identical( got, expected );
+    return null;
+  })
 
   /*  */
 
