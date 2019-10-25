@@ -392,7 +392,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -429,7 +430,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -465,7 +467,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : null,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -495,7 +498,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : null,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -526,7 +530,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : null,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -565,7 +570,8 @@ function statusLocal( test )
       'unpushedCommits' : null,
       'unpushedTags' : null,
       'unpushedBranches' : null,
-      'status' : null
+      'status' : null,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -616,7 +622,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : expectedStatus
+      'status' : expectedStatus,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -653,7 +660,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -713,7 +721,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : expectedStatus
+      'status' : expectedStatus,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -750,7 +759,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -794,7 +804,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -831,7 +842,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -879,7 +891,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -916,7 +929,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -964,7 +978,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1001,7 +1016,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1044,7 +1060,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1081,7 +1098,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -1125,6 +1143,7 @@ function statusLocal( test )
       'uncommittedIgnored' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
+      'conflicts' : false
     }
     test.contains( got, expected )
     test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -1164,7 +1183,8 @@ function statusLocal( test )
       'unpushedCommits' : true,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1211,6 +1231,7 @@ function statusLocal( test )
       'uncommittedIgnored' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
+      'conflicts' : false
     }
     test.contains( got, expected )
     test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -1250,7 +1271,8 @@ function statusLocal( test )
       'unpushedCommits' : true,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1300,7 +1322,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1337,7 +1360,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1387,6 +1411,7 @@ function statusLocal( test )
       'uncommittedIgnored' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
+      'conflicts' : false
     }
     test.contains( got, expected )
     test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -1426,7 +1451,8 @@ function statusLocal( test )
       'unpushedCommits' : true,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -1475,7 +1501,9 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : ' * [new tag]         sometag -> sometag',
       'unpushedBranches' : false,
-      'status' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag'
+      'status' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag',
+      'conflicts' : false
+
     }
     test.identical( got, expected )
 
@@ -1512,7 +1540,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : true,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1556,7 +1585,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1593,7 +1623,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -1642,7 +1673,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : ' * [new tag]         sometag -> sometag',
       'unpushedBranches' : false,
-      'status' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag'
+      'status' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag',
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1679,7 +1711,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : true,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected );
 
@@ -1722,7 +1755,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1759,7 +1793,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -1816,7 +1851,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\n?? README_\nD README'
+      'status' : 'List of uncommited changes:\n?? README_\nD README',
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1853,7 +1889,9 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
+
     }
     test.identical( got, expected )
 
@@ -1896,7 +1934,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\nR  README -> README_'
+      'status' : 'List of uncommited changes:\nR  README -> README_',
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -1933,7 +1972,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -1973,6 +2013,7 @@ function statusLocal( test )
       'uncommittedIgnored' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
+      'conflicts' : false
     }
     test.contains( got, expected )
     test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -2012,7 +2053,8 @@ function statusLocal( test )
       'unpushedCommits' : true,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -2054,7 +2096,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -2091,7 +2134,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -2147,7 +2191,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\nD README'
+      'status' : 'List of uncommited changes:\nD README',
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -2184,7 +2229,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -2227,7 +2273,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\nD  README'
+      'status' : 'List of uncommited changes:\nD  README',
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -2264,7 +2311,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -2305,6 +2353,7 @@ function statusLocal( test )
       'uncommittedIgnored' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
+      'conflicts' : false
     }
     test.contains( got, expected )
     test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -2344,7 +2393,8 @@ function statusLocal( test )
       'unpushedCommits' : true,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -2386,7 +2436,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -2423,7 +2474,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -2471,7 +2523,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : 'There is no tracking information for the branch: "testbranch".',
-      'status' : 'List of unpushed changes:\nThere is no tracking information for the branch: "testbranch".'
+      'status' : 'List of unpushed changes:\nThere is no tracking information for the branch: "testbranch".',
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -2508,7 +2561,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : true,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -2551,7 +2605,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -2588,7 +2643,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -2637,7 +2693,9 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : ' * [new tag]         testtag -> testtag',
       'unpushedBranches' : false,
-      'status' : 'List of unpushed changes:\n * [new tag]         testtag -> testtag'
+      'status' : 'List of unpushed changes:\n * [new tag]         testtag -> testtag',
+      'conflicts' : false
+
     }
     test.identical( got, expected )
 
@@ -2674,7 +2732,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : true,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -2717,7 +2776,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
@@ -2754,7 +2814,8 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : false
+      'status' : false,
+      'conflicts' : false
     }
     test.identical( got, expected )
     return null;
@@ -2809,6 +2870,7 @@ function statusLocal( test )
       'uncommittedIgnored' : '!! file',
       'unpushedTags' : false,
       'unpushedBranches' : false,
+      'conflicts' : false
     }
     test.contains( got, expected )
 
@@ -2851,7 +2913,8 @@ function statusLocal( test )
       'unpushedCommits' : true,
       'unpushedTags' : false,
       'unpushedBranches' : false,
-      'status' : true
+      'status' : true,
+      'conflicts' : false
     }
     test.identical( got, expected )
 
