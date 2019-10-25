@@ -248,6 +248,8 @@ defaults.verbosity = 0;
 
 function remotePathNormalize( remotePath )
 {
+  if( remotePath === null )
+  return remotePath;
 
   remotePath = remotePath.replace( /^(\w+):\/\//, 'git+$1://' );
   remotePath = remotePath.replace( /:\/\/\b/, ':///' );
@@ -259,6 +261,8 @@ function remotePathNormalize( remotePath )
 
 function remotePathNativize( remotePath )
 {
+  if( remotePath === null )
+  return remotePath;
 
   remotePath = remotePath.replace( /^git\+(\w+):\/\//, '$1://' );
   remotePath = remotePath.replace( /:\/\/\/\b/, '://' );
@@ -274,6 +278,19 @@ function remotePathFromLocal( o )
   o = { localPath : arguments[ 0 ] }
   o = _.routineOptions( remotePathFromLocal, o );
   let config = _.git.configRead( o.localPath );
+
+  if( !config )
+  {
+    debugger;
+    throw _.err( `No git repository at ${o.localPath}` );
+  }
+
+  if( !config[ 'remote "origin"' ] || !config[ 'remote "origin"' ].url )
+  {
+    debugger;
+    return null;
+  }
+
   let remotePath = config[ 'remote "origin"' ].url;
 
   if( remotePath )
@@ -1709,9 +1726,13 @@ function statusFull( o )
   if( !o.remotePath )
   o.remotePath = _.git.remotePathFromLocal( o.localPath );
 
-  let o2 = _.mapOnly( o, status.defaults );
-  o2.sync = 0;
-  let statusReady = _.git.status( o2 )
+  let statusReady = new _.Consequence().take( null );
+  if( o.remotePath )
+  {
+    let o2 = _.mapOnly( o, status.defaults );
+    o2.sync = 0;
+    statusReady = _.git.status( o2 )
+  }
 
   let prsReady = new _.Consequence().take( null );
   if( o.prs )
