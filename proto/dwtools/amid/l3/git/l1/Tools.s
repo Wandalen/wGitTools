@@ -983,7 +983,7 @@ function statusLocal_body( o )
         if( !_.strDefined( result[ k ] ) )
         continue;
 
-        result.uncommitted.push( result[ k ] );
+        result.uncommitted.push( _.strIndentation( result[ k ], ' ' ) );
       }
       if( _.arrayIs( result.uncommitted ) )
       result.uncommitted = result.uncommitted.join( '\n' )
@@ -1023,7 +1023,7 @@ function statusLocal_body( o )
     if( _.strIs( result.unpushed ) )
     {
       if( result.unpushed )
-      result.unpushed = 'List of unpushed changes:\n' + result.unpushed;
+      result.unpushed = '\n' + result.unpushed;
 
       if( !result.status )
       result.status = result.unpushed;
@@ -1197,7 +1197,12 @@ function statusLocal_body( o )
       result.unpushedTags = '';
 
       if( match )
-      result.unpushedTags = match.join( '\n' );
+      {
+        result.unpushedTags = 'List of unpushed tags:\n';
+        match = _.strLinesStrip( match );
+        match[ 0 ] = '  ' + match[ 0 ];
+        result.unpushedTags += _.strIndentation( match, '  ' );
+      }
 
       return result.unpushedTags;
     })
@@ -1242,7 +1247,12 @@ function statusLocal_body( o )
       }
 
       if( explanation.length )
-      result.unpushedBranches = explanation.join( '\n' );
+      {
+        result.unpushedBranches = 'List of unpushed branches:\n';
+        explanation = _.strLinesStrip( explanation );
+        explanation[ 0 ] = '  ' + explanation[ 0 ];
+        result.unpushedBranches += _.strIndentation( explanation, '  ' );
+      }
 
       return result.unpushedBranches;
     })
@@ -1262,7 +1272,12 @@ function statusLocal_body( o )
       let match = got.output.match( /^.*\[.*ahead .*\].*$/gm );
       result.unpushedCommits = '';
       if( match )
-      result.unpushedCommits = match.join( '\n' );
+      {
+        result.unpushedCommits = 'List of branches with unpushed commits:\n';
+        match = _.strLinesStrip( match );
+        match[ 0 ] = '  ' + match[ 0 ];
+        result.unpushedCommits += _.strIndentation( match, '  ' );
+      }
 
       return result.unpushedCommits;
     })
