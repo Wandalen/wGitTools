@@ -1016,7 +1016,10 @@ function statusLocal_body( o )
     if( _.strIs( result.uncommitted ) )
     {
       if( result.uncommitted )
-      result.uncommitted = 'List of uncommited changes:\n' + result.uncommitted;
+      {
+        result.uncommitted = '  ' + result.uncommitted;
+        result.uncommitted = 'List of uncommited changes:\n' + _.strIndentation( result.uncommitted, '  ' );
+      }
       result.status = result.uncommitted;
     }
 
@@ -1028,7 +1031,7 @@ function statusLocal_body( o )
       if( !result.status )
       result.status = result.unpushed;
       else if( result.unpushed )
-      result.status += '\n' + result.unpushed;
+      result.status += result.unpushed;
     }
 
     _.assert( _.strIs( result.status ) || result.status === null );
@@ -1178,7 +1181,10 @@ function statusLocal_body( o )
     result[ check ] = '';
 
     if( match )
-    result[ check ] = match.join( '\n' )
+    {
+      match = _.strLinesStrip( match );
+      result[ check ] = match.join( '\n' )
+    }
 
     return result[ check ] && !o.detailing;
   }
