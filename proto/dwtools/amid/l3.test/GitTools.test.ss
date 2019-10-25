@@ -8016,6 +8016,7 @@ function statusEveryCheck( test )
 
   provider.dirMake( testPath )
 
+  /*  */
 
   prepareRepo()
   repoNewCommit( 'newcommit' );
@@ -8050,6 +8051,8 @@ function statusEveryCheck( test )
       unpushedCommits : 1,
       unpushedTags : 1,
       unpushedBranches : 1,
+
+      conflicts : 1
     })
 
     let expectedStatus =
@@ -8083,6 +8086,49 @@ function statusEveryCheck( test )
     ]
 
     debugger
+
+    _.each( expectedStatus, ( line ) =>
+    {
+      test.case = 'status has line: ' + _.strQuote( line )
+      test.is( !!status.status.match( line ) )
+    })
+
+    test.identical( status.conflicts, false );
+
+    return null;
+  })
+
+  /*  */
+
+  prepareRepo()
+  repoNewCommit( 'init' );
+  begin()
+  cloned( 'git checkout -b  newbranch' )
+  cloned( 'echo \"Hello World!\" > changed' )
+  cloned( 'git commit -am change' )
+  cloned( 'git checkout master' )
+  cloned( 'echo \"Hello world!\" > changed' )
+  cloned( 'git commit -am change' )
+  cloned({ execPath : 'git merge newbranch', throwingExitCode : 0 })
+  cloned( 'git status --b --porcelain -u ')
+  .then( () =>
+  {
+    var status = _.git.status
+    ({
+      localPath : localPath,
+
+      detailing : 1,
+      explaining : 1,
+      remote : 0,
+      local : 0,
+      conflicts : 1
+    })
+
+    let expectedStatus =
+    [
+      'List of uncommited changes in files:',
+      '  UU changed'
+    ]
 
     _.each( expectedStatus, ( line ) =>
     {
