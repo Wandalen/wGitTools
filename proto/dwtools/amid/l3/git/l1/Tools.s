@@ -2358,7 +2358,6 @@ function infoStatus( o )
 
   o = _.routineOptions( infoStatus, arguments );
 
-  // o.info = null;
   o.isRepository = null;
   if( o.prs )
   o.prs = [];
@@ -2446,11 +2445,6 @@ infoStatus.defaults =
   detailing : 1,
   explaining : 1,
   sync : 1,
-  // checkingLocalChanges : 1,
-  // uncommitted : 1,
-  // unpushed : 1,
-  // checkingRemoteChanges : 1,
-  // checkingPrs : 1,
 }
 
 _.mapSupplement( infoStatus.defaults, status.defaults );
