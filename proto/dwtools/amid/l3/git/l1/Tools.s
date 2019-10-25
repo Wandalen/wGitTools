@@ -1030,8 +1030,8 @@ function statusLocal_body( o )
     {
       if( result.uncommitted )
       {
-        result.uncommitted = '  ' + result.uncommitted;
-        result.uncommitted = 'List of uncommited changes in files:\n' + _.strIndentation( result.uncommitted, '  ' );
+        result.uncommitted = ' ' + result.uncommitted;
+        result.uncommitted = 'List of uncommited changes in files:\n' + _.strIndentation( result.uncommitted, ' ' );
       }
       result.status = result.uncommitted;
     }
@@ -1134,6 +1134,10 @@ function statusLocal_body( o )
   function detailedCheck( output )
   {
     let outputStripped = output.join( '\n' );
+
+    if( o.conflicts )
+    if( uncommittedDetailedCheck( outputStripped, 'conflicts', /^[DAU][DAU] .*/gm ) )
+    return true;
 
     if( o.uncommittedUntracked )
     if( uncommittedDetailedCheck( outputStripped, 'uncommittedUntracked', /^\?{1,2} .*/gm ) )
@@ -1308,7 +1312,8 @@ statusLocal_body.uncommittedGroup =
   'uncommittedDeleted',
   'uncommittedRenamed',
   'uncommittedCopied',
-  'uncommittedIgnored'
+  'uncommittedIgnored',
+  'conflicts'
 ]
 
 statusLocal_body.unpushedGroup =
@@ -1337,6 +1342,8 @@ defaults.unpushed = null;
 defaults.unpushedCommits = null;
 defaults.unpushedTags = null;
 defaults.unpushedBranches = null;
+
+defaults.conflicts = null;
 
 defaults.detailing = 0;
 defaults.explaining = 0;

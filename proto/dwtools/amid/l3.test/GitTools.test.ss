@@ -8016,9 +8016,11 @@ function statusEveryCheck( test )
 
   provider.dirMake( testPath )
 
+  /*  */
 
   prepareRepo()
   repoNewCommit( 'newcommit' );
+  repoNewCommitToBranch( 'newcommittobranch', 'second' )
   begin()
   remoteChanges()
   localChanges()
@@ -8049,6 +8051,8 @@ function statusEveryCheck( test )
       unpushedCommits : 1,
       unpushedTags : 1,
       unpushedBranches : 1,
+
+      conflicts : 1
     })
 
     let expectedStatus =
@@ -8065,15 +8069,65 @@ function statusEveryCheck( test )
       '  !! ignored',
       'List of branches with unpushed commits:',
       '  \\* master .* \\[origin\\/master: ahead 1\\] test',
+      '  second .* \\[origin\\\/second: ahead 1\\] test',
       'List of new:',
       '  \\[new tag\\]         tag2 -> tag2',
+      '  \\[new tag\\]         tag3 -> tag3',
       '  \\[new branch\\]        new -> \\?',
       'List of new remote branches:',
       '  refs\\/heads\\/testbranch',
       'List of remote branches that have new commits:',
       '  refs\\/heads\\/master',
+      '  refs\\/heads\\/second',
       'List of new remote tags:',
       '  refs\\/tags\\/testtag',
+      '  refs\\/tags\\/testtag2',
+      '  refs\\/tags\\/testtag2\\^\\{\\}',
+    ]
+
+    debugger
+
+    _.each( expectedStatus, ( line ) =>
+    {
+      test.case = 'status has line: ' + _.strQuote( line )
+      test.is( !!status.status.match( line ) )
+    })
+
+    test.identical( status.conflicts, false );
+
+    return null;
+  })
+
+  /*  */
+
+  prepareRepo()
+  repoNewCommit( 'init' );
+  begin()
+  cloned( 'git checkout -b  newbranch' )
+  cloned( 'echo \"Hello World!\" > changed' )
+  cloned( 'git commit -am change' )
+  cloned( 'git checkout master' )
+  cloned( 'echo \"Hello world!\" > changed' )
+  cloned( 'git commit -am change' )
+  cloned({ execPath : 'git merge newbranch', throwingExitCode : 0 })
+  cloned( 'git status --b --porcelain -u ')
+  .then( () =>
+  {
+    var status = _.git.status
+    ({
+      localPath : localPath,
+
+      detailing : 1,
+      explaining : 1,
+      remote : 0,
+      local : 0,
+      conflicts : 1
+    })
+
+    let expectedStatus =
+    [
+      'List of uncommited changes in files:',
+      '  UU changed'
     ]
 
     _.each( expectedStatus, ( line ) =>
@@ -8100,7 +8154,6 @@ function statusEveryCheck( test )
       return null;
     })
 
-    debugger
     repo( 'git init --bare' );
 
     con.then( () =>
@@ -8148,17 +8201,21 @@ function statusEveryCheck( test )
 
   function remoteChanges()
   {
-    repoNewCommit( 'newcommit' )
-    repoNewCommitToBranch( 'newcommittobranch', 'testbranch' )
-    repoNewTag( 'testtag' )
+    repoNewCommit( 'newcommit' )// new commit to master
+    repoNewCommitToBranch( 'newcommittobranch', 'testbranch' )// new branch
+    repoNewCommitToBranch( 'newcommittobranch', 'second' )// new commit to second branch
+    repoNewTag( 'testtag' )//regular tag
+    repoNewTag( 'testtag2', true ) //annotated tag
 
     return con;
   }
 
   function localChanges()
   {
-    cloned( 'git checkout -b new' )
-    cloned( 'git checkout master' )
+    cloned( 'git checkout -b new' )//unpushed branch
+    cloned( 'git checkout second' )//commit to second branch
+    cloned( 'git commit --allow-empty -m test' )
+    cloned( 'git checkout master' )//commit to master branch
     cloned( 'git commit --allow-empty -m test' )
 
     con.then( () =>
@@ -8182,6 +8239,7 @@ function statusEveryCheck( test )
     cloned( 'git mv renamed renamed2' )
     cloned( 'git add changed' )
     cloned( 'git tag tag2' )
+    cloned( 'git tag -a tag3 -m "sometag"' )
 
     return con;
   }
@@ -8208,7 +8266,7 @@ function statusEveryCheck( test )
     return con;
   }
 
-  function repoNewTag( tag )
+  function repoNewTag( tag, annotated )
   {
     let shell = _.process.starter
     ({
@@ -8224,7 +8282,16 @@ function statusEveryCheck( test )
     })
 
     shell( 'git clone ' + repoPathNative + ' secondary' )
-    shell( 'git -C secondary tag ' + tag )
+
+    if( !annotated )
+    {
+      shell( 'git -C secondary tag ' + tag )
+    }
+    else
+    {
+      shell( `git -C secondary tag -a ${tag} -m "sometag"` )
+    }
+
     shell( 'git -C secondary push --tags' )
 
     return con;
@@ -8266,16 +8333,18 @@ function statusEveryCheck( test )
       })
 
       if( create )
-      shell2( 'git -C secondary checkout -b ' + branch )
+      {
+        shell2( 'git -C secondary checkout -b ' + branch )
+        shell2( 'git -C secondary branch -u origin' )
+        shell2( 'git -C secondary push -f origin ' + branch )
+      }
       else
-      shell2( 'git -C secondary checkout ' + branch )
+      {
+        shell2( 'git -C secondary checkout ' + branch )
+      }
 
       shell2( 'git -C secondary commit --allow-empty -m ' + message )
-
-      if( create )
-      shell2( 'git -C secondary push --set-upstream origin ' + branch )
-      else
-      shell2( 'git -C secondary push' )
+      shell2( 'git -C secondary push origin ' + branch )
 
       return con2;
     })
