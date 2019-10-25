@@ -1194,7 +1194,7 @@ function statusLocal_body( o )
 
       if( match )
       {
-        result.unpushedTags = 'List of new:\n';
+        result.unpushedTags = 'List of unpushed:\n';
         match = _.strLinesStrip( match );
         match[ 0 ] = '  ' + match[ 0 ];
         result.unpushedTags += _.strIndentation( match, '  ' );
@@ -1245,7 +1245,7 @@ function statusLocal_body( o )
       if( explanation.length )
       {
         if( !result.unpushedTags )
-        result.unpushedBranches = 'List of new:\n';
+        result.unpushedBranches = 'List of unpushed:\n';
         explanation = _.strLinesStrip( explanation );
         explanation[ 0 ] = '  ' + explanation[ 0 ];
         result.unpushedBranches += _.strIndentation( explanation, '  ' );
@@ -1458,7 +1458,7 @@ function statusRemote_body( o )
         if( result.remoteBranches )
         result.remoteBranches += '\n';
         result.remoteBranches += ref;
-        _.arrayAppendOnce( status, 'List of new remote branches:' )
+        _.arrayAppendOnce( status, 'List of unpulled remote branches:' )
         status.push( ref );
       }
     }
@@ -1536,7 +1536,7 @@ function statusRemote_body( o )
         if( result.remoteTags )
         result.remoteTags += '\n';
         result.remoteTags += tag;
-        _.arrayAppendOnce( status, 'List of new remote tags:' )
+        _.arrayAppendOnce( status, 'List of unpulled remote tags:' )
         status.push( tag );
       }
     }
@@ -2775,5 +2775,6 @@ _.mapExtend( Self, Extend );
 
 if( typeof module !== 'undefined' && module !== null )
 module[ 'exports' ] = _global_.wTools;
+
 
 })();
