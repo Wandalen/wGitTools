@@ -8141,6 +8141,67 @@ function statusEveryCheck( test )
 
   /*  */
 
+  prepareRepo()
+  repoNewCommit( 'init' );
+  begin()
+  remoteChanges()
+  cloned( 'touch untracked' )
+  cloned( 'touch tracked' )
+  cloned( 'touch file' )
+  cloned( 'git add tracked' )
+  cloned( 'git add file' )
+  cloned( 'git commit -m test file' )
+  cloned( 'echo "xxx" > file' )
+  cloned( 'git checkout -b  newbranch' )
+  cloned( 'echo \"Hello World!\" > changed' )
+  cloned( 'git commit -am change' )
+  cloned( 'git checkout master' )
+  cloned( 'echo \"Hello world!\" > changed' )
+  cloned( 'git commit -am change' )
+  cloned({ execPath : 'git merge newbranch', throwingExitCode : 0 })
+  .then( () =>
+  {
+    var status = _.git.status
+    ({
+      localPath : localPath,
+
+      detailing : 1,
+      explaining : 1,
+      remote : 1,
+      local : 1,
+      conflicts : 1
+    })
+
+    let expectedStatus =
+    [
+      'List of uncommited changes in files:',
+      '  \\?\\? untracked',
+      '  A  tracked',
+      '  M  file',
+      '  UU changed',
+      'List of branches with unpushed commits:',
+      '  \* master    .* \\[origin\\/master: ahead 2\\] change',
+      'List of unpushed:',
+      '  \\[new branch\\]        newbranch -> \\?',
+      'List of remote branches that have new commits:',
+      '  refs\\/heads\\/master',
+      'List of unpulled remote tags:',
+      '  refs\\/tags\\/testtag',
+      '  refs\\/tags\\/testtag2',
+      '  refs\\/tags\\/testtag2\\^\\{\\}'
+    ]
+
+    _.each( expectedStatus, ( line ) =>
+    {
+      test.case = 'status has line: ' + _.strQuote( line )
+      test.is( !!status.status.match( line ) )
+    })
+
+    return null;
+  })
+
+  /*  */
+
   return con;
 
   /* - */
