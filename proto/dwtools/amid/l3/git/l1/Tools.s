@@ -1568,6 +1568,9 @@ function statusRemote_body( o )
       let ref = head[ 1 ];
       let execPath = `git branch --contains ${hash} --quiet --format=%(refname)`;
 
+      if( !_.strHas( output, ref ) ) // skip if branch is not downloaded
+      return;
+
       con.then( () =>
       {
         return start({ execPath, ready : null })
