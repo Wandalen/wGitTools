@@ -2346,6 +2346,7 @@ function hookRegister( o )
 
   function check()
   {
+
     if( !provider.fileExists( o.filePath ) )
     throw _.err( 'Source handler path doesn\'t exit:', o.filePath )
 
