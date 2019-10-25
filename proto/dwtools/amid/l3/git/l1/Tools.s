@@ -1209,13 +1209,21 @@ function statusLocal_body( o )
     if( got && !o.detailing )
     return got;
 
+    /* Nothing to check if there no tags*/
+
+    let tagsDirPath = _.path.join( o.localPath, '.git/refs/tags' );
+    let tags = _.fileProvider.dirRead({ filePath : tagsDirPath, throwing : 0 })
+    if( !tags || !tags.length )
+    {
+      result.unpushedTags = '';
+      return result.unpushedTags;
+    }
+
     /* if origin is no defined include all tags to list, with "?" at right side */
 
     let config = configRead.call( this, o.localPath );
     if( !config[ 'remote "origin"' ] )
     {
-      let tagsDirPath = _.path.join( o.localPath, '.git/refs/tags' );
-      let tags = _.fileProvider.dirRead({ filePath : tagsDirPath, throwing : 0 })
       result.unpushedTags = '';
 
       if( tags && tags.length )
@@ -1228,21 +1236,33 @@ function statusLocal_body( o )
       return result.unpushedTags;
     }
 
-    /* check for tags if origin exists */
+    /* check tags */
 
-    return start( 'git push --tags --dry-run' )
+    return start( 'git for-each-ref */tags/* --format=%(refname:short)' )
     .then( ( got ) =>
     {
-      let match = got.output.match( /\[new tag\].*$/gm );
+      tags = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+      _.assert( tags.length );
+      return start
+      ({
+        execPath : 'git ls-remote --tags --refs',
+        ready : null
+      })
+    })
+    .then( ( got ) =>
+    {
+      debugger
       result.unpushedTags = '';
-
-      if( match )
+      let unpushedTags = [];
+      _.each( tags, ( tag ) =>
       {
-        result.unpushedTags = 'List of unpushed:\n';
-        match = _.strLinesStrip( match );
-        match[ 0 ] = '  ' + match[ 0 ];
-        result.unpushedTags += _.strIndentation( match, '  ' );
-      }
+        if( _.strHas( got.output, tag ) )
+        return;
+        unpushedTags.push( `  [new tag]   ${tag} -> ${tag}` );
+      })
+
+      if( unpushedTags.length )
+      result.unpushedTags = 'List of unpushed:\n' + unpushedTags.join( '\n' );
 
       return result.unpushedTags;
     })
