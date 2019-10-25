@@ -977,7 +977,7 @@ function statusLocal_body( o )
         if( !_.strDefined( result[ k ] ) )
         continue;
 
-        result.uncommitted.push( result[ k ] );
+        result.uncommitted.push( _.strIndentation( result[ k ], ' ' ) );
       }
       if( _.arrayIs( result.uncommitted ) )
       result.uncommitted = result.uncommitted.join( '\n' )
@@ -1010,19 +1010,22 @@ function statusLocal_body( o )
     if( _.strIs( result.uncommitted ) )
     {
       if( result.uncommitted )
-      result.uncommitted = 'List of uncommited changes:\n' + result.uncommitted;
+      {
+        result.uncommitted = '  ' + result.uncommitted;
+        result.uncommitted = 'List of uncommited changes in files:\n' + _.strIndentation( result.uncommitted, '  ' );
+      }
       result.status = result.uncommitted;
     }
 
     if( _.strIs( result.unpushed ) )
     {
       if( result.unpushed )
-      result.unpushed = 'List of unpushed changes:\n' + result.unpushed;
+      result.unpushed = '\n' + result.unpushed;
 
       if( !result.status )
       result.status = result.unpushed;
       else if( result.unpushed )
-      result.status += '\n' + result.unpushed;
+      result.status += result.unpushed;
     }
 
     _.assert( _.strIs( result.status ) || result.status === null );
@@ -1168,7 +1171,10 @@ function statusLocal_body( o )
     result[ check ] = '';
 
     if( match )
-    result[ check ] = match.join( '\n' )
+    {
+      match = _.strLinesStrip( match );
+      result[ check ] = match.join( '\n' )
+    }
 
     return result[ check ] && !o.detailing;
   }
@@ -1183,11 +1189,16 @@ function statusLocal_body( o )
     return start( 'git push --tags --dry-run' )
     .then( ( got ) =>
     {
-      let match = got.output.match( /^.*\[new tag\].*$/gm );
+      let match = got.output.match( /\[new tag\].*$/gm );
       result.unpushedTags = '';
 
       if( match )
-      result.unpushedTags = match.join( '\n' );
+      {
+        result.unpushedTags = 'List of new:\n';
+        match = _.strLinesStrip( match );
+        match[ 0 ] = '  ' + match[ 0 ];
+        result.unpushedTags += _.strIndentation( match, '  ' );
+      }
 
       return result.unpushedTags;
     })
@@ -1228,11 +1239,17 @@ function statusLocal_body( o )
         if( record.upstream.length )
         continue;
 
-        explanation.push( `There is no tracking information for the branch: "${record.branch}".` );
+        explanation.push( `[new branch]        ${record.branch} -> ?` );
       }
 
       if( explanation.length )
-      result.unpushedBranches = explanation.join( '\n' );
+      {
+        if( !result.unpushedTags )
+        result.unpushedBranches = 'List of new:\n';
+        explanation = _.strLinesStrip( explanation );
+        explanation[ 0 ] = '  ' + explanation[ 0 ];
+        result.unpushedBranches += _.strIndentation( explanation, '  ' );
+      }
 
       return result.unpushedBranches;
     })
@@ -1252,7 +1269,12 @@ function statusLocal_body( o )
       let match = got.output.match( /^.*\[.*ahead .*\].*$/gm );
       result.unpushedCommits = '';
       if( match )
-      result.unpushedCommits = match.join( '\n' );
+      {
+        result.unpushedCommits = 'List of branches with unpushed commits:\n';
+        match = _.strLinesStrip( match );
+        match[ 0 ] = '  ' + match[ 0 ];
+        result.unpushedCommits += _.strIndentation( match, '  ' );
+      }
 
       return result.unpushedCommits;
     })
@@ -1467,6 +1489,9 @@ function statusRemote_body( o )
       let hash = head[ 0 ];
       let ref = head[ 1 ];
       let execPath = `git branch --contains ${hash} --quiet --format=%(refname)`;
+
+      if( !_.strHas( output, ref ) ) // skip if branch is not downloaded
+      return;
 
       con.then( () =>
       {
