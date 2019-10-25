@@ -7011,7 +7011,7 @@ status.timeOut = 30000;
 
 //
 
-function infoStatus( test )
+function statusFull( test )
 {
   let context = this;
   let provider = context.provider;
@@ -7045,7 +7045,7 @@ function infoStatus( test )
   .then( () =>
   {
     debugger
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7084,7 +7084,7 @@ function infoStatus( test )
     //
 
     debugger
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 1,
@@ -7122,7 +7122,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 1,
@@ -7161,7 +7161,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 1,
@@ -7200,7 +7200,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 1,
@@ -7239,7 +7239,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7278,7 +7278,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7317,7 +7317,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7356,7 +7356,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7395,7 +7395,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7434,7 +7434,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7476,7 +7476,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7518,7 +7518,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7560,7 +7560,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7602,7 +7602,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7644,7 +7644,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7686,7 +7686,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 0,
@@ -7728,7 +7728,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 1,
@@ -7769,7 +7769,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 1,
@@ -7812,7 +7812,7 @@ function infoStatus( test )
 
     //
 
-    var status = _.git.infoStatus
+    var status = _.git.statusFull
     ({
       localPath : localPath,
       local : 1,
@@ -7969,7 +7969,7 @@ function infoStatus( test )
 
 }
 
-infoStatus.timeOut = 30000;
+statusFull.timeOut = 30000;
 
 //
 
@@ -9220,7 +9220,7 @@ var Proto =
     insideRepository,
     isRepository,
 
-    infoStatus,
+    statusFull,
 
     gitHooksManager,
     gitHooksManagerErrors,

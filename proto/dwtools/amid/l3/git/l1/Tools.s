@@ -1443,6 +1443,8 @@ function statusRemote_body( o )
     return result.remoteBranches
   }
 
+  /*  */
+
   function commitsCheck( got )
   {
     result.remoteCommits = '';
@@ -1458,8 +1460,6 @@ function statusRemote_body( o )
     return result.remoteCommits;
 
     let con = new _.Consequence().take( null );
-
-    /*  */
 
     _.each( heads, ( head ) =>
     {
@@ -1488,6 +1488,8 @@ function statusRemote_body( o )
     return con;
   }
 
+  /*  */
+
   function tagsCheck( got )
   {
     result.remoteTags = '';
@@ -1515,6 +1517,8 @@ function statusRemote_body( o )
 
     return result.remoteTags;
   }
+
+  /*  */
 
   function statusMake()
   {
@@ -1628,98 +1632,6 @@ function status_body( o )
   if( o.sync )
   return ready.deasync();
   return ready;
-
-  // let localStatus, remoteStatus;
-  // let result =
-  // {
-  //   // local : null,
-  //   // remote : null,
-  //   // status : null
-  // }
-  //
-  // let ready = _.Consequence.Try( () =>
-  // {
-  //   if( o.local )
-  //   return statusLocal.call( this, _.mapOnly( o, this.statusLocal.defaults ) );
-  //   return null;
-  // })
-  // .then( ( arg ) =>
-  // {
-  //   localStatus = arg;
-  //   // return statusOk( result.local );
-  //   if( !o.remote )
-  //   return null;
-  //   let o2 = _.mapOnly( o, statusRemote.defaults );
-  //   o2.sync = 0;
-  //   return statusRemote.call( this, o2 );
-  // })
-  //
-  // // if( o.remote )
-  // // ready.then( remoteCheck );
-  //
-  //   let ready = _.Consequence.Try( () =>
-  //   {
-  //     return statusRemote.call( this, _.mapOnly( o, statusRemote.defaults ) );
-  //   })
-  //
-  //   ready.then( ( remoteStatus ) =>
-  //   {
-  //     result.remote = remoteStatus;
-  //     return remoteStatus;
-  //   })
-  //
-  // ready.then( () =>
-  // {
-  //   result.status = statusOk( result.local ) || statusOk( result.remote );
-  //
-  //   if( o.explaining )
-  //   {
-  //     if( result.status )
-  //     result.status = [ result.local.status, result.remote.status ].join( '\n' );
-  //     else
-  //     result.status = '';
-  //   }
-  //
-  //   return result;
-  // })
-  //
-  // if( o.sync )
-  // return ready.syncMaybe();
-  //
-  // return ready;
-  //
-  // /*  */
-  //
-  // // function remoteCheck( prevStatus )
-  // // {
-  // //   // if( prevStatus && !o.detailing )
-  // //   // return true;
-  // //
-  // //   let ready = _.Consequence.Try( () =>
-  // //   {
-  // //     return statusRemote.call( this, _.mapOnly( o, statusRemote.defaults ) );
-  // //   })
-  // //
-  // //   ready.then( ( remoteStatus ) =>
-  // //   {
-  // //     result.remote = remoteStatus;
-  // //     return remoteStatus;
-  // //   })
-  // //
-  // //   return ready;
-  // // }
-  //
-  // function statusOk( statusMap )
-  // {
-  //   if( !statusMap )
-  //   return false;
-  //
-  //   if( statusMap.status === true || _.strDefined( statusMap.status ) )
-  //   return true;
-  //
-  //   return false;
-  // }
-
 }
 
 _.routineExtend( status_body, statusLocal )
@@ -1727,16 +1639,114 @@ _.routineExtend( status_body, statusRemote )
 
 var defaults = status_body.defaults;
 defaults.localPath = null;
-// defaults.verbosity = 0;
-// defaults.sync = 1;
 defaults.remote = 1;
-// defaults.uncommitted = 1;
-// defaults.unpushed = 1;
 defaults.local = 1;
 defaults.detailing = 0;
 defaults.explaining = 0;
 
 let status = _.routineFromPreAndBody( status_pre, status_body );
+
+//
+
+/*
+  qqq : extend and cover please
+*/
+
+function statusFull( o )
+{
+
+  o = _.routineOptions( statusFull, arguments );
+
+  o.isRepository = null;
+  if( o.prs )
+  o.prs = [];
+
+  if( !o.localPath && o.insidePath )
+  o.localPath = _.git.localPathFromInside( o.insidePath );
+
+  if( !o.localPath )
+  return o;
+
+  o.isRepository = true;
+
+  _.assert( _.strIs( o.localPath ), 'Expects local path of inside path to deduce local path' );
+
+  if( !o.remotePath )
+  o.remotePath = _.git.remotePathFromLocal( o.localPath );
+
+  let o2 = _.mapOnly( o, status.defaults );
+  o2.sync = 0;
+  let statusReady = _.git.status( o2 )
+
+  let prsReady = new _.Consequence().take( null );
+  if( o.prs )
+  prsReady = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0 });
+
+  let ready = _.Consequence.AndKeep([ statusReady, prsReady ])
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( err );
+    let status = arg[ 0 ];
+    let prs = arg[ 1 ];
+    statusAdjust( status, prs );
+    return status;
+  });
+
+  if( o.sync )
+  return ready.deasync();
+  return ready;
+
+  /* */
+
+  function statusAdjust( status, prs )
+  {
+
+    status.prs = prs;
+    if( !status.prs )
+    status.prs = o.prs ? _.maybe : null;
+
+    if( prs && !prs.length && !status.status )
+    {
+      if( status.status === null )
+      status.status = false;
+      return status;
+    }
+
+    if( prs && prs.length )
+    if( !o.explaining )
+    {
+      status.status = true;
+    }
+    else
+    {
+      let prsExplanation= `Has ${prs.length} opened pull requests`;
+
+      if( !status.status )
+      status.status = prsExplanation;
+      else
+      status.status += '\n' + prsExplanation;
+    }
+
+    return status;
+  }
+
+}
+
+statusFull.defaults =
+{
+  insidePath : null,
+  localPath : null,
+  remotePath : null,
+  local : 1,
+  remote : 1,
+  prs : 1,
+  detailing : 1,
+  explaining : 1,
+  sync : 1,
+}
+
+_.mapSupplement( statusFull.defaults, status.defaults );
 
 //
 
@@ -2246,108 +2256,6 @@ repositoryDelete.defaults =
 
 //
 
-/*
-  qqq : extend and cover please
-*/
-
-function infoStatus( o )
-{
-
-  o = _.routineOptions( infoStatus, arguments );
-
-  o.isRepository = null;
-  if( o.prs )
-  o.prs = [];
-
-  if( !o.localPath && o.insidePath )
-  o.localPath = _.git.localPathFromInside( o.insidePath );
-
-  if( !o.localPath )
-  return o;
-
-  o.isRepository = true;
-
-  if( !o.remotePath )
-  o.remotePath = _.git.remotePathFromLocal( o.localPath );
-
-  let o2 = _.mapOnly( o, status.defaults );
-  o2.sync = 0;
-  let statusReady = _.git.status( o2 )
-
-  let prsReady = new _.Consequence().take( null );
-  if( o.prs )
-  prsReady = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0 });
-
-  let ready = _.Consequence.AndKeep([ statusReady, prsReady ])
-  .finally( ( err, arg ) =>
-  {
-    if( err )
-    throw _.err( err );
-    let status = arg[ 0 ];
-    let prs = arg[ 1 ];
-    statusAdjust( status, prs );
-    return status;
-  });
-
-  if( o.sync )
-  return ready.deasync();
-  return ready;
-
-  /* */
-
-  function statusAdjust( status, prs )
-  {
-
-    debugger;
-
-    status.prs = prs;
-    if( !status.prs )
-    status.prs = o.prs ? _.maybe : null;
-
-    if( prs && !prs.length && !status.status )
-    {
-      if( status.status === null )
-      status.status = false;
-      return status;
-    }
-
-    if( prs && prs.length )
-    if( !o.explaining )
-    {
-      status.status = true;
-    }
-    else
-    {
-      let prsExplanation= `Has ${prs.length} opened pull requests\n`;
-
-      if( !status.status )
-      status.status = prsExplanation;
-      else
-      status.status += '\n' + prsExplanation;
-    }
-
-    return status;
-  }
-
-}
-
-infoStatus.defaults =
-{
-  insidePath : null,
-  localPath : null,
-  remotePath : null,
-  local : 1,
-  remote : 1,
-  prs : 1,
-  detailing : 1,
-  explaining : 1,
-  sync : 1,
-}
-
-_.mapSupplement( infoStatus.defaults, status.defaults );
-
-//
-
 function hookRegister( o )
 {
   let provider = _.fileProvider;
@@ -2799,6 +2707,7 @@ let Extend =
   statusLocal,
   statusRemote,
   status,
+  statusFull,
 
   hasLocalChanges,
   hasRemoteChanges,
@@ -2807,7 +2716,6 @@ let Extend =
   prsGet,
   repositoryInit,
   repositoryDelete,
-  infoStatus,
 
   //
 
