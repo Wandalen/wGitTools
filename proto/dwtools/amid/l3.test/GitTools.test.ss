@@ -7973,6 +7973,322 @@ statusFull.timeOut = 30000;
 
 //
 
+
+function statusEveryCheck( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let secondaryPath = path.join( testPath, 'secondary' );
+  let repoPathNative = path.nativize( repoPath );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    ready : con
+  })
+
+  let repo = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con,
+  })
+
+  let cloned = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : con
+  })
+
+  let secondary = _.process.starter
+  ({
+    currentPath : secondaryPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+
+
+  prepareRepo()
+  repoNewCommit( 'newcommit' );
+  begin()
+  remoteChanges()
+  localChanges()
+  .then( () =>
+  {
+    var status = _.git.status
+    ({
+      localPath : localPath,
+
+      detailing : 1,
+      explaining : 1,
+
+      remote : 1,
+      remoteBranches : 1,
+      remoteCommits : 1,
+      remoteTags: 1,
+
+      local : 1,
+      uncommitted : 1,
+      uncommittedUntracked : 1,
+      uncommittedAdded : 1,
+      uncommittedChanged : 1,
+      uncommittedDeleted : 1,
+      uncommittedRenamed : 1,
+      uncommittedCopied : 1,
+      uncommittedIgnored : 1,
+      unpushed : 1,
+      unpushedCommits : 1,
+      unpushedTags : 1,
+      unpushedBranches : 1,
+    })
+
+    let expectedStatus =
+    [
+      'List of uncommited changes in files:',
+      '  \\?\\? copied2',
+      '  \\?\\? untracked',
+      '  A  \\.gitignore',
+      '  A  added',
+      '  M  changed',
+      '  M changed2',
+      '  D deleted',
+      '  R  renamed -> renamed2',
+      '  !! ignored',
+      'List of branches with unpushed commits:',
+      '  \\* master .* \\[origin\\/master: ahead 1\\] test',
+      'List of new:',
+      '  \\[new tag\\]         tag2 -> tag2',
+      '  \\[new branch\\]        new -> \\?',
+      'List of new remote branches:',
+      '  refs\\/heads\\/testbranch',
+      'List of remote branches that have new commits:',
+      '  refs\\/heads\\/master',
+      'List of new remote tags:',
+      '  refs\\/tags\\/testtag',
+    ]
+
+    _.each( expectedStatus, ( line ) =>
+    {
+      test.case = 'status has line: ' + _.strQuote( line )
+      test.is( !!status.status.match( line ) )
+    })
+
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    debugger
+    repo( 'git init --bare' );
+
+    con.then( () =>
+    {
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+    con.then( () =>
+    {
+      provider.fileWrite( path.join( testPath, 'secondary', 'changed' ), 'changed' )
+      provider.fileWrite( path.join( testPath, 'secondary', 'renamed' ), 'renamed' )
+      provider.fileWrite( path.join( testPath, 'secondary', 'copied' ), 'copied' )
+      provider.fileWrite( path.join( testPath, 'secondary', 'deleted' ), 'deleted' )
+      provider.fileWrite( path.join( testPath, 'secondary', 'changed2' ), 'changed2' )
+      return null;
+    })
+
+    shell( 'git -C secondary add -fA .' )
+    shell( 'git -C secondary commit -m init' )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+
+  function remoteChanges()
+  {
+    repoNewCommit( 'newcommit' )
+    repoNewCommitToBranch( 'newcommittobranch', 'testbranch' )
+    repoNewTag( 'testtag' )
+
+    return con;
+  }
+
+  function localChanges()
+  {
+    cloned( 'git checkout -b new' )
+    cloned( 'git checkout master' )
+    cloned( 'git commit --allow-empty -m test' )
+
+    con.then( () =>
+    {
+      provider.fileWrite( provider.path.join( localPath, 'added' ), 'added' )
+      provider.fileWrite( provider.path.join( localPath, 'untracked' ), 'untracked' )
+      provider.fileWrite( provider.path.join( localPath, 'ignored' ), 'ignored' )
+
+      provider.fileWrite( provider.path.join( localPath, 'changed' ), 'changed2' )
+      provider.fileWrite( provider.path.join( localPath, 'changed2' ), 'changed3' )
+      provider.fileDelete( provider.path.join( localPath, 'deleted' ) )
+      provider.fileCopy( provider.path.join( localPath, 'copied2' ),provider.path.join( localPath, 'copied' ) )
+
+      _.git.ignoreAdd( localPath, { 'ignored' : null } )
+
+      return null;
+    })
+
+    cloned( 'git add .gitignore' )
+    cloned( 'git add added' )
+    cloned( 'git mv renamed renamed2' )
+    cloned( 'git add changed' )
+    cloned( 'git tag tag2' )
+
+    return con;
+  }
+
+  function repoNewCommit( message )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    con.then( () =>
+    {
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git -C secondary commit --allow-empty -m ' + message )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
+
+  function repoNewTag( tag )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    con.then( () =>
+    {
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git -C secondary tag ' + tag )
+    shell( 'git -C secondary push --tags' )
+
+    return con;
+  }
+
+  function repoNewCommitToBranch( message, branch )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    let create = true;
+    let secondRepoPath = path.join( testPath, 'secondary' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+
+    con.then( () =>
+    {
+      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
+      create = false;
+      return null;
+    })
+
+    con.then( () =>
+    {
+      let con2 = new _.Consequence().take( null );
+      let shell2 = _.process.starter
+      ({
+        currentPath : testPath,
+        ready : con2
+      })
+
+      if( create )
+      shell2( 'git -C secondary checkout -b ' + branch )
+      else
+      shell2( 'git -C secondary checkout ' + branch )
+
+      shell2( 'git -C secondary commit --allow-empty -m ' + message )
+
+      if( create )
+      shell2( 'git -C secondary push --set-upstream origin ' + branch )
+      else
+      shell2( 'git -C secondary push' )
+
+      return con2;
+    })
+
+    return con;
+  }
+
+}
+
+statusEveryCheck.timeOut = 30000;
+
+//
+
 function gitHooksManager( test )
 {
   let context = this;
@@ -9221,6 +9537,7 @@ var Proto =
     isRepository,
 
     statusFull,
+    statusEveryCheck,
 
     gitHooksManager,
     gitHooksManagerErrors,
