@@ -1473,13 +1473,13 @@ function statusRemote_body( o )
 
   let result =
   {
-    commits : null,
-    branches : null,
-    tags : null,
+    remoteCommits : null,
+    remoteBranches : null,
+    remoteTags : null,
     status : null
   }
 
-  if( !o.commits && !o.branches && !o.tags )
+  if( !o.remoteCommits && !o.remoteBranches && !o.remoteTags )
   {
     ready.take( result );
     return end();
@@ -1492,18 +1492,18 @@ function statusRemote_body( o )
 
   start( 'git ls-remote' )
   ready.then( parse )
-  start( 'git show-ref --heads --tags' )
+  start( 'git show-ref --heads --tags -d' )
   ready.then( ( got ) =>
   {
     output = got.output;
     return null;
   })
 
-  if( o.branches )
+  if( o.remoteBranches )
   ready.then( branchesCheck )
-  if( o.commits )
+  if( o.remoteCommits )
   ready.then( commitsCheck )
-  if( o.tags )
+  if( o.remoteTags )
   ready.then( tagsCheck )
 
   ready.finally( ( err, got ) =>
@@ -1544,7 +1544,7 @@ function statusRemote_body( o )
 
   function branchesCheck( got )
   {
-    result.branches = '';
+    result.remoteBranches = '';
 
     for( var h = 0; h < heads.length ; h++ )
     {
@@ -1552,30 +1552,30 @@ function statusRemote_body( o )
 
       if( !_.strHas( output, ref ) )
       {
-        if( result.branches )
-        result.branches += '\n';
-        result.branches += ref;
+        if( result.remoteBranches )
+        result.remoteBranches += '\n';
+        result.remoteBranches += ref;
         _.arrayAppendOnce( status, 'List of new remote branches:' )
         status.push( ref );
       }
     }
 
-    return result.branches
+    return result.remoteBranches
   }
 
   function commitsCheck( got )
   {
-    result.commits = '';
+    result.remoteCommits = '';
 
     if( got && !o.detailing )
     {
       if( heads.length )
-      result.commits = _.maybe;
+      result.remoteCommits = _.maybe;
       return got;
     }
 
     if( !heads.length )
-    return result.commits;
+    return result.remoteCommits;
 
     let con = new _.Consequence().take( null );
 
@@ -1595,13 +1595,13 @@ function statusRemote_body( o )
       {
         if( !_.strHas( got.output, ref ) )
         {
-          if( result.commits )
-          result.commits += '\n';
-          result.commits += ref;
+          if( result.remoteCommits )
+          result.remoteCommits += '\n';
+          result.remoteCommits += ref;
           _.arrayAppendOnce( status, 'List of remote branches that have new commits:' )
           status.push( ref );
         }
-        return result.commits;
+        return result.remoteCommits;
       })
     })
 
@@ -1610,12 +1610,12 @@ function statusRemote_body( o )
 
   function tagsCheck( got )
   {
-    result.tags = '';
+    result.remoteTags = '';
 
     if( got && !o.detailing )
     {
       if( tags.length )
-      result.tags = _.maybe;
+      result.remoteTags = _.maybe;
       return got;
     }
 
@@ -1625,15 +1625,15 @@ function statusRemote_body( o )
 
       if( !_.strHas( output, tag ) )
       {
-        if( result.tags )
-        result.tags += '\n';
-        result.tags += tag;
+        if( result.remoteTags )
+        result.remoteTags += '\n';
+        result.remoteTags += tag;
         _.arrayAppendOnce( status, 'List of new remote tags:' )
         status.push( tag );
       }
     }
 
-    return result.tags;
+    return result.remoteTags;
   }
 
   function statusMake()
@@ -1657,9 +1657,9 @@ function statusRemote_body( o )
 var defaults = statusRemote_body.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
-defaults.commits = null;
-defaults.branches = 0;
-defaults.tags = null;
+defaults.remoteCommits = null;
+defaults.remoteBranches = 0;
+defaults.remoteTags = null;
 defaults.detailing = 0;
 defaults.explaining = 0;
 // defaults.branches = 1; /* qqq : ? */
@@ -1707,12 +1707,12 @@ function status_pre( routine, args )
   if( o.uncommitted === null )
   o.uncommitted = o.local;
 
-  if( o.commits === null )
-  o.commits = o.remote;
-  if( o.branches === null )
-  o.branches = o.remote;
-  if( o.tags === null )
-  o.tags = o.remote;
+  if( o.remoteCommits === null )
+  o.remoteCommits = o.remote;
+  if( o.remoteBranches === null )
+  o.remoteBranches = o.remote;
+  if( o.remoteTags === null )
+  o.remoteTags = o.remote;
 
   return o;
 }

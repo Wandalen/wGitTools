@@ -3387,22 +3387,22 @@ function statusRemote( test )
   {
     test.case = 'remote has new commit';
 
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : null,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
       status : null
     }
     test.identical( got, expected );
 
-    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : true,
-      branches : null,
-      tags : null,
+      remoteCommits : true,
+      remoteBranches : null,
+      remoteTags : null,
       status : true
     }
     test.identical( got, expected );
@@ -3412,14 +3412,14 @@ function statusRemote( test )
   })
   .then( () =>
   {
-    return _.git.statusRemote({ localPath, commits : 1, branches : 1, tags : 1, sync : 0 })
+    return _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, sync : 0 })
     .then( ( got ) =>
     {
       var expected =
       {
-        commits : true,
-        branches : false,
-        tags : false,
+        remoteCommits : true,
+        remoteBranches : false,
+        remoteTags : false,
         status : true
       }
       test.identical( got, expected );
@@ -3428,14 +3428,14 @@ function statusRemote( test )
   })
   .then( () =>
   {
-    return _.git.statusRemote({ localPath, commits : 1, branches : 1, tags : 1, explaining : 1, sync : 0 })
+    return _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 1, sync : 0 })
     .then( ( got ) =>
     {
       var expected =
       {
-        commits : 'Remote has new commit(s) at ref:"refs/heads/master"',
-        branches : '',
-        tags : '',
+        remoteCommits : 'Remote has new commit(s) at ref:"refs/heads/master"',
+        remoteBranches : '',
+        remoteTags : '',
         status : '"commits":\nRemote has new commit(s) at ref:"refs/heads/master"'
       }
       test.identical( got, expected );
@@ -3444,14 +3444,14 @@ function statusRemote( test )
   })
   .then( () =>
   {
-    return _.git.statusRemote({ localPath, commits : 1, branches : 1, tags : 1, explaining : 1, detailing : 1, sync : 0 })
+    return _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 1, detailing : 1, sync : 0 })
     .then( ( got ) =>
     {
       var expected =
       {
-        commits : 'Remote has new commit(s) at ref:"refs/heads/master"',
-        branches : false,
-        tags : false,
+        remoteCommits : 'Remote has new commit(s) at ref:"refs/heads/master"',
+        remoteBranches : false,
+        remoteTags : false,
         status : '"commits":\nRemote has new commit(s) at ref:"refs/heads/master"'
       }
       test.identical( got, expected );
@@ -3460,14 +3460,14 @@ function statusRemote( test )
   })
   .then( () =>
   {
-    return _.git.statusRemote({ localPath, commits : 1, branches : 1, tags : 1, explaining : 0, detailing : 0, sync : 0 })
+    return _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 0, detailing : 0, sync : 0 })
     .then( ( got ) =>
     {
       var expected =
       {
-        commits : true,
-        branches : false,
-        tags : false,
+        remoteCommits : true,
+        remoteBranches : false,
+        remoteTags : false,
         status : true
       }
       test.identical( got, expected );
@@ -3478,21 +3478,21 @@ function statusRemote( test )
   .then( () =>
   {
     test.case = 'local pulled new commit from remote';
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : null,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : false,
-      branches : null,
-      tags : null,
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
       status : false
     }
     test.identical( got, expected );
@@ -3508,21 +3508,21 @@ function statusRemote( test )
   .then( () =>
   {
     test.case = 'remote has new branch';
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : null,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 1, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : true,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : true,
+      remoteTags : null,
       status : true
     }
     test.identical( got, expected );
@@ -3532,22 +3532,22 @@ function statusRemote( test )
   .then( () =>
   {
     test.case = 'remote has new branch, local after fetch';
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : null,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
       status : null
     }
     test.identical( got, expected );
 
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 1, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : true,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : true,
+      remoteTags : null,
       status : true
     }
     test.identical( got, expected );
@@ -3557,21 +3557,21 @@ function statusRemote( test )
   .then( () =>
   {
     test.case = 'remote has new branch, local after checkout new branch';
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : null,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 1, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : false,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : false,
+      remoteTags : null,
       status : false
     }
     test.identical( got, expected );
@@ -3587,21 +3587,21 @@ function statusRemote( test )
   .then( () =>
   {
     test.case = 'remote has new tag';
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : null,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 1 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1 });
     var expected =
     {
-      commits : null,
-      branches : null,
-      tags : true,
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : true,
       status : true
     }
     test.identical( got, expected );
@@ -3611,21 +3611,21 @@ function statusRemote( test )
   .then( () =>
   {
     test.case = 'remote has new tag, local after fetch';
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : null,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 1 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1 });
     var expected =
     {
-      commits : null,
-      branches : null,
-      tags : false,
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : false,
       status : false
     }
     test.identical( got, expected );
@@ -3641,30 +3641,30 @@ function statusRemote( test )
   .then( () =>
   {
     test.case = 'remote has new tag';
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : null,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : false,
-      branches : null,
-      tags : null,
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
       status : false
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 1 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1 });
     var expected =
     {
-      commits : false,
-      branches : null,
-      tags : true,
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : true,
       status : true
     }
     test.identical( got, expected );
@@ -3674,30 +3674,30 @@ function statusRemote( test )
   .then( () =>
   {
     test.case = 'remote has new tag, local after fetch';
-    var got = _.git.statusRemote({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : null,
-      branches : null,
-      tags : null,
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 0 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
-      commits : false,
-      branches : null,
-      tags : null,
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
       status : false
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, commits : 1, branches : 0, tags : 1 });
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1 });
     var expected =
     {
-      commits : false,
-      branches : null,
-      tags : false,
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : false,
       status : false
     }
     test.identical( got, expected );
@@ -3842,6 +3842,176 @@ function statusRemote( test )
 }
 
 statusRemote.timeOut = 30000;
+
+//
+
+function statusRemoteTags( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let remotePath = 'https://github.com/Wandalen/willbe.git';
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  begin()
+  .then( () =>
+  {
+    test.case = 'check tags on fresh clone';
+
+    var got = _.git.statusRemote
+    ({
+      localPath,
+      remoteCommits : 1,
+      remoteBranches : 1,
+      remoteTags : 1,
+      detailing : 1,
+      explaining : 1
+    });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : false,
+      remoteTags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    return null;
+  })
+  shell( 'git tag -d v0.5.6' )
+  .then( () =>
+  {
+    test.case = 'compare with remore after remove';
+
+    var got = _.git.statusRemote
+    ({
+      localPath,
+      remoteCommits : 1,
+      remoteBranches : 1,
+      remoteTags : 1,
+      detailing : 1,
+      explaining : 1
+    });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : false,
+      remoteTags : 'refs/tags/v0.5.6\nrefs/tags/v0.5.6^{}',
+      status : 'List of new remote tags:\nrefs/tags/v0.5.6\nrefs/tags/v0.5.6^{}'
+    }
+    test.identical( got, expected );
+    return null;
+  })
+  shell( 'git fetch --all' )
+  .then( () =>
+  {
+    test.case = 'check tags after fetching';
+
+    var got = _.git.statusRemote
+    ({
+      localPath,
+      remoteCommits : 1,
+      remoteBranches : 1,
+      remoteTags : 1,
+      detailing : 1,
+      explaining : 1
+    });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : false,
+      remoteTags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    return null;
+  })
+  shell( 'git tag sometag' )
+  .then( () =>
+  {
+    test.case = 'check after creating tag locally';
+
+    var got = _.git.statusRemote
+    ({
+      localPath,
+      remoteCommits : 1,
+      remoteBranches : 1,
+      remoteTags : 1,
+      detailing : 1,
+      explaining : 1
+    });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : false,
+      remoteTags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    return null;
+  })
+  shell( 'git tag new v0.5.6' )
+  shell( 'git tag -d v0.5.6' )
+  .then( () =>
+  {
+    test.case = 'check after renaming';
+
+    var got = _.git.statusRemote
+    ({
+      localPath,
+      remoteCommits : 1,
+      remoteBranches : 1,
+      remoteTags : 1,
+      detailing : 1,
+      explaining : 1
+    });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : false,
+      remoteTags : 'refs/tags/v0.5.6\nrefs/tags/v0.5.6^{}',
+      status : 'List of new remote tags:\nrefs/tags/v0.5.6\nrefs/tags/v0.5.6^{}'
+    }
+    test.identical( got, expected );
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + remotePath + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+}
+
+statusRemoteTags.timeOut = 30000;
 
 //
 
@@ -4434,9 +4604,9 @@ function hasRemoteChanges( test )
   .then( () =>
   {
     test.case = 'remote has new commit';
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     test.identical( got, false );
-    var got = _.git.hasRemoteChanges({ localPath, commits : 1, branches : 0, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
     test.identical( got, true );
     return null;
   })
@@ -4444,9 +4614,9 @@ function hasRemoteChanges( test )
   .then( () =>
   {
     test.case = 'local pulled new commit from remote';
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     test.identical( got, false );
-    var got = _.git.hasRemoteChanges({ localPath, commits : 1, branches : 0, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
     test.identical( got, false );
     return null;
   })
@@ -4460,9 +4630,9 @@ function hasRemoteChanges( test )
   .then( () =>
   {
     test.case = 'remote has new branch';
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     test.identical( got, false );
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 1, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
     test.identical( got, true );
     return null;
   })
@@ -4470,9 +4640,9 @@ function hasRemoteChanges( test )
   .then( () =>
   {
     test.case = 'remote has new branch, local after fetch';
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     test.identical( got, false );
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 1, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
     test.identical( got, true );
     return null;
   })
@@ -4480,35 +4650,9 @@ function hasRemoteChanges( test )
   .then( () =>
   {
     test.case = 'remote has new branch, local after checkout new branch';
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     test.identical( got, false );
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 1, tags : 0 });
-    test.identical( got, false );
-    return null;
-  })
-
-  //
-
-  prepareRepo()
-  repoNewCommit( 'init' )
-  begin()
-  repoNewTag( 'test' )
-  .then( () =>
-  {
-    test.case = 'remote has new tag';
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 0 });
-    test.identical( got, false );
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 1 });
-    test.identical( got, true );
-    return null;
-  })
-  shell( 'git fetch --all' )
-  .then( () =>
-  {
-    test.case = 'remote has new tag, local after fetch';
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 0 });
-    test.identical( got, false );
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 1 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
     test.identical( got, false );
     return null;
   })
@@ -4522,11 +4666,9 @@ function hasRemoteChanges( test )
   .then( () =>
   {
     test.case = 'remote has new tag';
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     test.identical( got, false );
-    var got = _.git.hasRemoteChanges({ localPath, commits : 1, branches : 0, tags : 0 });
-    test.identical( got, false );
-    var got = _.git.hasRemoteChanges({ localPath, commits : 1, branches : 0, tags : 1 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1 });
     test.identical( got, true );
     return null;
   })
@@ -4534,11 +4676,39 @@ function hasRemoteChanges( test )
   .then( () =>
   {
     test.case = 'remote has new tag, local after fetch';
-    var got = _.git.hasRemoteChanges({ localPath, commits : 0, branches : 0, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     test.identical( got, false );
-    var got = _.git.hasRemoteChanges({ localPath, commits : 1, branches : 0, tags : 0 });
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1 });
     test.identical( got, false );
-    var got = _.git.hasRemoteChanges({ localPath, commits : 1, branches : 0, tags : 1 });
+    return null;
+  })
+
+  //
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  repoNewTag( 'test' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag';
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
+    test.identical( got, false );
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
+    test.identical( got, false );
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1 });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git fetch --all' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag, local after fetch';
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
+    test.identical( got, false );
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
+    test.identical( got, false );
+    var got = _.git.hasRemoteChanges({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1 });
     test.identical( got, false );
     return null;
   })
@@ -6022,9 +6192,9 @@ function status( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6057,9 +6227,9 @@ function status( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6092,9 +6262,9 @@ function status( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6128,9 +6298,9 @@ function status( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -6164,9 +6334,9 @@ function status( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -6200,9 +6370,9 @@ function status( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6236,9 +6406,9 @@ function status( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6272,9 +6442,9 @@ function status( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -6308,9 +6478,9 @@ function status( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -6344,9 +6514,9 @@ function status( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6375,18 +6545,18 @@ function status( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 1,
-      branches : 0,
-      tags : 0,
-      commits : 0,
+      remoteBranches : 0,
+      remoteTags : 0,
+      remoteCommits : 0,
       detailing : 1,
       explaining : 1,
 
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6414,18 +6584,18 @@ function status( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 1,
-      branches : null,
-      tags : null,
-      commits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      remoteCommits : null,
       detailing : 1,
       explaining : 1,
 
     })
     var expected =
     {
-      branches: false,
-      commits: false,
-      tags: false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6453,18 +6623,18 @@ function status( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 0,
-      branches : null,
-      tags : null,
-      commits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      remoteCommits : null,
       detailing : 1,
       explaining : 1,
 
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6492,18 +6662,18 @@ function status( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 0,
-      branches : 1,
-      tags : null,
-      commits : null,
+      remoteBranches : 1,
+      remoteTags : null,
+      remoteCommits : null,
       detailing : 1,
       explaining : 1,
 
     })
     var expected =
     {
-      branches: false,
-      commits: null,
-      tags: null,
+      remoteBranches: false,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6531,18 +6701,18 @@ function status( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 0,
-      branches : 1,
-      tags : null,
-      commits : 1,
+      remoteBranches : 1,
+      remoteTags : null,
+      remoteCommits : 1,
       detailing : 1,
       explaining : 1,
 
     })
     var expected =
     {
-      branches: false,
-      commits: false,
-      tags: null,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6570,18 +6740,18 @@ function status( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 0,
-      branches : 1,
-      tags : 1,
-      commits : 1,
+      remoteBranches : 1,
+      remoteTags : 1,
+      remoteCommits : 1,
       detailing : 1,
       explaining : 1,
 
     })
     var expected =
     {
-      branches: false,
-      commits: false,
-      tags: false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6609,18 +6779,18 @@ function status( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 1,
-      branches : 1,
-      tags : 1,
-      commits : 1,
+      remoteBranches : 1,
+      remoteTags : 1,
+      remoteCommits : 1,
       detailing : 1,
       explaining : 1,
 
     })
     var expected =
     {
-      branches: false,
-      commits: false,
-      tags: false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6648,18 +6818,18 @@ function status( test )
       unpushed : null,
       uncommitted : null,
       remote : 1,
-      branches : null,
-      tags : null,
-      commits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      remoteCommits : null,
       detailing : 1,
       explaining : 1,
 
     })
     var expected =
     {
-      branches: false,
-      commits: false,
-      tags: false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -6689,18 +6859,18 @@ function status( test )
       uncommittedCopied : 0,
       uncommittedDeleted : 0,
       remote : 1,
-      branches : null,
-      tags : null,
-      commits : 0,
+      remoteBranches : null,
+      remoteTags : null,
+      remoteCommits : 0,
       detailing : 1,
       explaining : 1,
 
     })
     var expected =
     {
-      branches: false,
-      commits: null,
-      tags: false,
+      remoteBranches: false,
+      remoteCommits: null,
+      remoteTags: false,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -6888,9 +7058,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6927,9 +7097,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -6965,9 +7135,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -7004,9 +7174,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -7043,9 +7213,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -7082,9 +7252,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -7121,9 +7291,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -7160,9 +7330,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -7199,9 +7369,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -7238,9 +7408,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -7271,9 +7441,9 @@ function infoStatus( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 1,
-      branches : 0,
-      tags : 0,
-      commits : 0,
+      remoteBranches : 0,
+      remoteTags : 0,
+      remoteCommits : 0,
       detailing : 1,
       explaining : 1,
       prs : 0
@@ -7281,9 +7451,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -7313,9 +7483,9 @@ function infoStatus( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 1,
-      branches : null,
-      tags : null,
-      commits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      remoteCommits : null,
       detailing : 1,
       explaining : 1,
       prs : 0
@@ -7323,9 +7493,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: false,
-      commits: false,
-      tags: false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -7355,9 +7525,9 @@ function infoStatus( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 0,
-      branches : null,
-      tags : null,
-      commits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      remoteCommits : null,
       detailing : 1,
       explaining : 1,
       prs : 0
@@ -7365,9 +7535,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: null,
-      commits: null,
-      tags: null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -7397,9 +7567,9 @@ function infoStatus( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 0,
-      branches : 1,
-      tags : null,
-      commits : null,
+      remoteBranches : 1,
+      remoteTags : null,
+      remoteCommits : null,
       detailing : 1,
       explaining : 1,
       prs : 0
@@ -7407,9 +7577,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: false,
-      commits: null,
-      tags: null,
+      remoteBranches: false,
+      remoteCommits: null,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -7439,9 +7609,9 @@ function infoStatus( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 0,
-      branches : 1,
-      tags : null,
-      commits : 1,
+      remoteBranches : 1,
+      remoteTags : null,
+      remoteCommits : 1,
       detailing : 1,
       explaining : 1,
       prs : 0
@@ -7449,9 +7619,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: false,
-      commits: false,
-      tags: null,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: null,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -7481,9 +7651,9 @@ function infoStatus( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 0,
-      branches : 1,
-      tags : 1,
-      commits : 1,
+      remoteBranches : 1,
+      remoteTags : 1,
+      remoteCommits : 1,
       detailing : 1,
       explaining : 1,
       prs : 0
@@ -7491,9 +7661,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: false,
-      commits: false,
-      tags: false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -7523,9 +7693,9 @@ function infoStatus( test )
       unpushed : 0,
       uncommitted : 0,
       remote : 1,
-      branches : 1,
-      tags : 1,
-      commits : 1,
+      remoteBranches : 1,
+      remoteTags : 1,
+      remoteCommits : 1,
       detailing : 1,
       explaining : 1,
       prs : 0
@@ -7533,9 +7703,9 @@ function infoStatus( test )
     })
     var expected =
     {
-      branches: false,
-      commits: false,
-      tags: false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
       uncommitted: null,
       uncommittedAdded: null,
@@ -7565,18 +7735,18 @@ function infoStatus( test )
       unpushed : null,
       uncommitted : null,
       remote : 1,
-      branches : null,
-      tags : null,
-      commits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      remoteCommits : null,
       detailing : 1,
       explaining : 1,
       prs : 0
     })
     var expected =
     {
-      branches: false,
-      commits: false,
-      tags: false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -7608,18 +7778,18 @@ function infoStatus( test )
       uncommittedCopied : 0,
       uncommittedDeleted : 0,
       remote : 1,
-      branches : null,
-      tags : null,
-      commits : 0,
+      remoteBranches : null,
+      remoteTags : null,
+      remoteCommits : 0,
       detailing : 1,
       explaining : 1,
       prs : 0
     })
     var expected =
     {
-      branches: false,
-      commits: null,
-      tags: false,
+      remoteBranches: false,
+      remoteCommits: null,
+      remoteTags: false,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -7649,18 +7819,18 @@ function infoStatus( test )
       unpushed : null,
       uncommitted : null,
       remote : 1,
-      branches : null,
-      tags : null,
-      commits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      remoteCommits : null,
       detailing : 1,
       explaining : 1,
       prs : 1
     })
     var expected =
     {
-      branches: false,
-      commits: false,
-      tags: false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
       uncommitted: false,
       uncommittedAdded: false,
@@ -9037,6 +9207,7 @@ var Proto =
     statusLocalAsync,
     statusLocalExplainingTrivial,
     statusRemote,
+    statusRemoteTags,
     status,
     hasLocalChanges,
     hasRemoteChanges,
