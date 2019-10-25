@@ -1654,10 +1654,11 @@ let status = _.routineFromPreAndBody( status_pre, status_body );
 
 function statusFull( o )
 {
+  let result = Object.create( null );
 
   o = _.routineOptions( statusFull, arguments );
 
-  o.isRepository = null;
+  result.isRepository = null;
   if( o.prs )
   o.prs = [];
 
@@ -1667,7 +1668,7 @@ function statusFull( o )
   if( !o.localPath )
   return o;
 
-  o.isRepository = true;
+  result.isRepository = true;
 
   _.assert( _.strIs( o.localPath ), 'Expects local path of inside path to deduce local path' );
 
@@ -1690,7 +1691,7 @@ function statusFull( o )
     let status = arg[ 0 ];
     let prs = arg[ 1 ];
     statusAdjust( status, prs );
-    return status;
+    return result;
   });
 
   if( o.sync )
@@ -1702,33 +1703,35 @@ function statusFull( o )
   function statusAdjust( status, prs )
   {
 
-    status.prs = prs;
-    if( !status.prs )
-    status.prs = o.prs ? _.maybe : null;
+    _.mapExtend( result, status );
 
-    if( prs && !prs.length && !status.status )
+    result.prs = prs;
+    if( !result.prs )
+    result.prs = o.prs ? _.maybe : null;
+
+    if( prs && !prs.length && !result.result )
     {
-      if( status.status === null )
-      status.status = false;
-      return status;
+      if( result.status === null )
+      result.status = false;
+      return result;
     }
 
     if( prs && prs.length )
     if( !o.explaining )
     {
-      status.status = true;
+      result.status = true;
     }
     else
     {
       let prsExplanation= `Has ${prs.length} opened pull requests`;
 
-      if( !status.status )
-      status.status = prsExplanation;
+      if( !result.status )
+      result.status = prsExplanation;
       else
-      status.status += '\n' + prsExplanation;
+      result.status += '\n' + prsExplanation;
     }
 
-    return status;
+    return result;
   }
 
 }
@@ -1747,6 +1750,7 @@ statusFull.defaults =
 }
 
 _.mapSupplement( statusFull.defaults, status.defaults );
+
 
 //
 
