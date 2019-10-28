@@ -606,7 +606,7 @@ function statusLocal( test )
       sync : 1
     });
 
-    var expectedStatus =  'List of uncommited changes:\n?? newFile'
+    var expectedStatus =  'List of uncommited changes in files:\n?? newFile'
 
     var expected =
     {
@@ -706,7 +706,7 @@ function statusLocal( test )
       sync : 1
     });
 
-    var expectedStatus = `List of uncommited changes:\nM README`;
+    var expectedStatus = `List of uncommited changes in files:\nM README`;
     var expected =
     {
       'uncommitted' : expectedStatus,
@@ -1146,8 +1146,9 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
+    debugger
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
@@ -1234,8 +1235,9 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
+    debugger
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
@@ -1414,8 +1416,9 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
+    debugger
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
@@ -1497,11 +1500,11 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
-      'unpushed' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag',
+      'unpushed' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'unpushedCommits' : false,
-      'unpushedTags' : ' * [new tag]         sometag -> sometag',
+      'unpushedTags' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'unpushedBranches' : false,
-      'status' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag',
+      'status' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'conflicts' : false
 
     }
@@ -1669,11 +1672,11 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
-      'unpushed' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag',
+      'unpushed' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'unpushedCommits' : false,
-      'unpushedTags' : ' * [new tag]         sometag -> sometag',
+      'unpushedTags' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'unpushedBranches' : false,
-      'status' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag',
+      'status' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'conflicts' : false
     }
     test.identical( got, expected )
@@ -1839,7 +1842,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes:\n?? README_\nD README',
+      'uncommitted' : 'List of uncommited changes in files:\n ?? README_\n D README',
       'uncommittedUntracked' : '?? README_',
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -1851,7 +1854,7 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\n?? README_\nD README',
+      'status' : 'List of uncommited changes in files:\n ?? README_\n D README',
       'conflicts' : false
     }
     test.identical( got, expected )
@@ -1922,7 +1925,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes:\nR  README -> README_',
+      'uncommitted' : 'List of uncommited changes in files:\nR  README -> README_',
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -1934,7 +1937,7 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\nR  README -> README_',
+      'status' : 'List of uncommited changes in files:\nR  README -> README_',
       'conflicts' : false
     }
     test.identical( got, expected )
@@ -2016,8 +2019,9 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
+    debugger
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
@@ -2179,7 +2183,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes:\nD README',
+      'uncommitted' : 'List of uncommited changes in files:\nD README',
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -2191,7 +2195,7 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\nD README',
+      'status' : 'List of uncommited changes in files:\nD README',
       'conflicts' : false
     }
     test.identical( got, expected )
@@ -2261,7 +2265,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes:\nD  README',
+      'uncommitted' : 'List of uncommited changes in files:\n  D  README',
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -2273,7 +2277,7 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\nD  README',
+      'status' : 'List of uncommited changes in files:\n  D  README',
       'conflicts' : false
     }
     test.identical( got, expected )
@@ -2356,8 +2360,9 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
+    debugger
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
@@ -2519,11 +2524,11 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
-      'unpushed' : 'List of unpushed changes:\nThere is no tracking information for the branch: "testbranch".',
+      'unpushed' : 'List of unpushed:\n  [new branch]        testbranch -> ?',
       'unpushedCommits' : false,
       'unpushedTags' : false,
-      'unpushedBranches' : 'There is no tracking information for the branch: "testbranch".',
-      'status' : 'List of unpushed changes:\nThere is no tracking information for the branch: "testbranch".',
+      'unpushedBranches' : 'List of unpushed:\n  [new branch]        testbranch -> ?',
+      'status' : 'List of unpushed:\n  [new branch]        testbranch -> ?',
       'conflicts' : false
     }
     test.identical( got, expected )
@@ -2689,11 +2694,11 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
-      'unpushed' : 'List of unpushed changes:\n * [new tag]         testtag -> testtag',
+      'unpushed' : 'List of unpushed changes:\n  [new tag]   testtag -> testtag',
       'unpushedCommits' : false,
       'unpushedTags' : ' * [new tag]         testtag -> testtag',
       'unpushedBranches' : false,
-      'status' : 'List of unpushed changes:\n * [new tag]         testtag -> testtag',
+      'status' : 'List of unpushed changes:\n  [new tag]   testtag -> testtag',
       'conflicts' : false
 
     }
@@ -2860,7 +2865,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes:\n!! file',
+      'uncommitted' : 'List of uncommited changes in files:\n  !! file',
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -2875,9 +2880,10 @@ function statusLocal( test )
     test.contains( got, expected )
 
     console.log( got.status )
-    test.is( _.strHas( got.status, /List of uncommited changes:\n\!\! file/ ) )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    debugger
+    test.is( _.strHas( got.status, /List of uncommited changes in files:\n.*\!\! file/ ) )
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
 
     var got = _.git.statusLocal
