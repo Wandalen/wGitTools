@@ -8074,9 +8074,16 @@ function statusFull( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      prs : null,
+      conflicts : null,
 
-      status: null
+      prs : null,
+      
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8113,9 +8120,16 @@ function statusFull( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      prs : null,
+      conflicts : null,
 
-      status: null
+      prs : null,
+      
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8150,11 +8164,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : null,
 
       prs : null,
 
-      status: false
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8193,7 +8214,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8228,11 +8256,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8271,7 +8306,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: null
+      conflicts : null,
+
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8306,11 +8348,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8349,7 +8398,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8384,14 +8440,21 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
-
+    
     //
 
     var status = _.git.statusFull
@@ -8427,7 +8490,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: null
+      conflicts : null,
+
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8469,7 +8539,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: null
+      conflicts : null,
+
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8511,7 +8588,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : null,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8553,7 +8637,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: null
+      conflicts : null,
+
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8595,7 +8686,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : null,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8637,7 +8735,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : null,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8679,7 +8784,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : null,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8721,7 +8833,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : null,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8758,11 +8877,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8801,11 +8927,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8842,11 +8975,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
-      prs : 0,
+      prs : _.maybe,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
