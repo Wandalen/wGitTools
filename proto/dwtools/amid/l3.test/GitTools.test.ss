@@ -554,6 +554,7 @@ function statusLocal( test )
       unpushedBranches : 0,
       explaining : 0,
       detailing : 0,
+      conflicts : 0,
       sync : 1
     });
     var expected =
@@ -571,14 +572,14 @@ function statusLocal( test )
       'unpushedTags' : null,
       'unpushedBranches' : null,
       'status' : null,
-      'conflicts' : false
+      'conflicts' : null
     }
     test.identical( got, expected )
 
     return null;
   })
 
-  // /* */
+  /* */
 
   begin()
   .then( () =>
@@ -606,7 +607,7 @@ function statusLocal( test )
       sync : 1
     });
 
-    var expectedStatus =  'List of uncommited changes in files:\n?? newFile'
+    var expectedStatus =  'List of uncommited changes in files:\n  ?? newFile'
 
     var expected =
     {
@@ -625,6 +626,7 @@ function statusLocal( test )
       'status' : expectedStatus,
       'conflicts' : false
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -706,7 +708,7 @@ function statusLocal( test )
       sync : 1
     });
 
-    var expectedStatus = `List of uncommited changes in files:\nM README`;
+    var expectedStatus = `List of uncommited changes in files:\n  M README`;
     var expected =
     {
       'uncommitted' : expectedStatus,
@@ -1502,12 +1504,13 @@ function statusLocal( test )
       'uncommittedIgnored' : false,
       'unpushed' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'unpushedCommits' : false,
-      'unpushedTags' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
+      'unpushedTags' : '[new tag]   sometag -> sometag',
       'unpushedBranches' : false,
       'status' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'conflicts' : false
 
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -1674,7 +1677,7 @@ function statusLocal( test )
       'uncommittedIgnored' : false,
       'unpushed' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'unpushedCommits' : false,
-      'unpushedTags' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
+      'unpushedTags' : '[new tag]   sometag -> sometag',
       'unpushedBranches' : false,
       'status' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'conflicts' : false
@@ -1842,7 +1845,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes in files:\n ?? README_\n D README',
+      'uncommitted' : 'List of uncommited changes in files:\n  ?? README_\n  D README',
       'uncommittedUntracked' : '?? README_',
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -1854,7 +1857,7 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes in files:\n ?? README_\n D README',
+      'status' : 'List of uncommited changes in files:\n  ?? README_\n  D README',
       'conflicts' : false
     }
     test.identical( got, expected )
@@ -1925,7 +1928,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes in files:\nR  README -> README_',
+      'uncommitted' : 'List of uncommited changes in files:\n  R  README -> README_',
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -1937,9 +1940,10 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes in files:\nR  README -> README_',
+      'status' : 'List of uncommited changes in files:\n  R  README -> README_',
       'conflicts' : false
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -2183,7 +2187,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes in files:\nD README',
+      'uncommitted' : 'List of uncommited changes in files:\n  D README',
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -2195,7 +2199,7 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes in files:\nD README',
+      'status' : 'List of uncommited changes in files:\n  D README',
       'conflicts' : false
     }
     test.identical( got, expected )
@@ -2280,6 +2284,7 @@ function statusLocal( test )
       'status' : 'List of uncommited changes in files:\n  D  README',
       'conflicts' : false
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -2527,10 +2532,11 @@ function statusLocal( test )
       'unpushed' : 'List of unpushed:\n  [new branch]        testbranch -> ?',
       'unpushedCommits' : false,
       'unpushedTags' : false,
-      'unpushedBranches' : 'List of unpushed:\n  [new branch]        testbranch -> ?',
+      'unpushedBranches' : '[new branch]        testbranch -> ?',
       'status' : 'List of unpushed:\n  [new branch]        testbranch -> ?',
       'conflicts' : false
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -2694,14 +2700,15 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
-      'unpushed' : 'List of unpushed changes:\n  [new tag]   testtag -> testtag',
+      'unpushed' : 'List of unpushed:\n  [new tag]   testtag -> testtag',
       'unpushedCommits' : false,
-      'unpushedTags' : ' * [new tag]         testtag -> testtag',
+      'unpushedTags' : '[new tag]   testtag -> testtag',
       'unpushedBranches' : false,
-      'status' : 'List of unpushed changes:\n  [new tag]   testtag -> testtag',
+      'status' : 'List of unpushed:\n  [new tag]   testtag -> testtag',
       'conflicts' : false
 
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -2879,8 +2886,6 @@ function statusLocal( test )
     }
     test.contains( got, expected )
 
-    console.log( got.status )
-    debugger
     test.is( _.strHas( got.status, /List of uncommited changes in files:\n.*\!\! file/ ) )
     test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
     test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
@@ -9058,9 +9063,9 @@ function statusEveryCheck( test )
       '  A  added',
       '  M  changed',
       '  M changed2',
-      '  D deleted',
+      '   D deleted',
       '  R  renamed -> renamed2',
-      '  !! ignored',
+      '   !! ignored',
       'List of branches with unpushed commits:',
       '  \\* master .* \\[origin\\/master: ahead 1\\] test',
       '  second .* \\[origin\\\/second: ahead 1\\] test',
@@ -9084,7 +9089,7 @@ function statusEveryCheck( test )
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.is( !!status.status.match( line ) )
+      test.is(  !!status.status.match( line ) )
     })
 
     test.identical( status.conflicts, false );
@@ -9127,7 +9132,7 @@ function statusEveryCheck( test )
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.is( !!status.status.match( line ) )
+      test.is(  !!status.status.match( line ) )
     })
 
     return null;
@@ -9188,7 +9193,7 @@ function statusEveryCheck( test )
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.is( !!status.status.match( line ) )
+      test.is(  !!status.status.match( line ) )
     })
 
     return null;

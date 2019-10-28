@@ -991,16 +991,17 @@ function statusLocal_body( o )
         if( result.uncommitted === null )
         result.uncommitted = [];
 
-        if( !_.strDefined( result[ k ] ) )
+        if( !result[ k ] )
         continue;
 
-        result[ k ] = ' ' + result[ k ];
-
-        result.uncommitted.push( _.strIndentation( result[ k ], ' ' ) );
+        result.uncommitted.push( result[ k ] );
       }
       if( _.arrayIs( result.uncommitted ) )
       result.uncommitted = result.uncommitted.join( '\n' )
     }
+
+    if( result.uncommitted )
+    result.uncommitted = 'List of uncommited changes in files:\n' + '  ' + _.strIndentation( result.uncommitted, '  ' );
 
     /*  */
 
@@ -1014,37 +1015,29 @@ function statusLocal_body( o )
       if( result.unpushed === null )
       result.unpushed = [];
 
-      if( !_.strDefined( result[ k ] ) )
+      if( !result[ k ] )
       continue;
 
-      result.unpushed.push( result[ k ] );
+      if( k === 'unpushedCommits' )
+      result.unpushed.push( 'List of branches with unpushed commits:' )
+      else if( k === 'unpushedBranches' || k === 'unpushedTags' )
+      _.arrayAppendOnce( result.unpushed, 'List of unpushed:' );
+
+      result.unpushed.push( '  ' + _.strIndentation( result[ k ], '  ' ) );
     }
     if( _.arrayIs( result.unpushed ) )
     result.unpushed = result.unpushed.join( '\n' );
 
     /*  */
 
-    result.status = null;
-
-    if( _.strIs( result.uncommitted ) )
-    {
-      if( result.uncommitted )
-      {
-        result.uncommitted = ' ' + result.uncommitted;
-        result.uncommitted = 'List of uncommited changes in files:\n' + _.strIndentation( result.uncommitted, ' ' );
-      }
-      result.status = result.uncommitted;
-    }
+    result.status = result.uncommitted;
 
     if( _.strIs( result.unpushed ) )
     {
-      if( result.unpushed )
-      result.unpushed = '\n' + result.unpushed;
-
       if( !result.status )
       result.status = result.unpushed;
       else if( result.unpushed )
-      result.status += result.unpushed;
+      result.status += '\n' + result.unpushed;
     }
 
     _.assert( _.strIs( result.status ) || result.status === null );
@@ -1228,8 +1221,8 @@ function statusLocal_body( o )
 
       if( tags && tags.length )
       {
-        result.unpushedTags = 'List of unpushed:\n';
-        tags = tags.map( ( tag ) => `  [new tag]   ${tag} -> ?` )
+        // result.unpushedTags = 'List of unpushed:\n';
+        tags = tags.map( ( tag ) => `[new tag]   ${tag} -> ?` )
         result.unpushedTags += tags.join( '\n' )
       }
 
@@ -1256,13 +1249,12 @@ function statusLocal_body( o )
       let unpushedTags = [];
       _.each( tags, ( tag ) =>
       {
-        if( _.strHas( got.output, tag ) )
-        return;
-        unpushedTags.push( `  [new tag]   ${tag} -> ${tag}` );
+        if( !_.strHas( got.output, tag ) )
+        result.unpushedTags += `[new tag]   ${tag} -> ${tag}`;
       })
 
       if( unpushedTags.length )
-      result.unpushedTags = 'List of unpushed:\n' + unpushedTags.join( '\n' );
+      result.unpushedTags += unpushedTags.join( '\n' );
 
       return result.unpushedTags;
     })
@@ -1308,11 +1300,11 @@ function statusLocal_body( o )
 
       if( explanation.length )
       {
-        if( !result.unpushedTags )
-        result.unpushedBranches = 'List of unpushed:\n';
-        explanation = _.strLinesStrip( explanation );
-        explanation[ 0 ] = '  ' + explanation[ 0 ];
-        result.unpushedBranches += _.strIndentation( explanation, '  ' );
+        // if( !result.unpushedTags )
+        // result.unpushedBranches = 'List of unpushed:\n';
+        // explanation = _.strLinesStrip( explanation );
+        // explanation[ 0 ] = '  ' + explanation[ 0 ];
+        result.unpushedBranches += explanation.join( '\n' );
       }
 
       return result.unpushedBranches;
@@ -1322,7 +1314,7 @@ function statusLocal_body( o )
   /* - */
 
   function unpushedCommitsCheck( got )
-  {
+  { 
     if( got && !o.detailing )
     return got;
 
@@ -1333,11 +1325,12 @@ function statusLocal_body( o )
       let match = got.output.match( /^.*\[.*ahead .*\].*$/gm );
       result.unpushedCommits = '';
       if( match )
-      {
-        result.unpushedCommits = 'List of branches with unpushed commits:\n';
+      { 
+        // result.unpushedCommits = 'List of branches with unpushed commits:\n';
         match = _.strLinesStrip( match );
-        match[ 0 ] = '  ' + match[ 0 ];
-        result.unpushedCommits += _.strIndentation( match, '  ' );
+        // match[ 0 ] = '  ' + match[ 0 ];
+        // result.unpushedCommits += _.strIndentation( match, '  ' );
+        result.unpushedCommits = match.join( '\n' );
       }
 
       return result.unpushedCommits;
