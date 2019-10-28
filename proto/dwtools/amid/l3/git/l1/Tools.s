@@ -1221,7 +1221,6 @@ function statusLocal_body( o )
 
       if( tags && tags.length )
       {
-        // result.unpushedTags = 'List of unpushed:\n';
         tags = tags.map( ( tag ) => `[new tag]   ${tag} -> ?` )
         result.unpushedTags += tags.join( '\n' )
       }
@@ -1299,13 +1298,7 @@ function statusLocal_body( o )
       }
 
       if( explanation.length )
-      {
-        // if( !result.unpushedTags )
-        // result.unpushedBranches = 'List of unpushed:\n';
-        // explanation = _.strLinesStrip( explanation );
-        // explanation[ 0 ] = '  ' + explanation[ 0 ];
-        result.unpushedBranches += explanation.join( '\n' );
-      }
+      result.unpushedBranches += explanation.join( '\n' );
 
       return result.unpushedBranches;
     })
@@ -1326,10 +1319,7 @@ function statusLocal_body( o )
       result.unpushedCommits = '';
       if( match )
       { 
-        // result.unpushedCommits = 'List of branches with unpushed commits:\n';
         match = _.strLinesStrip( match );
-        // match[ 0 ] = '  ' + match[ 0 ];
-        // result.unpushedCommits += _.strIndentation( match, '  ' );
         result.unpushedCommits = match.join( '\n' );
       }
 
