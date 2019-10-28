@@ -9203,22 +9203,22 @@ function statusEveryCheck( test )
       '  A  added',
       '  M  changed',
       '  M changed2',
-      '   D deleted',
+      '  D deleted',
       '  R  renamed -> renamed2',
-      '   !! ignored',
+      '  !! ignored',
       'List of branches with unpushed commits:',
       '  \\* master .* \\[origin\\/master: ahead 1\\] test',
       '  second .* \\[origin\\\/second: ahead 1\\] test',
-      'List of new:',
-      '  \\[new tag\\]         tag2 -> tag2',
-      '  \\[new tag\\]         tag3 -> tag3',
+      'List of unpushed:',
+      '  \\[new tag\\]   tag2 -> tag2',
+      '  \\[new tag\\]   tag3 -> tag3',
       '  \\[new branch\\]        new -> \\?',
-      'List of new remote branches:',
+      'List of unpulled remote branches:',
       '  refs\\/heads\\/testbranch',
       'List of remote branches that have new commits:',
       '  refs\\/heads\\/master',
       '  refs\\/heads\\/second',
-      'List of new remote tags:',
+      'List of unpulled remote tags:',
       '  refs\\/tags\\/testtag',
       '  refs\\/tags\\/testtag2',
       '  refs\\/tags\\/testtag2\\^\\{\\}',
@@ -9319,7 +9319,7 @@ function statusEveryCheck( test )
       '  M  file',
       '  UU changed',
       'List of branches with unpushed commits:',
-      '  \* master    .* \\[origin\\/master: ahead 2\\] change',
+      '  \\* master    .* \\[origin\\/master: ahead 2\\] change',
       'List of unpushed:',
       '  \\[new branch\\]        newbranch -> \\?',
       'List of remote branches that have new commits:',
@@ -9330,6 +9330,7 @@ function statusEveryCheck( test )
       '  refs\\/tags\\/testtag2\\^\\{\\}'
     ]
 
+    debugger
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )

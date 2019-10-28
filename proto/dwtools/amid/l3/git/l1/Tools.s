@@ -1248,8 +1248,8 @@ function statusLocal_body( o )
       let unpushedTags = [];
       _.each( tags, ( tag ) =>
       {
-        if( !_.strHas( got.output, tag ) )
-        result.unpushedTags += `[new tag]   ${tag} -> ${tag}`;
+        if( !_.strHas( got.output, `refs/tags/${tag}` ) )
+        unpushedTags.push( `[new tag]   ${tag} -> ${tag}` );
       })
 
       if( unpushedTags.length )
