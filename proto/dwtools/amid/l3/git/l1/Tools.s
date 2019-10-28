@@ -4,15 +4,12 @@
 
 if( typeof module !== 'undefined' )
 {
-
   require( '../IncludeBase.s' );
-
-  var Ini = require( 'ini' );
-
 }
 
 let _ = wTools;
 let Self = _.git = _.git || Object.create( null );
+let Ini = null;
 
 // --
 // inter
@@ -27,6 +24,9 @@ function configRead( filePath )
 
   _.assert( arguments.length === 1 );
   _.assert( _.strIs( filePath ) );
+
+  if( !Ini )
+  Ini = require( 'ini' );
 
   let read = fileProvider.fileRead( path.join( filePath, '.git/config' ) );
   let config = Ini.parse( read );
