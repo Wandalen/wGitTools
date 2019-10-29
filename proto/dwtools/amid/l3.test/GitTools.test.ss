@@ -4441,10 +4441,10 @@ function statusRemote( test )
     {
       var expected =
       {
-        remoteCommits : 'Remote has new commit(s) at ref:"refs/heads/master"',
+        remoteCommits : 'refs/heads/master',
         remoteBranches : '',
         remoteTags : '',
-        status : '"commits":\nRemote has new commit(s) at ref:"refs/heads/master"'
+        status : 'List of remote branches that have new commits:\n  refs/heads/master'
       }
       test.identical( got, expected );
       return null;
@@ -4457,10 +4457,10 @@ function statusRemote( test )
     {
       var expected =
       {
-        remoteCommits : 'Remote has new commit(s) at ref:"refs/heads/master"',
+        remoteCommits : 'refs/heads/master',
         remoteBranches : false,
         remoteTags : false,
-        status : '"commits":\nRemote has new commit(s) at ref:"refs/heads/master"'
+        status : 'List of remote branches that have new commits:\n  refs/heads/master'
       }
       test.identical( got, expected );
       return null;
