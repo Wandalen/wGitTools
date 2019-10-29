@@ -3086,7 +3086,6 @@ function statusLocalEmpty( test )
   prepareRepo()
 
   initEmpty()
-
   .then( () =>
   {
     test.case = 'empty'
@@ -3134,6 +3133,7 @@ function statusLocalEmpty( test )
 
   //
 
+  initEmpty()
   .then( () =>
   {
     test.case = 'empty + new file'
@@ -3183,6 +3183,7 @@ function statusLocalEmpty( test )
 
   //
 
+  initEmpty()
   .then( () =>
   {
     test.case = 'empty, new tracked file'
@@ -3374,7 +3375,7 @@ function statusLocalEmpty( test )
       'unpushed' : true,
       'unpushedCommits' : false,
       'unpushedTags' : true,
-      'unpushedBranches' : false,
+      'unpushedBranches' : true,
       'conflicts' : false,
       'status' : true
     }
