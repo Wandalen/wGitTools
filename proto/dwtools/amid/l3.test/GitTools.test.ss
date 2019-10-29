@@ -5969,7 +5969,22 @@ function hasChanges( test )
   repoNewCommit( 'testCommit' )
   .then( () =>
   {
-    test.case = 'remote has new commit';
+    test.case = 'remote has new commit, branch is not downloaded';
+    var got = _.git.hasChanges({ localPath, uncommitted : 0, remote : 0 });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, uncommitted : 1, remote : 0 });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, uncommitted : 0, remote : 1 });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, uncommitted : 1, remote : 1 });
+    test.identical( got, false );
+    return null;
+  })
+  shell( 'git pull' )
+  repoNewCommit( 'testCommit' )
+  .then( () =>
+  {
+    test.case = 'remote has new commit, after checkout';
     var got = _.git.hasChanges({ localPath, uncommitted : 0, remote : 0 });
     test.identical( got, false );
     var got = _.git.hasChanges({ localPath, uncommitted : 1, remote : 0 });
@@ -6059,6 +6074,21 @@ function hasChanges( test )
     var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 0  });
     test.identical( got, false );
     var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 1  });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 1  });
+    test.identical( got, false );
+    return null;
+  })
+  shell( 'git checkout feature' )
+  repoNewCommitToBranch( 'testCommit', 'feature' )
+  .then( () =>
+  {
+    test.case = 'remote has commit to other branch, local executed fetch without merge';
+    var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 0  });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 0  });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 1  });
     test.identical( got, true );
     var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 1  });
     test.identical( got, true );
@@ -6076,7 +6106,22 @@ function hasChanges( test )
   shell( 'git status' )
   .then( () =>
   {
-    test.case = 'remote has commit to other branch, local has commit to master,fetch without merge';
+    test.case = 'remote has commit to other branch, local has commit to master,fetch without merge,branch is not downloaded';
+    var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 0  });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 0  });
+    test.identical( got, true );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 1  });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 1  });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git checkout feature' )
+  repoNewCommitToBranch( 'testCommit', 'feature' )
+  .then( () =>
+  {
+    test.case = 'remote has commit to other branch, local has commit to master,fetch without merge, branch downloaded';
     var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 0  });
     test.identical( got, false );
     var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 0  });
@@ -6418,7 +6463,7 @@ function hasChanges( test )
       shell2( 'git -C secondary commit --allow-empty -m ' + message )
 
       if( create )
-      shell2( 'git -C secondary push --set-upstream origin ' + branch )
+      shell2( 'git -C secondary push -f --set-upstream origin ' + branch )
       else
       shell2( 'git -C secondary push' )
 
