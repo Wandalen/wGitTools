@@ -4019,7 +4019,7 @@ function statusLocalAsync( test )
       uncommitted : 1,
       uncommittedIgnored : 1,
       unpushed : 1,
-      unpushedTags : 0,
+      unpushedTags : 1,
       unpushedBranches : 1,
       detailing : 1,
       explaining : 0,
@@ -4036,11 +4036,14 @@ function statusLocalAsync( test )
         'uncommittedDeleted' : false,
         'uncommittedRenamed' : false,
         'uncommittedCopied' : false,
-        'uncommittedIgnored' : null,
+        'uncommittedIgnored' : false,
         'unpushed' : false,
         'unpushedCommits' : false,
-        'unpushedTags' : null,
+        'unpushedTags' : false,
         'unpushedBranches' : false,
+
+        'conflicts' : false,
+
         'status' : false
       }
       test.identical( got, expected )
