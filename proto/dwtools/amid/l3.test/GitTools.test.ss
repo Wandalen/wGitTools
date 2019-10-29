@@ -554,6 +554,7 @@ function statusLocal( test )
       unpushedBranches : 0,
       explaining : 0,
       detailing : 0,
+      conflicts : 0,
       sync : 1
     });
     var expected =
@@ -571,14 +572,14 @@ function statusLocal( test )
       'unpushedTags' : null,
       'unpushedBranches' : null,
       'status' : null,
-      'conflicts' : false
+      'conflicts' : null
     }
     test.identical( got, expected )
 
     return null;
   })
 
-  // /* */
+  /* */
 
   begin()
   .then( () =>
@@ -606,7 +607,7 @@ function statusLocal( test )
       sync : 1
     });
 
-    var expectedStatus =  'List of uncommited changes:\n?? newFile'
+    var expectedStatus =  'List of uncommited changes in files:\n  ?? newFile'
 
     var expected =
     {
@@ -625,6 +626,7 @@ function statusLocal( test )
       'status' : expectedStatus,
       'conflicts' : false
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -706,7 +708,7 @@ function statusLocal( test )
       sync : 1
     });
 
-    var expectedStatus = `List of uncommited changes:\nM README`;
+    var expectedStatus = `List of uncommited changes in files:\n  M README`;
     var expected =
     {
       'uncommitted' : expectedStatus,
@@ -1146,8 +1148,9 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
+    debugger
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
@@ -1234,8 +1237,9 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
+    debugger
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
@@ -1414,8 +1418,9 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
+    debugger
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
@@ -1497,14 +1502,15 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
-      'unpushed' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag',
+      'unpushed' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'unpushedCommits' : false,
-      'unpushedTags' : ' * [new tag]         sometag -> sometag',
+      'unpushedTags' : '[new tag]   sometag -> sometag',
       'unpushedBranches' : false,
-      'status' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag',
+      'status' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'conflicts' : false
 
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -1669,11 +1675,11 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
-      'unpushed' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag',
+      'unpushed' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'unpushedCommits' : false,
-      'unpushedTags' : ' * [new tag]         sometag -> sometag',
+      'unpushedTags' : '[new tag]   sometag -> sometag',
       'unpushedBranches' : false,
-      'status' : 'List of unpushed changes:\n * [new tag]         sometag -> sometag',
+      'status' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'conflicts' : false
     }
     test.identical( got, expected )
@@ -1839,7 +1845,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes:\n?? README_\nD README',
+      'uncommitted' : 'List of uncommited changes in files:\n  ?? README_\n  D README',
       'uncommittedUntracked' : '?? README_',
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -1851,7 +1857,7 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\n?? README_\nD README',
+      'status' : 'List of uncommited changes in files:\n  ?? README_\n  D README',
       'conflicts' : false
     }
     test.identical( got, expected )
@@ -1922,7 +1928,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes:\nR  README -> README_',
+      'uncommitted' : 'List of uncommited changes in files:\n  R  README -> README_',
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -1934,9 +1940,10 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\nR  README -> README_',
+      'status' : 'List of uncommited changes in files:\n  R  README -> README_',
       'conflicts' : false
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -2016,8 +2023,9 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
+    debugger
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
@@ -2179,7 +2187,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes:\nD README',
+      'uncommitted' : 'List of uncommited changes in files:\n  D README',
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -2191,7 +2199,7 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\nD README',
+      'status' : 'List of uncommited changes in files:\n  D README',
       'conflicts' : false
     }
     test.identical( got, expected )
@@ -2261,7 +2269,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes:\nD  README',
+      'uncommitted' : 'List of uncommited changes in files:\n  D  README',
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -2273,9 +2281,10 @@ function statusLocal( test )
       'unpushedCommits' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
-      'status' : 'List of uncommited changes:\nD  README',
+      'status' : 'List of uncommited changes in files:\n  D  README',
       'conflicts' : false
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -2356,8 +2365,9 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n\* master .* \[origin\/master: ahead 1\] test/ ) )
+    debugger
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
@@ -2519,13 +2529,14 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
-      'unpushed' : 'List of unpushed changes:\nThere is no tracking information for the branch: "testbranch".',
+      'unpushed' : 'List of unpushed:\n  [new branch]        testbranch -> ?',
       'unpushedCommits' : false,
       'unpushedTags' : false,
-      'unpushedBranches' : 'There is no tracking information for the branch: "testbranch".',
-      'status' : 'List of unpushed changes:\nThere is no tracking information for the branch: "testbranch".',
+      'unpushedBranches' : '[new branch]        testbranch -> ?',
+      'status' : 'List of unpushed:\n  [new branch]        testbranch -> ?',
       'conflicts' : false
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -2689,14 +2700,15 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
-      'unpushed' : 'List of unpushed changes:\n * [new tag]         testtag -> testtag',
+      'unpushed' : 'List of unpushed:\n  [new tag]   testtag -> testtag',
       'unpushedCommits' : false,
-      'unpushedTags' : ' * [new tag]         testtag -> testtag',
+      'unpushedTags' : '[new tag]   testtag -> testtag',
       'unpushedBranches' : false,
-      'status' : 'List of unpushed changes:\n * [new tag]         testtag -> testtag',
+      'status' : 'List of unpushed:\n  [new tag]   testtag -> testtag',
       'conflicts' : false
 
     }
+    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -2860,7 +2872,7 @@ function statusLocal( test )
     });
     var expected =
     {
-      'uncommitted' : 'List of uncommited changes:\n!! file',
+      'uncommitted' : 'List of uncommited changes in files:\n  !! file',
       'uncommittedUntracked' : false,
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -2874,10 +2886,9 @@ function statusLocal( test )
     }
     test.contains( got, expected )
 
-    console.log( got.status )
-    test.is( _.strHas( got.status, /List of uncommited changes:\n\!\! file/ ) )
-    test.is( _.strHas( got.status, /List of unpushed changes:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
-    test.is( _.strHas( got.unpushed, /List of unpushed changes:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.is( _.strHas( got.status, /List of uncommited changes in files:\n.*\!\! file/ ) )
+    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
 
     var got = _.git.statusLocal
@@ -3075,7 +3086,6 @@ function statusLocalEmpty( test )
   prepareRepo()
 
   initEmpty()
-
   .then( () =>
   {
     test.case = 'empty'
@@ -3123,6 +3133,7 @@ function statusLocalEmpty( test )
 
   //
 
+  initEmpty()
   .then( () =>
   {
     test.case = 'empty + new file'
@@ -3172,6 +3183,7 @@ function statusLocalEmpty( test )
 
   //
 
+  initEmpty()
   .then( () =>
   {
     test.case = 'empty, new tracked file'
@@ -3363,7 +3375,7 @@ function statusLocalEmpty( test )
       'unpushed' : true,
       'unpushedCommits' : false,
       'unpushedTags' : true,
-      'unpushedBranches' : false,
+      'unpushedBranches' : true,
       'conflicts' : false,
       'status' : true
     }
@@ -4007,7 +4019,7 @@ function statusLocalAsync( test )
       uncommitted : 1,
       uncommittedIgnored : 1,
       unpushed : 1,
-      unpushedTags : 0,
+      unpushedTags : 1,
       unpushedBranches : 1,
       detailing : 1,
       explaining : 0,
@@ -4024,11 +4036,14 @@ function statusLocalAsync( test )
         'uncommittedDeleted' : false,
         'uncommittedRenamed' : false,
         'uncommittedCopied' : false,
-        'uncommittedIgnored' : null,
+        'uncommittedIgnored' : false,
         'unpushed' : false,
         'unpushedCommits' : false,
-        'unpushedTags' : null,
+        'unpushedTags' : false,
         'unpushedBranches' : false,
+
+        'conflicts' : false,
+
         'status' : false
       }
       test.identical( got, expected )
@@ -4204,7 +4219,7 @@ function statusLocalExplainingTrivial( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : null,
-      'unpushedTags' : null,
+      'unpushedTags' : false,
       'unpushedBranches' : false,
     }
     test.contains( got, expected )
@@ -4244,7 +4259,6 @@ function statusLocalExplainingTrivial( test )
     });
     var expected =
     {
-      'uncommitted' : '?? newFile',
       'uncommittedUntracked' : '?? newFile',
       'uncommittedAdded' : false,
       'uncommittedChanged' : false,
@@ -4254,18 +4268,24 @@ function statusLocalExplainingTrivial( test )
       'uncommittedIgnored' : null,
     }
 
+    test.is( _.strHas( got.uncommitted, 'List of uncommited changes in files:' ) )
+    test.is( _.strHas( got.uncommitted, /.+ ?? newFile/ ) )
+
+    test.is( _.strHas( got.unpushed, 'List of branches with unpushed commits:' ) )
     test.is( _.strHas( got.unpushed, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.is( _.strHas( got.unpushed, 'List of unpushed:' ) )
+    test.is( _.strHas( got.unpushed, /\[new tag\] .* sometag -> sometag/ ) )
+    test.is( _.strHas( got.unpushed, /\[new branch\] .* somebranch -> \?/ ) )
+
     test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
-    test.is( _.strHas( got.unpushedTags, '[new tag]         sometag -> sometag' ) )
+    test.is( _.strHas( got.unpushedTags, /\[new tag\] .* sometag -> sometag/ ) )
+    test.is( _.strHas( got.unpushedBranches, /\[new branch\] .* somebranch -> \?/ ) )
 
-    test.is( _.strHas( got.unpushedBranches, '"branch" : "master", "upstream" : "refs/remotes/origin/master"' ) )
-    test.is( _.strHas( got.unpushedBranches, '"branch" : "somebranch", "upstream" : ""' ) )
-
-    test.is( _.strHas( got.status, '?? newFile' ) )
+    test.is( _.strHas( got.status, 'List of uncommited changes in files:' ) )
+    test.is( _.strHas( got.status, /.+ ?? newFile/ ) )
     test.is( _.strHas( got.status, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
-    test.is( _.strHas( got.status, '"branch" : "master", "upstream" : "refs/remotes/origin/master"' ) )
-    test.is( _.strHas( got.status, '"branch" : "somebranch", "upstream" : ""' ) )
-    test.is( _.strHas( got.status, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.is( _.strHas( got.status, /\[new tag\] .* sometag -> sometag/ ) )
+    test.is( _.strHas( got.status, /\[new branch\] .* somebranch -> \?/ ) )
 
     test.contains( got, expected )
     return null;
@@ -4421,10 +4441,10 @@ function statusRemote( test )
     {
       var expected =
       {
-        remoteCommits : 'Remote has new commit(s) at ref:"refs/heads/master"',
+        remoteCommits : 'refs/heads/master',
         remoteBranches : '',
         remoteTags : '',
-        status : '"commits":\nRemote has new commit(s) at ref:"refs/heads/master"'
+        status : 'List of remote branches that have new commits:\n  refs/heads/master'
       }
       test.identical( got, expected );
       return null;
@@ -4437,10 +4457,10 @@ function statusRemote( test )
     {
       var expected =
       {
-        remoteCommits : 'Remote has new commit(s) at ref:"refs/heads/master"',
+        remoteCommits : 'refs/heads/master',
         remoteBranches : false,
         remoteTags : false,
-        status : '"commits":\nRemote has new commit(s) at ref:"refs/heads/master"'
+        status : 'List of remote branches that have new commits:\n  refs/heads/master'
       }
       test.identical( got, expected );
       return null;
@@ -4897,7 +4917,7 @@ function statusRemoteTags( test )
       remoteCommits : false,
       remoteBranches : false,
       remoteTags : 'refs/tags/v0.5.6\nrefs/tags/v0.5.6^{}',
-      status : 'List of new remote tags:\nrefs/tags/v0.5.6\nrefs/tags/v0.5.6^{}'
+      status : 'List of unpulled remote tags:\n  refs/tags/v0.5.6\n  refs/tags/v0.5.6^{}'
     }
     test.identical( got, expected );
     return null;
@@ -4970,7 +4990,7 @@ function statusRemoteTags( test )
       remoteCommits : false,
       remoteBranches : false,
       remoteTags : 'refs/tags/v0.5.6\nrefs/tags/v0.5.6^{}',
-      status : 'List of new remote tags:\nrefs/tags/v0.5.6\nrefs/tags/v0.5.6^{}'
+      status : 'List of unpulled remote tags:\n  refs/tags/v0.5.6\n  refs/tags/v0.5.6^{}'
     }
     test.identical( got, expected );
     return null;
@@ -5949,7 +5969,22 @@ function hasChanges( test )
   repoNewCommit( 'testCommit' )
   .then( () =>
   {
-    test.case = 'remote has new commit';
+    test.case = 'remote has new commit, branch is not downloaded';
+    var got = _.git.hasChanges({ localPath, uncommitted : 0, remote : 0 });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, uncommitted : 1, remote : 0 });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, uncommitted : 0, remote : 1 });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, uncommitted : 1, remote : 1 });
+    test.identical( got, false );
+    return null;
+  })
+  shell( 'git pull' )
+  repoNewCommit( 'testCommit' )
+  .then( () =>
+  {
+    test.case = 'remote has new commit, after checkout';
     var got = _.git.hasChanges({ localPath, uncommitted : 0, remote : 0 });
     test.identical( got, false );
     var got = _.git.hasChanges({ localPath, uncommitted : 1, remote : 0 });
@@ -6039,6 +6074,21 @@ function hasChanges( test )
     var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 0  });
     test.identical( got, false );
     var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 1  });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 1  });
+    test.identical( got, false );
+    return null;
+  })
+  shell( 'git checkout feature' )
+  repoNewCommitToBranch( 'testCommit', 'feature' )
+  .then( () =>
+  {
+    test.case = 'remote has commit to other branch, local executed fetch without merge';
+    var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 0  });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 0  });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 1  });
     test.identical( got, true );
     var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 1  });
     test.identical( got, true );
@@ -6056,7 +6106,22 @@ function hasChanges( test )
   shell( 'git status' )
   .then( () =>
   {
-    test.case = 'remote has commit to other branch, local has commit to master,fetch without merge';
+    test.case = 'remote has commit to other branch, local has commit to master,fetch without merge,branch is not downloaded';
+    var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 0  });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 0  });
+    test.identical( got, true );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 1  });
+    test.identical( got, false );
+    var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 1  });
+    test.identical( got, true );
+    return null;
+  })
+  shell( 'git checkout feature' )
+  repoNewCommitToBranch( 'testCommit', 'feature' )
+  .then( () =>
+  {
+    test.case = 'remote has commit to other branch, local has commit to master,fetch without merge, branch downloaded';
     var got = _.git.hasChanges({ localPath, unpushedCommits : false, remote : 0  });
     test.identical( got, false );
     var got = _.git.hasChanges({ localPath, unpushedCommits : true, remote : 0  });
@@ -6398,7 +6463,7 @@ function hasChanges( test )
       shell2( 'git -C secondary commit --allow-empty -m ' + message )
 
       if( create )
-      shell2( 'git -C secondary push --set-upstream origin ' + branch )
+      shell2( 'git -C secondary push -f --set-upstream origin ' + branch )
       else
       shell2( 'git -C secondary push' )
 
@@ -7180,7 +7245,7 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
+       remoteBranches: null,
       remoteCommits: null,
       remoteTags: null,
 
@@ -7196,6 +7261,11 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+      conflicts : null,
+
+      local : null,
+      remote : null,
+      
 
       status: null
     }
@@ -7215,7 +7285,7 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
+       remoteBranches: null,
       remoteCommits: null,
       remoteTags: null,
 
@@ -7231,6 +7301,11 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+      conflicts : null,
+
+      local : null,
+      remote : null,
+      
 
       status: null
     }
@@ -7266,7 +7341,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : null,
+      local : false,
+      remote : null,
 
       status: false
     }
@@ -7304,6 +7383,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      conflicts : false, 
+      local : false, 
+      remote : null,
+
       status: false
     }
     test.identical( status,expected );
@@ -7338,7 +7421,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : false,
+      local : false,
+      remote : null,
 
       status: false
     }
@@ -7375,6 +7462,10 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+      
+      conflicts : null, 
+      local : null, 
+      remote : null,
 
       status: null
     }
@@ -7410,7 +7501,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : null,
+      local : false,
+      remote : null,
 
       status: false
     }
@@ -7448,6 +7543,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      'conflicts' : false, 
+      'local' : false, 
+      'remote' : null,
+
       status: false
     }
     test.identical( status,expected );
@@ -7482,7 +7581,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : false,
+      local : false,
+      remote : null,
 
       status: false
     }
@@ -7519,6 +7622,10 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+
+      conflicts : null, 
+      local : null, 
+      remote : null,
 
       status: null
     }
@@ -7542,7 +7649,7 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
+       remoteBranches: null,
       remoteCommits: null,
       remoteTags: null,
 
@@ -7558,6 +7665,11 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+      conflicts : null,
+
+      local : null,
+      remote : null,
+      
 
       status: null
     }
@@ -7598,6 +7710,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      conflicts : null, 
+      local : null, 
+      remote : false,
+
       status: false
     }
     test.identical( status,expected );
@@ -7620,7 +7736,7 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
+       remoteBranches: null,
       remoteCommits: null,
       remoteTags: null,
 
@@ -7636,6 +7752,11 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+      conflicts : null,
+
+      local : null,
+      remote : null,
+      
 
       status: null
     }
@@ -7676,6 +7797,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      conflicts : null, 
+      local : null, 
+      remote : false,
+
       status: false
     }
     test.identical( status,expected );
@@ -7715,6 +7840,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      conflicts : null, 
+      local : null, 
+      remote : false,
+
       status: false
     }
     test.identical( status,expected );
@@ -7754,6 +7883,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      conflicts : null, 
+      local : null, 
+      remote : false,
+
       status: false
     }
     test.identical( status,expected );
@@ -7792,6 +7925,10 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+
+      conflicts : null, 
+      local : null, 
+      remote : false,
 
       status: false
     }
@@ -7830,7 +7967,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : false,
+      local : false,
+      remote : false,
 
       status: false
     }
@@ -7871,7 +8012,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : false,
+      local : false,
+      remote : false,
 
       status: false
     }
@@ -8063,9 +8208,16 @@ function statusFull( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      prs : null,
+      conflicts : null,
 
-      status: null
+      prs : null,
+      
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8102,9 +8254,16 @@ function statusFull( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      prs : null,
+      conflicts : null,
 
-      status: null
+      prs : null,
+      
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8139,11 +8298,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : null,
 
       prs : null,
 
-      status: false
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8182,7 +8348,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8217,11 +8390,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8260,7 +8440,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: null
+      conflicts : null,
+
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8295,11 +8482,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8338,7 +8532,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8373,14 +8574,21 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : null,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
-
+    
     //
 
     var status = _.git.statusFull
@@ -8416,7 +8624,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: null
+      conflicts : null,
+
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8458,7 +8673,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: null
+      conflicts : null,
+
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8500,7 +8722,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : null,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8542,7 +8771,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: null
+      conflicts : null,
+
+      local : null,
+      remote : null,
+
+      status: null,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8584,7 +8820,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : null,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8626,7 +8869,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : null,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8668,7 +8918,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : null,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8710,7 +8967,14 @@ function statusFull( test )
 
       prs : null,
 
-      status: false
+      conflicts : null,
+
+      local : null,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8747,11 +9011,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8790,11 +9061,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
       prs : null,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -8831,11 +9109,18 @@ function statusFull( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
 
-      prs : 0,
+      prs : _.maybe,
 
-      status: false
+      conflicts : false,
+
+      local : false,
+      remote : false,
+
+      status: false,
+
+      isRepository : true
     }
     test.identical( status,expected );
 
@@ -9058,16 +9343,16 @@ function statusEveryCheck( test )
       'List of branches with unpushed commits:',
       '  \\* master .* \\[origin\\/master: ahead 1\\] test',
       '  second .* \\[origin\\\/second: ahead 1\\] test',
-      'List of new:',
-      '  \\[new tag\\]         tag2 -> tag2',
-      '  \\[new tag\\]         tag3 -> tag3',
+      'List of unpushed:',
+      '  \\[new tag\\]   tag2 -> tag2',
+      '  \\[new tag\\]   tag3 -> tag3',
       '  \\[new branch\\]        new -> \\?',
-      'List of new remote branches:',
+      'List of unpulled remote branches:',
       '  refs\\/heads\\/testbranch',
       'List of remote branches that have new commits:',
       '  refs\\/heads\\/master',
       '  refs\\/heads\\/second',
-      'List of new remote tags:',
+      'List of unpulled remote tags:',
       '  refs\\/tags\\/testtag',
       '  refs\\/tags\\/testtag2',
       '  refs\\/tags\\/testtag2\\^\\{\\}',
@@ -9078,7 +9363,7 @@ function statusEveryCheck( test )
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.is( !!status.status.match( line ) )
+      test.is(  !!status.status.match( line ) )
     })
 
     test.identical( status.conflicts, false );
@@ -9121,7 +9406,7 @@ function statusEveryCheck( test )
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.is( !!status.status.match( line ) )
+      test.is(  !!status.status.match( line ) )
     })
 
     return null;
@@ -9168,7 +9453,7 @@ function statusEveryCheck( test )
       '  M  file',
       '  UU changed',
       'List of branches with unpushed commits:',
-      '  \* master    .* \\[origin\\/master: ahead 2\\] change',
+      '  \\* master    .* \\[origin\\/master: ahead 2\\] change',
       'List of unpushed:',
       '  \\[new branch\\]        newbranch -> \\?',
       'List of remote branches that have new commits:',
@@ -9179,10 +9464,11 @@ function statusEveryCheck( test )
       '  refs\\/tags\\/testtag2\\^\\{\\}'
     ]
 
+    debugger
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.is( !!status.status.match( line ) )
+      test.is(  !!status.status.match( line ) )
     })
 
     return null;
