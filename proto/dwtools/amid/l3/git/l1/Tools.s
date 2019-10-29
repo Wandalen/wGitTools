@@ -1872,14 +1872,21 @@ function hasRemoteChanges()
 {
   let result = statusRemote.apply( this, arguments );
 
-  _.assert( result.status !== undefined );
+  if( _.consequenceIs( result ) )
+  return result.then( end );
+  return end( result );
 
-  if( _.boolIs( result.status ) )
-  return result.status;
-  if( _.strIs( result.status ) && result.length )
-  return true;
+  function end( result )
+  {
+    _.assert( result.status !== undefined );
 
-  return false;
+    if( _.boolIs( result.status ) )
+    return result.status;
+    if( _.strIs( result.status ) && result.length )
+    return true;
+
+    return false;
+  }
 }
 
 _.routineExtend( hasRemoteChanges, statusRemote )
