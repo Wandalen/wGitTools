@@ -83,8 +83,13 @@ function pathParse( remotePath )
 
   // debugger;
   let parsed1 = path.parseConsecutive( remotePath );
-  parsed1.hash = parsed1.hash || 'master';
+  // parsed1.hash = parsed1.hash || 'master';
   _.mapExtend( result, parsed1 );
+
+  if( !result.tag && !result.hash )
+  result.tag = 'master';
+
+  _.assert( !result.tag || !result.hash, 'Remote path:', _.strQuote( remotePath ), 'should contain only hash or tag, but not both.' )
 
   let p = pathIsolateGlobalAndLocal();
   result.localVcsPath = p[ 1 ];
@@ -93,6 +98,7 @@ function pathParse( remotePath )
 
   let parsed2 = _.mapExtend( null, parsed1 );
   parsed2.hash = null;
+  parsed2.tag = null;
   parsed2.protocols = parsed2.protocol ? parsed2.protocol.split( '+' ) : [];
   delete parsed2.protocol;
 
@@ -128,7 +134,8 @@ function pathParse( remotePath )
 
   parsed3.protocols = parsed2.protocols.slice();
   parsed3.protocol = null;
-  parsed3.hash = null;
+  parsed2.hash = null;
+  parsed3.tag = null;
   delete parsed3.query;
   result.longerRemoteVcsPath = path.str( parsed3 );
 
