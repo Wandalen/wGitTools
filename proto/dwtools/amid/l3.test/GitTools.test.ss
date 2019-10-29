@@ -4917,7 +4917,7 @@ function statusRemoteTags( test )
       remoteCommits : false,
       remoteBranches : false,
       remoteTags : 'refs/tags/v0.5.6\nrefs/tags/v0.5.6^{}',
-      status : 'List of new remote tags:\nrefs/tags/v0.5.6\nrefs/tags/v0.5.6^{}'
+      status : 'List of unpulled remote tags:\n  refs/tags/v0.5.6\n  refs/tags/v0.5.6^{}'
     }
     test.identical( got, expected );
     return null;
@@ -4990,7 +4990,7 @@ function statusRemoteTags( test )
       remoteCommits : false,
       remoteBranches : false,
       remoteTags : 'refs/tags/v0.5.6\nrefs/tags/v0.5.6^{}',
-      status : 'List of new remote tags:\nrefs/tags/v0.5.6\nrefs/tags/v0.5.6^{}'
+      status : 'List of unpulled remote tags:\n  refs/tags/v0.5.6\n  refs/tags/v0.5.6^{}'
     }
     test.identical( got, expected );
     return null;
