@@ -11,7 +11,7 @@ if( typeof module !== 'undefined' )
 
 }
 
-let _ = wTools;
+let _ = _global_.wTools;
 let Self = _.git = _.git || Object.create( null );
 
 // --
@@ -1390,7 +1390,6 @@ defaults.detailing = 0;
 defaults.explaining = 0;
 
 let statusLocal = _.routineFromPreAndBody( statusLocal_pre, statusLocal_body );
-
 
 //
 
