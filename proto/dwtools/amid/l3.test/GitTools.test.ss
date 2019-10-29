@@ -7200,7 +7200,7 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
+       remoteBranches: null,
       remoteCommits: null,
       remoteTags: null,
 
@@ -7216,6 +7216,11 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+      conflicts : null,
+
+      local : null,
+      remote : null,
+      
 
       status: null
     }
@@ -7235,7 +7240,7 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
+       remoteBranches: null,
       remoteCommits: null,
       remoteTags: null,
 
@@ -7251,6 +7256,11 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+      conflicts : null,
+
+      local : null,
+      remote : null,
+      
 
       status: null
     }
@@ -7286,7 +7296,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : null,
+      local : false,
+      remote : null,
 
       status: false
     }
@@ -7324,6 +7338,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      conflicts : false, 
+      local : false, 
+      remote : null,
+
       status: false
     }
     test.identical( status,expected );
@@ -7358,7 +7376,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : false,
+      local : false,
+      remote : null,
 
       status: false
     }
@@ -7395,6 +7417,10 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+      
+      conflicts : null, 
+      local : null, 
+      remote : null,
 
       status: null
     }
@@ -7430,7 +7456,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : null,
+      local : false,
+      remote : null,
 
       status: false
     }
@@ -7468,6 +7498,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      'conflicts' : false, 
+      'local' : false, 
+      'remote' : null,
+
       status: false
     }
     test.identical( status,expected );
@@ -7502,7 +7536,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : false,
+      local : false,
+      remote : null,
 
       status: false
     }
@@ -7539,6 +7577,10 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+
+      conflicts : null, 
+      local : null, 
+      remote : null,
 
       status: null
     }
@@ -7562,7 +7604,7 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
+       remoteBranches: null,
       remoteCommits: null,
       remoteTags: null,
 
@@ -7578,6 +7620,11 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+      conflicts : null,
+
+      local : null,
+      remote : null,
+      
 
       status: null
     }
@@ -7618,6 +7665,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      conflicts : null, 
+      local : null, 
+      remote : false,
+
       status: false
     }
     test.identical( status,expected );
@@ -7640,7 +7691,7 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
+       remoteBranches: null,
       remoteCommits: null,
       remoteTags: null,
 
@@ -7656,6 +7707,11 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+      conflicts : null,
+
+      local : null,
+      remote : null,
+      
 
       status: null
     }
@@ -7696,6 +7752,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      conflicts : null, 
+      local : null, 
+      remote : false,
+
       status: false
     }
     test.identical( status,expected );
@@ -7735,6 +7795,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      conflicts : null, 
+      local : null, 
+      remote : false,
+
       status: false
     }
     test.identical( status,expected );
@@ -7774,6 +7838,10 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
+      conflicts : null, 
+      local : null, 
+      remote : false,
+
       status: false
     }
     test.identical( status,expected );
@@ -7812,6 +7880,10 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
+
+      conflicts : null, 
+      local : null, 
+      remote : false,
 
       status: false
     }
@@ -7850,7 +7922,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : false,
+      local : false,
+      remote : false,
 
       status: false
     }
@@ -7891,7 +7967,11 @@ function status( test )
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
-      unpushedTags: null,
+      unpushedTags: false,
+
+      conflicts : false,
+      local : false,
+      remote : false,
 
       status: false
     }
