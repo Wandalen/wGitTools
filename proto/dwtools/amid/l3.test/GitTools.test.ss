@@ -6555,7 +6555,7 @@ function hasLocalChangesSpecial( test )
 
 //
 
-function isDownloaded( test )
+function hasFiles( test )
 {
   let context = this;
   let provider = context.provider;
@@ -6566,38 +6566,38 @@ function isDownloaded( test )
 
   test.case = 'missing';
   provider.filesDelete( localPath );
-  var got = _.git.isDownloaded({ localPath });
+  var got = _.git.hasFiles({ localPath });
   test.identical( got, false );
 
   test.case = 'terminal';
   provider.filesDelete( localPath );
   provider.fileWrite( localPath, localPath )
-  var got = _.git.isDownloaded({ localPath });
+  var got = _.git.hasFiles({ localPath });
   test.identical( got, false );
 
   test.case = 'link';
   provider.filesDelete( localPath );
   provider.dirMake( localPath );
   provider.softLink( filePath, localPath );
-  var got = _.git.isDownloaded({ localPath : filePath });
+  var got = _.git.hasFiles({ localPath : filePath });
   test.identical( got, false );
 
   test.case = 'empty dir';
   provider.filesDelete( localPath );
   provider.dirMake( localPath )
-  var got = _.git.isDownloaded({ localPath });
+  var got = _.git.hasFiles({ localPath });
   test.identical( got, false );
 
   test.case = 'dir with file';
   provider.filesDelete( localPath );
   provider.fileWrite( filePath, filePath )
-  var got = _.git.isDownloaded({ localPath });
+  var got = _.git.hasFiles({ localPath });
   test.identical( got, true );
 }
 
 //
 
-function isDownloadedFromRemote( test )
+function hasRemote( test )
 {
   let context = this;
   let provider = _.fileProvider;
@@ -6619,9 +6619,9 @@ function isDownloadedFromRemote( test )
   con
   .then( () =>
   {
-    let got = _.git.isDownloadedFromRemote({ localPath, remotePath : remotePath });
+    let got = _.git.hasRemote({ localPath, remotePath : remotePath });
     test.identical( got.downloaded, false )
-    test.identical( got.downloadedFromRemote, false )
+    test.identical( got.remoteIsValid, false )
     return null;
   })
 
@@ -6637,17 +6637,17 @@ function isDownloadedFromRemote( test )
 
   .then( () =>
   {
-    let got = _.git.isDownloadedFromRemote({ localPath, remotePath });
+    let got = _.git.hasRemote({ localPath, remotePath });
     test.identical( got.downloaded, true )
-    test.identical( got.downloadedFromRemote, true )
+    test.identical( got.remoteIsValid, true )
     return null;
   })
 
   .then( () =>
   {
-    let got = _.git.isDownloadedFromRemote({ localPath, remotePath : remotePath2 });
+    let got = _.git.hasRemote({ localPath, remotePath : remotePath2 });
     test.identical( got.downloaded, true )
-    test.identical( got.downloadedFromRemote, false )
+    test.identical( got.remoteIsValid, false )
     return null;
   })
 
@@ -7265,7 +7265,7 @@ function status( test )
 
       local : null,
       remote : null,
-      
+
 
       status: null
     }
@@ -7305,7 +7305,7 @@ function status( test )
 
       local : null,
       remote : null,
-      
+
 
       status: null
     }
@@ -7383,8 +7383,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : false, 
-      local : false, 
+      conflicts : false,
+      local : false,
       remote : null,
 
       status: false
@@ -7462,9 +7462,9 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
-      
-      conflicts : null, 
-      local : null, 
+
+      conflicts : null,
+      local : null,
       remote : null,
 
       status: null
@@ -7543,8 +7543,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      'conflicts' : false, 
-      'local' : false, 
+      'conflicts' : false,
+      'local' : false,
       'remote' : null,
 
       status: false
@@ -7623,8 +7623,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : null,
 
       status: null
@@ -7669,7 +7669,7 @@ function status( test )
 
       local : null,
       remote : null,
-      
+
 
       status: null
     }
@@ -7710,8 +7710,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : false,
 
       status: false
@@ -7756,7 +7756,7 @@ function status( test )
 
       local : null,
       remote : null,
-      
+
 
       status: null
     }
@@ -7797,8 +7797,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : false,
 
       status: false
@@ -7840,8 +7840,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : false,
 
       status: false
@@ -7883,8 +7883,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : false,
 
       status: false
@@ -7926,8 +7926,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : false,
 
       status: false
@@ -8211,7 +8211,7 @@ function statusFull( test )
       conflicts : null,
 
       prs : null,
-      
+
       local : null,
       remote : null,
 
@@ -8257,7 +8257,7 @@ function statusFull( test )
       conflicts : null,
 
       prs : null,
-      
+
       local : null,
       remote : null,
 
@@ -8588,7 +8588,7 @@ function statusFull( test )
       isRepository : true
     }
     test.identical( status,expected );
-    
+
     //
 
     var status = _.git.statusFull
@@ -10936,8 +10936,8 @@ var Proto =
     hasChanges,
     hasLocalChangesSpecial,
 
-    isDownloaded,
-    isDownloadedFromRemote,
+    hasFiles,
+    hasRemote,
     isUpToDate,
     insideRepository,
     isRepository,
