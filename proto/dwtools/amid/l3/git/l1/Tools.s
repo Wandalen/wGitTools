@@ -7,7 +7,7 @@ if( typeof module !== 'undefined' )
   require( '../IncludeBase.s' );
 }
 
-let _ = wTools;
+let _ = _global_.wTools;
 let Self = _.git = _.git || Object.create( null );
 let Ini = null;
 
@@ -414,7 +414,7 @@ function versionLocalRetrive( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
-  if( !_.git.isDownloaded( o ) )
+  if( !_.git.isRepository( o ) )
   return '';
 
   let gitPath = path.join( o.localPath, '.git' );
@@ -647,15 +647,15 @@ defaults.verbosity = 0;
  * @param {Object} o Options map.
  * @param {String} o.localPath Local path to package.
  * @param {Number} o.verbosity=0 Level of verbosity.
- * @function isDownloaded
+ * @function hasFiles
  * @memberof module:Tools/mid/GitTools.
  */
 
-function isDownloaded( o )
+function hasFiles( o )
 {
   let localProvider = _.fileProvider;
 
-  _.routineOptions( isDownloaded, o );
+  _.routineOptions( hasFiles, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   if( !localProvider.isDir( o.localPath  ) )
@@ -666,7 +666,7 @@ function isDownloaded( o )
   return false;
 }
 
-var defaults = isDownloaded.defaults = Object.create( null );
+var defaults = hasFiles.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 
@@ -683,7 +683,6 @@ function isRepository( o )
   {
     if( o.localPath === null )
     return false;
-
     return _.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) );
   })
 
@@ -774,23 +773,23 @@ defaults.verbosity = 0;
  * @param {String} o.localPath Local path to package.
  * @param {String} o.remotePath Remote path to package.
  * @param {Number} o.verbosity=0 Level of verbosity.
- * @function isDownloadedFromRemote
+ * @function hasRemote
  * @memberof module:Tools/mid/GitTools.
  */
 
-function isDownloadedFromRemote( o )
+function hasRemote( o )
 {
   let localProvider = _.fileProvider;
   let path = localProvider.path;
 
-  _.routineOptions( isDownloadedFromRemote, o );
+  _.routineOptions( hasRemote, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.remotePath ) );
 
   let result = Object.create( null );
   result.downloaded = true;
-  result.downloadedFromRemote = false;
+  result.remoteIsValid = false;
 
   if( !localProvider.fileExists( o.localPath ) )
   {
@@ -815,12 +814,12 @@ function isDownloadedFromRemote( o )
 
   result.remoteVcsPath = remoteVcsPath;
   result.originVcsPath = originVcsPath;
-  result.downloadedFromRemote = originVcsPath === remoteVcsPath;
+  result.remoteIsValid = originVcsPath === remoteVcsPath;
 
   return result;
 }
 
-var defaults = isDownloadedFromRemote.defaults = Object.create( null );
+var defaults = hasRemote.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
 defaults.verbosity = 0;
@@ -1514,7 +1513,6 @@ defaults.detailing = 0;
 defaults.explaining = 0;
 
 let statusLocal = _.routineFromPreAndBody( statusLocal_pre, statusLocal_body );
-
 
 //
 
@@ -2950,9 +2948,9 @@ let Extend =
   versionRemoteCurrentRetrive,
 
   isUpToDate,
-  isDownloaded,
+  hasFiles,
   isRepository,
-  isDownloadedFromRemote,
+  hasRemote,
   isHeadOn,
 
   versionsRemoteRetrive,
