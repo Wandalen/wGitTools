@@ -2767,6 +2767,8 @@ var KnownHooks =
 let Extend =
 {
 
+  protocols : [ 'git' ],
+
   configRead,
 
   objectsParse,
