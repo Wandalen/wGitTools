@@ -613,7 +613,7 @@ function isUpToDate( o )
     //   result = !_.strHasAny( arg[ 0 ].output, [ 'Your branch is behind', 'have diverged' ] );
     // }
 
-    result = _.git.isHeadOnRef({ localPath : o.localPath, ref : parsed.hash || parsed.tag });
+    result = _.git.isHeadOn({ localPath : o.localPath, tag : parsed.tag, hash : parsed.hash });
 
     if( result && !detachedParsed )
     result = !_.strHasAny( arg[ 0 ].output, [ 'Your branch is behind', 'have diverged' ] );
@@ -827,15 +827,27 @@ defaults.verbosity = 0;
 
 //
 
-function isHeadOnRef( o )
+/**
+ * @summary Returns true if HEAD of repository located at `o.localPath` points to `o.hash` or `o.tag`.
+ * Expects only `o.hash` or `o.tag` at same time.
+ * @param {Object} o Options map.
+ * @param {String} o.localPath Local path to package.
+ * @param {String} o.tag Target tag or branch name.
+ * @param {String} o.hash Target commit hash.
+ * @function isHeadOn
+ * @memberof module:Tools/mid/GitTools.
+ */
+
+function isHeadOn( o )
 {
   let localProvider = _.fileProvider;
   let path = localProvider.path;
 
-  _.routineOptions( isHeadOnRef, o );
+  _.routineOptions( isHeadOn, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
-  _.assert( _.strDefined( o.ref ) );
+  _.assert( o.tag || o.hash, 'Expects {-o.hash-} or {-o.tag-} to be defined.' )
+  _.assert( !o.tag || !o.hash, 'Expects only {-o.hash-} or {-o.tag-}, but not both at same time.' )
 
   let ready = new _.Consequence().take( null );
 
@@ -850,30 +862,96 @@ function isHeadOnRef( o )
     outputCollecting : 1
   })
 
-  ready.then( () =>
-  {
-    if( !this.isRepository({ localPath : o.localPath }) )
-    return false;
-    return shell( 'git rev-parse HEAD ' + o.ref );
-  })
-  ready.then( ( got ) =>
-  {
-    if( got.exitCode )
-    return false;
-    let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
-    _.assert( output.length === 2 );
-    return output[ 0 ] === output[ 1 ];
-  })
+  let head = null;
+  let tag = null;
+
+  ready.then( () => this.isRepository({ localPath : o.localPath }) )
+
+  if( o.hash )
+  ready.then( hashCheck )
+  else if( o.tag )
+  ready.then( tagCheck )
 
   if( o.sync )
   return ready.deasync();
 
   return ready;
+
+  /*  */
+
+  function hashCheck( got )
+  {
+    if( !got )
+    return false;
+
+    return getHead()
+    .then( ( head ) =>
+    {
+      if( !head )
+      return false;
+      return head === o.hash;
+    })
+  }
+
+  function tagCheck( got )
+  {
+    if( !got )
+    return false;
+
+    return getHead()
+    .then( ( head ) =>
+    {
+      if( !head )
+      return false;
+      return getTag();
+    })
+    .then( ( tag ) =>
+    {
+      if( !tag )
+      return false;
+      return head === tag;
+    })
+  }
+
+  function getHead()
+  {
+    return shell({ execPath : 'git rev-parse HEAD', ready : null })
+    .then( ( got ) =>
+    {
+      if( got.exitCode )
+      return false;
+      head = _.strStrip( got.output );
+      return head;
+    })
+  }
+
+  function getTag()
+  {
+    return shell({ execPath : `git show-ref ${o.tag} -d --heads --tags`, ready : null })
+    .then( ( got ) =>
+    {
+      if( got.exitCode )
+      return false;
+      let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+      if( !output.length )
+      return false;
+      _.assert( output.length <= 2 );
+      tag = output[ 0 ];
+      if( output.length === 2 )
+      {
+        tag = output[ 1 ];
+        _.assert( _.strHas( tag, '^{}' ), 'Expects annotated tag, got:', tag );
+      }
+      tag = _.strIsolateLeftOrAll( tag, ' ' )[ 0 ];
+      return tag;
+    })
+  }
 }
 
-var defaults = isHeadOnRef.defaults = Object.create( null );
+var defaults = isHeadOn.defaults = Object.create( null );
 defaults.localPath = null;
-defaults.ref = null;
+defaults.hash = null;
+defaults.tag = null;
 defaults.sync = 1;
 
 //
@@ -2875,7 +2953,7 @@ let Extend =
   isDownloaded,
   isRepository,
   isDownloadedFromRemote,
-  isHeadOnRef,
+  isHeadOn,
 
   versionsRemoteRetrive,
   versionsPull,
