@@ -787,41 +787,52 @@ function hasRemote( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.remotePath ) );
 
-  let result = Object.create( null );
-  result.downloaded = true;
-  result.remoteIsValid = false;
+  let ready = new _.Consequence().take( null );
 
-  if( !localProvider.fileExists( o.localPath ) )
+  ready.then( () =>
   {
-    result.downloaded = false;
+    let result = Object.create( null );
+    result.downloaded = true;
+    result.remoteIsValid = false;
+
+    if( !localProvider.fileExists( o.localPath ) )
+    {
+      result.downloaded = false;
+      return result;
+    }
+
+    let gitConfigExists = localProvider.fileExists( path.join( o.localPath, '.git/config' ) );
+
+    if( !gitConfigExists )
+    {
+      result.downloaded = false;
+      return result;
+    }
+
+    let config = _.git.configRead( o.localPath );
+    let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
+    let originVcsPath = config[ 'remote "origin"' ].url;
+
+    _.sure( _.strDefined( remoteVcsPath ) );
+    _.sure( _.strDefined( originVcsPath ) );
+
+    result.remoteVcsPath = remoteVcsPath;
+    result.originVcsPath = originVcsPath;
+    result.remoteIsValid = originVcsPath === remoteVcsPath;
+
     return result;
-  }
+  })
 
-  let gitConfigExists = localProvider.fileExists( path.join( o.localPath, '.git/config' ) );
+  if( o.sync )
+  return ready.deasync();
 
-  if( !gitConfigExists )
-  {
-    result.downloaded = false;
-    return result;
-  }
-
-  let config = _.git.configRead( o.localPath );
-  let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
-  let originVcsPath = config[ 'remote "origin"' ].url;
-
-  _.sure( _.strDefined( remoteVcsPath ) );
-  _.sure( _.strDefined( originVcsPath ) );
-
-  result.remoteVcsPath = remoteVcsPath;
-  result.originVcsPath = originVcsPath;
-  result.remoteIsValid = originVcsPath === remoteVcsPath;
-
-  return result;
+  return ready;
 }
 
 var defaults = hasRemote.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
+defaults.sync = 1;
 defaults.verbosity = 0;
 
 //
