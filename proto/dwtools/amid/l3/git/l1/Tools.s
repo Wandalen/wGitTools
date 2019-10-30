@@ -600,18 +600,23 @@ function isUpToDate( o )
     _.assert( arg.length === 1 );
 
     let result = false;
-    let detachedRegexp = /HEAD detached at (\w+)/;
+    let detachedRegexp = /* /HEAD detached at (\w+)/ */ /HEAD detached at (.+)/;
     let detachedParsed = detachedRegexp.exec( arg[ 0 ].output );
-    let versionLocal = _.git.versionLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
+    // let versionLocal = _.git.versionLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
 
-    if( detachedParsed )
-    {
-      result = _.strBegins( parsed.hash, detachedParsed[ 1 ] );
-    }
-    else if( _.strBegins( parsed.hash, versionLocal ) )
-    {
-      result = !_.strHasAny( arg[ 0 ].output, [ 'Your branch is behind', 'have diverged' ] );
-    }
+    // if( detachedParsed )
+    // {
+    //   result = _.strBegins( parsed.hash, detachedParsed[ 1 ] );
+    // }
+    // else if( _.strBegins( parsed.hash, versionLocal ) )
+    // {
+    //   result = !_.strHasAny( arg[ 0 ].output, [ 'Your branch is behind', 'have diverged' ] );
+    // }
+
+    result = _.git.isHeadOnRef({ localPath : o.localPath, ref : parsed.hash || parsed.tag });
+
+    if( result && !detachedParsed )
+    result = !_.strHasAny( arg[ 0 ].output, [ 'Your branch is behind', 'have diverged' ] );
 
     if( o.verbosity >= 1 )
     logger.log( o.remotePath, result ? 'is up to date' : 'is not up to date' );
@@ -819,6 +824,57 @@ var defaults = isDownloadedFromRemote.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
 defaults.verbosity = 0;
+
+//
+
+function isHeadOnRef( o )
+{
+  let localProvider = _.fileProvider;
+  let path = localProvider.path;
+
+  _.routineOptions( isHeadOnRef, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ) );
+  _.assert( _.strDefined( o.ref ) );
+
+  let ready = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    outputPiping : 0,
+    sync : 0,
+    deasync : 0,
+    inputMirroring : 0,
+    outputCollecting : 1
+  })
+
+  ready.then( () =>
+  {
+    if( !this.isRepository({ localPath : o.localPath }) )
+    return false;
+    return shell( 'git rev-parse HEAD ' + o.ref );
+  })
+  ready.then( ( got ) =>
+  {
+    if( got.exitCode )
+    return false;
+    let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+    _.assert( output.length === 2 );
+    return output[ 0 ] === output[ 1 ];
+  })
+
+  if( o.sync )
+  return ready.deasync();
+
+  return ready;
+}
+
+var defaults = isHeadOnRef.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.ref = null;
+defaults.sync = 1;
 
 //
 
@@ -1314,7 +1370,7 @@ function statusLocal_body( o )
   /* - */
 
   function unpushedCommitsCheck( got )
-  { 
+  {
     if( got && !o.detailing )
     return got;
 
@@ -1325,7 +1381,7 @@ function statusLocal_body( o )
       let match = got.output.match( /^.*\[.*ahead .*\].*$/gm );
       result.unpushedCommits = '';
       if( match )
-      { 
+      {
         match = _.strLinesStrip( match );
         result.unpushedCommits = match.join( '\n' );
       }
@@ -1866,7 +1922,7 @@ function hasLocalChanges()
     return result.status;
     if( _.strIs( result.status ) && result.length )
     return true;
-  
+
     return false;
   }
 }
@@ -2819,6 +2875,7 @@ let Extend =
   isDownloaded,
   isRepository,
   isDownloadedFromRemote,
+  isHeadOnRef,
 
   versionsRemoteRetrive,
   versionsPull,
