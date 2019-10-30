@@ -42,6 +42,130 @@ function onSuiteEnd( test )
 // tests
 // --
 
+function pathParse( test )
+{
+  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+    'longPath' : '/github.com/Wandalen/wTools.git/',
+    'localVcsPath' : './',
+    'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'longerRemoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'isFixated' : true
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505'
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'tag' : 'v0.8.505',
+    'longPath' : '/github.com/Wandalen/wTools.git/',
+    'localVcsPath' : './',
+    'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'longerRemoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master'
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'tag' : 'master',
+    'longPath' : '/github.com/Wandalen/wTools.git/',
+    'localVcsPath' : './',
+    'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'longerRemoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will@master'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'query' : 'out=out/wTools.out.will',
+    'tag' : 'master',
+    'longPath' : 'Tools',
+    'localVcsPath' : 'out/wTools.out.will',
+    'remoteVcsPath' : 'Tools',
+    'longerRemoteVcsPath' : 'Tools',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will@v0.8.505'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'query' : 'out=out/wTools.out.will',
+    'tag' : 'v0.8.505',
+    'longPath' : 'Tools',
+    'localVcsPath' : 'out/wTools.out.will',
+    'remoteVcsPath' : 'Tools',
+    'longerRemoteVcsPath' : 'Tools',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/@v0.8.505'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'query' : 'out=out/wTools.out.will/',
+    'tag' : 'v0.8.505',
+    'longPath' : 'Tools',
+    'localVcsPath' : 'out/wTools.out.will/',
+    'remoteVcsPath' : 'Tools',
+    'longerRemoteVcsPath' : 'Tools',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'query' : 'out=out/wTools.out.will',
+    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+    'longPath' : 'Tools',
+    'localVcsPath' : 'out/wTools.out.will',
+    'remoteVcsPath' : 'Tools',
+    'longerRemoteVcsPath' : 'Tools',
+    'isFixated' : true
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'query' : 'out=out/wTools.out.will/',
+    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+    'longPath' : 'Tools',
+    'localVcsPath' : 'out/wTools.out.will/',
+    'remoteVcsPath' : 'Tools',
+    'longerRemoteVcsPath' : 'Tools',
+    'isFixated' : true
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  test.case = 'both hash and tag'
+  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3@master';
+  test.shouldThrowErrorSync( () => _.git.pathParse( remotePath ) );
+}
+
 function versionsRemoteRetrive( test )
 {
   let context = this;
@@ -11124,6 +11248,8 @@ var Proto =
 
   tests :
   {
+    pathParse,
+
     versionsRemoteRetrive,
     versionsPull,
 

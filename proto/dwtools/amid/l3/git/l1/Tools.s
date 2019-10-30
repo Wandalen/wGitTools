@@ -134,7 +134,7 @@ function pathParse( remotePath )
 
   parsed3.protocols = parsed2.protocols.slice();
   parsed3.protocol = null;
-  parsed2.hash = null;
+  parsed3.hash = null;
   parsed3.tag = null;
   delete parsed3.query;
   result.longerRemoteVcsPath = path.str( parsed3 );
