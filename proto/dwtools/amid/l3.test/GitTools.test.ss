@@ -6914,6 +6914,210 @@ function isUpToDate( test )
 
 isUpToDate.timeOut = 30000;
 
+
+function isUpToDateExtended( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = context.provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'wTools' );
+
+  let con = new _.Consequence().take( null )
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    mode : 'spawn',
+  })
+
+  begin()
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'both on master, no changes';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'both on master, local one commit behind';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master';
+    return shell( 'git -C wTools reset --hard HEAD~1' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  begin()
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on master, remote on other branch';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@other';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on master, remote on tag points to other commit';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on same tag with remote';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    return shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on different tag with remote';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    return shell( 'git -C wTools checkout v0.8.504' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on same commit as tag on remote';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    return shell( 'git -C wTools checkout 8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on different commit as tag on remote';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    return shell( 'git -C wTools checkout 8b5d86906b761c464a10618fc06f13724ee654ab' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on tag, remote on master';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master';
+    return shell( 'git -C wTools checkout v0.8.504' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on tag, remote on hash that local tag is pointing to';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3';
+    return shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on tag, remote on different hash';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b5d86906b761c464a10618fc06f13724ee654ab';
+    return shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  return con;
+
+  /*  */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( localPath );
+      provider.dirMake( localPath );
+      return shell( 'git clone https://github.com/Wandalen/wTools.git ' + path.name( localPath ) )
+    })
+
+    return con;
+  }
+}
+
+isUpToDateExtended.timeOut = 30000;
+
 //
 
 function insideRepository( test )
@@ -7265,7 +7469,7 @@ function status( test )
 
       local : null,
       remote : null,
-      
+
 
       status: null
     }
@@ -7305,7 +7509,7 @@ function status( test )
 
       local : null,
       remote : null,
-      
+
 
       status: null
     }
@@ -7383,8 +7587,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : false, 
-      local : false, 
+      conflicts : false,
+      local : false,
       remote : null,
 
       status: false
@@ -7462,9 +7666,9 @@ function status( test )
       unpushedBranches: null,
       unpushedCommits: null,
       unpushedTags: null,
-      
-      conflicts : null, 
-      local : null, 
+
+      conflicts : null,
+      local : null,
       remote : null,
 
       status: null
@@ -7543,8 +7747,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      'conflicts' : false, 
-      'local' : false, 
+      'conflicts' : false,
+      'local' : false,
       'remote' : null,
 
       status: false
@@ -7623,8 +7827,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : null,
 
       status: null
@@ -7669,7 +7873,7 @@ function status( test )
 
       local : null,
       remote : null,
-      
+
 
       status: null
     }
@@ -7710,8 +7914,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : false,
 
       status: false
@@ -7756,7 +7960,7 @@ function status( test )
 
       local : null,
       remote : null,
-      
+
 
       status: null
     }
@@ -7797,8 +8001,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : false,
 
       status: false
@@ -7840,8 +8044,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : false,
 
       status: false
@@ -7883,8 +8087,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : false,
 
       status: false
@@ -7926,8 +8130,8 @@ function status( test )
       unpushedCommits: null,
       unpushedTags: null,
 
-      conflicts : null, 
-      local : null, 
+      conflicts : null,
+      local : null,
       remote : false,
 
       status: false
@@ -8211,7 +8415,7 @@ function statusFull( test )
       conflicts : null,
 
       prs : null,
-      
+
       local : null,
       remote : null,
 
@@ -8257,7 +8461,7 @@ function statusFull( test )
       conflicts : null,
 
       prs : null,
-      
+
       local : null,
       remote : null,
 
@@ -8588,7 +8792,7 @@ function statusFull( test )
       isRepository : true
     }
     test.identical( status,expected );
-    
+
     //
 
     var status = _.git.statusFull
@@ -10939,6 +11143,7 @@ var Proto =
     isDownloaded,
     isDownloadedFromRemote,
     isUpToDate,
+    isUpToDateExtended,
     insideRepository,
     isRepository,
 
