@@ -1442,6 +1442,8 @@ function statusLocal_body( o )
 
         _.assert( _.strIs( record.upstream ) );
 
+        if( /\(HEAD detached at .+\)/.test( record.branch ) )
+        continue;
         if( record.upstream.length )
         continue;
 
