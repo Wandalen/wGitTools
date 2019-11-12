@@ -4356,6 +4356,297 @@ statusLocalExplainingTrivial.timeOut = 30000;
 
 //
 
+function statusLocalHalfStaged( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  prepareRepo()
+  repoInitCommit()
+  begin()
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( got.status, true )
+
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    shell2( 'git init --bare' );
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    .then( () =>
+    {
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file1' ), 'file1file1' );
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'file2file1' );
+      return null;
+    })
+
+    shell( 'git -C clone add .' )
+
+    .then( () =>
+    {
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file1' ), 'file1file1file1' );
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'file2file1file1' );
+      return null;
+    })
+
+    return con;
+  }
+
+  function repoInitCommit()
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    let secondRepoPath = path.join( testPath, 'secondary' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+
+    con.then( () =>
+    {
+      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file1' ), 'file1' );
+      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file2' ), 'file2' );
+      return null;
+    })
+
+    shell( 'git -C secondary commit --allow-empty -am initial' )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
+}
+
+//
+
+function statusFullHalfStaged( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  prepareRepo()
+  repoInitCommit()
+  begin()
+  .then( () =>
+  {
+    var got = _.git.statusFull
+    ({
+      localPath,
+      local : 1,
+      remote : 0,
+      prs : 0,
+      uncommitted : null,
+      uncommittedUntracked : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedDeleted : null,
+      uncommittedRenamed : null,
+      uncommittedCopied : null,
+      uncommittedIgnored : 0,
+      unpushed : null,
+      unpushedCommits : null,
+      unpushedTags : null,
+      unpushedBranches : null,
+      verbosity : 1,
+      remoteCommits : null,
+      remoteBranches : 0,
+      remoteTags : null,
+      explaining : 0,
+      detailing : 1
+    });
+    test.identical( got.status, true )
+
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    shell2( 'git init --bare' );
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    .then( () =>
+    {
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file1' ), 'file1file1' );
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'file2file1' );
+      return null;
+    })
+
+    shell( 'git -C clone add .' )
+
+    .then( () =>
+    {
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file1' ), 'file1file1file1' );
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'file2file1file1' );
+      return null;
+    })
+
+    return con;
+  }
+
+  function repoInitCommit()
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    let secondRepoPath = path.join( testPath, 'secondary' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+
+    con.then( () =>
+    {
+      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file1' ), 'file1' );
+      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file2' ), 'file2' );
+      return null;
+    })
+
+    shell( 'git -C secondary commit --allow-empty -am initial' )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
+}
+
+//
+
 function statusRemote( test )
 {
   let context = this;
@@ -10928,6 +11219,8 @@ var Proto =
     statusLocalEmptyWithOrigin,
     statusLocalAsync,
     statusLocalExplainingTrivial,
+    statusLocalHalfStaged,
+    statusFullHalfStaged,
     statusRemote,
     statusRemoteTags,
     status,
