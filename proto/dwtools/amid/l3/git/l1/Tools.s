@@ -102,8 +102,8 @@ function pathParse( remotePath )
   parsed2.protocols = parsed2.protocol ? parsed2.protocol.split( '+' ) : [];
   delete parsed2.protocol;
 
-  // let isHardDrive = !_.arrayHasAny( parsed2.protocols, [ 'http', 'https', 'ssh' ] );
-  let isHardDrive = _.arrayHasAny( parsed2.protocols, [ 'hd' ] );
+  // let isHardDrive = !_.longHasAny( parsed2.protocols, [ 'http', 'https', 'ssh' ] );
+  let isHardDrive = _.longHasAny( parsed2.protocols, [ 'hd' ] );
   let isRelative = path.isRelative( parsed2.longPath );
 
   if( parsed2.protocols.length > 0 && parsed2.protocols[ 0 ].toLowerCase() === 'git' )
@@ -2557,7 +2557,7 @@ function hookRegister( o )
     if( !provider.fileExists( path.join( o.repoPath, '.git' ) ) )
     throw _.err( 'No git repository found at:', o.filePath );
 
-    if( !_.arrayHas( KnownHooks, o.hookName ) )
+    if( !_.longHas( KnownHooks, o.hookName ) )
     throw _.err( 'Unknown git hook:', o.hookName );
 
     let handlerNamePattern = new RegExp( `^${o.hookName}\\..*` );
@@ -2672,7 +2672,7 @@ function hookUnregister( o )
 
   try
   {
-    if( _.arrayHas( KnownHooks, o.handlerName ) )
+    if( _.longHas( KnownHooks, o.handlerName ) )
     if( !o.force )
     throw _.err( 'Removal of original git hook handler is not allowed. Please enable option {-o.force-} to delete it.' )
 
@@ -2941,6 +2941,8 @@ var KnownHooks =
 
 let Extend =
 {
+
+  protocols : [ 'git' ],
 
   configRead,
 
