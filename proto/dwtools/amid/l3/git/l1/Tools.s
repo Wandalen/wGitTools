@@ -1159,6 +1159,10 @@ function statusLocal_body( o )
     if( uncommittedDetailedCheck( outputStripped, 'uncommittedIgnored', /^!{1,2} .*/gm ) )
     return true;
 
+    if( o.uncommittedAddedChanged )
+    if( uncommittedDetailedCheck( outputStripped, 'uncommittedAddedChanged', /^AM .*/gm ) )
+    return true;
+
     return false;
   }
 
@@ -1336,6 +1340,7 @@ statusLocal_body.uncommittedGroup =
   'uncommittedRenamed',
   'uncommittedCopied',
   'uncommittedIgnored',
+  'uncommittedAddedChanged',
   'conflicts'
 ]
 
@@ -1360,6 +1365,7 @@ defaults.uncommittedDeleted = null;
 defaults.uncommittedRenamed = null;
 defaults.uncommittedCopied = null;
 defaults.uncommittedIgnored = 0;
+defaults.uncommittedAddedChanged = null;
 
 defaults.unpushed = null;
 defaults.unpushedCommits = null;
