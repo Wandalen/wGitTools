@@ -1159,8 +1159,8 @@ function statusLocal_body( o )
     if( uncommittedDetailedCheck( outputStripped, 'uncommittedIgnored', /^!{1,2} .*/gm ) )
     return true;
 
-    if( o.uncommittedAddedChanged )
-    if( uncommittedDetailedCheck( outputStripped, 'uncommittedAddedChanged', /^AM .*/gm ) )
+    if( o.uncommittedUnstaged )
+    if( uncommittedDetailedCheck( outputStripped, 'uncommittedUnstaged', /^[MARC][MD] .*/gm ) )
     return true;
 
     return false;
@@ -1340,7 +1340,7 @@ statusLocal_body.uncommittedGroup =
   'uncommittedRenamed',
   'uncommittedCopied',
   'uncommittedIgnored',
-  'uncommittedAddedChanged',
+  'uncommittedUnstaged',
   'conflicts'
 ]
 
@@ -1365,7 +1365,7 @@ defaults.uncommittedDeleted = null;
 defaults.uncommittedRenamed = null;
 defaults.uncommittedCopied = null;
 defaults.uncommittedIgnored = 0;
-defaults.uncommittedAddedChanged = null;
+defaults.uncommittedUnstaged = null;
 
 defaults.unpushed = null;
 defaults.unpushedCommits = null;
