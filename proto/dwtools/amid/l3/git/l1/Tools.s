@@ -1242,7 +1242,6 @@ function statusLocal_body( o )
     })
     .then( ( got ) =>
     {
-      debugger
       result.unpushedTags = '';
       let unpushedTags = [];
       _.each( tags, ( tag ) =>
