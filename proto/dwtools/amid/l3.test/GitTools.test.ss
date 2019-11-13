@@ -4356,7 +4356,7 @@ statusLocalExplainingTrivial.timeOut = 30000;
 
 //
 
-function statusLocalHalfStaged( test )
+function statusLocalExtended( test )
 {
   let context = this;
   let provider = context.provider;
@@ -4365,9 +4365,10 @@ function statusLocalHalfStaged( test )
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
-  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
-  let filePath = path.join( localPath, 'newFile' );
-  let readmePath = path.join( localPath, 'README' );
+  let join = _.routineJoin( _.path, _.path.join );
+  let write = _.routineJoin( _.fileProvider, _.fileProvider.fileWrite );
+  let filesDelete = _.routineJoin( _.fileProvider, _.fileProvider.filesDelete );
+  let rename = _.routineJoin( _.fileProvider, _.fileProvider.fileRename );
 
   let con = new _.Consequence().take( null );
 
@@ -4387,9 +4388,20 @@ function statusLocalHalfStaged( test )
 
   /*  */
 
+  testCase( 'modified + staged and then modified' )
   prepareRepo()
-  repoInitCommit()
   begin()
+  .then( () =>
+  {
+    write( join( localPath, 'file1' ), 'file1file1' );
+    return null;
+  })
+  shell( 'git -C clone add .' )
+  .then( () =>
+  {
+    write( join( localPath, 'file1' ), 'file1file1file1' );
+    return null;
+  })
   .then( () =>
   {
     var got = _.git.statusLocal
@@ -4397,10 +4409,210 @@ function statusLocalHalfStaged( test )
       localPath,
       uncommitted : 1,
       detailing : 1,
+      explaining : 1,
       unpushed : 1,
       verbosity : 1,
     });
-    test.identical( got.status, true )
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
+
+    return null;
+  })
+
+  /*  */
+
+  testCase( 'modified and then deleted' )
+  prepareRepo()
+  begin()
+  .then( () =>
+  {
+    write( join( localPath, 'file1' ), 'file1file1' );
+    return null;
+  })
+  shell( 'git -C clone add .' )
+  .then( () =>
+  {
+    filesDelete( join( localPath, 'file1' ) );
+    return null;
+  })
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
+
+    return null;
+  })
+
+  /*  */
+
+  testCase( 'modified and then renamed' )
+  prepareRepo()
+  begin()
+  .then( () =>
+  {
+    write( join( localPath, 'file1' ), 'file1file1' );
+    return null;
+  })
+  shell( 'git -C clone add .' )
+  shell( 'git -C clone mv file1 file3' )
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( !!got.uncommittedDeleted, true )
+    test.identical( !!got.uncommittedAdded, true )
+    test.identical( !!got.status, true )
+
+    return null;
+  })
+
+  /*  */
+
+  testCase( 'added to index and then deleted' )
+  prepareRepo()
+  begin()
+  .then( () =>
+  {
+    write( join( localPath, 'file3' ), 'file3' );
+    return null;
+  })
+  shell( 'git -C clone add file3' )
+  .then( () =>
+  {
+    filesDelete( join( localPath, 'file3' ) );
+    return null;
+  })
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
+
+    return null;
+  })
+
+  /* */
+
+  testCase( 'added to index and then modified' )
+  prepareRepo()
+  begin()
+  .then( () =>
+  {
+    write( join( localPath, 'file3' ), 'file3' );
+    return null;
+  })
+  shell( 'git -C clone add file3' )
+  .then( () =>
+  {
+    write( join( localPath, 'file3' ), 'file3file3' );
+    return null;
+  })
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
+
+    return null;
+  })
+
+  /* */
+
+  testCase( 'renamed then modified' )
+  prepareRepo()
+  begin()
+  shell( 'git -C clone mv file1 file3' )
+  .then( () =>
+  {
+    write( join( localPath, 'file3' ), 'file3' );
+    return null;
+  })
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
+
+    return null;
+  })
+
+  /*  */
+
+  testCase( 'renamed then deleted' )
+  prepareRepo()
+  begin()
+  shell( 'git -C clone mv file1 file3' )
+  .then( () =>
+  {
+    filesDelete( join( localPath, 'file3' ) );
+    return null;
+  })
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
 
     return null;
   })
@@ -4413,6 +4625,13 @@ function statusLocalHalfStaged( test )
 
   function prepareRepo()
   {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+    let secondRepoPath = path.join( testPath, 'secondary' );
+
     con.then( () =>
     {
       provider.filesDelete( repoPath );
@@ -4421,6 +4640,25 @@ function statusLocalHalfStaged( test )
     })
 
     shell2( 'git init --bare' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+
+    con.then( () =>
+    {
+      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file1' ), 'file1' );
+      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file2' ), 'file2' );
+      return null;
+    })
+
+    shell( 'git -C secondary add .' )
+    shell( 'git -C secondary commit -m initial' )
+    shell( 'git -C secondary push' )
 
     return con;
   }
@@ -4440,56 +4678,17 @@ function statusLocalHalfStaged( test )
       })
     })
 
-    .then( () =>
-    {
-      _.fileProvider.fileWrite( _.path.join( localPath, 'file1' ), 'file1file1' );
-      _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'file2file1' );
-      return null;
-    })
-
-    shell( 'git -C clone add .' )
-
-    .then( () =>
-    {
-      _.fileProvider.fileWrite( _.path.join( localPath, 'file1' ), 'file1file1file1' );
-      _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'file2file1file1' );
-      return null;
-    })
-
     return con;
   }
 
-  function repoInitCommit()
+  function testCase( title )
   {
-    let shell = _.process.starter
-    ({
-      currentPath : testPath,
-      ready : con
-    })
-
-    let secondRepoPath = path.join( testPath, 'secondary' );
-
-    con.then( () =>
-    {
-      provider.filesDelete( secondRepoPath );
-      return null;
-    })
-
-    shell( 'git clone ' + repoPathNative + ' secondary' )
-
-    con.then( () =>
-    {
-      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file1' ), 'file1' );
-      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file2' ), 'file2' );
-      return null;
-    })
-
-    shell( 'git -C secondary commit --allow-empty -am initial' )
-    shell( 'git -C secondary push' )
-
+    con.then( () => { test.case = title; return null })
     return con;
   }
 }
+
+statusLocalExtended.timeOut = 30000;
 
 //
 
@@ -11219,7 +11418,7 @@ var Proto =
     statusLocalEmptyWithOrigin,
     statusLocalAsync,
     statusLocalExplainingTrivial,
-    statusLocalHalfStaged,
+    statusLocalExtended,
     statusFullHalfStaged,
     statusRemote,
     statusRemoteTags,
