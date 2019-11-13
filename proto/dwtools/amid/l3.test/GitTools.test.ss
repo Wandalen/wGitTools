@@ -388,6 +388,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -426,6 +427,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -463,6 +465,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : null,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -494,6 +497,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : null,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -526,6 +530,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : null,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -567,6 +572,7 @@ function statusLocal( test )
       'uncommittedRenamed' : null,
       'uncommittedCopied' : null,
       'uncommittedIgnored' : null,
+      'uncommittedUnstaged' : null,
       'unpushed' : null,
       'unpushedCommits' : null,
       'unpushedTags' : null,
@@ -619,6 +625,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -658,6 +665,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -719,6 +727,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -757,6 +766,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -802,6 +812,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -840,6 +851,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -889,6 +901,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -927,6 +940,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -976,6 +990,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -1014,6 +1029,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -1058,6 +1074,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -1096,6 +1113,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -1143,6 +1161,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
       'conflicts' : false
@@ -1182,6 +1201,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : true,
       'unpushedTags' : null,
@@ -1232,6 +1252,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
       'conflicts' : false
@@ -1271,6 +1292,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : true,
       'unpushedTags' : null,
@@ -1322,6 +1344,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -1360,6 +1383,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -1413,6 +1437,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
       'conflicts' : false
@@ -1452,6 +1477,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : true,
       'unpushedTags' : null,
@@ -1502,6 +1528,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'unpushedCommits' : false,
       'unpushedTags' : '[new tag]   sometag -> sometag',
@@ -1542,6 +1569,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : false,
       'unpushedTags' : true,
@@ -1587,6 +1615,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -1625,6 +1654,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -1675,6 +1705,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : 'List of unpushed:\n  [new tag]   sometag -> sometag',
       'unpushedCommits' : false,
       'unpushedTags' : '[new tag]   sometag -> sometag',
@@ -1713,6 +1744,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : false,
       'unpushedTags' : true,
@@ -1757,6 +1789,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -1795,6 +1828,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -1853,6 +1887,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -1891,6 +1926,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -1936,6 +1972,7 @@ function statusLocal( test )
       'uncommittedRenamed' : 'R  README -> README_',
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -1975,6 +2012,7 @@ function statusLocal( test )
       'uncommittedRenamed' : true,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -2018,6 +2056,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
       'conflicts' : false
@@ -2057,6 +2096,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : true,
       'unpushedTags' : null,
@@ -2100,6 +2140,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -2138,6 +2179,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -2195,6 +2237,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -2233,6 +2276,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -2277,6 +2321,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -2316,6 +2361,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : null,
@@ -2360,6 +2406,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushedTags' : null,
       'unpushedBranches' : false,
       'conflicts' : false
@@ -2399,6 +2446,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : true,
       'unpushedTags' : null,
@@ -2442,6 +2490,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -2480,6 +2529,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -2529,6 +2579,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : 'List of unpushed:\n  [new branch]        testbranch -> ?',
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -2568,6 +2619,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -2612,6 +2664,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -2650,6 +2703,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -2700,6 +2754,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : 'List of unpushed:\n  [new tag]   testtag -> testtag',
       'unpushedCommits' : false,
       'unpushedTags' : '[new tag]   testtag -> testtag',
@@ -2740,6 +2795,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : false,
       'unpushedTags' : true,
@@ -2784,6 +2840,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -2822,6 +2879,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -2920,6 +2978,7 @@ function statusLocal( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : true,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : true,
       'unpushedTags' : false,
@@ -3119,6 +3178,7 @@ function statusLocalEmpty( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -3168,6 +3228,7 @@ function statusLocalEmpty( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -3223,6 +3284,7 @@ function statusLocalEmpty( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -3274,6 +3336,7 @@ function statusLocalEmpty( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -3323,6 +3386,7 @@ function statusLocalEmpty( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -3372,6 +3436,7 @@ function statusLocalEmpty( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : false,
       'unpushedTags' : true,
@@ -3573,6 +3638,7 @@ function statusLocalEmptyWithOrigin( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -3621,6 +3687,7 @@ function statusLocalEmptyWithOrigin( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -3675,6 +3742,7 @@ function statusLocalEmptyWithOrigin( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -3724,6 +3792,7 @@ function statusLocalEmptyWithOrigin( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -3772,6 +3841,7 @@ function statusLocalEmptyWithOrigin( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : false,
       'unpushedCommits' : false,
       'unpushedTags' : false,
@@ -3822,6 +3892,7 @@ function statusLocalEmptyWithOrigin( test )
       'uncommittedRenamed' : false,
       'uncommittedCopied' : false,
       'uncommittedIgnored' : false,
+      'uncommittedUnstaged' : false,
       'unpushed' : true,
       'unpushedCommits' : false,
       'unpushedTags' : true,
@@ -4037,6 +4108,7 @@ function statusLocalAsync( test )
         'uncommittedRenamed' : false,
         'uncommittedCopied' : false,
         'uncommittedIgnored' : false,
+        'uncommittedUnstaged' : false,
         'unpushed' : false,
         'unpushedCommits' : false,
         'unpushedTags' : false,
@@ -4353,6 +4425,496 @@ function statusLocalExplainingTrivial( test )
 }
 
 statusLocalExplainingTrivial.timeOut = 30000;
+
+//
+
+function statusLocalExtended( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+  let join = _.routineJoin( _.path, _.path.join );
+  let write = _.routineJoin( _.fileProvider, _.fileProvider.fileWrite );
+  let filesDelete = _.routineJoin( _.fileProvider, _.fileProvider.filesDelete );
+  let rename = _.routineJoin( _.fileProvider, _.fileProvider.fileRename );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  testCase( 'modified + staged and then modified' )
+  prepareRepo()
+  begin()
+  .then( () =>
+  {
+    write( join( localPath, 'file1' ), 'file1file1' );
+    return null;
+  })
+  shell( 'git -C clone add .' )
+  .then( () =>
+  {
+    write( join( localPath, 'file1' ), 'file1file1file1' );
+    return null;
+  })
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
+
+    return null;
+  })
+
+  /*  */
+
+  testCase( 'modified and then deleted' )
+  prepareRepo()
+  begin()
+  .then( () =>
+  {
+    write( join( localPath, 'file1' ), 'file1file1' );
+    return null;
+  })
+  shell( 'git -C clone add .' )
+  .then( () =>
+  {
+    filesDelete( join( localPath, 'file1' ) );
+    return null;
+  })
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
+
+    return null;
+  })
+
+  /*  */
+
+  testCase( 'modified and then renamed' )
+  prepareRepo()
+  begin()
+  .then( () =>
+  {
+    write( join( localPath, 'file1' ), 'file1file1' );
+    return null;
+  })
+  shell( 'git -C clone add .' )
+  shell( 'git -C clone mv file1 file3' )
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( !!got.uncommittedDeleted, true )
+    test.identical( !!got.uncommittedAdded, true )
+    test.identical( !!got.status, true )
+
+    return null;
+  })
+
+  /*  */
+
+  testCase( 'added to index and then deleted' )
+  prepareRepo()
+  begin()
+  .then( () =>
+  {
+    write( join( localPath, 'file3' ), 'file3' );
+    return null;
+  })
+  shell( 'git -C clone add file3' )
+  .then( () =>
+  {
+    filesDelete( join( localPath, 'file3' ) );
+    return null;
+  })
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
+
+    return null;
+  })
+
+  /* */
+
+  testCase( 'added to index and then modified' )
+  prepareRepo()
+  begin()
+  .then( () =>
+  {
+    write( join( localPath, 'file3' ), 'file3' );
+    return null;
+  })
+  shell( 'git -C clone add file3' )
+  .then( () =>
+  {
+    write( join( localPath, 'file3' ), 'file3file3' );
+    return null;
+  })
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
+
+    return null;
+  })
+
+  /* */
+
+  testCase( 'renamed then modified' )
+  prepareRepo()
+  begin()
+  shell( 'git -C clone mv file1 file3' )
+  .then( () =>
+  {
+    write( join( localPath, 'file3' ), 'file3' );
+    return null;
+  })
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
+
+    return null;
+  })
+
+  /*  */
+
+  testCase( 'renamed then deleted' )
+  prepareRepo()
+  begin()
+  shell( 'git -C clone mv file1 file3' )
+  .then( () =>
+  {
+    filesDelete( join( localPath, 'file3' ) );
+    return null;
+  })
+  shell( 'git -C clone status -u --porcelain -b' )
+  shell( 'git -C clone status' )
+  .then( () =>
+  {
+    var got = _.git.statusLocal
+    ({
+      localPath,
+      uncommitted : 1,
+      detailing : 1,
+      explaining : 1,
+      unpushed : 1,
+      verbosity : 1,
+    });
+    test.identical( !!got.status, true )
+    test.identical( !!got.uncommittedUnstaged, true )
+
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+    let secondRepoPath = path.join( testPath, 'secondary' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    shell2( 'git init --bare' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+
+    con.then( () =>
+    {
+      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file1' ), 'file1' );
+      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file2' ), 'file2' );
+      return null;
+    })
+
+    shell( 'git -C secondary add .' )
+    shell( 'git -C secondary commit -m initial' )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+
+  function testCase( title )
+  {
+    con.then( () => { test.case = title; return null })
+    return con;
+  }
+}
+
+statusLocalExtended.timeOut = 30000;
+
+//
+
+function statusFullHalfStaged( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  prepareRepo()
+  repoInitCommit()
+  begin()
+  .then( () =>
+  {
+    var got = _.git.statusFull
+    ({
+      localPath,
+      local : 1,
+      remote : 0,
+      prs : 0,
+      uncommitted : null,
+      uncommittedUntracked : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedDeleted : null,
+      uncommittedRenamed : null,
+      uncommittedCopied : null,
+      uncommittedIgnored : 0,
+      unpushed : null,
+      unpushedCommits : null,
+      unpushedTags : null,
+      unpushedBranches : null,
+      verbosity : 1,
+      remoteCommits : null,
+      remoteBranches : 0,
+      remoteTags : null,
+      explaining : 0,
+      detailing : 1
+    });
+    test.identical( got.status, true )
+
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    shell2( 'git init --bare' );
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    .then( () =>
+    {
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file1' ), 'file1file1' );
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'file2file1' );
+      return null;
+    })
+
+    shell( 'git -C clone add .' )
+
+    .then( () =>
+    {
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file1' ), 'file1file1file1' );
+      _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'file2file1file1' );
+      return null;
+    })
+
+    return con;
+  }
+
+  function repoInitCommit()
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    let secondRepoPath = path.join( testPath, 'secondary' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+
+    con.then( () =>
+    {
+      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file1' ), 'file1' );
+      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file2' ), 'file2' );
+      return null;
+    })
+
+    shell( 'git -C secondary commit --allow-empty -am initial' )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
+}
 
 //
 
@@ -7257,6 +7819,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -7297,6 +7860,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -7337,6 +7901,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
       unpushed: false,
       unpushedBranches: false,
@@ -7377,6 +7942,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
       unpushed: null,
       unpushedBranches: null,
@@ -7417,6 +7983,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
       unpushed: false,
       unpushedBranches: false,
@@ -7457,6 +8024,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
       unpushed: null,
       unpushedBranches: null,
@@ -7497,6 +8065,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
       unpushed: false,
       unpushedBranches: false,
@@ -7537,6 +8106,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
       unpushed: null,
       unpushedBranches: null,
@@ -7577,6 +8147,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
       unpushed: false,
       unpushedBranches: false,
@@ -7617,6 +8188,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
       unpushed: null,
       unpushedBranches: null,
@@ -7661,6 +8233,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -7705,6 +8278,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -7748,6 +8322,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -7792,6 +8367,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -7835,6 +8411,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -7878,6 +8455,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -7921,6 +8499,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -7964,6 +8543,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
@@ -8009,6 +8589,7 @@ function status( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
@@ -8203,6 +8784,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -8249,6 +8831,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -8294,6 +8877,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
       unpushed: false,
       unpushedBranches: false,
@@ -8340,6 +8924,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
       unpushed: null,
       unpushedBranches: null,
@@ -8386,6 +8971,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
       unpushed: false,
       unpushedBranches: false,
@@ -8432,6 +9018,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
       unpushed: null,
       unpushedBranches: null,
@@ -8478,6 +9065,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
       unpushed: false,
       unpushedBranches: false,
@@ -8524,6 +9112,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
       unpushed: null,
       unpushedBranches: null,
@@ -8570,6 +9159,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
       unpushed: false,
       unpushedBranches: false,
@@ -8616,6 +9206,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
       unpushed: null,
       unpushedBranches: null,
@@ -8666,6 +9257,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -8715,6 +9307,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -8764,6 +9357,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -8813,6 +9407,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -8862,6 +9457,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -8911,6 +9507,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -8960,6 +9557,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: null,
       uncommittedUntracked: null,
+      uncommittedUnstaged: null,
       unpushed: null,
       unpushedBranches: null,
       unpushedCommits: null,
@@ -9008,6 +9606,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
@@ -9058,6 +9657,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
@@ -9106,6 +9706,7 @@ function statusFull( test )
       uncommittedIgnored: null,
       uncommittedRenamed: false,
       uncommittedUntracked: false,
+      uncommittedUnstaged: false,
       unpushed: false,
       unpushedBranches: false,
       unpushedCommits: false,
@@ -10928,6 +11529,8 @@ var Proto =
     statusLocalEmptyWithOrigin,
     statusLocalAsync,
     statusLocalExplainingTrivial,
+    statusLocalExtended,
+    statusFullHalfStaged,
     statusRemote,
     statusRemoteTags,
     status,
