@@ -882,6 +882,45 @@ defaults.localPath = null;
 
 //
 
+/**
+ * @summary Checks local repo for uncommitted, unpushed changes and conflicts.
+ *
+ * @description
+ * Explanation for short format of 'git status': https://git-scm.com/docs/git-status#_short_format
+ * Explanation for result of `uncommittedUnstaged`:
+ * XY     Meaning
+ * -------------------------------------------------
+ * ММ     modified->staged->modified
+ * MD     modified->staged->deleted
+ * AM     added->staged->modified
+ * AD     added->staged->deleted
+ * RM     renamed->staged->modified
+ * RD     renamed->staged->deleted
+ * CM     copied->staged->modified
+ * CD     copied->staged->deleted
+ *
+ * @param {Object} o Options map.
+ * @param {String} o.localPath Path to local repo.
+ * @param {Boolean} o.uncommitted=1 Checks for uncommitted changes. Enables all uncommitted* checks that are not disabled explicitly.
+ * @param {Boolean} o.uncommittedUntracked=null Checks for untracked files
+ * @param {Boolean} o.uncommittedAdded=null Checks for new files
+ * @param {Boolean} o.uncommittedChanged=null Checks for modified files
+ * @param {Boolean} o.uncommittedDeleted=null Checks for deleted files
+ * @param {Boolean} o.uncommittedRenamed=null Checks for renamed files
+ * @param {Boolean} o.uncommittedCopied=null Checks for copied files
+ * @param {Boolean} o.uncommittedIgnored=0 Checks for new files that are ignored
+ * @param {Boolean} o.uncommittedUnstaged=null Checks for unstaged changes
+ * @param {Boolean} o.unpushed=1 Checks for unpsuhed changes. Enables all unpushed* checks that are not disabled explicitly.
+ * @param {Boolean} o.unpushedCommits=null Checks for unpushed commit
+ * @param {Boolean} o.unpushedTags=null Checks for unpushed tags
+ * @param {Boolean} o.unpushedBranches=null Checks for unpushed branches
+ * @param {Boolean} o.conflicts=1 Check for conflicts
+ * @param {Boolean} o.detailing=0 Performs check of each enabled option if enabled, otherwise performs fast check.
+ * @param {Boolean} o.explaining=0 Properties from result map will contain explanation if result of check is positive.
+ * @function statusLocal
+ * @memberof module:Tools/mid/GitTools.
+ */
+
 function statusLocal_pre( routine, args )
 {
   let o = args[ 0 ];
