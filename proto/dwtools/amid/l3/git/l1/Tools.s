@@ -1128,7 +1128,7 @@ function statusLocal_body( o )
     let outputStripped = output.join( '\n' );
 
     if( o.conflicts )
-    if( uncommittedDetailedCheck( outputStripped, 'conflicts', /^[DAU][DAU] .*/gm ) )
+    if( uncommittedDetailedCheck( outputStripped, 'conflicts', /^D[DU]|A[AU]|U[DAU] .*/gm ) )
     return true;
 
     if( o.uncommittedUntracked )
