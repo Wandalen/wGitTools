@@ -1811,7 +1811,7 @@ function statusFull( o )
 
   let prsReady = new _.Consequence().take( null );
   if( o.prs )
-  prsReady = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0 });
+  prsReady = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0, token : o.token });
 
   let ready = _.Consequence.AndKeep([ statusReady, prsReady ])
   .finally( ( err, arg ) =>
@@ -1853,7 +1853,7 @@ function statusFull( o )
     }
     else
     {
-      let prsExplanation= `Has ${prs.length} opened pull requests`;
+      let prsExplanation= `Has ${prs.length} opened pull request(s)`;
 
       if( !result.status )
       result.status = prsExplanation;
@@ -1877,6 +1877,7 @@ statusFull.defaults =
   detailing : 1,
   explaining : 1,
   sync : 1,
+  token : null,
 }
 
 _.mapSupplement( statusFull.defaults, status.defaults );
@@ -1990,7 +1991,8 @@ function prsGet( o )
     .then( () =>
     {
       let github = require( 'octonode' );
-      let client = github.client();
+      // let client = github.client();
+      let client = o.token ? github.client( o.token ) : github.client();
       let repo = client.repo( `${parsed.user}/${parsed.repo}` );
       return repo.prsAsync();
     })
@@ -2005,6 +2007,7 @@ function prsGet( o )
 
 prsGet.defaults =
 {
+  token : null,
   remotePath : null,
   throwing : 1,
   sync : 1,
