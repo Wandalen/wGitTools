@@ -993,7 +993,11 @@ function statusLocal_body( o )
   ready.finally( end );
 
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
 
   return ready;
 
@@ -1518,7 +1522,11 @@ function statusRemote_body( o )
   function end()
   {
     if( o.sync )
-    return ready.deasync();
+    {
+      // return ready.deasync();
+      ready.deasyncWait();
+      return ready.sync();
+    }
 
     return ready;
   }
@@ -1756,7 +1764,12 @@ function status_body( o )
   });
 
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
   return ready;
 }
 
@@ -1825,7 +1838,12 @@ function statusFull( o )
   });
 
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
   return ready;
 
   /* */
@@ -1977,8 +1995,15 @@ function prsGet( o )
     return prs;
   });
 
+  // if( o.sync )
+  // return ready.deasync();
+
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
 
   return ready;
 
@@ -2080,7 +2105,14 @@ function repositoryInit( o )
   });
 
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
+  // if( o.sync )
+  // return ready.deasync();
 
   return ready;
 
@@ -2329,7 +2361,11 @@ function repositoryDelete( o )
   });
 
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
 
   return ready;
 
