@@ -1973,7 +1973,6 @@ function prsGet( o )
   {
     if( parsed.service === 'github.com' )
     return prsOnGithub();
-    debugger;
     if( o.throwing )
     throw _.err( 'Unknown service' );
     return null;
