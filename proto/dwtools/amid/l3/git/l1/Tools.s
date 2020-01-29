@@ -1650,6 +1650,18 @@ function statusRemote_body( o )
   let status = [];
   let version = o.version;
   
+  if( o.version === null )
+  {
+    start( 'git rev-parse --abbrev-ref HEAD' )
+    ready.then( ( got ) => 
+    { 
+      version = _.strStrip( got.output );
+      if( version === 'HEAD' )
+      throw _.err( `Can't determine current branch: local repository is in detached state` );
+      return null; 
+    })
+  }
+  
   start( 'git ls-remote' )//prints list of remote tags and branches
   ready.then( parse )
   start( 'git show-ref --heads --tags -d' )//prints list of local tags and branches
@@ -1659,18 +1671,7 @@ function statusRemote_body( o )
     return null;
   })
   
-  if( o.version === null )
-  {
-    start( 'git rev-parse --abbrev-ref HEAD' )
-    ready.then( ( got ) => 
-    {
-      version = _.strStrip( got.output );
-      if( version === 'HEAD' )
-      throw _.err( `Can't determine current branch: local repository is in detached state` );
-      return null; 
-    })
-  }
-  
+ 
   if( o.remoteBranches )
   ready.then( branchesCheck )
   if( o.remoteCommits )
@@ -1720,12 +1721,7 @@ function statusRemote_body( o )
     });
     
     //remote tags
-    tags = remotes.filter( ( r ) => 
-    {  
-      if( version === _.all )
-      return _.strBegins( r[ 1 ], 'refs/tags' )
-      return _.strBegins( r[ 1 ], `refs/tags/${version}` )
-    });
+    tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) )
 
     return null;
   }
