@@ -1145,7 +1145,11 @@ function statusLocal_body( o )
   ready.finally( end );
 
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
 
   return ready;
 
@@ -1437,7 +1441,6 @@ function statusLocal_body( o )
     })
     .then( ( got ) =>
     {
-      debugger
       result.unpushedTags = '';
       let unpushedTags = [];
       _.each( tags, ( tag ) =>
@@ -1673,7 +1676,11 @@ function statusRemote_body( o )
   function end()
   {
     if( o.sync )
-    return ready.deasync();
+    {
+      // return ready.deasync();
+      ready.deasyncWait();
+      return ready.sync();
+    }
 
     return ready;
   }
@@ -1911,7 +1918,12 @@ function status_body( o )
   });
 
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
   return ready;
 }
 
@@ -1966,7 +1978,7 @@ function statusFull( o )
 
   let prsReady = new _.Consequence().take( null );
   if( o.prs )
-  prsReady = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0 });
+  prsReady = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0, token : o.token });
 
   let ready = _.Consequence.AndKeep([ statusReady, prsReady ])
   .finally( ( err, arg ) =>
@@ -1980,7 +1992,12 @@ function statusFull( o )
   });
 
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
   return ready;
 
   /* */
@@ -2008,7 +2025,7 @@ function statusFull( o )
     }
     else
     {
-      let prsExplanation= `Has ${prs.length} opened pull requests`;
+      let prsExplanation= `Has ${prs.length} opened pull request(s)`;
 
       if( !result.status )
       result.status = prsExplanation;
@@ -2032,6 +2049,7 @@ statusFull.defaults =
   detailing : 1,
   explaining : 1,
   sync : 1,
+  token : null,
 }
 
 _.mapSupplement( statusFull.defaults, status.defaults );
@@ -2130,7 +2148,6 @@ function prsGet( o )
   {
     if( parsed.service === 'github.com' )
     return prsOnGithub();
-    debugger;
     if( o.throwing )
     throw _.err( 'Unknown service' );
     return null;
@@ -2152,8 +2169,15 @@ function prsGet( o )
     return prs;
   });
 
+  // if( o.sync )
+  // return ready.deasync();
+
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
 
   return ready;
 
@@ -2166,7 +2190,8 @@ function prsGet( o )
     .then( () =>
     {
       let github = require( 'octonode' );
-      let client = github.client();
+      // let client = github.client();
+      let client = o.token ? github.client( o.token ) : github.client();
       let repo = client.repo( `${parsed.user}/${parsed.repo}` );
       return repo.prsAsync();
     })
@@ -2181,6 +2206,7 @@ function prsGet( o )
 
 prsGet.defaults =
 {
+  token : null,
   remotePath : null,
   throwing : 1,
   sync : 1,
@@ -2253,7 +2279,14 @@ function repositoryInit( o )
   });
 
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
+  // if( o.sync )
+  // return ready.deasync();
 
   return ready;
 
@@ -2502,7 +2535,11 @@ function repositoryDelete( o )
   });
 
   if( o.sync )
-  return ready.deasync();
+  {
+    // return ready.deasync();
+    ready.deasyncWait();
+    return ready.sync();
+  }
 
   return ready;
 
