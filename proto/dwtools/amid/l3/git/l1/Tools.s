@@ -824,7 +824,10 @@ function hasRemote( o )
   })
 
   if( o.sync )
-  return ready.deasync();
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
 
   return ready;
 }
@@ -883,7 +886,10 @@ function isHeadOn( o )
   ready.then( tagCheck )
 
   if( o.sync )
-  return ready.deasync();
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
 
   return ready;
 
@@ -1146,7 +1152,6 @@ function statusLocal_body( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -1677,7 +1682,6 @@ function statusRemote_body( o )
   {
     if( o.sync )
     {
-      // return ready.deasync();
       ready.deasyncWait();
       return ready.sync();
     }
@@ -1919,7 +1923,6 @@ function status_body( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -1993,7 +1996,6 @@ function statusFull( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -2169,12 +2171,8 @@ function prsGet( o )
     return prs;
   });
 
-  // if( o.sync )
-  // return ready.deasync();
-
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -2280,13 +2278,9 @@ function repositoryInit( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
-
-  // if( o.sync )
-  // return ready.deasync();
 
   return ready;
 
@@ -2536,7 +2530,6 @@ function repositoryDelete( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
