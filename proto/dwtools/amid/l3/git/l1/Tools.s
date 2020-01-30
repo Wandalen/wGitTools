@@ -2729,6 +2729,158 @@ repositoryDelete.defaults =
 
 //
 
+function diff( o )
+{
+  o = _.routineOptions( diff, o );
+  
+  _.assert( arguments.length === 1 );
+  _.assert( _.strDefined( o.state1 ) || o.state1 === null );
+  _.assert( _.strDefined( o.state2 ) );
+  _.assert( _.strDefined( o.localPath ) );
+  
+  if( o.state1 === null )
+  o.state1 = 'version::HEAD';
+  
+  let ready = new _.Consequence().take( null );
+  let state1 = stateParse( o.state1, true );
+  let state2 = stateParse( o.state2 );
+  let result = Object.create( null );
+  
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    inputMirroring : 0,
+    outputPiping : 0,
+    ready
+  });
+  
+  if( state1 === 'working' )
+  start( `git diff --raw --exit-code ${state2}` )
+  else if( state1 === 'staging' )
+  start( `git diff --staged --raw --exit-code ${state2}` )
+  else if( state1 === 'committed' )
+  start( `git diff --raw --exit-code HEAD ${state2}` )
+  else
+  start( `git diff --raw --exit-code ${state1} ${state2}` )
+  
+  ready.then( handleOutput );
+  
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+  
+  return ready;
+  
+  //
+  
+  function stateParse( state, allowSpecial )
+  { 
+    let statesBegin = [ 'version::', 'tag::' ];
+    let statesSpecial = [ 'working', 'staging', 'committed' ];
+    
+    if( _.strBegins( state, statesBegin ) )
+    return _.strRemoveBegin( state, statesBegin );
+    
+    if( !allowSpecial )
+    throw _.err( `Expects state in one of formats:${statesBegin}, but got:${state}` );
+    
+    if( !_.longHas( statesSpecial, state ) )
+    throw _.err( `Expects one of special states: ${statesSpecial}, but got:${state}` );
+    
+    return state;
+  }
+  
+  /*  */
+  
+  function handleOutput( got )
+  { 
+    result.modifiedFiles = '';
+    result.deletedFiles = '';
+    result.addedFiles = '';
+    result.renamedFiles = '';
+    result.copiedFiles = '';
+    result.typechangedFiles = '';
+    result.unmergedFiles = '';
+    
+    let status = '';
+    
+    if( o.detailing )
+    detailingHandle( got );
+    
+    for( var k in result )
+    { 
+      if( !o.detailing )
+      result[ k ] = got.exitCode === 1 ? _.maybe : false;
+      else if( !o.explaining )
+      result[ k ] = !!result[ k ];
+      else if( result[ k ] )
+      {
+        _.assert( _.strDefined( result[ k ] ) );
+        status += status ? '\n' + k : k;
+        status += ':\n  ' + _.strIndentation( result[ k ], '  ' );
+      }
+    }
+    
+    if( o.attachOriginalDiffOutput )
+    result.output = got.output;
+    
+    result.status = o.explaining ? status : got.exitCode === 1;
+    
+    
+    return result;
+  }
+  
+  /*  */
+  
+  function detailingHandle( got )
+  {
+    let statusToPropertyMap = 
+    {
+      'A' : 'addedFiles',
+      'C' : 'copiedFiles',
+      'C' : 'copiedFiles',
+      'D' : 'deletedFiles',
+      'M' : 'modifiedFiles',
+      'T' : 'typechangedFiles',
+      'U' : 'unmergedFiles',
+    }
+    let lines = _.strSplitNonPreserving({ src : got.output, delimeter : '\n', stripping : 1 });
+    for( var i = 0; i < lines.length; i++ )
+    {
+      lines[ i ] = _.strSplitNonPreserving({ src : lines[ i ], delimeter : /\s+/, stripping : 1 })
+      let type = lines[ i ][ 4 ];
+      let path = lines[ i ][ 5 ];
+      let pName = statusToPropertyMap[ type ];
+      if( !pName )
+      throw _.err( `Unexpected change type: ${_.strQuote( type )}, filePath: ${_.strQuote( path )}`, got.output );
+      if( o.explaining )
+      result[ pName ] += result[ pName ] ? '\n' + path : path;
+      else
+      result[ pName ] = true;
+    }
+  }
+}
+
+diff.defaults = 
+{
+  state1 : null,
+  state2 : null,
+  localPath : null,
+  detailing : 1,
+  explaining : 1,
+  attachOriginalDiffOutput : 0,
+  sync : 1
+}
+
+//
+
 function hookRegister( o )
 {
   let provider = _.fileProvider;
@@ -3193,6 +3345,8 @@ let Extend =
   prsGet,
   repositoryInit,
   repositoryDelete,
+  
+  diff,
 
   //
 
