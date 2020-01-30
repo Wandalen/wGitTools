@@ -824,7 +824,10 @@ function hasRemote( o )
   })
 
   if( o.sync )
-  return ready.deasync();
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
 
   return ready;
 }
@@ -883,7 +886,10 @@ function isHeadOn( o )
   ready.then( tagCheck )
 
   if( o.sync )
-  return ready.deasync();
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
 
   return ready;
 
@@ -1146,7 +1152,6 @@ function statusLocal_body( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -1580,7 +1585,7 @@ let statusLocal = _.routineFromPreAndBody( statusLocal_pre, statusLocal_body );
 /*
   additional check for branch
   git reflog --pretty=format:"%H, %D"
-  if branch is not listed in `git branch` but exists in ouput of reflog, then branch was deleted
+  if branch is not listed in `git branch` but exists in output of reflog, then branch was deleted
 */
 
 function statusRemote_pre( routine, args )
@@ -1594,11 +1599,12 @@ function statusRemote_pre( routine, args )
   _.assert( arguments.length === 2 );
   _.assert( args.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
+  _.assert( _.strDefined( o.version ) || o.version === _.all || o.version === null, 'Expects {-o.version-} to be: null/str/_.all, but got:', o.version );
 
   for( let k in o  )
-  if( o[ k ] === null )
+  if( o[ k ] === null && k !== 'version' )//qqq Vova: should we just use something else for version instead of null? 
   o[ k ] = true;
-
+  
   return o;
 }
 
@@ -1642,16 +1648,30 @@ function statusRemote_body( o )
 
   let remotes,tags,heads,output;
   let status = [];
-
-  start( 'git ls-remote' )
+  let version = o.version;
+  
+  if( o.version === null )
+  {
+    start( 'git rev-parse --abbrev-ref HEAD' )
+    ready.then( ( got ) => 
+    { 
+      version = _.strStrip( got.output );
+      if( version === 'HEAD' )
+      throw _.err( `Can't determine current branch: local repository is in detached state` );
+      return null; 
+    })
+  }
+  
+  start( 'git ls-remote' )//prints list of remote tags and branches
   ready.then( parse )
-  start( 'git show-ref --heads --tags -d' )
+  start( 'git show-ref --heads --tags -d' )//prints list of local tags and branches
   ready.then( ( got ) =>
   {
     output = got.output;
     return null;
   })
-
+  
+ 
   if( o.remoteBranches )
   ready.then( branchesCheck )
   if( o.remoteCommits )
@@ -1677,7 +1697,6 @@ function statusRemote_body( o )
   {
     if( o.sync )
     {
-      // return ready.deasync();
       ready.deasyncWait();
       return ready.sync();
     }
@@ -1692,9 +1711,17 @@ function statusRemote_body( o )
     remotes = _.strSplitNonPreserving({ src : arg.output, delimeter : '\n' });
     remotes = remotes.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
     remotes = remotes.slice( 1 );
-
-    heads = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/heads' ) );
-    tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) );
+    
+    //remote heads
+    heads = remotes.filter( ( r ) => 
+    { 
+      if( version === _.all )
+      return _.strBegins( r[ 1 ], 'refs/heads' )
+      return _.strBegins( r[ 1 ], `refs/heads/${version}` )
+    });
+    
+    //remote tags
+    tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) )
 
     return null;
   }
@@ -1702,12 +1729,12 @@ function statusRemote_body( o )
   function branchesCheck( got )
   {
     result.remoteBranches = '';
-
+    
     for( var h = 0; h < heads.length ; h++ )
     {
       let ref = heads[ h ][ 1 ];
 
-      if( !_.strHas( output, ref ) )
+      if( !_.strHas( output, ref ) )// looking for remote branch in list of local branches
       {
         if( result.remoteBranches )
         result.remoteBranches += '\n';
@@ -1723,9 +1750,9 @@ function statusRemote_body( o )
   /*  */
 
   function commitsCheck( got )
-  {
+  { 
     result.remoteCommits = '';
-
+    
     if( got && !o.detailing )
     {
       if( heads.length )
@@ -1785,7 +1812,7 @@ function statusRemote_body( o )
     {
       let tag = tags[ h ][ 1 ];
 
-      if( !_.strHas( output, tag ) )
+      if( !_.strHas( output, tag ) )// looking for remote tag in list of local tags
       {
         if( result.remoteTags )
         result.remoteTags += '\n';
@@ -1821,6 +1848,7 @@ function statusRemote_body( o )
 var defaults = statusRemote_body.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
+defaults.version = _.all;
 defaults.remoteCommits = null;
 defaults.remoteBranches = 0;
 defaults.remoteTags = null;
@@ -1919,7 +1947,6 @@ function status_body( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -1993,7 +2020,6 @@ function statusFull( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -2169,12 +2195,8 @@ function prsGet( o )
     return prs;
   });
 
-  // if( o.sync )
-  // return ready.deasync();
-
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -2280,13 +2302,9 @@ function repositoryInit( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
-
-  // if( o.sync )
-  // return ready.deasync();
 
   return ready;
 
@@ -2536,7 +2554,6 @@ function repositoryDelete( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
