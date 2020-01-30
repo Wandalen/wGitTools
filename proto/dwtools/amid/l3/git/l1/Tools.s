@@ -632,7 +632,7 @@ function isUpToDate( o )
 
   let srcCurrentPath;
   let parsed = _.git.pathParse( o.remotePath );
-  let ready = _.Consequence().take( null );
+  let ready = _.Consequence();
 
   let start = _.process.starter
   ({
@@ -652,31 +652,19 @@ function isUpToDate( o )
 
   if( !localProvider.fileExists( o.localPath ) )
   return false;
-
+  
   let gitConfigExists = localProvider.fileExists( path.join( o.localPath, '.git' ) );
 
   if( !gitConfigExists )
   return false;
-
-  if( gitConfigExists )
-  ready
-  // .give( () => GitConfig( localProvider.path.nativize( o.localPath ), ready.tolerantCallback() ) )
-  .then( () => _.git.configRead( o.localPath ) )
-  .ifNoErrorThen( function( arg )
+  
+  if( !isClonedFromRemote() )
   {
-
-    // debugger;
-
-    if( !arg[ 'remote "origin"' ] || !arg[ 'remote "origin"' ] || !_.strIs( arg[ 'remote "origin"' ].url ) )
-    return false;
-
-    srcCurrentPath = arg[ 'remote "origin"' ].url;
-
-    if( !_.strEnds( srcCurrentPath, parsed.remoteVcsPath ) )
-    return false;
-
-    return true;
-  });
+    ready.take( false );
+    return ready.split();
+  }
+  
+  ready.take( null );
 
   start( 'git fetch origin' );
 
@@ -734,6 +722,23 @@ function isUpToDate( o )
   });
 
   return ready.split();
+  
+  /* */
+  
+  function isClonedFromRemote()
+  {
+    let conf = _.git.configRead( o.localPath );
+    
+    if( !conf[ 'remote "origin"' ] || !conf[ 'remote "origin"' ] || !_.strIs( conf[ 'remote "origin"' ].url ) )
+    return false;
+
+    srcCurrentPath = conf[ 'remote "origin"' ].url;
+
+    if( !_.strEnds( srcCurrentPath, parsed.remoteVcsPath ) )
+    return false;
+
+    return true;
+  }
 }
 
 var defaults = isUpToDate.defaults = Object.create( null );
