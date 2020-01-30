@@ -8891,6 +8891,100 @@ function isUpToDateExtended( test )
       return got;
     })
   })
+  
+  //
+  
+  begin()
+  
+  //
+  
+  .then( () =>
+  {
+    test.case = 'local on master, remote is different';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools2.git/';
+    return shell( 'git -C wTools checkout master' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  .then( () =>
+  {
+    test.case = 'local on tag, remote is different';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools2.git/';
+    return shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  .then( () =>
+  {
+    test.case = 'local detached, remote is different';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools2.git/';
+    return shell( 'git -C wTools checkout 8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  //
+  
+  begin()
+  .then( () =>
+  {
+    test.case = 'local does not have gitconfig';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/';
+    return _.fileProvider.filesDelete({ filePath : _.path.join( localPath, '.git'), sync : 0 })
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  //
+  
+  begin()
+  .then( () =>
+  {
+    test.case = 'local does not have origin';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/';
+    return shell( 'git -C wTools remote remove origin' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  //
+  
+  .then( () =>
+  {
+    test.case = 'local does not exist';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/';
+    return _.fileProvider.filesDelete({ filePath : localPath, sync : 0 })
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  //
 
   return con;
 
@@ -8909,7 +9003,7 @@ function isUpToDateExtended( test )
   }
 }
 
-isUpToDateExtended.timeOut = 30000;
+isUpToDateExtended.timeOut = 60000;
 
 //
 
