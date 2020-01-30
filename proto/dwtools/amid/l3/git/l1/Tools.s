@@ -641,7 +641,7 @@ function isUpToDate( o )
     currentPath : o.localPath,
   });
 
-  let shellAll = _.process.starter
+  let shell = _.process.starter
   ({
     verbosity : o.verbosity - 1,
     ready : ready,
@@ -675,22 +675,22 @@ function isUpToDate( o )
     return null;
   });
 
-  shellAll
-  ([
-    // 'git diff origin/master --quiet --exit-code',
-    // 'git diff --quiet --exit-code',
-    // 'git branch -v',
-    'git status',
-  ]);
+  // shellAll
+  // ([
+  //   // 'git diff origin/master --quiet --exit-code',
+  //   // 'git diff --quiet --exit-code',
+  //   // 'git branch -v',
+  //   'git status',
+  // ]);
+  
+  shell( 'git status' )
 
   ready
-  .ifNoErrorThen( function( arg )
+  .then( function( got )
   {
-    _.assert( arg.length === 1 );
-
     let result = false;
     let detachedRegexp = /* /HEAD detached at (\w+)/ */ /HEAD detached at (.+)/;
-    let detachedParsed = detachedRegexp.exec( arg[ 0 ].output );
+    let detachedParsed = detachedRegexp.exec( got.output );
     // let versionLocal = _.git.versionLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
 
     // if( detachedParsed )
@@ -699,13 +699,18 @@ function isUpToDate( o )
     // }
     // else if( _.strBegins( parsed.hash, versionLocal ) )
     // {
-    //   result = !_.strHasAny( arg[ 0 ].output, [ 'Your branch is behind', 'have diverged' ] );
+    //   result = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
     // }
 
-    result = _.git.isHeadOn({ localPath : o.localPath, tag : parsed.tag, hash : parsed.hash });
+    result = _.git.isHeadOn
+    ({ 
+      localPath : o.localPath, 
+      tag : parsed.tag, 
+      hash : parsed.hash 
+    });
 
     if( result && !detachedParsed )
-    result = !_.strHasAny( arg[ 0 ].output, [ 'Your branch is behind', 'have diverged' ] );
+    result = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
 
     if( o.verbosity >= 1 )
     logger.log( o.remotePath, result ? 'is up to date' : 'is not up to date' );
