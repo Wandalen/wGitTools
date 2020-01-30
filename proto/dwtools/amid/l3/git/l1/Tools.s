@@ -67,6 +67,134 @@ function objectsParse( remotePath )
  * @memberof module:Tools/mid/GitTools.
  */
 
+
+// function pathParse( remotePath )
+// {
+//   let path = _.uri;
+//   let result = Object.create( null );
+
+//   if( _.mapIs( remotePath ) )
+//   return remotePath;
+
+//   _.assert( arguments.length === 1 );
+//   _.assert( _.strIs( remotePath ) );
+//   _.assert( path.isGlobal( remotePath ) )
+
+//   /* */
+
+//   // debugger;
+//   let parsed1 = path.parseConsecutive( remotePath );
+//   // parsed1.hash = parsed1.hash || 'master';
+//   _.mapExtend( result, parsed1 );
+
+//   if( !result.tag && !result.hash )
+//   result.tag = 'master';
+
+//   _.assert( !result.tag || !result.hash, 'Remote path:', _.strQuote( remotePath ), 'should contain only hash or tag, but not both.' )
+
+//   let p = pathIsolateGlobalAndLocal();
+//   result.localVcsPath = p[ 1 ];
+
+//   /* */
+
+//   let parsed2 = _.mapExtend( null, parsed1 );
+//   parsed2.hash = null;
+//   parsed2.tag = null;
+//   parsed2.protocols = parsed2.protocol ? parsed2.protocol.split( '+' ) : [];
+//   delete parsed2.protocol;
+
+//   // let isHardDrive = !_.longHasAny( parsed2.protocols, [ 'http', 'https', 'ssh' ] );
+//   let isHardDrive = _.longHasAny( parsed2.protocols, [ 'hd' ] );
+//   let isRelative = path.isRelative( parsed2.longPath );
+
+//   if( parsed2.protocols.length > 0 && parsed2.protocols[ 0 ].toLowerCase() === 'git' )
+//   {
+//     parsed2.protocols.splice( 0,1 );
+//   }
+
+//   if( parsed2.protocols.length > 0 && parsed2.protocols[ 0 ].toLowerCase() === 'hd' )
+//   {
+//     parsed2.protocols.splice( 0,1 );
+//   }
+
+//   parsed2.longPath = p[ 0 ];
+//   if( !isHardDrive )
+//   parsed2.longPath = _.strRemoveBegin( parsed2.longPath, '/' );
+//   parsed2.longPath = _.strRemoveEnd( parsed2.longPath, '/' );
+//   delete parsed2.query;
+
+//   result.remoteVcsPath = path.str( parsed2 );
+
+//   if( isHardDrive )
+//   result.remoteVcsPath = _.fileProvider.path.nativize( result.remoteVcsPath );
+
+//   /* */
+
+//   let parsed3 = _.mapExtend( null, parsed1 );
+//   parsed3.longPath = parsed2.longPath;
+
+//   parsed3.protocols = parsed2.protocols.slice();
+//   parsed3.protocol = null;
+//   parsed3.hash = null;
+//   parsed3.tag = null;
+//   delete parsed3.query;
+//   result.longerRemoteVcsPath = path.str( parsed3 );
+
+//   if( isHardDrive )
+//   result.longerRemoteVcsPath = _.fileProvider.path.nativize( result.longerRemoteVcsPath );
+
+//   result.isFixated = _.git.pathIsFixated( result );
+
+//   /* */
+
+//   // debugger;
+//   _.assert( !_.boolLike( result.hash ) );
+//   return result
+
+// /*
+
+//   remotePath : 'git+https:///github.com/Wandalen/wTools.git/out/wTools#master'
+//   protocol : 'git+https',
+//   hash : 'master',
+//   longPath : '/github.com/Wandalen/wTools.git/out/wTools',
+//   localVcsPath : 'out/wTools',
+//   remoteVcsPath : 'github.com/Wandalen/wTools.git',
+//   longerRemoteVcsPath : 'https://github.com/Wandalen/wTools.git'
+
+// */
+
+//   /* */
+
+//   function pathIsolateGlobalAndLocal()
+//   { 
+//     let splits = _.strIsolateLeftOrAll( parsed1.longPath, '.git/' );
+//     if( parsed1.query )
+//     {
+//       let query = _.strStructureParse({ src : parsed1.query, keyValDelimeter : '=', entryDelimeter : '&' });
+//       if( query.out )
+//       splits[ 2 ] = path.join( splits[ 2 ], query.out );
+//     }
+//     let globalPath = splits[ 0 ] + ( splits[ 1 ] || '' );
+//     let localPath = splits[ 2 ] === '' ? './' : splits[ 2 ];
+//     return [ globalPath, localPath ];
+//   }
+
+// /*
+//   function pathIsolateGlobalAndLocal( remotePath )
+//   {
+//     let parsed = path.parseConsecutive( remotePath );
+//     let splits = _.strIsolateLeftOrAll( parsed.longPath, '.git/' );
+//     parsed.longPath = splits[ 0 ] + ( splits[ 1 ] || '' );
+//     let globalPath = path.str( parsed );
+//     return [ globalPath, splits[ 2 ] ];
+//   }
+
+// */
+
+// }
+
+//
+
 function pathParse( remotePath )
 {
   let path = _.uri;
@@ -81,9 +209,7 @@ function pathParse( remotePath )
 
   /* */
 
-  // debugger;
   let parsed1 = path.parseConsecutive( remotePath );
-  // parsed1.hash = parsed1.hash || 'master';
   _.mapExtend( result, parsed1 );
 
   if( !result.tag && !result.hash )
@@ -91,105 +217,80 @@ function pathParse( remotePath )
 
   _.assert( !result.tag || !result.hash, 'Remote path:', _.strQuote( remotePath ), 'should contain only hash or tag, but not both.' )
 
-  let p = pathIsolateGlobalAndLocal();
-  result.localVcsPath = p[ 1 ];
+  let isolated = pathIsolateGlobalAndLocal();
+  result.localVcsPath = isolated.localPath;
 
-  /* */
-
-  let parsed2 = _.mapExtend( null, parsed1 );
-  parsed2.hash = null;
-  parsed2.tag = null;
-  parsed2.protocols = parsed2.protocol ? parsed2.protocol.split( '+' ) : [];
-  delete parsed2.protocol;
-
-  // let isHardDrive = !_.longHasAny( parsed2.protocols, [ 'http', 'https', 'ssh' ] );
-  let isHardDrive = _.longHasAny( parsed2.protocols, [ 'hd' ] );
-  let isRelative = path.isRelative( parsed2.longPath );
-
-  if( parsed2.protocols.length > 0 && parsed2.protocols[ 0 ].toLowerCase() === 'git' )
+  /* remoteVcsPath */
+  
+  let ignoreComponents =
+  { 
+    hash : null, 
+    tag : null, 
+    protocol : null, 
+    query : null, 
+    longPath : null 
+  }
+  let parsed2 = _.mapBut( parsed1, ignoreComponents );
+  let protocols = parsed2.protocols = parsed1.protocol ? parsed1.protocol.split( '+' ) : [];
+  let isHardDrive = false;
+  let provider = _.fileProvider;
+  
+  if( protocols.length )
   {
-    parsed2.protocols.splice( 0,1 );
+    isHardDrive = _.longHasAny( protocols, [ 'hd' ] );
+    if( protocols[ 0 ].toLowerCase() === 'git' )
+    protocols.shift();
+    if( protocols[ 0 ].toLowerCase() === 'hd' )
+    protocols.shift();
   }
 
-  if( parsed2.protocols.length > 0 && parsed2.protocols[ 0 ].toLowerCase() === 'hd' )
-  {
-    parsed2.protocols.splice( 0,1 );
-  }
-
-  parsed2.longPath = p[ 0 ];
+  parsed2.longPath = isolated.globalPath;
   if( !isHardDrive )
   parsed2.longPath = _.strRemoveBegin( parsed2.longPath, '/' );
   parsed2.longPath = _.strRemoveEnd( parsed2.longPath, '/' );
-  delete parsed2.query;
 
   result.remoteVcsPath = path.str( parsed2 );
-
+  
   if( isHardDrive )
-  result.remoteVcsPath = _.fileProvider.path.nativize( result.remoteVcsPath );
+  result.remoteVcsPath = provider.path.nativize( result.remoteVcsPath );
 
-  /* */
+  /* longerRemoteVcsPath */
 
-  let parsed3 = _.mapExtend( null, parsed1 );
+  let parsed3 = _.mapBut( parsed1, ignoreComponents );
   parsed3.longPath = parsed2.longPath;
-
   parsed3.protocols = parsed2.protocols.slice();
-  parsed3.protocol = null;
-  parsed3.hash = null;
-  parsed3.tag = null;
-  delete parsed3.query;
   result.longerRemoteVcsPath = path.str( parsed3 );
 
   if( isHardDrive )
-  result.longerRemoteVcsPath = _.fileProvider.path.nativize( result.longerRemoteVcsPath );
-
-  result.isFixated = _.git.pathIsFixated( result );
+  result.longerRemoteVcsPath = provider.path.nativize( result.longerRemoteVcsPath );
 
   /* */
+  
+  result.isFixated = _.git.pathIsFixated( result );
 
-  // debugger;
   _.assert( !_.boolLike( result.hash ) );
   return result
-
-/*
-
-  remotePath : 'git+https:///github.com/Wandalen/wTools.git/out/wTools#master'
-  protocol : 'git+https',
-  hash : 'master',
-  longPath : '/github.com/Wandalen/wTools.git/out/wTools',
-  localVcsPath : 'out/wTools',
-  remoteVcsPath : 'github.com/Wandalen/wTools.git',
-  longerRemoteVcsPath : 'https://github.com/Wandalen/wTools.git'
-
-*/
 
   /* */
 
   function pathIsolateGlobalAndLocal()
-  {
+  { 
     let splits = _.strIsolateLeftOrAll( parsed1.longPath, '.git/' );
     if( parsed1.query )
     {
-      let query = _.strStructureParse({ src : parsed1.query, keyValDelimeter : '=', entryDelimeter : '&' });
+      let query = _.strStructureParse
+      ({ 
+        src : parsed1.query, 
+        keyValDelimeter : '=',
+        entryDelimeter : '&'
+      });
       if( query.out )
       splits[ 2 ] = path.join( splits[ 2 ], query.out );
     }
     let globalPath = splits[ 0 ] + ( splits[ 1 ] || '' );
-    let localPath = splits[ 2 ] === '' ? './' : splits[ 2 ];
-    return [ globalPath, localPath ];
+    let localPath = splits[ 2 ] || './';
+    return { globalPath, localPath };
   }
-
-/*
-  function pathIsolateGlobalAndLocal( remotePath )
-  {
-    let parsed = path.parseConsecutive( remotePath );
-    let splits = _.strIsolateLeftOrAll( parsed.longPath, '.git/' );
-    parsed.longPath = splits[ 0 ] + ( splits[ 1 ] || '' );
-    let globalPath = path.str( parsed );
-    return [ globalPath, splits[ 2 ] ];
-  }
-
-*/
-
 }
 
 //
