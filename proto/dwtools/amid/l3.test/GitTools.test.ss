@@ -11821,6 +11821,507 @@ function statusEveryCheck( test )
 
 statusEveryCheck.timeOut = 30000;
 
+function diff( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'wPathBasic' );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
+  
+  let ready = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    ready
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  begin()
+  .then( () => 
+  { 
+    test.case = 'compare two identical states of repo'
+    var got = _.git.diff
+    ({
+      state1 : 'version::HEAD',
+      state2 : `version::${latestCommit}`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : '',
+      modifiedFiles : '',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::HEAD',
+      state2 : `version::${latestCommit}`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : false,
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::HEAD',
+      state2 : `version::${latestCommit}`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : '',
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::HEAD',
+      state2 : `version::${latestCommit}`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : false,
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  
+  
+  begin()
+  .then( () => 
+  { 
+    var status = 
+`modifiedFiles:
+  .im.will.yml
+  out/wPathBasic.out.will.yml
+  package.json
+  was.package.json
+deletedFiles:
+  proto/dwtools/abase/l3.test/PathBasic.test.s
+addedFiles:
+  proto/dwtools/abase/l2.test/Path.test.s
+renamedFiles:
+  proto/dwtools/abase/l3.test/PathBasic.test.html
+  proto/dwtools/abase/l3/PathBasic.s
+  proto/dwtools/abase/l4.test/Paths.test.s
+  proto/dwtools/abase/l4/PathsBasic.s`
+  
+  var statusOriginal =
+` .im.will.yml                                       |   10 +-
+ out/wPathBasic.out.will.yml                        |   38 +-
+ package.json                                       |   10 +-
+ .../PathBasic.test.html => l2.test/Path.test.html} |    0
+ proto/dwtools/abase/l2.test/Path.test.s (new)      | 8570 ++++++++++++++++++
+ proto/dwtools/abase/{l3 => l2}/PathBasic.s         | 1999 ++---
+ .../dwtools/abase/l3.test/PathBasic.test.s (gone)  | 9062 --------------------
+ .../abase/{l4.test => l3.test}/Paths.test.s        | 1446 ++--
+ proto/dwtools/abase/{l4 => l3}/PathsBasic.s        |  263 +-
+ was.package.json                                   |    6 +-
+ 10 files changed, 10676 insertions(+), 10728 deletions(-)
+`
+      
+    test.case = 'compare two commits'
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      modifiedFiles : '.im.will.yml\nout/wPathBasic.out.will.yml\npackage.json\nwas.package.json',
+      deletedFiles : 'proto/dwtools/abase/l3.test/PathBasic.test.s',
+      addedFiles : 'proto/dwtools/abase/l2.test/Path.test.s',
+      renamedFiles : 'proto/dwtools/abase/l3.test/PathBasic.test.html\nproto/dwtools/abase/l3/PathBasic.s\nproto/dwtools/abase/l4.test/Paths.test.s\nproto/dwtools/abase/l4/PathsBasic.s',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+      status
+
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : true,
+      addedFiles : true,
+      renamedFiles : true,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : statusOriginal,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+ 
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  
+  
+  begin()
+  .then( () => 
+  { 
+    var status = 
+`modifiedFiles:
+  .ex.will.yml
+  .gitattributes
+  .im.will.yml
+  .travis.yml
+  LICENSE
+  README.md
+  out/wPathBasic.out.will.yml
+  package.json
+  proto/dwtools/abase/l3.test/PathBasic.test.s
+  proto/dwtools/abase/l3/PathBasic.s
+  proto/dwtools/abase/l4.test/Paths.test.s
+deletedFiles:
+  was.package.json
+addedFiles:
+  out/debug/dwtools/Tools.s
+  out/debug/dwtools/abase/l3.test/PathBasic.test.html
+  out/debug/dwtools/abase/l3.test/PathBasic.test.s
+  out/debug/dwtools/abase/l3/PathBasic.s
+  out/debug/dwtools/abase/l4.test/Paths.test.s
+  out/debug/dwtools/abase/l4/PathsBasic.s
+  out/wPathFundamentals.out.will.yml
+  package-old.json`
+  
+  var statusOriginal =
+` .ex.will.yml                                       |   98 +-
+ .gitattributes                                     |    1 +
+ .im.will.yml                                       |  242 +-
+ .travis.yml                                        |    2 +-
+ LICENSE                                            |    3 +-
+ README.md                                          |    8 -
+ out/debug/dwtools/Tools.s (new)                    |   24 +
+ .../abase/l3.test/PathBasic.test.html (new)        |   45 +
+ .../dwtools/abase/l3.test/PathBasic.test.s (new)   | 8438 ++++++++++++++++++++
+ out/debug/dwtools/abase/l3/PathBasic.s (new)       | 2855 +++++++
+ out/debug/dwtools/abase/l4.test/Paths.test.s (new) | 1400 ++++
+ out/debug/dwtools/abase/l4/PathsBasic.s (new)      |  482 ++
+ out/wPathBasic.out.will.yml                        | 1856 ++---
+ out/wPathFundamentals.out.will.yml (new)           |  598 ++
+ package-old.json (new)                             |   54 +
+ package.json                                       |   83 +-
+ proto/dwtools/abase/l3.test/PathBasic.test.s       | 1324 +--
+ proto/dwtools/abase/l3/PathBasic.s                 |  689 +-
+ proto/dwtools/abase/l4.test/Paths.test.s           |   70 +-
+ was.package.json (gone)                            |   30 -
+ 20 files changed, 15281 insertions(+), 3021 deletions(-)
+`
+    test.case = 'compare commit and tag'
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `tag::v0.7.4`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      modifiedFiles : '.ex.will.yml\n.gitattributes\n.im.will.yml\n.travis.yml\nLICENSE\nREADME.md\nout/wPathBasic.out.will.yml\npackage.json\nproto/dwtools/abase/l3.test/PathBasic.test.s\nproto/dwtools/abase/l3/PathBasic.s\nproto/dwtools/abase/l4.test/Paths.test.s',
+      deletedFiles : 'was.package.json',
+      addedFiles : 'out/debug/dwtools/Tools.s\nout/debug/dwtools/abase/l3.test/PathBasic.test.html\nout/debug/dwtools/abase/l3.test/PathBasic.test.s\nout/debug/dwtools/abase/l3/PathBasic.s\nout/debug/dwtools/abase/l4.test/Paths.test.s\nout/debug/dwtools/abase/l4/PathsBasic.s\nout/wPathFundamentals.out.will.yml\npackage-old.json',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+      status
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `tag::v0.7.4`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : true,
+      addedFiles : true,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `tag::v0.7.4`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : statusOriginal,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+ 
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `tag::v0.7.4`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+
+  begin()
+  .then( () => 
+  { 
+    test.case = 'compare two identical commits'
+    var got = _.git.diff
+    ({
+      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : '',
+      modifiedFiles : '',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : false,
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : '',
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : false,
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  /* */
+  
+  return ready;
+  
+  /*  */
+  
+  function begin()
+  { 
+    ready.then( () => _.fileProvider.filesDelete( localPath ))
+    shell( `git clone ${remotePath}` )
+    return ready;
+  }
+}
+
+diff.timeOut = 60000;
+
 //
 
 function gitHooksManager( test )
@@ -13081,6 +13582,8 @@ var Proto =
 
     statusFull,
     statusEveryCheck,
+    
+    diff,
 
     gitHooksManager,
     gitHooksManagerErrors,

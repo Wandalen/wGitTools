@@ -2759,14 +2759,16 @@ function diff( o )
     ready
   });
   
+  let diffMode = o.detailing ? '--raw' : '--compact-summary';
+  
   if( state1 === 'working' )
-  start( `git diff --raw --exit-code ${state2}` )
+  start( `git diff ${diffMode} --exit-code ${state2}` )
   else if( state1 === 'staging' )
-  start( `git diff --staged --raw --exit-code ${state2}` )
+  start( `git diff --staged ${diffMode} --exit-code ${state2}` )
   else if( state1 === 'committed' )
-  start( `git diff --raw --exit-code HEAD ${state2}` )
+  start( `git diff ${diffMode} --exit-code HEAD ${state2}` )
   else
-  start( `git diff --raw --exit-code ${state1} ${state2}` )
+  start( `git diff ${diffMode} --exit-code ${state1} ${state2}` )
   
   ready.then( handleOutput );
   
@@ -2808,7 +2810,7 @@ function diff( o )
     result.copiedFiles = '';
     result.typechangedFiles = '';
     result.unmergedFiles = '';
-    
+
     let status = '';
     
     if( o.detailing )
@@ -2831,6 +2833,9 @@ function diff( o )
     if( o.attachOriginalDiffOutput )
     result.output = got.output;
     
+    if( o.explaining && !o.detailing )
+    status = got.output;
+    
     result.status = o.explaining ? status : got.exitCode === 1;
     
     
@@ -2848,6 +2853,7 @@ function diff( o )
       'C' : 'copiedFiles',
       'D' : 'deletedFiles',
       'M' : 'modifiedFiles',
+      'R' : 'renamedFiles',
       'T' : 'typechangedFiles',
       'U' : 'unmergedFiles',
     }
@@ -2855,7 +2861,7 @@ function diff( o )
     for( var i = 0; i < lines.length; i++ )
     {
       lines[ i ] = _.strSplitNonPreserving({ src : lines[ i ], delimeter : /\s+/, stripping : 1 })
-      let type = lines[ i ][ 4 ];
+      let type = lines[ i ][ 4 ].charAt( 0 );
       let path = lines[ i ][ 5 ];
       let pName = statusToPropertyMap[ type ];
       if( !pName )
