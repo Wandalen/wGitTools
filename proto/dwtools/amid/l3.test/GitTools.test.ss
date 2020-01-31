@@ -12342,7 +12342,7 @@ function diffSpecial( test )
   provider.dirMake( testPath )
 
   /*  */
-
+  
   begin()
   .then( () => 
   { 
@@ -12430,6 +12430,230 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `version::HEAD`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  /* */
+  
+  begin()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m init' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  .then( () => 
+  { 
+    test.case = 'staging..HEAD, untracked file should be ignored'
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  /* */
+  
+  begin()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m init' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'datadata' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m change' )
+  .then( () => 
+  { 
+    test.case = 'committed..HEAD^'
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::HEAD^`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::HEAD^`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::HEAD^`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::HEAD^`,
       localPath,
       detailing : 0,
       explaining :0,
