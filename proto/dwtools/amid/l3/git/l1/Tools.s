@@ -67,6 +67,134 @@ function objectsParse( remotePath )
  * @memberof module:Tools/mid/GitTools.
  */
 
+
+// function pathParse( remotePath )
+// {
+//   let path = _.uri;
+//   let result = Object.create( null );
+
+//   if( _.mapIs( remotePath ) )
+//   return remotePath;
+
+//   _.assert( arguments.length === 1 );
+//   _.assert( _.strIs( remotePath ) );
+//   _.assert( path.isGlobal( remotePath ) )
+
+//   /* */
+
+//   // debugger;
+//   let parsed1 = path.parseConsecutive( remotePath );
+//   // parsed1.hash = parsed1.hash || 'master';
+//   _.mapExtend( result, parsed1 );
+
+//   if( !result.tag && !result.hash )
+//   result.tag = 'master';
+
+//   _.assert( !result.tag || !result.hash, 'Remote path:', _.strQuote( remotePath ), 'should contain only hash or tag, but not both.' )
+
+//   let p = pathIsolateGlobalAndLocal();
+//   result.localVcsPath = p[ 1 ];
+
+//   /* */
+
+//   let parsed2 = _.mapExtend( null, parsed1 );
+//   parsed2.hash = null;
+//   parsed2.tag = null;
+//   parsed2.protocols = parsed2.protocol ? parsed2.protocol.split( '+' ) : [];
+//   delete parsed2.protocol;
+
+//   // let isHardDrive = !_.longHasAny( parsed2.protocols, [ 'http', 'https', 'ssh' ] );
+//   let isHardDrive = _.longHasAny( parsed2.protocols, [ 'hd' ] );
+//   let isRelative = path.isRelative( parsed2.longPath );
+
+//   if( parsed2.protocols.length > 0 && parsed2.protocols[ 0 ].toLowerCase() === 'git' )
+//   {
+//     parsed2.protocols.splice( 0,1 );
+//   }
+
+//   if( parsed2.protocols.length > 0 && parsed2.protocols[ 0 ].toLowerCase() === 'hd' )
+//   {
+//     parsed2.protocols.splice( 0,1 );
+//   }
+
+//   parsed2.longPath = p[ 0 ];
+//   if( !isHardDrive )
+//   parsed2.longPath = _.strRemoveBegin( parsed2.longPath, '/' );
+//   parsed2.longPath = _.strRemoveEnd( parsed2.longPath, '/' );
+//   delete parsed2.query;
+
+//   result.remoteVcsPath = path.str( parsed2 );
+
+//   if( isHardDrive )
+//   result.remoteVcsPath = _.fileProvider.path.nativize( result.remoteVcsPath );
+
+//   /* */
+
+//   let parsed3 = _.mapExtend( null, parsed1 );
+//   parsed3.longPath = parsed2.longPath;
+
+//   parsed3.protocols = parsed2.protocols.slice();
+//   parsed3.protocol = null;
+//   parsed3.hash = null;
+//   parsed3.tag = null;
+//   delete parsed3.query;
+//   result.longerRemoteVcsPath = path.str( parsed3 );
+
+//   if( isHardDrive )
+//   result.longerRemoteVcsPath = _.fileProvider.path.nativize( result.longerRemoteVcsPath );
+
+//   result.isFixated = _.git.pathIsFixated( result );
+
+//   /* */
+
+//   // debugger;
+//   _.assert( !_.boolLike( result.hash ) );
+//   return result
+
+// /*
+
+//   remotePath : 'git+https:///github.com/Wandalen/wTools.git/out/wTools#master'
+//   protocol : 'git+https',
+//   hash : 'master',
+//   longPath : '/github.com/Wandalen/wTools.git/out/wTools',
+//   localVcsPath : 'out/wTools',
+//   remoteVcsPath : 'github.com/Wandalen/wTools.git',
+//   longerRemoteVcsPath : 'https://github.com/Wandalen/wTools.git'
+
+// */
+
+//   /* */
+
+//   function pathIsolateGlobalAndLocal()
+//   { 
+//     let splits = _.strIsolateLeftOrAll( parsed1.longPath, '.git/' );
+//     if( parsed1.query )
+//     {
+//       let query = _.strStructureParse({ src : parsed1.query, keyValDelimeter : '=', entryDelimeter : '&' });
+//       if( query.out )
+//       splits[ 2 ] = path.join( splits[ 2 ], query.out );
+//     }
+//     let globalPath = splits[ 0 ] + ( splits[ 1 ] || '' );
+//     let localPath = splits[ 2 ] === '' ? './' : splits[ 2 ];
+//     return [ globalPath, localPath ];
+//   }
+
+// /*
+//   function pathIsolateGlobalAndLocal( remotePath )
+//   {
+//     let parsed = path.parseConsecutive( remotePath );
+//     let splits = _.strIsolateLeftOrAll( parsed.longPath, '.git/' );
+//     parsed.longPath = splits[ 0 ] + ( splits[ 1 ] || '' );
+//     let globalPath = path.str( parsed );
+//     return [ globalPath, splits[ 2 ] ];
+//   }
+
+// */
+
+// }
+
+//
+
 function pathParse( remotePath )
 {
   let path = _.uri;
@@ -81,108 +209,88 @@ function pathParse( remotePath )
 
   /* */
 
-  // debugger;
   let parsed1 = path.parseConsecutive( remotePath );
-  parsed1.hash = parsed1.hash || 'master';
   _.mapExtend( result, parsed1 );
 
-  let p = pathIsolateGlobalAndLocal();
-  result.localVcsPath = p[ 1 ];
+  if( !result.tag && !result.hash )
+  result.tag = 'master';
 
-  /* */
+  _.assert( !result.tag || !result.hash, 'Remote path:', _.strQuote( remotePath ), 'should contain only hash or tag, but not both.' )
 
-  let parsed2 = _.mapExtend( null, parsed1 );
-  parsed2.hash = null;
-  parsed2.protocols = parsed2.protocol ? parsed2.protocol.split( '+' ) : [];
-  delete parsed2.protocol;
+  let isolated = pathIsolateGlobalAndLocal();
+  result.localVcsPath = isolated.localPath;
 
-  // let isHardDrive = !_.longHasAny( parsed2.protocols, [ 'http', 'https', 'ssh' ] );
-  let isHardDrive = _.longHasAny( parsed2.protocols, [ 'hd' ] );
-  let isRelative = path.isRelative( parsed2.longPath );
-
-  if( parsed2.protocols.length > 0 && parsed2.protocols[ 0 ].toLowerCase() === 'git' )
+  /* remoteVcsPath */
+  
+  let ignoreComponents =
+  { 
+    hash : null, 
+    tag : null, 
+    protocol : null, 
+    query : null, 
+    longPath : null 
+  }
+  let parsed2 = _.mapBut( parsed1, ignoreComponents );
+  let protocols = parsed2.protocols = parsed1.protocol ? parsed1.protocol.split( '+' ) : [];
+  let isHardDrive = false;
+  let provider = _.fileProvider;
+  
+  if( protocols.length )
   {
-    parsed2.protocols.splice( 0,1 );
+    isHardDrive = _.longHasAny( protocols, [ 'hd' ] );
+    if( protocols[ 0 ].toLowerCase() === 'git' )
+    protocols.shift();
+    if( protocols[ 0 ].toLowerCase() === 'hd' )
+    protocols.shift();
   }
 
-  if( parsed2.protocols.length > 0 && parsed2.protocols[ 0 ].toLowerCase() === 'hd' )
-  {
-    parsed2.protocols.splice( 0,1 );
-  }
-
-  parsed2.longPath = p[ 0 ];
+  parsed2.longPath = isolated.globalPath;
   if( !isHardDrive )
   parsed2.longPath = _.strRemoveBegin( parsed2.longPath, '/' );
   parsed2.longPath = _.strRemoveEnd( parsed2.longPath, '/' );
-  delete parsed2.query;
 
   result.remoteVcsPath = path.str( parsed2 );
-
+  
   if( isHardDrive )
-  result.remoteVcsPath = _.fileProvider.path.nativize( result.remoteVcsPath );
+  result.remoteVcsPath = provider.path.nativize( result.remoteVcsPath );
 
-  /* */
+  /* longerRemoteVcsPath */
 
-  let parsed3 = _.mapExtend( null, parsed1 );
+  let parsed3 = _.mapBut( parsed1, ignoreComponents );
   parsed3.longPath = parsed2.longPath;
-
   parsed3.protocols = parsed2.protocols.slice();
-  parsed3.protocol = null;
-  parsed3.hash = null;
-  delete parsed3.query;
   result.longerRemoteVcsPath = path.str( parsed3 );
 
   if( isHardDrive )
-  result.longerRemoteVcsPath = _.fileProvider.path.nativize( result.longerRemoteVcsPath );
-
-  result.isFixated = _.git.pathIsFixated( result );
+  result.longerRemoteVcsPath = provider.path.nativize( result.longerRemoteVcsPath );
 
   /* */
+  
+  result.isFixated = _.git.pathIsFixated( result );
 
-  // debugger;
   _.assert( !_.boolLike( result.hash ) );
   return result
-
-/*
-
-  remotePath : 'git+https:///github.com/Wandalen/wTools.git/out/wTools#master'
-  protocol : 'git+https',
-  hash : 'master',
-  longPath : '/github.com/Wandalen/wTools.git/out/wTools',
-  localVcsPath : 'out/wTools',
-  remoteVcsPath : 'github.com/Wandalen/wTools.git',
-  longerRemoteVcsPath : 'https://github.com/Wandalen/wTools.git'
-
-*/
 
   /* */
 
   function pathIsolateGlobalAndLocal()
-  {
+  { 
     let splits = _.strIsolateLeftOrAll( parsed1.longPath, '.git/' );
     if( parsed1.query )
     {
-      let query = _.strStructureParse({ src : parsed1.query, keyValDelimeter : '=', entryDelimeter : '&' });
+      let query = _.strStructureParse
+      ({ 
+        src : parsed1.query, 
+        keyValDelimeter : '=',
+        entryDelimeter : '&'
+      });
       if( query.out )
       splits[ 2 ] = path.join( splits[ 2 ], query.out );
     }
     let globalPath = splits[ 0 ] + ( splits[ 1 ] || '' );
-    let localPath = splits[ 2 ] === '' ? './' : splits[ 2 ];
-    return [ globalPath, localPath ];
+    let localPath = splits[ 2 ] || './';
+    return { globalPath, localPath };
   }
-
-/*
-  function pathIsolateGlobalAndLocal( remotePath )
-  {
-    let parsed = path.parseConsecutive( remotePath );
-    let splits = _.strIsolateLeftOrAll( parsed.longPath, '.git/' );
-    parsed.longPath = splits[ 0 ] + ( splits[ 1 ] || '' );
-    let globalPath = path.str( parsed );
-    return [ globalPath, splits[ 2 ] ];
-  }
-
-*/
-
 }
 
 //
@@ -524,7 +632,7 @@ function isUpToDate( o )
 
   let srcCurrentPath;
   let parsed = _.git.pathParse( o.remotePath );
-  let ready = _.Consequence().take( null );
+  let ready = _.Consequence();
 
   let start = _.process.starter
   ({
@@ -533,7 +641,7 @@ function isUpToDate( o )
     currentPath : o.localPath,
   });
 
-  let shellAll = _.process.starter
+  let shell = _.process.starter
   ({
     verbosity : o.verbosity - 1,
     ready : ready,
@@ -544,31 +652,19 @@ function isUpToDate( o )
 
   if( !localProvider.fileExists( o.localPath ) )
   return false;
-
+  
   let gitConfigExists = localProvider.fileExists( path.join( o.localPath, '.git' ) );
 
   if( !gitConfigExists )
   return false;
-
-  if( gitConfigExists )
-  ready
-  // .give( () => GitConfig( localProvider.path.nativize( o.localPath ), ready.tolerantCallback() ) )
-  .then( () => _.git.configRead( o.localPath ) )
-  .ifNoErrorThen( function( arg )
+  
+  if( !isClonedFromRemote() )
   {
-
-    // debugger;
-
-    if( !arg[ 'remote "origin"' ] || !arg[ 'remote "origin"' ] || !_.strIs( arg[ 'remote "origin"' ].url ) )
-    return false;
-
-    srcCurrentPath = arg[ 'remote "origin"' ].url;
-
-    if( !_.strEnds( srcCurrentPath, parsed.remoteVcsPath ) )
-    return false;
-
-    return true;
-  });
+    ready.take( false );
+    return ready.split();
+  }
+  
+  ready.take( null );
 
   start( 'git fetch origin' );
 
@@ -579,32 +675,42 @@ function isUpToDate( o )
     return null;
   });
 
-  shellAll
-  ([
-    // 'git diff origin/master --quiet --exit-code',
-    // 'git diff --quiet --exit-code',
-    // 'git branch -v',
-    'git status',
-  ]);
+  // shellAll
+  // ([
+  //   // 'git diff origin/master --quiet --exit-code',
+  //   // 'git diff --quiet --exit-code',
+  //   // 'git branch -v',
+  //   'git status',
+  // ]);
+  
+  shell( 'git status' )
 
   ready
-  .ifNoErrorThen( function( arg )
+  .then( function( got )
   {
-    _.assert( arg.length === 1 );
-
     let result = false;
-    let detachedRegexp = /HEAD detached at (\w+)/;
-    let detachedParsed = detachedRegexp.exec( arg[ 0 ].output );
-    let versionLocal = _.git.versionLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
+    let detachedRegexp = /* /HEAD detached at (\w+)/ */ /HEAD detached at (.+)/;
+    let detachedParsed = detachedRegexp.exec( got.output );
+    // let versionLocal = _.git.versionLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
 
-    if( detachedParsed )
-    {
-      result = _.strBegins( parsed.hash, detachedParsed[ 1 ] );
-    }
-    else if( _.strBegins( parsed.hash, versionLocal ) )
-    {
-      result = !_.strHasAny( arg[ 0 ].output, [ 'Your branch is behind', 'have diverged' ] );
-    }
+    // if( detachedParsed )
+    // {
+    //   result = _.strBegins( parsed.hash, detachedParsed[ 1 ] );
+    // }
+    // else if( _.strBegins( parsed.hash, versionLocal ) )
+    // {
+    //   result = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
+    // }
+
+    result = _.git.isHeadOn
+    ({ 
+      localPath : o.localPath, 
+      tag : parsed.tag, 
+      hash : parsed.hash 
+    });
+
+    if( result && !detachedParsed )
+    result = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
 
     if( o.verbosity >= 1 )
     logger.log( o.remotePath, result ? 'is up to date' : 'is not up to date' );
@@ -621,6 +727,23 @@ function isUpToDate( o )
   });
 
   return ready.split();
+  
+  /* */
+  
+  function isClonedFromRemote()
+  {
+    let conf = _.git.configRead( o.localPath );
+    
+    if( !conf[ 'remote "origin"' ] || !conf[ 'remote "origin"' ] || !_.strIs( conf[ 'remote "origin"' ].url ) )
+    return false;
+
+    srcCurrentPath = conf[ 'remote "origin"' ].url;
+
+    if( !_.strEnds( srcCurrentPath, parsed.remoteVcsPath ) )
+    return false;
+
+    return true;
+  }
 }
 
 var defaults = isUpToDate.defaults = Object.create( null );
@@ -775,42 +898,188 @@ function hasRemote( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.remotePath ) );
 
-  let result = Object.create( null );
-  result.downloaded = true;
-  result.remoteIsValid = false;
+  let ready = new _.Consequence().take( null );
 
-  if( !localProvider.fileExists( o.localPath ) )
+  ready.then( () =>
   {
-    result.downloaded = false;
+    let result = Object.create( null );
+    result.downloaded = true;
+    result.remoteIsValid = false;
+
+    if( !localProvider.fileExists( o.localPath ) )
+    {
+      result.downloaded = false;
+      return result;
+    }
+
+    let gitConfigExists = localProvider.fileExists( path.join( o.localPath, '.git/config' ) );
+
+    if( !gitConfigExists )
+    {
+      result.downloaded = false;
+      return result;
+    }
+
+    let config = _.git.configRead( o.localPath );
+    let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
+    let originVcsPath = config[ 'remote "origin"' ].url;
+
+    _.sure( _.strDefined( remoteVcsPath ) );
+    _.sure( _.strDefined( originVcsPath ) );
+
+    result.remoteVcsPath = remoteVcsPath;
+    result.originVcsPath = originVcsPath;
+    result.remoteIsValid = originVcsPath === remoteVcsPath;
+
     return result;
+  })
+
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
   }
 
-  let gitConfigExists = localProvider.fileExists( path.join( o.localPath, '.git/config' ) );
-
-  if( !gitConfigExists )
-  {
-    result.downloaded = false;
-    return result;
-  }
-
-  let config = _.git.configRead( o.localPath );
-  let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
-  let originVcsPath = config[ 'remote "origin"' ].url;
-
-  _.sure( _.strDefined( remoteVcsPath ) );
-  _.sure( _.strDefined( originVcsPath ) );
-
-  result.remoteVcsPath = remoteVcsPath;
-  result.originVcsPath = originVcsPath;
-  result.remoteIsValid = originVcsPath === remoteVcsPath;
-
-  return result;
+  return ready;
 }
 
 var defaults = hasRemote.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
+defaults.sync = 1;
 defaults.verbosity = 0;
+
+//
+
+/**
+ * @summary Returns true if HEAD of repository located at `o.localPath` points to `o.hash` or `o.tag`.
+ * Expects only `o.hash` or `o.tag` at same time.
+ * @param {Object} o Options map.
+ * @param {String} o.localPath Local path to package.
+ * @param {String} o.tag Target tag or branch name.
+ * @param {String} o.hash Target commit hash.
+ * @function isHeadOn
+ * @memberof module:Tools/mid/GitTools.
+ */
+
+function isHeadOn( o )
+{
+  let localProvider = _.fileProvider;
+  let path = localProvider.path;
+
+  _.routineOptions( isHeadOn, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ) );
+  _.assert( o.tag || o.hash, 'Expects {-o.hash-} or {-o.tag-} to be defined.' )
+  _.assert( !o.tag || !o.hash, 'Expects only {-o.hash-} or {-o.tag-}, but not both at same time.' )
+
+  let ready = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    outputPiping : 0,
+    sync : 0,
+    deasync : 0,
+    inputMirroring : 0,
+    outputCollecting : 1
+  })
+
+  let head = null;
+  let tag = null;
+
+  ready.then( () => this.isRepository({ localPath : o.localPath }) )
+
+  if( o.hash )
+  ready.then( hashCheck )
+  else if( o.tag )
+  ready.then( tagCheck )
+
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /*  */
+
+  function hashCheck( got )
+  {
+    if( !got )
+    return false;
+
+    return getHead()
+    .then( ( head ) =>
+    {
+      if( !head )
+      return false;
+      return head === o.hash;
+    })
+  }
+
+  function tagCheck( got )
+  {
+    if( !got )
+    return false;
+
+    return getHead()
+    .then( ( head ) =>
+    {
+      if( !head )
+      return false;
+      return getTag();
+    })
+    .then( ( tag ) =>
+    {
+      if( !tag )
+      return false;
+      return head === tag;
+    })
+  }
+
+  function getHead()
+  {
+    return shell({ execPath : 'git rev-parse HEAD', ready : null })
+    .then( ( got ) =>
+    {
+      if( got.exitCode )
+      return false;
+      head = _.strStrip( got.output );
+      return head;
+    })
+  }
+
+  function getTag()
+  {
+    return shell({ execPath : `git show-ref ${o.tag} -d --heads --tags`, ready : null })
+    .then( ( got ) =>
+    {
+      if( got.exitCode )
+      return false;
+      let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+      if( !output.length )
+      return false;
+      _.assert( output.length <= 2 );
+      tag = output[ 0 ];
+      if( output.length === 2 )
+      {
+        tag = output[ 1 ];
+        _.assert( _.strHas( tag, '^{}' ), 'Expects annotated tag, got:', tag );
+      }
+      tag = _.strIsolateLeftOrAll( tag, ' ' )[ 0 ];
+      return tag;
+    })
+  }
+}
+
+var defaults = isHeadOn.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.hash = null;
+defaults.tag = null;
+defaults.sync = 1;
 
 //
 
@@ -994,7 +1263,6 @@ function statusLocal_body( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -1336,6 +1604,8 @@ function statusLocal_body( o )
 
         _.assert( _.strIs( record.upstream ) );
 
+        if( /\(HEAD detached at .+\)/.test( record.branch ) )
+        continue;
         if( record.upstream.length )
         continue;
 
@@ -1426,7 +1696,7 @@ let statusLocal = _.routineFromPreAndBody( statusLocal_pre, statusLocal_body );
 /*
   additional check for branch
   git reflog --pretty=format:"%H, %D"
-  if branch is not listed in `git branch` but exists in ouput of reflog, then branch was deleted
+  if branch is not listed in `git branch` but exists in output of reflog, then branch was deleted
 */
 
 function statusRemote_pre( routine, args )
@@ -1440,11 +1710,12 @@ function statusRemote_pre( routine, args )
   _.assert( arguments.length === 2 );
   _.assert( args.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
+  _.assert( _.strDefined( o.version ) || o.version === _.all || o.version === null, 'Expects {-o.version-} to be: null/str/_.all, but got:', o.version );
 
   for( let k in o  )
-  if( o[ k ] === null )
+  if( o[ k ] === null && k !== 'version' )//qqq Vova: should we just use something else for version instead of null? 
   o[ k ] = true;
-
+  
   return o;
 }
 
@@ -1488,16 +1759,30 @@ function statusRemote_body( o )
 
   let remotes,tags,heads,output;
   let status = [];
-
-  start( 'git ls-remote' )
+  let version = o.version;
+  
+  if( o.version === null )
+  {
+    start( 'git rev-parse --abbrev-ref HEAD' )
+    ready.then( ( got ) => 
+    { 
+      version = _.strStrip( got.output );
+      if( version === 'HEAD' )
+      throw _.err( `Can't determine current branch: local repository is in detached state` );
+      return null; 
+    })
+  }
+  
+  start( 'git ls-remote' )//prints list of remote tags and branches
   ready.then( parse )
-  start( 'git show-ref --heads --tags -d' )
+  start( 'git show-ref --heads --tags -d' )//prints list of local tags and branches
   ready.then( ( got ) =>
   {
     output = got.output;
     return null;
   })
-
+  
+ 
   if( o.remoteBranches )
   ready.then( branchesCheck )
   if( o.remoteCommits )
@@ -1523,7 +1808,6 @@ function statusRemote_body( o )
   {
     if( o.sync )
     {
-      // return ready.deasync();
       ready.deasyncWait();
       return ready.sync();
     }
@@ -1538,9 +1822,17 @@ function statusRemote_body( o )
     remotes = _.strSplitNonPreserving({ src : arg.output, delimeter : '\n' });
     remotes = remotes.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
     remotes = remotes.slice( 1 );
-
-    heads = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/heads' ) );
-    tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) );
+    
+    //remote heads
+    heads = remotes.filter( ( r ) => 
+    { 
+      if( version === _.all )
+      return _.strBegins( r[ 1 ], 'refs/heads' )
+      return _.strBegins( r[ 1 ], `refs/heads/${version}` )
+    });
+    
+    //remote tags
+    tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) )
 
     return null;
   }
@@ -1548,12 +1840,12 @@ function statusRemote_body( o )
   function branchesCheck( got )
   {
     result.remoteBranches = '';
-
+    
     for( var h = 0; h < heads.length ; h++ )
     {
       let ref = heads[ h ][ 1 ];
 
-      if( !_.strHas( output, ref ) )
+      if( !_.strHas( output, ref ) )// looking for remote branch in list of local branches
       {
         if( result.remoteBranches )
         result.remoteBranches += '\n';
@@ -1569,9 +1861,9 @@ function statusRemote_body( o )
   /*  */
 
   function commitsCheck( got )
-  {
+  { 
     result.remoteCommits = '';
-
+    
     if( got && !o.detailing )
     {
       if( heads.length )
@@ -1631,7 +1923,7 @@ function statusRemote_body( o )
     {
       let tag = tags[ h ][ 1 ];
 
-      if( !_.strHas( output, tag ) )
+      if( !_.strHas( output, tag ) )// looking for remote tag in list of local tags
       {
         if( result.remoteTags )
         result.remoteTags += '\n';
@@ -1667,6 +1959,7 @@ function statusRemote_body( o )
 var defaults = statusRemote_body.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
+defaults.version = _.all;
 defaults.remoteCommits = null;
 defaults.remoteBranches = 0;
 defaults.remoteTags = null;
@@ -1765,7 +2058,6 @@ function status_body( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -1839,7 +2131,6 @@ function statusFull( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -1908,14 +2199,21 @@ function hasLocalChanges()
   let self = this;
   let result = self.statusLocal.apply( this, arguments );
 
-  _.assert( result.status !== undefined );
+  if( _.consequenceIs( result ) )
+  return result.then( end );
+  return end( result );
 
-  if( _.boolIs( result.status ) )
-  return result.status;
-  if( _.strIs( result.status ) && result.length )
-  return true;
+  function end( result )
+  {
+    _.assert( result.status !== undefined );
 
-  return false;
+    if( _.boolIs( result.status ) )
+    return result.status;
+    if( _.strIs( result.status ) && result.length )
+    return true;
+
+    return false;
+  }
 }
 
 _.routineExtend( hasLocalChanges, statusLocal )
@@ -1926,14 +2224,21 @@ function hasRemoteChanges()
 {
   let result = statusRemote.apply( this, arguments );
 
-  _.assert( result.status !== undefined );
+  if( _.consequenceIs( result ) )
+  return result.then( end );
+  return end( result );
 
-  if( _.boolIs( result.status ) )
-  return result.status;
-  if( _.strIs( result.status ) && result.length )
-  return true;
+  function end( result )
+  {
+    _.assert( result.status !== undefined );
 
-  return false;
+    if( _.boolIs( result.status ) )
+    return result.status;
+    if( _.strIs( result.status ) && result.length )
+    return true;
+
+    return false;
+  }
 }
 
 _.routineExtend( hasRemoteChanges, statusRemote )
@@ -1944,14 +2249,21 @@ function hasChanges()
 {
   let result = status.apply( this, arguments );
 
-  _.assert( result.status !== undefined );
+  if( _.consequenceIs( result ) )
+  return result.then( end );
+  return end( result );
 
-  if( _.boolIs( result.status ) )
-  return result.status;
-  if( _.strDefined( result.status ) )
-  return true;
+  function end( result )
+  {
+    _.assert( result.status !== undefined );
 
-  return false;
+    if( _.boolIs( result.status ) )
+    return result.status;
+    if( _.strIs( result.status ) && result.length )
+    return true;
+
+    return false;
+  }
 }
 
 _.routineExtend( hasChanges, status )
@@ -1994,12 +2306,8 @@ function prsGet( o )
     return prs;
   });
 
-  // if( o.sync )
-  // return ready.deasync();
-
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -2105,13 +2413,9 @@ function repositoryInit( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
-
-  // if( o.sync )
-  // return ready.deasync();
 
   return ready;
 
@@ -2361,7 +2665,6 @@ function repositoryDelete( o )
 
   if( o.sync )
   {
-    // return ready.deasync();
     ready.deasyncWait();
     return ready.sync();
   }
@@ -2422,6 +2725,164 @@ repositoryDelete.defaults =
   verbosity : 1,
   dry : 0,
   token : null,
+}
+
+//
+
+function diff( o )
+{
+  o = _.routineOptions( diff, o );
+  
+  _.assert( arguments.length === 1 );
+  _.assert( _.strDefined( o.state1 ) || o.state1 === null );
+  _.assert( _.strDefined( o.state2 ) );
+  _.assert( _.strDefined( o.localPath ) );
+  
+  if( o.state1 === null )
+  o.state1 = 'version::HEAD';
+  
+  let ready = new _.Consequence().take( null );
+  let state1 = stateParse( o.state1, true );
+  let state2 = stateParse( o.state2 );
+  let result = Object.create( null );
+  
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    inputMirroring : 0,
+    outputPiping : 0,
+    ready
+  });
+  
+  let diffMode = o.detailing ? '--raw' : '--compact-summary';
+  
+  if( state1 === 'working' )
+  start( `git diff ${diffMode} --exit-code ${state2}` )
+  else if( state1 === 'staging' )
+  start( `git diff --staged ${diffMode} --exit-code ${state2}` )
+  else if( state1 === 'committed' )
+  start( `git diff ${diffMode} --exit-code HEAD ${state2}` )
+  else
+  start( `git diff ${diffMode} --exit-code ${state1} ${state2}` )
+  
+  ready.then( handleOutput );
+  
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+  
+  return ready;
+  
+  //
+  
+  function stateParse( state, allowSpecial )
+  { 
+    let statesBegin = [ 'version::', 'tag::' ];
+    let statesSpecial = [ 'working', 'staging', 'committed' ];
+    
+    if( _.strBegins( state, statesBegin ) )
+    return _.strRemoveBegin( state, statesBegin );
+    
+    if( !allowSpecial )
+    throw _.err( `Expects state in one of formats:${statesBegin}, but got:${state}` );
+    
+    if( !_.longHas( statesSpecial, state ) )
+    throw _.err( `Expects one of special states: ${statesSpecial}, but got:${state}` );
+    
+    return state;
+  }
+  
+  /*  */
+  
+  function handleOutput( got )
+  { 
+    result.modifiedFiles = '';
+    result.deletedFiles = '';
+    result.addedFiles = '';
+    result.renamedFiles = '';
+    result.copiedFiles = '';
+    result.typechangedFiles = '';
+    result.unmergedFiles = '';
+
+    let status = '';
+    
+    if( o.detailing )
+    detailingHandle( got );
+    
+    for( var k in result )
+    { 
+      if( !o.detailing )
+      result[ k ] = got.exitCode === 1 ? _.maybe : false;
+      else if( !o.explaining )
+      result[ k ] = !!result[ k ];
+      else if( result[ k ] )
+      {
+        _.assert( _.strDefined( result[ k ] ) );
+        status += status ? '\n' + k : k;
+        status += ':\n  ' + _.strIndentation( result[ k ], '  ' );
+      }
+    }
+    
+    if( o.attachOriginalDiffOutput )
+    result.output = got.output;
+    
+    if( o.explaining && !o.detailing )
+    status = got.output;
+    
+    result.status = o.explaining ? status : got.exitCode === 1;
+    
+    
+    return result;
+  }
+  
+  /*  */
+  
+  function detailingHandle( got )
+  {
+    let statusToPropertyMap = 
+    {
+      'A' : 'addedFiles',
+      'C' : 'copiedFiles',
+      'C' : 'copiedFiles',
+      'D' : 'deletedFiles',
+      'M' : 'modifiedFiles',
+      'R' : 'renamedFiles',
+      'T' : 'typechangedFiles',
+      'U' : 'unmergedFiles',
+    }
+    let lines = _.strSplitNonPreserving({ src : got.output, delimeter : '\n', stripping : 1 });
+    for( var i = 0; i < lines.length; i++ )
+    {
+      lines[ i ] = _.strSplitNonPreserving({ src : lines[ i ], delimeter : /\s+/, stripping : 1 })
+      let type = lines[ i ][ 4 ].charAt( 0 );
+      let path = lines[ i ][ 5 ];
+      let pName = statusToPropertyMap[ type ];
+      if( !pName )
+      throw _.err( `Unexpected change type: ${_.strQuote( type )}, filePath: ${_.strQuote( path )}`, got.output );
+      if( o.explaining )
+      result[ pName ] += result[ pName ] ? '\n' + path : path;
+      else
+      result[ pName ] = true;
+    }
+  }
+}
+
+diff.defaults = 
+{
+  state1 : null,
+  state2 : null,
+  localPath : null,
+  detailing : 1,
+  explaining : 1,
+  attachOriginalDiffOutput : 0,
+  sync : 1
 }
 
 //
@@ -2873,6 +3334,7 @@ let Extend =
   hasFiles,
   isRepository,
   hasRemote,
+  isHeadOn,
 
   versionsRemoteRetrive,
   versionsPull,
@@ -2889,6 +3351,8 @@ let Extend =
   prsGet,
   repositoryInit,
   repositoryDelete,
+  
+  diff,
 
   //
 

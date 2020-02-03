@@ -42,6 +42,130 @@ function onSuiteEnd( test )
 // tests
 // --
 
+function pathParse( test )
+{
+  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+    'longPath' : '/github.com/Wandalen/wTools.git/',
+    'localVcsPath' : './',
+    'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'longerRemoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'isFixated' : true
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505'
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'tag' : 'v0.8.505',
+    'longPath' : '/github.com/Wandalen/wTools.git/',
+    'localVcsPath' : './',
+    'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'longerRemoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master'
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'tag' : 'master',
+    'longPath' : '/github.com/Wandalen/wTools.git/',
+    'localVcsPath' : './',
+    'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'longerRemoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will@master'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'query' : 'out=out/wTools.out.will',
+    'tag' : 'master',
+    'longPath' : 'Tools',
+    'localVcsPath' : 'out/wTools.out.will',
+    'remoteVcsPath' : 'Tools',
+    'longerRemoteVcsPath' : 'Tools',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will@v0.8.505'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'query' : 'out=out/wTools.out.will',
+    'tag' : 'v0.8.505',
+    'longPath' : 'Tools',
+    'localVcsPath' : 'out/wTools.out.will',
+    'remoteVcsPath' : 'Tools',
+    'longerRemoteVcsPath' : 'Tools',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/@v0.8.505'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'query' : 'out=out/wTools.out.will/',
+    'tag' : 'v0.8.505',
+    'longPath' : 'Tools',
+    'localVcsPath' : 'out/wTools.out.will/',
+    'remoteVcsPath' : 'Tools',
+    'longerRemoteVcsPath' : 'Tools',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'query' : 'out=out/wTools.out.will',
+    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+    'longPath' : 'Tools',
+    'localVcsPath' : 'out/wTools.out.will',
+    'remoteVcsPath' : 'Tools',
+    'longerRemoteVcsPath' : 'Tools',
+    'isFixated' : true
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'query' : 'out=out/wTools.out.will/',
+    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+    'longPath' : 'Tools',
+    'localVcsPath' : 'out/wTools.out.will/',
+    'remoteVcsPath' : 'Tools',
+    'longerRemoteVcsPath' : 'Tools',
+    'isFixated' : true
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+
+  test.case = 'both hash and tag'
+  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3@master';
+  test.shouldThrowErrorSync( () => _.git.pathParse( remotePath ) );
+}
+
 function versionsRemoteRetrive( test )
 {
   let context = this;
@@ -5585,6 +5709,1113 @@ statusRemoteTags.timeOut = 30000;
 
 //
 
+function statusRemoteVersionOption( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  repoNewCommit( 'test' )
+  .then( () =>
+  {
+    test.case = 'remote has new commit';
+
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : true,
+      remoteBranches : null,
+      remoteTags : null,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : true,
+      remoteBranches : null,
+      remoteTags : null,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : true,
+      remoteBranches : null,
+      remoteTags : null,
+      status : true
+    }
+    test.identical( got, expected );
+
+    return null;
+
+  })
+  .then( () =>
+  {
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, version : null })
+    var expected =
+    {
+      remoteCommits : true,
+      remoteBranches : false,
+      remoteTags : false,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, version : _.all })
+    var expected =
+    {
+      remoteCommits : true,
+      remoteBranches : false,
+      remoteTags : false,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, version : 'master' })
+    var expected =
+    {
+      remoteCommits : true,
+      remoteBranches : false,
+      remoteTags : false,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+  .then( () =>
+  {
+    var got =_.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 1, version : null })
+    var expected =
+    {
+      remoteCommits : 'refs/heads/master',
+      remoteBranches : '',
+      remoteTags : '',
+      status : 'List of remote branches that have new commits:\n  refs/heads/master'
+    }
+    test.identical( got, expected );
+    
+    var got =_.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 1, version : _.all })
+    var expected =
+    {
+      remoteCommits : 'refs/heads/master',
+      remoteBranches : '',
+      remoteTags : '',
+      status : 'List of remote branches that have new commits:\n  refs/heads/master'
+    }
+    test.identical( got, expected );
+    
+    var got =_.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 1, version : 'master' })
+    var expected =
+    {
+      remoteCommits : 'refs/heads/master',
+      remoteBranches : '',
+      remoteTags : '',
+      status : 'List of remote branches that have new commits:\n  refs/heads/master'
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+  .then( () =>
+  {
+    var got = _.git.statusRemote
+    ({ 
+      localPath, 
+      remoteCommits : 1, 
+      remoteBranches : 1, 
+      remoteTags : 1, 
+      explaining : 1, 
+      detailing : 1, 
+      version : null 
+    })
+    var expected =
+    {
+      remoteCommits : 'refs/heads/master',
+      remoteBranches : false,
+      remoteTags : false,
+      status : 'List of remote branches that have new commits:\n  refs/heads/master'
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote
+    ({ 
+      localPath, 
+      remoteCommits : 1, 
+      remoteBranches : 1, 
+      remoteTags : 1, 
+      explaining : 1, 
+      detailing : 1, 
+      version : _.all 
+    })
+    var expected =
+    {
+      remoteCommits : 'refs/heads/master',
+      remoteBranches : false,
+      remoteTags : false,
+      status : 'List of remote branches that have new commits:\n  refs/heads/master'
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote
+    ({ 
+      localPath, 
+      remoteCommits : 1, 
+      remoteBranches : 1, 
+      remoteTags : 1, 
+      explaining : 1, 
+      detailing : 1, 
+      version : 'master' 
+    })
+    var expected =
+    {
+      remoteCommits : 'refs/heads/master',
+      remoteBranches : false,
+      remoteTags : false,
+      status : 'List of remote branches that have new commits:\n  refs/heads/master'
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+  .then( () =>
+  {
+    var got = _.git.statusRemote
+    ({ 
+      localPath, 
+      remoteCommits : 1, 
+      remoteBranches : 1, 
+      remoteTags : 1, 
+      explaining : 0, 
+      detailing : 0, 
+      version : null
+    })
+    var expected =
+    {
+      remoteCommits : true,
+      remoteBranches : false,
+      remoteTags : false,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote
+    ({ 
+      localPath, 
+      remoteCommits : 1, 
+      remoteBranches : 1, 
+      remoteTags : 1, 
+      explaining : 0, 
+      detailing : 0, 
+      version : _.all
+    })
+    var expected =
+    {
+      remoteCommits : true,
+      remoteBranches : false,
+      remoteTags : false,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote
+    ({ 
+      localPath, 
+      remoteCommits : 1, 
+      remoteBranches : 1, 
+      remoteTags : 1, 
+      explaining : 0, 
+      detailing : 0, 
+      version : 'master'
+    })
+    var expected =
+    {
+      remoteCommits : true,
+      remoteBranches : false,
+      remoteTags : false,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+  shell( 'git pull' )
+  .then( () =>
+  {
+    test.case = 'local pulled new commit from remote';
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    /* */
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+
+  /*  */
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  repoNewCommitToBranch( 'test', 'test' )
+  .then( () =>
+  {
+    test.case = 'remote has new branch';
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'test' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    /* */
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : false,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : true,
+      remoteTags : null,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : false,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : 'test' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : true,
+      remoteTags : null,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+  shell( 'git fetch --all' )
+  .then( () =>
+  {
+    test.case = 'remote has new branch, local after fetch';
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'test' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : false,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : true,
+      remoteTags : null,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : false,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : 'test' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : true,
+      remoteTags : null,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+  shell( 'git checkout test' )
+  .then( () =>
+  {
+    test.case = 'remote has new branch, local after checkout new branch';
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'test' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : false,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : false,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : false,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0, version : 'test' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : false,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+
+  //
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  repoNewTag( 'test' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag';
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : true,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : true,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : true,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+  shell( 'git fetch --all' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag, local after fetch';
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+
+  //
+
+  prepareRepo()
+  repoNewCommit( 'init' )
+  begin()
+  repoNewTag( 'test' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag';
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    /*  */
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+      
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    /*  */
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1, version : null });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : true,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1, version : _.all });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : true,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1, version : 'master' });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : true,
+      status : true
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+  shell( 'git fetch --all' )
+  .then( () =>
+  {
+    test.case = 'remote has new tag, local after fetch';
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : null,
+      remoteBranches : null,
+      remoteTags : null,
+      status : null
+    }
+    test.identical( got, expected );
+    
+    /*  */
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : null });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : _.all });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+      
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0, version : 'master' });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : null,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    /*  */
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1, version : null });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1, version : _.all });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1, version : 'master' });
+    var expected =
+    {
+      remoteCommits : false,
+      remoteBranches : null,
+      remoteTags : false,
+      status : false
+    }
+    test.identical( got, expected );
+    
+    return null;
+  })
+
+  /*  */
+
+  return con;
+
+  /* - */
+
+  function prepareRepo()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      return null;
+    })
+
+    shell2( 'git init --bare' );
+
+    return con;
+  }
+
+  /* */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      test.case = 'clean clone';
+      provider.filesDelete( localPath );
+      return _.process.start
+      ({
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
+      })
+    })
+
+    return con;
+  }
+
+  function repoNewCommit( message )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    con.then( () =>
+    {
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git -C secondary commit --allow-empty -m ' + message )
+    shell( 'git -C secondary push' )
+
+    return con;
+  }
+
+  function repoNewTag( tag )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    con.then( () =>
+    {
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git -C secondary tag ' + tag )
+    shell( 'git -C secondary push --tags' )
+
+    return con;
+  }
+
+  function repoNewCommitToBranch( message, branch )
+  {
+    let shell = _.process.starter
+    ({
+      currentPath : testPath,
+      ready : con
+    })
+
+    let create = true;
+    let secondRepoPath = path.join( testPath, 'secondary' );
+
+    con.then( () =>
+    {
+      provider.filesDelete( secondRepoPath );
+      return null;
+    })
+
+    shell( 'git clone ' + repoPathNative + ' secondary' )
+
+    con.then( () =>
+    {
+      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
+      create = false;
+      return null;
+    })
+
+    con.then( () =>
+    {
+      let con2 = new _.Consequence().take( null );
+      let shell2 = _.process.starter
+      ({
+        currentPath : testPath,
+        ready : con2
+      })
+
+      if( create )
+      shell2( 'git -C secondary checkout -b ' + branch )
+      else
+      shell2( 'git -C secondary checkout ' + branch )
+
+      shell2( 'git -C secondary commit --allow-empty -m ' + message )
+
+      if( create )
+      shell2( 'git -C secondary push --set-upstream origin ' + branch )
+      else
+      shell2( 'git -C secondary push' )
+
+      return con2;
+    })
+
+    return con;
+  }
+
+}
+
+statusRemoteVersionOption.timeOut = 30000;
+
+//
+
 function hasLocalChanges( test )
 {
   let context = this;
@@ -7475,6 +8706,304 @@ function isUpToDate( test )
 }
 
 isUpToDate.timeOut = 30000;
+
+
+function isUpToDateExtended( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = context.provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'wTools' );
+
+  let con = new _.Consequence().take( null )
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    mode : 'spawn',
+  })
+
+  begin()
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'both on master, no changes';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'both on master, local one commit behind';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master';
+    return shell( 'git -C wTools reset --hard HEAD~1' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  begin()
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on master, remote on other branch';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@other';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on master, remote on tag points to other commit';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on same tag with remote';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    return shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on different tag with remote';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    return shell( 'git -C wTools checkout v0.8.504' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on same commit as tag on remote';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    return shell( 'git -C wTools checkout 8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on different commit as tag on remote';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    return shell( 'git -C wTools checkout 8b5d86906b761c464a10618fc06f13724ee654ab' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on tag, remote on master';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master';
+    return shell( 'git -C wTools checkout v0.8.504' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on tag, remote on hash that local tag is pointing to';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3';
+    return shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
+
+  //
+
+  .then( () =>
+  {
+    test.case = 'local on tag, remote on different hash';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b5d86906b761c464a10618fc06f13724ee654ab';
+    return shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  //
+  
+  begin()
+  
+  //
+  
+  .then( () =>
+  {
+    test.case = 'local on master, remote is different';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools2.git/';
+    return shell( 'git -C wTools checkout master' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  .then( () =>
+  {
+    test.case = 'local on tag, remote is different';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools2.git/';
+    return shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  .then( () =>
+  {
+    test.case = 'local detached, remote is different';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools2.git/';
+    return shell( 'git -C wTools checkout 8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  //
+  
+  begin()
+  .then( () =>
+  {
+    test.case = 'local does not have gitconfig';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/';
+    return _.fileProvider.filesDelete({ filePath : _.path.join( localPath, '.git'), sync : 0 })
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  //
+  
+  begin()
+  .then( () =>
+  {
+    test.case = 'local does not have origin';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/';
+    return shell( 'git -C wTools remote remove origin' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  //
+  
+  .then( () =>
+  {
+    test.case = 'local does not exist';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/';
+    return _.fileProvider.filesDelete({ filePath : localPath, sync : 0 })
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  //
+
+  return con;
+
+  /*  */
+
+  function begin()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( localPath );
+      provider.dirMake( localPath );
+      return shell( 'git clone https://github.com/Wandalen/wTools.git ' + path.name( localPath ) )
+    })
+
+    return con;
+  }
+}
+
+isUpToDateExtended.timeOut = 60000;
 
 //
 
@@ -10292,6 +11821,1806 @@ function statusEveryCheck( test )
 
 statusEveryCheck.timeOut = 30000;
 
+function diff( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'wPathBasic' );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
+  
+  let ready = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    ready
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  begin()
+  .then( () => 
+  { 
+    test.case = 'compare two identical states of repo'
+    var got = _.git.diff
+    ({
+      state1 : 'version::HEAD',
+      state2 : `version::${latestCommit}`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : '',
+      modifiedFiles : '',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::HEAD',
+      state2 : `version::${latestCommit}`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : false,
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::HEAD',
+      state2 : `version::${latestCommit}`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : '',
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::HEAD',
+      state2 : `version::${latestCommit}`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : false,
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  
+  
+  begin()
+  .then( () => 
+  { 
+    var status = 
+`modifiedFiles:
+  .im.will.yml
+  out/wPathBasic.out.will.yml
+  package.json
+  was.package.json
+deletedFiles:
+  proto/dwtools/abase/l3.test/PathBasic.test.s
+addedFiles:
+  proto/dwtools/abase/l2.test/Path.test.s
+renamedFiles:
+  proto/dwtools/abase/l3.test/PathBasic.test.html
+  proto/dwtools/abase/l3/PathBasic.s
+  proto/dwtools/abase/l4.test/Paths.test.s
+  proto/dwtools/abase/l4/PathsBasic.s`
+  
+  var statusOriginal =
+` .im.will.yml                                       |   10 +-
+ out/wPathBasic.out.will.yml                        |   38 +-
+ package.json                                       |   10 +-
+ .../PathBasic.test.html => l2.test/Path.test.html} |    0
+ proto/dwtools/abase/l2.test/Path.test.s (new)      | 8570 ++++++++++++++++++
+ proto/dwtools/abase/{l3 => l2}/PathBasic.s         | 1999 ++---
+ .../dwtools/abase/l3.test/PathBasic.test.s (gone)  | 9062 --------------------
+ .../abase/{l4.test => l3.test}/Paths.test.s        | 1446 ++--
+ proto/dwtools/abase/{l4 => l3}/PathsBasic.s        |  263 +-
+ was.package.json                                   |    6 +-
+ 10 files changed, 10676 insertions(+), 10728 deletions(-)
+`
+      
+    test.case = 'compare two commits'
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      modifiedFiles : '.im.will.yml\nout/wPathBasic.out.will.yml\npackage.json\nwas.package.json',
+      deletedFiles : 'proto/dwtools/abase/l3.test/PathBasic.test.s',
+      addedFiles : 'proto/dwtools/abase/l2.test/Path.test.s',
+      renamedFiles : 'proto/dwtools/abase/l3.test/PathBasic.test.html\nproto/dwtools/abase/l3/PathBasic.s\nproto/dwtools/abase/l4.test/Paths.test.s\nproto/dwtools/abase/l4/PathsBasic.s',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+      status
+
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : true,
+      addedFiles : true,
+      renamedFiles : true,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : statusOriginal,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+ 
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  
+  
+  begin()
+  .then( () => 
+  { 
+    var status = 
+`modifiedFiles:
+  .ex.will.yml
+  .gitattributes
+  .im.will.yml
+  .travis.yml
+  LICENSE
+  README.md
+  out/wPathBasic.out.will.yml
+  package.json
+  proto/dwtools/abase/l3.test/PathBasic.test.s
+  proto/dwtools/abase/l3/PathBasic.s
+  proto/dwtools/abase/l4.test/Paths.test.s
+deletedFiles:
+  was.package.json
+addedFiles:
+  out/debug/dwtools/Tools.s
+  out/debug/dwtools/abase/l3.test/PathBasic.test.html
+  out/debug/dwtools/abase/l3.test/PathBasic.test.s
+  out/debug/dwtools/abase/l3/PathBasic.s
+  out/debug/dwtools/abase/l4.test/Paths.test.s
+  out/debug/dwtools/abase/l4/PathsBasic.s
+  out/wPathFundamentals.out.will.yml
+  package-old.json`
+  
+  var statusOriginal =
+` .ex.will.yml                                       |   98 +-
+ .gitattributes                                     |    1 +
+ .im.will.yml                                       |  242 +-
+ .travis.yml                                        |    2 +-
+ LICENSE                                            |    3 +-
+ README.md                                          |    8 -
+ out/debug/dwtools/Tools.s (new)                    |   24 +
+ .../abase/l3.test/PathBasic.test.html (new)        |   45 +
+ .../dwtools/abase/l3.test/PathBasic.test.s (new)   | 8438 ++++++++++++++++++++
+ out/debug/dwtools/abase/l3/PathBasic.s (new)       | 2855 +++++++
+ out/debug/dwtools/abase/l4.test/Paths.test.s (new) | 1400 ++++
+ out/debug/dwtools/abase/l4/PathsBasic.s (new)      |  482 ++
+ out/wPathBasic.out.will.yml                        | 1856 ++---
+ out/wPathFundamentals.out.will.yml (new)           |  598 ++
+ package-old.json (new)                             |   54 +
+ package.json                                       |   83 +-
+ proto/dwtools/abase/l3.test/PathBasic.test.s       | 1324 +--
+ proto/dwtools/abase/l3/PathBasic.s                 |  689 +-
+ proto/dwtools/abase/l4.test/Paths.test.s           |   70 +-
+ was.package.json (gone)                            |   30 -
+ 20 files changed, 15281 insertions(+), 3021 deletions(-)
+`
+    test.case = 'compare commit and tag'
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `tag::v0.7.4`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      modifiedFiles : '.ex.will.yml\n.gitattributes\n.im.will.yml\n.travis.yml\nLICENSE\nREADME.md\nout/wPathBasic.out.will.yml\npackage.json\nproto/dwtools/abase/l3.test/PathBasic.test.s\nproto/dwtools/abase/l3/PathBasic.s\nproto/dwtools/abase/l4.test/Paths.test.s',
+      deletedFiles : 'was.package.json',
+      addedFiles : 'out/debug/dwtools/Tools.s\nout/debug/dwtools/abase/l3.test/PathBasic.test.html\nout/debug/dwtools/abase/l3.test/PathBasic.test.s\nout/debug/dwtools/abase/l3/PathBasic.s\nout/debug/dwtools/abase/l4.test/Paths.test.s\nout/debug/dwtools/abase/l4/PathsBasic.s\nout/wPathFundamentals.out.will.yml\npackage-old.json',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+      status
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `tag::v0.7.4`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : true,
+      addedFiles : true,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `tag::v0.7.4`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : statusOriginal,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+ 
+    var got = _.git.diff
+    ({
+      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `tag::v0.7.4`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+
+  begin()
+  .then( () => 
+  { 
+    test.case = 'compare two identical commits'
+    var got = _.git.diff
+    ({
+      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : '',
+      modifiedFiles : '',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : false,
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : '',
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : false,
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  /* */
+  
+  return ready;
+  
+  /*  */
+  
+  function begin()
+  { 
+    ready.then( () => _.fileProvider.filesDelete( localPath ))
+    shell( `git clone ${remotePath}` )
+    return ready;
+  }
+}
+
+diff.timeOut = 60000;
+
+//
+
+function diffSpecial( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'repo' );
+  let barePath = path.join( testPath, 'bare' );
+  let ready = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : localPath,
+    outputCollecting : 1,
+    ready
+  })
+  
+  let shell2 = _.process.starter
+  ({
+    currentPath : barePath,
+    ready
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+  
+  begin()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m init' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
+    return null;
+  })
+  .then( () => 
+  { 
+    test.case = 'working..HEAD'
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  //
+  
+  begin()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m init' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m change' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data2' )
+    return null;
+  })
+  shell( 'git rev-parse HEAD^' )
+  .then( ( got ) => 
+  { 
+    let prevCommit = _.strStrip( got.output );
+    test.case = 'working vs previous commit'
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `version::${prevCommit}`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `version::${prevCommit}`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `version::${prevCommit}`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `version::${prevCommit}`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  //
+  
+  begin()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m init' )
+  shell( 'git tag -a init -m init' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
+    return null;
+  })
+  .then( () => 
+  { 
+    test.case = 'working..tag'
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'working',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  /* */
+  
+  begin()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m init' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  .then( () => 
+  { 
+    test.case = 'staging..HEAD, untracked file should be ignored'
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  /* */
+  
+  begin()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m init' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m change' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data2' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git rev-parse HEAD^' )
+  .then( ( got ) => 
+  { 
+    let prevCommit = _.strStrip( got.output );
+    test.case = 'staging, compare with previous commit'
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::${prevCommit}`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `version::HEAD`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  /*  */
+  
+  begin()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m init' )
+  shell( 'git tag -a init -m init' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  .then( () => 
+  { 
+    test.case = 'staging..tag, untracked file should be ignored'
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'staging',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  /* */
+  
+  begin()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m init' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'datadata' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m change' )
+  .then( () => 
+  { 
+    test.case = 'committed..HEAD^'
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::HEAD^`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::HEAD^`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::HEAD^`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::HEAD^`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  /* */
+  
+  initBare()
+  cloneBare()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'datadata' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m change' )
+  .then( () => 
+  { 
+    test.case = 'committed, unpushed commit..origin'
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::origin`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::origin`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::origin`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::origin`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  //
+  
+  initBare()
+  cloneBare()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'datadata' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m change' )
+  shell( 'git ls-remote origin HEAD' )
+  .then( ( got ) => 
+  { 
+    let remoteHEAD = _.strIsolateLeftOrAll( got.output, /\s+/ )[ 0 ];
+    test.case = 'committed, unpushed commit..lastest commit on remote'
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::${remoteHEAD}`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::${remoteHEAD}`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::${remoteHEAD}`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::${remoteHEAD}`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  //
+  
+  initBare()
+  cloneBare()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'datadata' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m change' )
+  shell( 'git push' )
+  shell( 'git ls-remote origin HEAD' )
+  .then( ( got ) => 
+  { 
+    let remoteHEAD = _.strIsolateLeftOrAll( got.output, /\s+/ )[ 0 ];
+    test.case = 'committed, pushed commit..lastest commit on remote'
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::${remoteHEAD}`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : '',
+      modifiedFiles : '',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::${remoteHEAD}`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : false,
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::${remoteHEAD}`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : '',
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `version::${remoteHEAD}`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : false,
+      modifiedFiles : false,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  /* */
+  
+  begin()
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m init' )
+  shell( 'git tag -a init -m init' )
+  .then( () => 
+  { 
+    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'datadata' )
+    return null;
+  })
+  shell( 'git add file' )
+  shell( 'git commit -m change' )
+  .then( () => 
+  { 
+    test.case = 'committed..tag'
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 1,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 'modifiedFiles:\n  file',
+      modifiedFiles : 'file',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
+      copiedFiles : '',
+      typechangedFiles : '',
+      unmergedFiles : '',
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 1,
+      explaining : 0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
+      copiedFiles : false,
+      typechangedFiles : false,
+      unmergedFiles : false,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 0,
+      explaining : 1,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : 
+      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    var got = _.git.diff
+    ({
+      state1 : 'committed',
+      state2 : `tag::init`,
+      localPath,
+      detailing : 0,
+      explaining :0,
+      sync : 1
+    });
+    var expected = 
+    { 
+      status : true,
+      modifiedFiles : _.maybe,
+      deletedFiles : _.maybe,
+      addedFiles : _.maybe,
+      renamedFiles : _.maybe,
+      copiedFiles : _.maybe,
+      typechangedFiles : _.maybe,
+      unmergedFiles : _.maybe,
+    }
+    test.identical( got, expected )
+    
+    return null;
+  })
+  
+  /* */
+  
+  return ready;
+  
+  /*  */
+  
+  function begin()
+  { 
+    ready.then( () => _.fileProvider.filesDelete( localPath ))
+    ready.then( () => { _.fileProvider.dirMake( localPath ); return null })
+    shell( `git init` )
+    return ready;
+  }
+  
+  function initBare()
+  { 
+    ready.then( () => _.fileProvider.filesDelete( barePath ))
+    ready.then( () => { _.fileProvider.dirMake( barePath ); return null })
+    shell2( `git init --bare` )
+    ready.then( () => _.fileProvider.filesDelete( localPath ))
+    ready.then( () => { _.fileProvider.dirMake( localPath ); return null })
+    shell( `git clone ../bare .` )
+    ready.then( () => { _.fileProvider.fileWrite( _.path.join( localPath, 'file'), 'data' ); return null })
+    shell( `git add file` )
+    shell( `git commit -m init` )
+    shell( `git push` )
+    return ready;
+  }
+  
+  function cloneBare()
+  {
+    ready.then( () => _.fileProvider.filesDelete( localPath ))
+    ready.then( () => { _.fileProvider.dirMake( localPath ); return null })
+    shell( `git clone ../bare .` )
+    return ready;
+  }
+}
+
+diffSpecial.timeOut = 60000;
+
 //
 
 function gitHooksManager( test )
@@ -11521,6 +14850,8 @@ var Proto =
 
   tests :
   {
+    pathParse,
+
     versionsRemoteRetrive,
     versionsPull,
 
@@ -11533,6 +14864,8 @@ var Proto =
     statusFullHalfStaged,
     statusRemote,
     statusRemoteTags,
+    statusRemoteVersionOption,
+    //qqq Vova: add test routine for statuRemote with case when local is in detached state
     status,
     hasLocalChanges,
     hasRemoteChanges,
@@ -11542,11 +14875,15 @@ var Proto =
     hasFiles,
     hasRemote,
     isUpToDate,
+    isUpToDateExtended,
     insideRepository,
     isRepository,
 
     statusFull,
     statusEveryCheck,
+    
+    diff,
+    diffSpecial,
 
     gitHooksManager,
     gitHooksManagerErrors,
