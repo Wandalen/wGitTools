@@ -1043,7 +1043,7 @@ function statusLocal_body( o )
     }
 
     if( result.uncommitted )
-    result.uncommitted = 'List of uncommited changes in files:\n' + '  ' + _.strIndentation( result.uncommitted, '  ' );
+    result.uncommitted = 'List of uncommited changes in files:\n' + '  ' + _.strLinesIndentation( result.uncommitted, '  ' );
 
     /*  */
 
@@ -1065,7 +1065,7 @@ function statusLocal_body( o )
       else if( k === 'unpushedBranches' || k === 'unpushedTags' )
       _.arrayAppendOnce( result.unpushed, 'List of unpushed:' );
 
-      result.unpushed.push( '  ' + _.strIndentation( result[ k ], '  ' ) );
+      result.unpushed.push( '  ' + _.strLinesIndentation( result[ k ], '  ' ) );
     }
     if( _.arrayIs( result.unpushed ) )
     result.unpushed = result.unpushed.join( '\n' );
