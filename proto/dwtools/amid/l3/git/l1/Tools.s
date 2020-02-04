@@ -240,7 +240,7 @@ function pathParse( remotePath )
     isHardDrive = _.longHasAny( protocols, [ 'hd' ] );
     if( protocols[ 0 ].toLowerCase() === 'git' )
     protocols.shift();
-    if( protocols[ 0 ].toLowerCase() === 'hd' )
+    if( protocols.length && protocols[ 0 ].toLowerCase() === 'hd' )
     protocols.shift();
   }
 
