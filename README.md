@@ -6,5 +6,5 @@ Collection of tools to use git programmatically.
 ## Try out
 ```
 npm install
-node sample/Sample.s
+node sample/Sample.js
 ```
