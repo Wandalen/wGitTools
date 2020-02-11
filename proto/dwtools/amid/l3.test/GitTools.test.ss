@@ -44,6 +44,19 @@ function onSuiteEnd( test )
 
 function pathParse( test )
 {
+  var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git/#master';
+  var expected =
+  {
+    'protocol' : 'git',
+    'hash' : 'master',
+    'longPath' : '/git@bitbucket.org:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
+    'longerRemoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+  
   var remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3';
   var expected =
   {
