@@ -43,13 +43,28 @@ function onSuiteEnd( test )
 // --
 
 function pathParse( test )
-{
+{  
+  var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git';
+  var expected =
+  {
+    'protocol' : 'git',
+    'tag' : 'master',
+    'longPath' : '/git@bitbucket.org:someorg/somerepo.git',
+    'localVcsPath' : './',
+    'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
+    'longerRemoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+  
   var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git/#master';
   var expected =
   {
     'protocol' : 'git',
     'hash' : 'master',
     'longPath' : '/git@bitbucket.org:someorg/somerepo.git/',
+    'localVcsPath' : './',
     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'longerRemoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'isFixated' : false

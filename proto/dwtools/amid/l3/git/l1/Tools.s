@@ -2857,7 +2857,7 @@ function diff( o )
       {
         _.assert( _.strDefined( result[ k ] ) );
         status += status ? '\n' + k : k;
-        status += ':\n  ' + _.strIndentation( result[ k ], '  ' );
+        status += ':\n  ' + _.strLinesIndentation( result[ k ], '  ' );
       }
     }
     
