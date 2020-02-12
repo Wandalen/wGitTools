@@ -8518,7 +8518,7 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'remote has different branch';
-    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#other';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@other';
     return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
@@ -8586,6 +8586,18 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'remote has other branch';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@other';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  .then( () =>
+  {
+    test.case = 'branch name as hash';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#other';
     return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
@@ -8594,8 +8606,31 @@ function isUpToDate( test )
       return got;
     })
   })
-
+  
   .then( () =>
+  {
+    test.case = 'hash as tag';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@469a6497f616cf18639b2aa68957f4dab78b7965';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  if( Config.debug )
+  {
+    con.then( () =>
+    {
+      test.case = 'hash and tag';
+      let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#469a6497f616cf18639b2aa68957f4dab78b7965@master';
+      test.shouldThrowErrorSync( () => _.git.isUpToDate({ localPath, remotePath }) )
+      return null;
+    })
+  }
+
+  con.then( () =>
   {
     test.close( 'local detached' );
     return null;
@@ -8781,7 +8816,7 @@ function isUpToDate( test )
   return con;
 }
 
-isUpToDate.timeOut = 30000;
+isUpToDate.timeOut = 60000;
 
 
 function isUpToDateExtended( test )
