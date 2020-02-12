@@ -8714,6 +8714,54 @@ function isUpToDate( test )
       return got;
     })
   })
+  
+  /* */
+
+  .then( () =>
+  {
+    test.case = 'local is on different branch than remote';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return null;
+  })
+
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
+
+  .then( () =>
+  {
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/@master';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  /* */
+
+  .then( () =>
+  {
+    test.case = 'local is on different branch than remote';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return null;
+  })
+
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
+
+  .then( () =>
+  {
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/@newbranch';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
 
   return con;
 }

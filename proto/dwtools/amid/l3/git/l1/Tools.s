@@ -1032,17 +1032,33 @@ function isHeadOn( o )
       return false;
       return getTag();
     })
-    .then( ( tag ) =>
+    .then( ( got ) =>
     {
-      if( !tag )
+      if( !got )
       return false;
-      return head === tag;
+      
+      let result = head === got.hash;
+      
+      /* return result if we are checking tag or hash comparison result is negative */
+      if( got.tag || !result )
+      return result;
+      
+      /* compare branches in case when HEAD and target branch are on same commit */
+      return getHead( true )
+      .then( ( branchName ) => 
+      {
+        if( !branchName )
+        return false;
+        return got.branch === branchName;
+      })
     })
   }
 
-  function getHead()
-  {
-    return shell({ execPath : 'git rev-parse HEAD', ready : null })
+  function getHead( refName )
+  { 
+    refName = refName ? '--abbrev-ref' : '';
+    
+    return shell({ execPath : `git rev-parse ${refName} HEAD`, ready : null })
     .then( ( got ) =>
     {
       if( got.exitCode )
@@ -1051,12 +1067,12 @@ function isHeadOn( o )
       return head;
     })
   }
-
+  
   function getTag()
   {
     return shell({ execPath : `git show-ref ${o.tag} -d --heads --tags`, ready : null })
     .then( ( got ) =>
-    {
+    { 
       if( got.exitCode )
       return false;
       let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
@@ -1069,8 +1085,23 @@ function isHeadOn( o )
         tag = output[ 1 ];
         _.assert( _.strHas( tag, '^{}' ), 'Expects annotated tag, got:', tag );
       }
-      tag = _.strIsolateLeftOrAll( tag, ' ' )[ 0 ];
-      return tag;
+      
+      let isolated = _.strIsolateLeftOrAll( tag, ' ' );
+      let result = Object.create( null );
+      
+      result.hash = isolated[ 0 ];
+      result.ref = isolated[ 2 ];
+      
+      if( _.strBegins( result.ref, 'refs/heads/' ) )
+      result.branch = _.strRemoveBegin( result.ref, 'refs/heads/' )
+      else if( _.strBegins( result.ref, 'refs/tags/' ) )
+      result.tag = _.strRemoveBegin( result.ref, 'refs/tags/' )
+      
+      _.assert( _.strDefined( result.hash ) );
+      _.assert( _.strDefined( result.ref ) );
+      _.assert( !_.strDefined( result.branch ) || !_.strDefined( result.tag ) );
+      
+      return result;
     })
   }
 }
