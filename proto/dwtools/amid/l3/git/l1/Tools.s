@@ -715,8 +715,8 @@ function isUpToDate( o )
     
     if( !result && parsed.tag )
     { 
-      let repoHasTag = _.git.repoHasTag({ localPath : o.localPath, tag : parsed.tag });
-      if( !repoHasTag )
+      let repositoryHasTag = _.git.repositoryHasTag({ localPath : o.localPath, tag : parsed.tag });
+      if( !repositoryHasTag )
       throw _.err
       ( 
         `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
@@ -2778,12 +2778,12 @@ repositoryDelete.defaults =
 
 //
 
-function repoHasTag( o )
+function repositoryHasTag( o )
 { 
   let self = this;
   
   _.assert( arguments.length === 1 );
-  _.routineOptions( repoHasTag, o );
+  _.routineOptions( repositoryHasTag, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.tag ) );
   _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
@@ -2860,7 +2860,7 @@ function repoHasTag( o )
   }
 }
 
-repoHasTag.defaults = 
+repositoryHasTag.defaults = 
 {
   localPath : null,
   remotePath : null,
@@ -3495,7 +3495,7 @@ let Extend =
   repositoryInit,
   repositoryDelete,
   
-  repoHasTag,
+  repositoryHasTag,
   
   diff,
 
