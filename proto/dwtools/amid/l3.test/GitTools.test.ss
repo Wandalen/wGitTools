@@ -11932,6 +11932,43 @@ function statusEveryCheck( test )
 
 statusEveryCheck.timeOut = 30000;
 
+//
+
+function repositoryInit( test )
+{
+  if( !Config.debug )
+  { 
+    test.is( true );
+    return;
+  }
+  
+  test.shouldThrowErrorSync( () => 
+  {
+    _.git.repositoryInit
+    ({
+      localPath : null,
+      remotePath : null,
+      token : 'token',
+      local : 1,
+      remote : 1,
+      dry : 1,
+    });
+  })
+  
+  test.shouldThrowErrorSync( () => 
+  {
+    _.git.repositoryInit
+    ({
+      localPath : null,
+      remotePath : 'https://github.com/user/New2',
+      token : 'token',
+      local : 1,
+      remote : 1,
+      dry : 1,
+    });
+  })
+}
+
 function diff( test )
 {
   let context = this;
@@ -14992,6 +15029,8 @@ var Proto =
 
     statusFull,
     statusEveryCheck,
+    
+    repositoryInit,
     
     diff,
     diffSpecial,

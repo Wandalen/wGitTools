@@ -2388,9 +2388,11 @@ function repositoryInit( o )
   let nativeRemotePath = null;
   let parsed = null;
   let remoteExists = null;
+  
+  _.assert( !o.remote || _.strDefined( o.remotePath ), `Expects path to remote repository {-o.remotePath-}, but got ${_.color.strFormat( String( o.remotePath ), 'path' )}` )
 
   if( o.remotePath )
-  {
+  { 
     o.remotePath = self.remotePathNormalize( o.remotePath );
     nativeRemotePath = self.remotePathNativize( o.remotePath );
     parsed = self.objectsParse( o.remotePath );
