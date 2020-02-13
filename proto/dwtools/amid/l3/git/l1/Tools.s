@@ -712,6 +712,18 @@ function isUpToDate( o )
       tag : parsed.tag, 
       hash : parsed.hash 
     });
+    
+    if( !result && parsed.tag )
+    { 
+      let repoHasTag = _.git.repoHasTag({ localPath : o.localPath, tag : parsed.tag });
+      if( !repoHasTag )
+      throw _.err
+      ( 
+        `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
+        \nLocal path: ${_.color.strFormat( String( o.localPath ), 'path' )}\
+        \nRemote path: ${_.color.strFormat( String( parsed.remoteVcsPath ), 'path' )}`
+      );
+    }
 
     if( result && !detachedParsed )
     result = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
@@ -2766,6 +2778,100 @@ repositoryDelete.defaults =
 
 //
 
+function repoHasTag( o )
+{ 
+  let self = this;
+  
+  _.assert( arguments.length === 1 );
+  _.routineOptions( repoHasTag, o );
+  _.assert( _.strDefined( o.localPath ) );
+  _.assert( _.strDefined( o.tag ) );
+  _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
+  
+  let ready = new _.Consequence();
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    inputMirroring : 0,
+    outputPiping : 0,
+  }); 
+  
+  if( !self.isRepository({ localPath : o.localPath }) )
+  ready.error( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
+  else
+  ready.take( null );
+  
+  if( o.local )
+  ready.then( checkLocal );
+  
+  if( o.remote )
+  ready.then( checkRemote );
+  
+  ready.catch( ( err ) => 
+  { 
+    _.errAttend( err );
+    throw _.err( 'Failed to obtain tags and heads from remote repository.\n', err );
+  })
+  
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+  
+  return ready;
+  
+  /*  */
+  
+  function checkLocal()
+  {
+    return start( `git show-ref --heads --tags` )
+    .then( hasTag )
+  }
+  
+  function checkRemote( result )
+  { 
+    if( result )
+    return true;
+    
+    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
+    return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    .then( hasTag )
+  }
+  
+  function hasTag( got )
+  { 
+    let possibleTag = `refs/tags/${o.tag}`;
+    let possibleHead = `refs/heads/${o.tag}`;
+    
+    let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' })
+    refs = refs.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/, stripping : 1 }) );
+    
+    for( let i = 0, l = refs.length; i < l; i++ )
+    if( refs[ i ][ 1 ] === possibleTag || refs[ i ][ 1 ] === possibleHead )
+    return true;
+    
+    return false;
+  }
+}
+
+repoHasTag.defaults = 
+{
+  localPath : null,
+  remotePath : null,
+  tag : null,
+  local : 1,
+  remote : 1,
+  sync : 1
+}
+
+//
+
 function diff( o )
 {
   o = _.routineOptions( diff, o );
@@ -3388,6 +3494,8 @@ let Extend =
   prsGet,
   repositoryInit,
   repositoryDelete,
+  
+  repoHasTag,
   
   diff,
 

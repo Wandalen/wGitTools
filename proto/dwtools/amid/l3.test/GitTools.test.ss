@@ -9153,6 +9153,14 @@ function isUpToDateThrowing( test )
   
   .then( () =>
   {
+    test.case = 'not existing branch name';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@master2';
+    var con = _.git.isUpToDate({ localPath, remotePath })
+    return test.shouldThrowErrorAsync( con );
+  })
+  
+  .then( () =>
+  {
     test.case = 'branch name as tag';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@master';
     var con = _.git.isUpToDate({ localPath, remotePath })
