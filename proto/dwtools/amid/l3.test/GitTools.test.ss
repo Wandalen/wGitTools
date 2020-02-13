@@ -43,13 +43,28 @@ function onSuiteEnd( test )
 // --
 
 function pathParse( test )
-{
+{  
+  var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git';
+  var expected =
+  {
+    'protocol' : 'git',
+    'tag' : 'master',
+    'longPath' : '/git@bitbucket.org:someorg/somerepo.git',
+    'localVcsPath' : './',
+    'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
+    'longerRemoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
+    'isFixated' : false
+  }
+  var got = _.git.pathParse( remotePath );
+  test.identical( got, expected )
+  
   var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git/#master';
   var expected =
   {
     'protocol' : 'git',
     'hash' : 'master',
     'longPath' : '/git@bitbucket.org:someorg/somerepo.git/',
+    'localVcsPath' : './',
     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'longerRemoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'isFixated' : false
@@ -8503,7 +8518,7 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'remote has different branch';
-    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#other';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@other';
     return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
@@ -8571,6 +8586,18 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'remote has other branch';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@other';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  .then( () =>
+  {
+    test.case = 'branch name as hash';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#other';
     return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
@@ -8579,8 +8606,31 @@ function isUpToDate( test )
       return got;
     })
   })
-
+  
   .then( () =>
+  {
+    test.case = 'hash as tag';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@469a6497f616cf18639b2aa68957f4dab78b7965';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  if( Config.debug )
+  {
+    con.then( () =>
+    {
+      test.case = 'hash and tag';
+      let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#469a6497f616cf18639b2aa68957f4dab78b7965@master';
+      test.shouldThrowErrorSync( () => _.git.isUpToDate({ localPath, remotePath }) )
+      return null;
+    })
+  }
+
+  con.then( () =>
   {
     test.close( 'local detached' );
     return null;
@@ -8714,11 +8764,59 @@ function isUpToDate( test )
       return got;
     })
   })
+  
+  /* */
+
+  .then( () =>
+  {
+    test.case = 'local is on different branch than remote';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return null;
+  })
+
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
+
+  .then( () =>
+  {
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/@master';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return got;
+    })
+  })
+  
+  /* */
+
+  .then( () =>
+  {
+    test.case = 'local is on different branch than remote';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return null;
+  })
+
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
+
+  .then( () =>
+  {
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/@newbranch';
+    return _.git.isUpToDate({ localPath, remotePath })
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return got;
+    })
+  })
 
   return con;
 }
 
-isUpToDate.timeOut = 30000;
+isUpToDate.timeOut = 60000;
 
 
 function isUpToDateExtended( test )
