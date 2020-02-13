@@ -8858,13 +8858,30 @@ function isUpToDateExtended( test )
 
   .then( () =>
   {
-    test.case = 'local on master, remote on other branch';
+    test.case = 'local on master, remote on other branch that does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@other';
-    return _.git.isUpToDate({ localPath, remotePath })
+    var con = _.git.isUpToDate({ localPath, remotePath })
+    return test.shouldThrowErrorAsync( con )
+  })
+  
+  //
+  
+  .then( () =>
+  {
+    test.case = 'local on newbranch, remote on master';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master';
+    return shell( 'git -C wTools checkout -b newbranch' )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
       return got;
+    })
+    .finally( ( err, got ) => 
+    {
+      if( err )
+      test.exceptionReport({ err });
+      return shell({ execPath : 'git -C wTools checkout master', ready : null })
     })
   })
 
