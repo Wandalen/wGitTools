@@ -8517,14 +8517,10 @@ function isUpToDate( test )
 
   .then( () =>
   {
-    test.case = 'remote has different branch';
+    test.case = 'remote has different branch that does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@other';
-    return _.git.isUpToDate({ localPath, remotePath })
-    .then( ( got ) =>
-    {
-      test.identical( got, false );
-      return got;
-    })
+    var con = _.git.isUpToDate({ localPath, remotePath })
+    return test.shouldThrowErrorAsync( con )
   })
 
   .then( () =>
@@ -8585,38 +8581,26 @@ function isUpToDate( test )
 
   .then( () =>
   {
-    test.case = 'remote has other branch';
+    test.case = 'remote has other branch that does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@other';
-    return _.git.isUpToDate({ localPath, remotePath })
-    .then( ( got ) =>
-    {
-      test.identical( got, false );
-      return got;
-    })
+    var con = _.git.isUpToDate({ localPath, remotePath })
+    return test.shouldThrowErrorAsync( con )
   })
   
   .then( () =>
   {
     test.case = 'branch name as hash';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#other';
-    return _.git.isUpToDate({ localPath, remotePath })
-    .then( ( got ) =>
-    {
-      test.identical( got, false );
-      return got;
-    })
+    var con = _.git.isUpToDate({ localPath, remotePath })
+    return test.shouldThrowErrorAsync( con )
   })
   
   .then( () =>
   {
     test.case = 'hash as tag';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@469a6497f616cf18639b2aa68957f4dab78b7965';
-    return _.git.isUpToDate({ localPath, remotePath })
-    .then( ( got ) =>
-    {
-      test.identical( got, false );
-      return got;
-    })
+    var con = _.git.isUpToDate({ localPath, remotePath })
+    return test.shouldThrowErrorAsync( con )
   })
   
   if( Config.debug )
