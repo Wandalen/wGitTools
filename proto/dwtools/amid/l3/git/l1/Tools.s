@@ -701,7 +701,11 @@ function isUpToDate( o )
     // {
     //   result = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
     // }
-
+    
+    //qqq: find better way to check if hash is not a branch name
+    if( parsed.hash && !parsed.isFixated )
+    throw _.err( `Remote path: ${_.color.strFormat( String( o.remotePath ), 'path' )} is fixated, but hash: ${_.color.strFormat( String( parsed.hash ), 'path' ) } doesn't look like commit hash.` )
+    
     result = _.git.isHeadOn
     ({ 
       localPath : o.localPath, 

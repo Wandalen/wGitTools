@@ -9118,6 +9118,65 @@ isUpToDateExtended.timeOut = 60000;
 
 //
 
+function isUpToDateThrowing( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = context.provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'wPathBasic' );
+
+  let con = new _.Consequence().take( null )
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    mode : 'spawn',
+  })
+
+  con
+  .then( () =>
+  {
+    test.case = 'setup';
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ) )
+  })
+
+  .then( () =>
+  {
+    test.case = 'branch name as hash';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#master';
+    var con = _.git.isUpToDate({ localPath, remotePath })
+    return test.shouldThrowErrorAsync( con );
+  })
+  
+  .then( () =>
+  {
+    test.case = 'branch name as tag';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@master';
+    var con = _.git.isUpToDate({ localPath, remotePath })
+    return test.mustNotThrowError( con );
+  })
+  
+  .then( () =>
+  {
+    test.case = 'no branch';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+    var con = _.git.isUpToDate({ localPath, remotePath })
+    return test.mustNotThrowError( con );
+  })
+  
+  return con;
+}
+
+//
+
+isUpToDateThrowing.timeOut = 60000;
+
+
+//
+
 function insideRepository( test )
 {
   test.case = 'missing'
@@ -15024,6 +15083,7 @@ var Proto =
     hasRemote,
     isUpToDate,
     isUpToDateExtended,
+    isUpToDateThrowing,
     insideRepository,
     isRepository,
 
