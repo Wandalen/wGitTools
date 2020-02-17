@@ -1985,7 +1985,8 @@ function statusRemote_body( o )
     {
       let hash = head[ 0 ];
       let ref = head[ 1 ];
-      let execPath = `git branch --contains ${hash} --quiet --format=%(refname)`;
+      // let execPath = `git branch --contains ${hash} --quiet --format=%(refname)`;
+      let execPath = `git for-each-ref refs/heads --contains ${hash} --format=%(refname)`;
 
       if( !_.strHas( output, ref ) ) // skip if branch is not downloaded
       return;
@@ -1995,7 +1996,7 @@ function statusRemote_body( o )
         return start({ execPath, ready : null })
       })
       .then( ( got ) =>
-      {
+      { 
         if( !_.strHas( got.output, ref ) )
         {
           if( result.remoteCommits )
