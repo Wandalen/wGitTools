@@ -392,7 +392,7 @@ function versionsPull( test )
     _.each( got, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
-      test.is( _.strHas( result.output, 'is up to date' ) );
+      test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
     })
     return null;
   })
@@ -427,7 +427,7 @@ function versionsPull( test )
     _.each( got, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
-      test.is( _.strHas( result.output, 'is up to date' ) );
+      test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
     })
     return null;
   })
@@ -465,7 +465,7 @@ function versionsPull( test )
     _.each( got, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
-      test.is( _.strHas( result.output, 'is up to date' ) );
+      test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
     })
     return null;
   })
