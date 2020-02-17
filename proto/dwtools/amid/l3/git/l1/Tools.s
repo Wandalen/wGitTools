@@ -1202,10 +1202,9 @@ function versionsRemoteRetrive( o )
     currentPath : o.localPath,
     args :
     [
-      'branch',
-      '-r',
-      '--no-abbrev',
-      '--format=%(refname:lstrip=3)'
+      'for-each-ref',
+      'refs/remotes',
+      '--format=%(refname:strip=3)'
     ],
     inputMirroring : 0,
     outputPiping : 0,
