@@ -3021,7 +3021,7 @@ function diff( o )
     ready
   });
   
-  let diffMode = o.detailing ? '--raw' : '--compact-summary';
+  let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
   
   if( state1 === 'working' )
   start( `git diff ${diffMode} --exit-code ${state2}` )
@@ -3064,7 +3064,7 @@ function diff( o )
   /*  */
   
   function handleOutput( got )
-  { 
+  {  
     result.modifiedFiles = '';
     result.deletedFiles = '';
     result.addedFiles = '';

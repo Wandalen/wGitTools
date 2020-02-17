@@ -12180,9 +12180,9 @@ renamedFiles:
  out/wPathBasic.out.will.yml                        |   38 +-
  package.json                                       |   10 +-
  .../PathBasic.test.html => l2.test/Path.test.html} |    0
- proto/dwtools/abase/l2.test/Path.test.s (new)      | 8570 ++++++++++++++++++
+ proto/dwtools/abase/l2.test/Path.test.s            | 8570 ++++++++++++++++++
  proto/dwtools/abase/{l3 => l2}/PathBasic.s         | 1999 ++---
- .../dwtools/abase/l3.test/PathBasic.test.s (gone)  | 9062 --------------------
+ proto/dwtools/abase/l3.test/PathBasic.test.s       | 9062 --------------------
  .../abase/{l4.test => l3.test}/Paths.test.s        | 1446 ++--
  proto/dwtools/abase/{l4 => l3}/PathsBasic.s        |  263 +-
  was.package.json                                   |    6 +-
@@ -12319,20 +12319,20 @@ addedFiles:
  .travis.yml                                        |    2 +-
  LICENSE                                            |    3 +-
  README.md                                          |    8 -
- out/debug/dwtools/Tools.s (new)                    |   24 +
- .../abase/l3.test/PathBasic.test.html (new)        |   45 +
- .../dwtools/abase/l3.test/PathBasic.test.s (new)   | 8438 ++++++++++++++++++++
- out/debug/dwtools/abase/l3/PathBasic.s (new)       | 2855 +++++++
- out/debug/dwtools/abase/l4.test/Paths.test.s (new) | 1400 ++++
- out/debug/dwtools/abase/l4/PathsBasic.s (new)      |  482 ++
+ out/debug/dwtools/Tools.s                          |   24 +
+ .../dwtools/abase/l3.test/PathBasic.test.html      |   45 +
+ out/debug/dwtools/abase/l3.test/PathBasic.test.s   | 8438 ++++++++++++++++++++
+ out/debug/dwtools/abase/l3/PathBasic.s             | 2855 +++++++
+ out/debug/dwtools/abase/l4.test/Paths.test.s       | 1400 ++++
+ out/debug/dwtools/abase/l4/PathsBasic.s            |  482 ++
  out/wPathBasic.out.will.yml                        | 1856 ++---
- out/wPathFundamentals.out.will.yml (new)           |  598 ++
- package-old.json (new)                             |   54 +
+ out/wPathFundamentals.out.will.yml                 |  598 ++
+ package-old.json                                   |   54 +
  package.json                                       |   83 +-
  proto/dwtools/abase/l3.test/PathBasic.test.s       | 1324 +--
  proto/dwtools/abase/l3/PathBasic.s                 |  689 +-
  proto/dwtools/abase/l4.test/Paths.test.s           |   70 +-
- was.package.json (gone)                            |   30 -
+ was.package.json                                   |   30 -
  20 files changed, 15281 insertions(+), 3021 deletions(-)
 `
     test.case = 'compare commit and tag'
