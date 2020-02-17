@@ -166,7 +166,7 @@ function objectsParse( remotePath )
 //   /* */
 
 //   function pathIsolateGlobalAndLocal()
-//   { 
+//   {
 //     let splits = _.strIsolateLeftOrAll( parsed1.longPath, '.git/' );
 //     if( parsed1.query )
 //     {
@@ -221,20 +221,20 @@ function pathParse( remotePath )
   result.localVcsPath = isolated.localPath;
 
   /* remoteVcsPath */
-  
+
   let ignoreComponents =
-  { 
-    hash : null, 
-    tag : null, 
-    protocol : null, 
-    query : null, 
-    longPath : null 
+  {
+    hash : null,
+    tag : null,
+    protocol : null,
+    query : null,
+    longPath : null
   }
   let parsed2 = _.mapBut( parsed1, ignoreComponents );
   let protocols = parsed2.protocols = parsed1.protocol ? parsed1.protocol.split( '+' ) : [];
   let isHardDrive = false;
   let provider = _.fileProvider;
-  
+
   if( protocols.length )
   {
     isHardDrive = _.longHasAny( protocols, [ 'hd' ] );
@@ -250,7 +250,7 @@ function pathParse( remotePath )
   parsed2.longPath = _.strRemoveEnd( parsed2.longPath, '/' );
 
   result.remoteVcsPath = path.str( parsed2 );
-  
+
   if( isHardDrive )
   result.remoteVcsPath = provider.path.nativize( result.remoteVcsPath );
 
@@ -265,7 +265,7 @@ function pathParse( remotePath )
   result.longerRemoteVcsPath = provider.path.nativize( result.longerRemoteVcsPath );
 
   /* */
-  
+
   result.isFixated = _.git.pathIsFixated( result );
 
   _.assert( !_.boolLike( result.hash ) );
@@ -274,13 +274,13 @@ function pathParse( remotePath )
   /* */
 
   function pathIsolateGlobalAndLocal()
-  { 
+  {
     let splits = _.strIsolateLeftOrAll( parsed1.longPath, '.git/' );
     if( parsed1.query )
     {
       let query = _.strStructureParse
-      ({ 
-        src : parsed1.query, 
+      ({
+        src : parsed1.query,
         keyValDelimeter : '=',
         entryDelimeter : '&'
       });
@@ -613,14 +613,14 @@ defaults.verbosity = 0;
 //
 
 function versionIsCommitHash( o )
-{ 
+{
   let self = this;
-  
+
   _.assert( arguments.length === 1 );
   _.routineOptions( versionIsCommitHash, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.version ) );
-  
+
   let ready = new _.Consequence().take( null );
   let start = _.process.starter
   ({
@@ -634,35 +634,35 @@ function versionIsCommitHash( o )
     outputPiping : 0,
     ready
   });
-  
+
   start( `git rev-parse --symbolic-full-name ${o.version}` )
-  
-  ready.then( ( got ) => 
-  { 
+
+  ready.then( ( got ) =>
+  {
     if( got.exitCode !== 0 || got.output && _.strHas( got.output, 'refs/' ) )
     return false;
     return true;
   })
-  
-  ready.catch( ( err ) => 
-  { 
+
+  ready.catch( ( err ) =>
+  {
     _.errAttend( err );
     throw _.err( 'Failed to check if provided version is a commit hash.\n', err );
   })
-  
+
   if( o.sync )
   {
     ready.deasyncWait();
     return ready.sync();
   }
-  
+
   return ready;
-  
+
   /*  */
 }
 
-versionIsCommitHash.defaults = 
-{ 
+versionIsCommitHash.defaults =
+{
   localPath : null,
   version : null,
   sync : 1
@@ -710,18 +710,18 @@ function isUpToDate( o )
 
   if( !localProvider.fileExists( o.localPath ) )
   return false;
-  
+
   let gitConfigExists = localProvider.fileExists( path.join( o.localPath, '.git' ) );
 
   if( !gitConfigExists )
   return false;
-  
+
   if( !isClonedFromRemote() )
   {
     ready.take( false );
     return ready.split();
   }
-  
+
   ready.take( null );
 
   start( 'git fetch origin' );
@@ -740,7 +740,7 @@ function isUpToDate( o )
   //   // 'git branch -v',
   //   'git status',
   // ]);
-  
+
   shell( 'git status' )
 
   ready
@@ -759,25 +759,25 @@ function isUpToDate( o )
     // {
     //   result = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
     // }
-    
+
     //qqq: find better way to check if hash is not a branch name
     //qqq: replace with versionIsCommitHash after testing
     if( parsed.hash && !parsed.isFixated )
     throw _.err( `Remote path: ${_.color.strFormat( String( o.remotePath ), 'path' )} is fixated, but hash: ${_.color.strFormat( String( parsed.hash ), 'path' ) } doesn't look like commit hash.` )
-    
+
     result = _.git.isHeadOn
-    ({ 
-      localPath : o.localPath, 
-      tag : parsed.tag, 
-      hash : parsed.hash 
+    ({
+      localPath : o.localPath,
+      tag : parsed.tag,
+      hash : parsed.hash
     });
-    
+
     if( !result && parsed.tag )
-    { 
+    {
       let repositoryHasTag = _.git.repositoryHasTag({ localPath : o.localPath, tag : parsed.tag });
       if( !repositoryHasTag )
       throw _.err
-      ( 
+      (
         `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
         \nLocal path: ${_.color.strFormat( String( o.localPath ), 'path' )}\
         \nRemote path: ${_.color.strFormat( String( parsed.remoteVcsPath ), 'path' )}`
@@ -802,13 +802,13 @@ function isUpToDate( o )
   });
 
   return ready.split();
-  
+
   /* */
-  
+
   function isClonedFromRemote()
   {
     let conf = _.git.configRead( o.localPath );
-    
+
     if( !conf[ 'remote "origin"' ] || !conf[ 'remote "origin"' ] || !_.strIs( conf[ 'remote "origin"' ].url ) )
     return false;
 
@@ -1111,16 +1111,16 @@ function isHeadOn( o )
     {
       if( !got )
       return false;
-      
+
       let result = head === got.hash;
-      
+
       /* return result if we are checking tag or hash comparison result is negative */
       if( got.tag || !result )
       return result;
-      
+
       /* compare branches in case when HEAD and target branch are on same commit */
       return getHead( true )
-      .then( ( branchName ) => 
+      .then( ( branchName ) =>
       {
         if( !branchName )
         return false;
@@ -1130,9 +1130,9 @@ function isHeadOn( o )
   }
 
   function getHead( refName )
-  { 
+  {
     refName = refName ? '--abbrev-ref' : '';
-    
+
     return shell({ execPath : `git rev-parse ${refName} HEAD`, ready : null })
     .then( ( got ) =>
     {
@@ -1142,12 +1142,12 @@ function isHeadOn( o )
       return head;
     })
   }
-  
+
   function getTag()
   {
     return shell({ execPath : `git show-ref ${o.tag} -d --heads --tags`, ready : null })
     .then( ( got ) =>
-    { 
+    {
       if( got.exitCode )
       return false;
       let output = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
@@ -1160,22 +1160,22 @@ function isHeadOn( o )
         tag = output[ 1 ];
         _.assert( _.strHas( tag, '^{}' ), 'Expects annotated tag, got:', tag );
       }
-      
+
       let isolated = _.strIsolateLeftOrAll( tag, ' ' );
       let result = Object.create( null );
-      
+
       result.hash = isolated[ 0 ];
       result.ref = isolated[ 2 ];
-      
+
       if( _.strBegins( result.ref, 'refs/heads/' ) )
       result.branch = _.strRemoveBegin( result.ref, 'refs/heads/' )
       else if( _.strBegins( result.ref, 'refs/tags/' ) )
       result.tag = _.strRemoveBegin( result.ref, 'refs/tags/' )
-      
+
       _.assert( _.strDefined( result.hash ) );
       _.assert( _.strDefined( result.ref ) );
       _.assert( !_.strDefined( result.branch ) || !_.strDefined( result.tag ) );
-      
+
       return result;
     })
   }
@@ -1818,9 +1818,9 @@ function statusRemote_pre( routine, args )
   _.assert( _.strDefined( o.version ) || o.version === _.all || o.version === null, 'Expects {-o.version-} to be: null/str/_.all, but got:', o.version );
 
   for( let k in o  )
-  if( o[ k ] === null && k !== 'version' )//qqq Vova: should we just use something else for version instead of null? 
+  if( o[ k ] === null && k !== 'version' )//qqq Vova: should we just use something else for version instead of null?
   o[ k ] = true;
-  
+
   return o;
 }
 
@@ -1865,19 +1865,19 @@ function statusRemote_body( o )
   let remotes,tags,heads,output;
   let status = [];
   let version = o.version;
-  
+
   if( o.version === null )
   {
     start( 'git rev-parse --abbrev-ref HEAD' )
-    ready.then( ( got ) => 
-    { 
+    ready.then( ( got ) =>
+    {
       version = _.strStrip( got.output );
       if( version === 'HEAD' )
       throw _.err( `Can't determine current branch: local repository is in detached state` );
-      return null; 
+      return null;
     })
   }
-  
+
   start( 'git ls-remote' )//prints list of remote tags and branches
   ready.then( parse )
   start( 'git show-ref --heads --tags -d' )//prints list of local tags and branches
@@ -1886,8 +1886,8 @@ function statusRemote_body( o )
     output = got.output;
     return null;
   })
-  
- 
+
+
   if( o.remoteBranches )
   ready.then( branchesCheck )
   if( o.remoteCommits )
@@ -1927,15 +1927,15 @@ function statusRemote_body( o )
     remotes = _.strSplitNonPreserving({ src : arg.output, delimeter : '\n' });
     remotes = remotes.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
     remotes = remotes.slice( 1 );
-    
+
     //remote heads
-    heads = remotes.filter( ( r ) => 
-    { 
+    heads = remotes.filter( ( r ) =>
+    {
       if( version === _.all )
       return _.strBegins( r[ 1 ], 'refs/heads' )
       return _.strBegins( r[ 1 ], `refs/heads/${version}` )
     });
-    
+
     //remote tags
     tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) )
 
@@ -1945,7 +1945,7 @@ function statusRemote_body( o )
   function branchesCheck( got )
   {
     result.remoteBranches = '';
-    
+
     for( var h = 0; h < heads.length ; h++ )
     {
       let ref = heads[ h ][ 1 ];
@@ -1966,9 +1966,9 @@ function statusRemote_body( o )
   /*  */
 
   function commitsCheck( got )
-  { 
+  {
     result.remoteCommits = '';
-    
+
     if( got && !o.detailing )
     {
       if( heads.length )
@@ -1996,7 +1996,7 @@ function statusRemote_body( o )
         return start({ execPath, ready : null })
       })
       .then( ( got ) =>
-      { 
+      {
         if( !_.strHas( got.output, ref ) )
         {
           if( result.remoteCommits )
@@ -2463,11 +2463,11 @@ function repositoryInit( o )
   let nativeRemotePath = null;
   let parsed = null;
   let remoteExists = null;
-  
+
   _.assert( !o.remote || _.strDefined( o.remotePath ), `Expects path to remote repository {-o.remotePath-}, but got ${_.color.strFormat( String( o.remotePath ), 'path' )}` )
 
   if( o.remotePath )
-  { 
+  {
     o.remotePath = self.remotePathNormalize( o.remotePath );
     nativeRemotePath = self.remotePathNativize( o.remotePath );
     parsed = self.objectsParse( o.remotePath );
@@ -2838,15 +2838,15 @@ repositoryDelete.defaults =
 //
 
 function repositoryHasTag( o )
-{ 
+{
   let self = this;
-  
+
   _.assert( arguments.length === 1 );
   _.routineOptions( repositoryHasTag, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.tag ) );
   _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
-  
+
   let ready = new _.Consequence();
   let start = _.process.starter
   ({
@@ -2858,68 +2858,68 @@ function repositoryHasTag( o )
     throwingExitCode : 0,
     inputMirroring : 0,
     outputPiping : 0,
-  }); 
-  
+  });
+
   if( !self.isRepository({ localPath : o.localPath }) )
   ready.error( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
   else
   ready.take( null );
-  
+
   if( o.local )
   ready.then( checkLocal );
-  
+
   if( o.remote )
   ready.then( checkRemote );
-  
-  ready.catch( ( err ) => 
-  { 
+
+  ready.catch( ( err ) =>
+  {
     _.errAttend( err );
     throw _.err( 'Failed to obtain tags and heads from remote repository.\n', err );
   })
-  
+
   if( o.sync )
   {
     ready.deasyncWait();
     return ready.sync();
   }
-  
+
   return ready;
-  
+
   /*  */
-  
+
   function checkLocal()
   {
     return start( `git show-ref --heads --tags` )
     .then( hasTag )
   }
-  
+
   function checkRemote( result )
-  { 
+  {
     if( result )
     return true;
-    
+
     let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
     return start( `git ls-remote --tags --refs --heads ${remotePath}` )
     .then( hasTag )
   }
-  
+
   function hasTag( got )
-  { 
+  {
     let possibleTag = `refs/tags/${o.tag}`;
     let possibleHead = `refs/heads/${o.tag}`;
-    
+
     let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' })
     refs = refs.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/, stripping : 1 }) );
-    
+
     for( let i = 0, l = refs.length; i < l; i++ )
     if( refs[ i ][ 1 ] === possibleTag || refs[ i ][ 1 ] === possibleHead )
     return true;
-    
+
     return false;
   }
 }
 
-repositoryHasTag.defaults = 
+repositoryHasTag.defaults =
 {
   localPath : null,
   remotePath : null,
@@ -2932,14 +2932,14 @@ repositoryHasTag.defaults =
 //
 
 function repositoryHasVersion( o )
-{ 
+{
   let self = this;
-  
+
   _.assert( arguments.length === 1 );
   _.routineOptions( repositoryHasVersion, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.version ) );
-  
+
   let ready = new _.Consequence().take( null );
   let start = _.process.starter
   ({
@@ -2951,38 +2951,38 @@ function repositoryHasVersion( o )
     throwingExitCode : 0,
     inputMirroring : 0,
     outputPiping : 0,
-  }); 
-  
-  ready.then( () => 
+  });
+
+  ready.then( () =>
   {
     if( !self.isRepository({ localPath : o.localPath }) )
     throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
-  
+
     if( !_.git.versionIsCommitHash( o ) )
     throw _.err( `Provided version: ${_.strQuote( o.version ) } is not a commit hash.` )
-    
+
     let con = start({ execPath : `git cat-file -t ${o.version}` })
     con.then( got => got.exitCode === 0 );
-    
+
     return con;
   });
-  
-  ready.catch( ( err ) => 
-  { 
+
+  ready.catch( ( err ) =>
+  {
     _.errAttend( err );
     throw _.err( `Failed to check if repository at: ${_.strQuote( o.localPath )} has version: ${_.strQuote( o.version )}.\n`, err );
   })
-  
+
   if( o.sync )
   {
     ready.deasyncWait();
     return ready.sync();
   }
-  
+
   return ready;
 }
 
-repositoryHasVersion.defaults = 
+repositoryHasVersion.defaults =
 {
   localPath : null,
   version : null,
@@ -2994,20 +2994,20 @@ repositoryHasVersion.defaults =
 function diff( o )
 {
   o = _.routineOptions( diff, o );
-  
+
   _.assert( arguments.length === 1 );
   _.assert( _.strDefined( o.state1 ) || o.state1 === null );
   _.assert( _.strDefined( o.state2 ) );
   _.assert( _.strDefined( o.localPath ) );
-  
+
   if( o.state1 === null )
   o.state1 = 'version::HEAD';
-  
+
   let ready = new _.Consequence().take( null );
   let state1 = stateParse( o.state1, true );
   let state2 = stateParse( o.state2 );
   let result = Object.create( null );
-  
+
   let start = _.process.starter
   ({
     sync : 0,
@@ -3020,9 +3020,9 @@ function diff( o )
     outputPiping : 0,
     ready
   });
-  
+
   let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
-  
+
   if( state1 === 'working' )
   start( `git diff ${diffMode} --exit-code ${state2}` )
   else if( state1 === 'staging' )
@@ -3031,40 +3031,40 @@ function diff( o )
   start( `git diff ${diffMode} --exit-code HEAD ${state2}` )
   else
   start( `git diff ${diffMode} --exit-code ${state1} ${state2}` )
-  
+
   ready.then( handleOutput );
-  
+
   if( o.sync )
   {
     ready.deasyncWait();
     return ready.sync();
   }
-  
+
   return ready;
-  
+
   //
-  
+
   function stateParse( state, allowSpecial )
-  { 
+  {
     let statesBegin = [ 'version::', 'tag::' ];
     let statesSpecial = [ 'working', 'staging', 'committed' ];
-    
+
     if( _.strBegins( state, statesBegin ) )
     return _.strRemoveBegin( state, statesBegin );
-    
+
     if( !allowSpecial )
     throw _.err( `Expects state in one of formats:${statesBegin}, but got:${state}` );
-    
+
     if( !_.longHas( statesSpecial, state ) )
     throw _.err( `Expects one of special states: ${statesSpecial}, but got:${state}` );
-    
+
     return state;
   }
-  
+
   /*  */
-  
+
   function handleOutput( got )
-  {  
+  {
     result.modifiedFiles = '';
     result.deletedFiles = '';
     result.addedFiles = '';
@@ -3074,12 +3074,12 @@ function diff( o )
     result.unmergedFiles = '';
 
     let status = '';
-    
+
     if( o.detailing )
     detailingHandle( got );
-    
+
     for( var k in result )
-    { 
+    {
       if( !o.detailing )
       result[ k ] = got.exitCode === 1 ? _.maybe : false;
       else if( !o.explaining )
@@ -3091,24 +3091,24 @@ function diff( o )
         status += ':\n  ' + _.strLinesIndentation( result[ k ], '  ' );
       }
     }
-    
+
     if( o.attachOriginalDiffOutput )
     result.output = got.output;
-    
+
     if( o.explaining && !o.detailing )
     status = got.output;
-    
+
     result.status = o.explaining ? status : got.exitCode === 1;
-    
-    
+
+
     return result;
   }
-  
+
   /*  */
-  
+
   function detailingHandle( got )
   {
-    let statusToPropertyMap = 
+    let statusToPropertyMap =
     {
       'A' : 'addedFiles',
       'C' : 'copiedFiles',
@@ -3136,7 +3136,7 @@ function diff( o )
   }
 }
 
-diff.defaults = 
+diff.defaults =
 {
   state1 : null,
   state2 : null,
@@ -3598,7 +3598,7 @@ let Extend =
   isRepository,
   hasRemote,
   isHeadOn,
-  
+
 
   versionsRemoteRetrive,
   versionsPull,
@@ -3615,10 +3615,10 @@ let Extend =
   prsGet,
   repositoryInit,
   repositoryDelete,
-  
+
   repositoryHasTag,
   repositoryHasVersion,
-  
+
   diff,
 
   //
