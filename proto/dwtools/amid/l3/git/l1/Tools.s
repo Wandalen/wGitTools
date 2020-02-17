@@ -1687,10 +1687,10 @@ function statusLocal_body( o )
 
     let startOptions =
     {
-      execPath : 'git branch',
+      execPath : 'git for-each-ref',
       args :
       [
-       '-vv',
+       'refs/heads',
        `--format={ "branch" : "%(refname:short)", "upstream" : "%(upstream)" }`
       ]
     };
