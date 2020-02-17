@@ -612,6 +612,64 @@ defaults.verbosity = 0;
 
 //
 
+function versionIsCommitHash( o )
+{ 
+  let self = this;
+  
+  _.assert( arguments.length === 1 );
+  _.routineOptions( versionIsCommitHash, o );
+  _.assert( _.strDefined( o.localPath ) );
+  _.assert( _.strDefined( o.version ) );
+  
+  let ready = new _.Consequence().take( null );
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    inputMirroring : 0,
+    outputPiping : 0,
+    ready
+  });
+  
+  start( `git rev-parse --symbolic-full-name ${o.version}` )
+  
+  ready.then( ( got ) => 
+  { 
+    if( got.exitCode !== 0 || got.output && _.strHas( got.output, 'refs/' ) )
+    return false;
+    return true;
+  })
+  
+  ready.catch( ( err ) => 
+  { 
+    _.errAttend( err );
+    throw _.err( 'Failed to check if provided version is a commit hash.\n', err );
+  })
+  
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+  
+  return ready;
+  
+  /*  */
+}
+
+versionIsCommitHash.defaults = 
+{ 
+  localPath : null,
+  version : null,
+  sync : 1
+}
+
+//
+
 /**
  * @summary Returns true if local copy of repository `o.localPath` is up to date with remote repository `o.remotePath`.
  * @param {Object} o Options map.
@@ -703,6 +761,7 @@ function isUpToDate( o )
     // }
     
     //qqq: find better way to check if hash is not a branch name
+    //qqq: replace with versionIsCommitHash after testing
     if( parsed.hash && !parsed.isFixated )
     throw _.err( `Remote path: ${_.color.strFormat( String( o.remotePath ), 'path' )} is fixated, but hash: ${_.color.strFormat( String( parsed.hash ), 'path' ) } doesn't look like commit hash.` )
     
@@ -1143,10 +1202,9 @@ function versionsRemoteRetrive( o )
     currentPath : o.localPath,
     args :
     [
-      'branch',
-      '-r',
-      '--no-abbrev',
-      '--format=%(refname:lstrip=3)'
+      'for-each-ref',
+      'refs/remotes',
+      '--format=%(refname:strip=3)'
     ],
     inputMirroring : 0,
     outputPiping : 0,
@@ -1628,10 +1686,10 @@ function statusLocal_body( o )
 
     let startOptions =
     {
-      execPath : 'git branch',
+      execPath : 'git for-each-ref',
       args :
       [
-       '-vv',
+       'refs/heads',
        `--format={ "branch" : "%(refname:short)", "upstream" : "%(upstream)" }`
       ]
     };
@@ -1927,7 +1985,8 @@ function statusRemote_body( o )
     {
       let hash = head[ 0 ];
       let ref = head[ 1 ];
-      let execPath = `git branch --contains ${hash} --quiet --format=%(refname)`;
+      // let execPath = `git branch --contains ${hash} --quiet --format=%(refname)`;
+      let execPath = `git for-each-ref refs/heads --contains ${hash} --format=%(refname)`;
 
       if( !_.strHas( output, ref ) ) // skip if branch is not downloaded
       return;
@@ -1937,7 +1996,7 @@ function statusRemote_body( o )
         return start({ execPath, ready : null })
       })
       .then( ( got ) =>
-      {
+      { 
         if( !_.strHas( got.output, ref ) )
         {
           if( result.remoteCommits )
@@ -2872,6 +2931,66 @@ repositoryHasTag.defaults =
 
 //
 
+function repositoryHasVersion( o )
+{ 
+  let self = this;
+  
+  _.assert( arguments.length === 1 );
+  _.routineOptions( repositoryHasVersion, o );
+  _.assert( _.strDefined( o.localPath ) );
+  _.assert( _.strDefined( o.version ) );
+  
+  let ready = new _.Consequence().take( null );
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    inputMirroring : 0,
+    outputPiping : 0,
+  }); 
+  
+  ready.then( () => 
+  {
+    if( !self.isRepository({ localPath : o.localPath }) )
+    throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
+  
+    if( !_.git.versionIsCommitHash( o ) )
+    throw _.err( `Provided version: ${_.strQuote( o.version ) } is not a commit hash.` )
+    
+    let con = start({ execPath : `git cat-file -t ${o.version}` })
+    con.then( got => got.exitCode === 0 );
+    
+    return con;
+  });
+  
+  ready.catch( ( err ) => 
+  { 
+    _.errAttend( err );
+    throw _.err( `Failed to check if repository at: ${_.strQuote( o.localPath )} has version: ${_.strQuote( o.version )}.\n`, err );
+  })
+  
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+  
+  return ready;
+}
+
+repositoryHasVersion.defaults = 
+{
+  localPath : null,
+  version : null,
+  sync : 1
+}
+
+//
+
 function diff( o )
 {
   o = _.routineOptions( diff, o );
@@ -2902,7 +3021,7 @@ function diff( o )
     ready
   });
   
-  let diffMode = o.detailing ? '--raw' : '--compact-summary';
+  let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
   
   if( state1 === 'working' )
   start( `git diff ${diffMode} --exit-code ${state2}` )
@@ -2945,7 +3064,7 @@ function diff( o )
   /*  */
   
   function handleOutput( got )
-  { 
+  {  
     result.modifiedFiles = '';
     result.deletedFiles = '';
     result.addedFiles = '';
@@ -3472,12 +3591,14 @@ let Extend =
   versionLocalRetrive,
   versionRemoteLatestRetrive,
   versionRemoteCurrentRetrive,
+  versionIsCommitHash,
 
   isUpToDate,
   hasFiles,
   isRepository,
   hasRemote,
   isHeadOn,
+  
 
   versionsRemoteRetrive,
   versionsPull,
@@ -3496,6 +3617,7 @@ let Extend =
   repositoryDelete,
   
   repositoryHasTag,
+  repositoryHasVersion,
   
   diff,
 
