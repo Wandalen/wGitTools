@@ -8471,6 +8471,24 @@ function hasRemote( test )
     test.identical( got.remoteIsValid, false )
     return null;
   })
+  
+  shell( 'git -C ' + path.name( localPath ) + ' remote remove origin' )
+  
+  .then( () =>
+  {
+    let got = _.git.hasRemote({ localPath, remotePath : remotePath });
+    test.identical( got.downloaded, true )
+    test.identical( got.remoteIsValid, false )
+    return null;
+  })
+  
+  .then( () =>
+  {
+    let got = _.git.hasRemote({ localPath, remotePath : remotePath2 });
+    test.identical( got.downloaded, true )
+    test.identical( got.remoteIsValid, false )
+    return null;
+  })
 
   return con;
 }

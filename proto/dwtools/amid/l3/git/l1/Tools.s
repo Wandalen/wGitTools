@@ -997,10 +997,14 @@ function hasRemote( o )
 
     let config = _.git.configRead( o.localPath );
     let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
-    let originVcsPath = config[ 'remote "origin"' ].url;
-
+    let remoteOrigin = config[ 'remote "origin"' ];
+    let originVcsPath = null;
+    
+    if( remoteOrigin )
+    originVcsPath = remoteOrigin.url;
+    
     _.sure( _.strDefined( remoteVcsPath ) );
-    _.sure( _.strDefined( originVcsPath ) );
+    _.sure( _.strDefined( originVcsPath ) || originVcsPath === null );
 
     result.remoteVcsPath = remoteVcsPath;
     result.originVcsPath = originVcsPath;
