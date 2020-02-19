@@ -12214,6 +12214,34 @@ function repositoryHasTag( test )
     })
     test.identical( got, false );
     
+    test.description = 'should throw error if localPath does not contain git repo'
+    _.fileProvider.filesDelete( localPath );
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasTag
+      ({ 
+        localPath,
+        remotePath,
+        tag : 'master',
+        local : 1,
+        remote : 1,
+        sync : 1 
+      })
+    })
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasTag
+      ({ 
+        localPath,
+        remotePath,
+        tag : 'master',
+        local : 0,
+        remote : 1,
+        sync : 1 
+      })
+    })
+    
     if( !Config.debug )
     return null;
     

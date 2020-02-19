@@ -2852,7 +2852,7 @@ function repositoryHasTag( o )
   _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
   _.assert( o.local || o.remote );
 
-  let ready = new _.Consequence();
+  let ready = new _.Consequence().take( null );
   let start = _.process.starter
   ({
     sync : 0,
@@ -2864,11 +2864,13 @@ function repositoryHasTag( o )
     inputMirroring : 0,
     outputPiping : 0,
   });
-
-  if( !self.isRepository({ localPath : o.localPath }) )
-  ready.error( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
-  else
-  ready.take( null );
+  
+  ready.then( () => 
+  {
+    if( !self.isRepository({ localPath : o.localPath }) )
+    throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
+    return null;
+  })
 
   if( o.local )
   ready.then( checkLocal );
@@ -2893,7 +2895,7 @@ function repositoryHasTag( o )
   /*  */
 
   function checkLocal()
-  {
+  { 
     return start( `git show-ref --heads --tags` )
     .then( hasTag )
   }
