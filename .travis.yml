@@ -4,14 +4,22 @@ sudo: false
 language: node_js
 
 os:
-  - linux
+  # - linux
   - osx
-  - windows
+  # - windows
 node_js:
   - '10'
+  - '11'
   - '12'
-  - 'lts/*'
+  - 'node'
+
 script:
+  - git --version
+  - npm test
+  - brew unlink git
+  - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/6f85b5c82436b2f8beb3c0fd64f36d6f466cf0f7/Formula/git.rb
+  - brew link git
+  - git --version
   - npm test
 cache:
   npm: false
