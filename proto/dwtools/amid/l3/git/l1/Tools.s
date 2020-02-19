@@ -906,11 +906,11 @@ function isRepository( o )
       ({
         execPath : 'git ls-remote ' + remoteParsed,
         throwingExitCode : 0,
-        outputPiping : 0,
+        outputPiping : 1,
         stdio : 'ignore',
         sync : o.sync,
         deasync : 0,
-        inputMirroring : 0,
+        inputMirroring : 1,
         outputCollecting : 0
       });
     })
@@ -1997,10 +1997,10 @@ function statusRemote_body( o )
 
       con.then( () =>
       {
-        return start({ execPath, ready : null })
+        return start({ execPath, ready : null, mode : 'spawn' })
       })
       .then( ( got ) =>
-      {
+      { 
         if( !_.strHas( got.output, ref ) )
         {
           if( result.remoteCommits )
@@ -3171,6 +3171,7 @@ function hookRegister( o )
     check();
     hookLauncherMake();
     register();
+    setPermissions();
     return true;
   }
   catch( err )
@@ -3276,6 +3277,19 @@ function hookRegister( o )
     let handlerPath = path.join( o.repoPath, '.git/hooks', o.handlerName );
     let sourceCode = provider.fileRead( o.filePath );
     provider.fileWrite( handlerPath, sourceCode );
+  }
+  
+  function setPermissions()
+  {
+    if( process.platform != 'win32' )
+    _.process.start
+    ({ 
+      execPath : 'chmod ug+x ".git/hooks/*"', 
+      currentPath : o.repoPath,
+      sync : 1,
+      inputMirroring : 0,
+      outputPiping : 1 
+    })
   }
 }
 
