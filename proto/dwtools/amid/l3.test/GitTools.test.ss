@@ -12119,6 +12119,39 @@ function repositoryHasTag( test )
     ({ 
       localPath,
       remotePath,
+      tag : 'abc',
+      local : 1,
+      remote : 1,
+      sync : 1 
+    })
+    test.identical( got, false );
+    
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
+      tag : 'abc',
+      local : 0,
+      remote : 1,
+      sync : 1 
+    })
+    test.identical( got, false );
+    
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
+      tag : 'abc',
+      local : 1,
+      remote : 0,
+      sync : 1 
+    })
+    test.identical( got, false );
+    
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
       tag : '0.7.50',
       local : 1,
       remote : 1,
