@@ -12277,6 +12277,172 @@ repositoryHasTag.timeOut = 60000;
 
 //
 
+function repositoryHasVersion( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'wPathBasic' );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
+  
+  let ready = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    ready
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  begin()
+  .then( () => 
+  { 
+    var got = _.git.repositoryHasVersion
+    ({ 
+      localPath,
+      version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    var got = _.git.repositoryHasVersion
+    ({ 
+      localPath,
+      version : '1c5607cbae0b62c8a0553',
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    var got = _.git.repositoryHasVersion
+    ({ 
+      localPath,
+      version : '1c5607c',
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    var got = _.git.repositoryHasVersion
+    ({ 
+      localPath,
+      version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
+      sync : 1 
+    })
+    test.identical( got, false );
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasVersion
+      ({ 
+        localPath,
+        version : 'master',
+        sync : 1 
+      })
+    })
+    
+    test.description = 'version length less than 7'
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasVersion
+      ({ 
+        localPath,
+        version : '1c',
+        sync : 1 
+      })
+    })
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasVersion
+      ({ 
+        localPath,
+        version : '0.7.50',
+        sync : 1 
+      })
+    })
+    
+    test.description = 'remote repository, should throw error'
+    _.fileProvider.filesDelete( localPath )
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasVersion
+      ({ 
+        localPath,
+        version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+        sync : 1 
+      })
+    })
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasVersion
+      ({ 
+        localPath,
+        version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
+        sync : 1 
+      })
+    })
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasVersion
+      ({ 
+        localPath,
+        version : '0.7.50',
+        sync : 1 
+      })
+    })
+    
+    //
+    
+    if( !Config.debug )
+    return null;
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasVersion
+      ({ 
+        localPath : null,
+        version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+        sync : 1 
+      })
+    })
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasVersion
+      ({ 
+        localPath,
+        version : null,
+        sync : 1 
+      })
+    })
+    
+    return null;
+  })
+ 
+  return ready;
+  
+  /*  */
+  
+  function begin()
+  { 
+    ready.then( () => _.fileProvider.filesDelete( localPath ))
+    shell( `git clone ${remotePath}` )
+    return ready;
+  }
+  
+}
+
+repositoryHasVersion.timeOut = 60000;
+
+//
+
 function diff( test )
 {
   let context = this;
@@ -15341,7 +15507,7 @@ var Proto =
     
     repositoryInit,
     repositoryHasTag,
-    // repositoryHasVersion,
+    repositoryHasVersion,
     
     diff,
     diffSpecial,
