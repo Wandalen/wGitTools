@@ -2850,6 +2850,7 @@ function repositoryHasTag( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.tag ) );
   _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
+  _.assert( o.local || o.remote );
 
   let ready = new _.Consequence();
   let start = _.process.starter

@@ -12055,6 +12055,195 @@ function repositoryInit( test )
   })
 }
 
+//
+
+function repositoryHasTag( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'wPathBasic' );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
+  
+  let ready = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    ready
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  begin()
+  .then( () => 
+  {
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
+      tag : 'master',
+      local : 1,
+      remote : 1,
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
+      tag : 'master',
+      local : 0,
+      remote : 1,
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
+      tag : 'master',
+      local : 1,
+      remote : 0,
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
+      tag : '0.7.50',
+      local : 1,
+      remote : 1,
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
+      tag : '0.7.50',
+      local : 1,
+      remote : 0,
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
+      tag : '0.7.50',
+      local : 0,
+      remote : 1,
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 1,
+      remote : 1,
+      sync : 1 
+    })
+    test.identical( got, false );
+    
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 0,
+      remote : 1,
+      sync : 1 
+    })
+    test.identical( got, false );
+    
+    var got = _.git.repositoryHasTag
+    ({ 
+      localPath,
+      remotePath,
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 1,
+      remote : 0,
+      sync : 1 
+    })
+    test.identical( got, false );
+    
+    if( !Config.debug )
+    return null;
+    
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasTag
+      ({ 
+        localPath,
+        remotePath,
+        tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+        local : 0,
+        remote : 0,
+        sync : 1 
+      })
+    })
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasTag
+      ({ 
+        localPath,
+        remotePath,
+        tag : 'master',
+        local : 0,
+        remote : 0,
+        sync : 1 
+      })
+    })
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.repositoryHasTag
+      ({ 
+        localPath,
+        remotePath,
+        tag : '0.7.50',
+        local : 0,
+        remote : 0,
+        sync : 1 
+      })
+    })
+    
+    return null;
+  })
+ 
+  return ready;
+  
+  /*  */
+  
+  function begin()
+  { 
+    ready.then( () => _.fileProvider.filesDelete( localPath ))
+    shell( `git clone ${remotePath}` )
+    return ready;
+  }
+  
+}
+
+repositoryHasTag.timeOut = 60000;
+
+//
+
 function diff( test )
 {
   let context = this;
@@ -15118,6 +15307,8 @@ var Proto =
     statusEveryCheck,
     
     repositoryInit,
+    repositoryHasTag,
+    // repositoryHasVersion,
     
     diff,
     diffSpecial,
