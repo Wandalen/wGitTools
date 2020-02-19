@@ -473,6 +473,163 @@ function versionsPull( test )
   return con;
 }
 
+function versionIsCommitHash( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'wPathBasic' );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
+  
+  let ready = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    ready
+  })
+
+  provider.dirMake( testPath )
+
+  /*  */
+
+  begin()
+  .then( () => 
+  { 
+    test.description = 'full hash length, commit exists in repo'
+    var got = _.git.versionIsCommitHash
+    ({ 
+      localPath,
+      version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    test.description = 'less then full hash length, commit exists in repo'
+    var got = _.git.versionIsCommitHash
+    ({ 
+      localPath,
+      version : '1c5607cbae0b62c8a0553',
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    test.description = 'minimal hash length, commit exists in repo'
+    var got = _.git.versionIsCommitHash
+    ({ 
+      localPath,
+      version : '1c5607c',
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    test.description = 'full hash length, commit does not exist in repo'
+    var got = _.git.versionIsCommitHash
+    ({ 
+      localPath,
+      version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
+      sync : 1 
+    })
+    test.identical( got, true );
+    
+    var got = _.git.versionIsCommitHash
+    ({ 
+      localPath,
+      version : 'master',
+      sync : 1 
+    })
+    test.identical( got, false );
+    
+    var got = _.git.versionIsCommitHash
+    ({ 
+      localPath,
+      version : '0.7.50',
+      sync : 1 
+    })
+    test.identical( got, false );
+    
+    test.description = 'minimal hash length, commit does not exist in repo'
+    var got = _.git.versionIsCommitHash
+    ({ 
+      localPath,
+      version : 'd290dba',
+      sync : 1 
+    })
+    test.identical( got, false )
+    
+    test.description = 'version length less than 7'
+    var got = _.git.versionIsCommitHash
+    ({ 
+      localPath,
+      version : '1c',
+      sync : 1 
+    })
+    test.identical( got, false )
+    
+    test.description = 'version length less than 7'
+    var got = _.git.versionIsCommitHash
+    ({ 
+      localPath,
+      version : 'd290db',
+      sync : 1 
+    })
+    test.identical( got, false )
+    
+    test.description = 'remove repository, should throw error'
+    _.fileProvider.filesDelete( localPath )
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.versionIsCommitHash
+      ({ 
+        localPath,
+        version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+        sync : 1 
+      })
+    })
+    
+    if( !Config.debug )
+    return null;
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.versionIsCommitHash
+      ({ 
+        localPath : null,
+        version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+        sync : 1 
+      })
+    })
+    
+    test.shouldThrowErrorSync( () => 
+    {
+      _.git.versionIsCommitHash
+      ({ 
+        localPath,
+        version : null,
+        sync : 1 
+      })
+    })
+    
+    return null;
+  })
+ 
+  return ready;
+  
+  /*  */
+  
+  function begin()
+  { 
+    ready.then( () => _.fileProvider.filesDelete( localPath ))
+    shell( `git clone ${remotePath}` )
+    return ready;
+  }
+  
+}
+
+versionIsCommitHash.timeOut = 60000;
+
 //
 
 function statusLocal( test )
@@ -15504,6 +15661,7 @@ var Proto =
 
     versionsRemoteRetrive,
     versionsPull,
+    versionIsCommitHash,
 
     statusLocal,
     statusLocalEmpty,

@@ -612,6 +612,20 @@ defaults.verbosity = 0;
 
 //
 
+/**
+ * @summary Checks if provided version `o.version` is a commit hash.
+ * @description 
+ * Returns false if version is a branch name or tag.
+ * There is a limitation. Result can be inaccurate if provided version is specified 
+ * in short form and commit doesn't exist in repository at `o.localPath`.
+ * Use long form of version( SHA-1 ) to get accurate result.
+ * @param {Object} o Options map.
+ * @param {String} o.localPath Local path to git repository.
+ * @param {Number} o.sync=1 Controls execution mode.
+ * @function versionIsCommitHash
+ * @memberof module:Tools/mid/GitTools.
+ */
+
 function versionIsCommitHash( o )
 {
   let self = this;
@@ -634,6 +648,13 @@ function versionIsCommitHash( o )
     outputPiping : 0,
     ready
   });
+  
+  ready.then( () => 
+  {
+    if( !self.isRepository({ localPath : o.localPath }) )
+    throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
+    return null;
+  })
 
   start( `git rev-parse --symbolic-full-name ${o.version}` )
 
