@@ -612,6 +612,20 @@ defaults.verbosity = 0;
 
 //
 
+/**
+ * @summary Checks if provided version `o.version` is a commit hash.
+ * @description 
+ * Returns false if version is a branch name or tag.
+ * There is a limitation. Result can be inaccurate if provided version is specified 
+ * in short form and commit doesn't exist in repository at `o.localPath`.
+ * Use long form of version( SHA-1 ) to get accurate result.
+ * @param {Object} o Options map.
+ * @param {String} o.localPath Local path to git repository.
+ * @param {Number} o.sync=1 Controls execution mode.
+ * @function versionIsCommitHash
+ * @memberof module:Tools/mid/GitTools.
+ */
+
 function versionIsCommitHash( o )
 {
   let self = this;
@@ -634,6 +648,13 @@ function versionIsCommitHash( o )
     outputPiping : 0,
     ready
   });
+  
+  ready.then( () => 
+  {
+    if( !self.isRepository({ localPath : o.localPath }) )
+    throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
+    return null;
+  })
 
   start( `git rev-parse --symbolic-full-name ${o.version}` )
 
@@ -906,11 +927,11 @@ function isRepository( o )
       ({
         execPath : 'git ls-remote ' + remoteParsed,
         throwingExitCode : 0,
-        outputPiping : 0,
+        outputPiping : 1,
         stdio : 'ignore',
         sync : o.sync,
         deasync : 0,
-        inputMirroring : 0,
+        inputMirroring : 1,
         outputCollecting : 0
       });
     })
@@ -1997,10 +2018,10 @@ function statusRemote_body( o )
 
       con.then( () =>
       {
-        return start({ execPath, ready : null })
+        return start({ execPath, ready : null, mode : 'spawn' })
       })
       .then( ( got ) =>
-      {
+      { 
         if( !_.strHas( got.output, ref ) )
         {
           if( result.remoteCommits )
@@ -2850,8 +2871,9 @@ function repositoryHasTag( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.tag ) );
   _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
+  _.assert( o.local || o.remote );
 
-  let ready = new _.Consequence();
+  let ready = new _.Consequence().take( null );
   let start = _.process.starter
   ({
     sync : 0,
@@ -2863,11 +2885,13 @@ function repositoryHasTag( o )
     inputMirroring : 0,
     outputPiping : 0,
   });
-
-  if( !self.isRepository({ localPath : o.localPath }) )
-  ready.error( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
-  else
-  ready.take( null );
+  
+  ready.then( () => 
+  {
+    if( !self.isRepository({ localPath : o.localPath }) )
+    throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
+    return null;
+  })
 
   if( o.local )
   ready.then( checkLocal );
@@ -2892,7 +2916,7 @@ function repositoryHasTag( o )
   /*  */
 
   function checkLocal()
-  {
+  { 
     return start( `git show-ref --heads --tags` )
     .then( hasTag )
   }
@@ -3171,6 +3195,7 @@ function hookRegister( o )
     check();
     hookLauncherMake();
     register();
+    setPermissions();
     return true;
   }
   catch( err )
@@ -3276,6 +3301,19 @@ function hookRegister( o )
     let handlerPath = path.join( o.repoPath, '.git/hooks', o.handlerName );
     let sourceCode = provider.fileRead( o.filePath );
     provider.fileWrite( handlerPath, sourceCode );
+  }
+  
+  function setPermissions()
+  {
+    if( process.platform != 'win32' )
+    _.process.start
+    ({ 
+      execPath : 'chmod ug+x ".git/hooks/*"', 
+      currentPath : o.repoPath,
+      sync : 1,
+      inputMirroring : 0,
+      outputPiping : 1 
+    })
   }
 }
 
