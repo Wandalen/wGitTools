@@ -802,7 +802,8 @@ function isUpToDate( o )
     //qqq: find better way to check if hash is not a branch name
     //qqq: replace with versionIsCommitHash after testing
     if( parsed.hash && !parsed.isFixated )
-    throw _.err( `Remote path: ${_.color.strFormat( String( o.remotePath ), 'path' )} is fixated, but hash: ${_.color.strFormat( String( parsed.hash ), 'path' ) } doesn't look like commit hash.` )
+    // throw _.err( `Remote path: ${_.color.strFormat( String( o.remotePath ), 'path' )} is fixated, but hash: ${_.color.strFormat( String( parsed.hash ), 'path' ) } doesn't look like commit hash.` )
+    throw _.err( `Remote path: ( ${_.color.strFormat( String( o.remotePath ), 'path' )} ) looks like path with tag, but defined as path with version. Please use @ instead of # to specify tag` );
 
     result = _.git.isHeadOn
     ({
