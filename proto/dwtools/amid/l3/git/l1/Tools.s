@@ -514,8 +514,8 @@ function versionLocalRetrive( o )
   _.routineOptions( versionLocalRetrive, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
-
-  if( !_.git.isRepository( o ) )
+  
+  if( !_.git.isRepository({ localPath : o.localPath, verbosity : o.verbosity }) )
   return '';
 
   let gitPath = path.join( o.localPath, '.git' );
@@ -529,13 +529,31 @@ function versionLocalRetrive( o )
   let found = r.exec( currentVersion );
   if( found )
   currentVersion = found[ 1 ];
+  
+  currentVersion = currentVersion.trim() || null;
+  
+  if( o.detailing )
+  {
+    let result = Object.create( null );
+    result.version = currentVersion;
+    result.isHash = false;
+    result.isBranch = false;
+    
+    if( result.version )
+    {
+      result.isHash = !found;
+      result.isBranch = !result.isHash;
+    }
+    return result;
+  }
 
-  return currentVersion.trim() || null;
+  return currentVersion;
 }
 
 var defaults = versionLocalRetrive.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
+defaults.detailing = 0;
 
 //
 
