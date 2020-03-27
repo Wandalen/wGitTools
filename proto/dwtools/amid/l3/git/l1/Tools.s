@@ -3407,7 +3407,7 @@ function hookPreservingHardLinksRegister( repoPath )
   _.assert( arguments.length === 1 );
   _.assert( _.strDefined( repoPath ) );
 
-  let toolsPath = path.resolve( __dirname, '../../../../Tools.s' );
+  let toolsPath = path.resolve( __dirname, '../../../../../dwtools/Tools.s' );
   _.sure( provider.fileExists( toolsPath ) );
   toolsPath = path.nativize( toolsPath );
 
