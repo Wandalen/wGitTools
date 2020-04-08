@@ -64,7 +64,8 @@ function objectsParse( remotePath )
  * @property {String} localVcsPath
  * @property {String} remoteVcsPath
  * @property {String} longerRemoteVcsPath
- * @memberof module:Tools/mid/GitTools.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
  */
 
 
@@ -319,7 +320,8 @@ function pathIsFixated( filePath )
  * @param {String} o.remotePath Remote path.
  * @param {Number} o.verbosity=0 Level of verbosity.
  * @function pathFixate
- * @memberof module:Tools/mid/GitTools.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
  */
 
 function pathFixate( o )
@@ -500,7 +502,8 @@ defaults.verbosity = 0;
  * @param {String} o.localPath Path to git repository on hard drive.
  * @param {Number} o.verbosity=0 Level of verbosity.
  * @function versionLocalRetrive
- * @memberof module:Tools/mid/GitTools.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
  */
 
 function versionLocalRetrive( o )
@@ -514,7 +517,7 @@ function versionLocalRetrive( o )
   _.routineOptions( versionLocalRetrive, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
-  
+
   if( !_.git.isRepository({ localPath : o.localPath, verbosity : o.verbosity }) )
   return '';
 
@@ -529,16 +532,16 @@ function versionLocalRetrive( o )
   let found = r.exec( currentVersion );
   if( found )
   currentVersion = found[ 1 ];
-  
+
   currentVersion = currentVersion.trim() || null;
-  
+
   if( o.detailing )
   {
     let result = Object.create( null );
     result.version = currentVersion;
     result.isHash = false;
     result.isBranch = false;
-    
+
     if( result.version )
     {
       result.isHash = !found;
@@ -563,7 +566,8 @@ defaults.detailing = 0;
  * @param {String} o.remotePath Remote path to git repository.
  * @param {Number} o.verbosity=0 Level of verbosity.
  * @function versionRemoteLatestRetrive
- * @memberof module:Tools/mid/GitTools.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
  */
 
 function versionRemoteLatestRetrive( o )
@@ -606,7 +610,8 @@ defaults.verbosity = 0;
  * @param {String} o.remotePath Remote path.
  * @param {Number} o.verbosity=0 Level of verbosity.
  * @function versionRemoteCurrentRetrive
- * @memberof module:Tools/mid/GitTools.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
  */
 
 function versionRemoteCurrentRetrive( o )
@@ -632,16 +637,17 @@ defaults.verbosity = 0;
 
 /**
  * @summary Checks if provided version `o.version` is a commit hash.
- * @description 
+ * @description
  * Returns false if version is a branch name or tag.
- * There is a limitation. Result can be inaccurate if provided version is specified 
+ * There is a limitation. Result can be inaccurate if provided version is specified
  * in short form and commit doesn't exist in repository at `o.localPath`.
  * Use long form of version( SHA-1 ) to get accurate result.
  * @param {Object} o Options map.
  * @param {String} o.localPath Local path to git repository.
  * @param {Number} o.sync=1 Controls execution mode.
  * @function versionIsCommitHash
- * @memberof module:Tools/mid/GitTools.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
  */
 
 function versionIsCommitHash( o )
@@ -666,8 +672,8 @@ function versionIsCommitHash( o )
     outputPiping : 0,
     ready
   });
-  
-  ready.then( () => 
+
+  ready.then( () =>
   {
     if( !self.isRepository({ localPath : o.localPath }) )
     throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
@@ -716,7 +722,8 @@ versionIsCommitHash.defaults =
  * @param {String} o.remotePath Remote path to repository.
  * @param {Number} o.verbosity=0 Level of verbosity.
  * @function isUpToDate
- * @memberof module:Tools/mid/GitTools.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
  */
 
 function isUpToDate( o )
@@ -874,7 +881,8 @@ defaults.verbosity = 0;
  * @param {String} o.localPath Local path to package.
  * @param {Number} o.verbosity=0 Level of verbosity.
  * @function hasFiles
- * @memberof module:Tools/mid/GitTools.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
  */
 
 function hasFiles( o )
@@ -1000,7 +1008,8 @@ defaults.verbosity = 0;
  * @param {String} o.remotePath Remote path to package.
  * @param {Number} o.verbosity=0 Level of verbosity.
  * @function hasRemote
- * @memberof module:Tools/mid/GitTools.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
  */
 
 function hasRemote( o )
@@ -1039,10 +1048,10 @@ function hasRemote( o )
     let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
     let remoteOrigin = config[ 'remote "origin"' ];
     let originVcsPath = null;
-    
+
     if( remoteOrigin )
     originVcsPath = remoteOrigin.url;
-    
+
     _.sure( _.strDefined( remoteVcsPath ) );
     _.sure( _.strDefined( originVcsPath ) || originVcsPath === null );
 
@@ -1078,7 +1087,8 @@ defaults.verbosity = 0;
  * @param {String} o.tag Target tag or branch name.
  * @param {String} o.hash Target commit hash.
  * @function isHeadOn
- * @memberof module:Tools/mid/GitTools.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
  */
 
 function isHeadOn( o )
@@ -1336,7 +1346,8 @@ defaults.localPath = null;
  * @param {Boolean} o.detailing=0 Performs check of each enabled option if enabled, otherwise performs fast check.
  * @param {Boolean} o.explaining=0 Properties from result map will contain explanation if result of check is positive.
  * @function statusLocal
- * @memberof module:Tools/mid/GitTools.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
  */
 
 function statusLocal_pre( routine, args )
@@ -2040,7 +2051,7 @@ function statusRemote_body( o )
         return start({ execPath, ready : null, mode : 'spawn' })
       })
       .then( ( got ) =>
-      { 
+      {
         if( !_.strHas( got.output, ref ) )
         {
           if( result.remoteCommits )
@@ -2904,8 +2915,8 @@ function repositoryHasTag( o )
     inputMirroring : 0,
     outputPiping : 0,
   });
-  
-  ready.then( () => 
+
+  ready.then( () =>
   {
     if( !self.isRepository({ localPath : o.localPath }) )
     throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
@@ -2935,7 +2946,7 @@ function repositoryHasTag( o )
   /*  */
 
   function checkLocal()
-  { 
+  {
     return start( `git show-ref --heads --tags` )
     .then( hasTag )
   }
@@ -3321,17 +3332,17 @@ function hookRegister( o )
     let sourceCode = provider.fileRead( o.filePath );
     provider.fileWrite( handlerPath, sourceCode );
   }
-  
+
   function setPermissions()
   {
     if( process.platform != 'win32' )
     _.process.start
-    ({ 
-      execPath : 'chmod ug+x ".git/hooks/*"', 
+    ({
+      execPath : 'chmod ug+x ".git/hooks/*"',
       currentPath : o.repoPath,
       sync : 1,
       inputMirroring : 0,
-      outputPiping : 1 
+      outputPiping : 1
     })
   }
 }
