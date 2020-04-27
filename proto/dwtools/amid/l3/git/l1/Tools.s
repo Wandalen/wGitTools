@@ -3049,6 +3049,82 @@ repositoryHasVersion.defaults =
 
 //
 
+function tagMake( o )
+{
+  let ready;
+
+  _.routineOptions( tagMake, arguments );
+
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+    throwingExitCode : 1,
+    inputMirroring : 0,
+    outputPiping : 0,
+  });
+
+  if( o.deleting )
+  {
+
+    ready = _.git.repositoryHasTag
+    ({
+      localPath : o.localPath,
+      tag : o.tag,
+      local : 1,
+      remote : 0,
+      sync : 0,
+    });
+
+    ready.then( ( has ) =>
+    {
+      debugger;
+      if( has )
+      return start( `git tag -d ${o.tag}` );
+      return has;
+    })
+
+  }
+  else
+  {
+    ready = new _.Consequence().take( null );
+  }
+
+  ready.then( () =>
+  {
+    if( o.light )
+    return start( `git tag ${o.tag}` );
+    else
+    return start( `git tag -a ${o.tag} -m "${o.description}"` );
+  });
+
+  // if( got.exitCode !== 0 || got.output && _.strHas( got.output, 'refs/' ) )
+  // return false;
+
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+tagMake.defaults =
+{
+  localPath : null,
+  tag : null,
+  description : '',
+  light : 0,
+  deleting : 1,
+  sync : 1,
+}
+
+//
+
 function diff( o )
 {
   o = _.routineOptions( diff, o );
@@ -3671,7 +3747,6 @@ let Extend =
   hasRemote,
   isHeadOn,
 
-
   versionsRemoteRetrive,
   versionsPull,
 
@@ -3690,6 +3765,7 @@ let Extend =
 
   repositoryHasTag,
   repositoryHasVersion,
+  tagMake, /* qqq : cover */
 
   diff,
 
