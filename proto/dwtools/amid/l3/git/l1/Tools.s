@@ -697,7 +697,7 @@ function versionIsCommitHash( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -1064,7 +1064,7 @@ function hasRemote( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -1127,7 +1127,7 @@ function isHeadOn( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -1423,7 +1423,7 @@ function statusLocal_body( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -1968,7 +1968,7 @@ function statusRemote_body( o )
   {
     if( o.sync )
     {
-      ready.deasyncWait();
+      ready.deasync();
       return ready.sync();
     }
 
@@ -2219,7 +2219,7 @@ function status_body( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -2292,7 +2292,7 @@ function statusFull( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -2469,7 +2469,7 @@ function prsGet( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -2576,7 +2576,7 @@ function repositoryInit( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -2828,7 +2828,7 @@ function repositoryDelete( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -2937,7 +2937,7 @@ function repositoryHasTag( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -3033,7 +3033,7 @@ function repositoryHasVersion( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -3106,7 +3106,7 @@ function tagMake( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -3170,7 +3170,7 @@ function diff( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
