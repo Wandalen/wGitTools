@@ -3586,10 +3586,6 @@ function reset( o )
   if( o.removingUntracked === null )
   o.removingUntracked = 1;
 
-  start( `git reset --hard` );
-  if( o.removingUntracked )
-  start( `git clean -df` );
-
   let start = _.process.starter
   ({
     sync : 0,
@@ -3602,6 +3598,10 @@ function reset( o )
     outputPiping : 0,
     ready
   });
+
+  start( `git reset --hard` );
+  if( o.removingUntracked )
+  start( `git clean -df` );
 
   if( o.sync )
   {
