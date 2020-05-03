@@ -3414,8 +3414,8 @@ function configRead( filePath )
 
 //
 
-/* qqq : routine to find out does exist */
-/* qqq : routine to convert one kind of name to another */
+/* qqq : implement routine to find out does exist version/tag */
+/* qqq : implement routine to convert one kind of version/tag to one another */
 
 function diff( o )
 {
@@ -3431,7 +3431,7 @@ function diff( o )
 
   let ready = new _.Consequence().take( null );
   let state1 = stateParse( o.state1, true );
-  let state2 = stateParse( o.state2 );
+  let state2 = stateParse( o.state2 ); /* qqq : ! */
   let result = Object.create( null );
 
   let start = _.process.starter
@@ -3565,7 +3565,7 @@ function diff( o )
 diff.defaults =
 {
   state1 : 'working',
-  state2 : null,
+  state2 : 'committed',
   localPath : null,
   detailing : 1,
   explaining : 1,
