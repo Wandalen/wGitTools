@@ -2,39 +2,13 @@
 
 'use strict';
 
-if( typeof module !== 'undefined' )
-{
-  require( '../IncludeBase.s' );
-}
-
 let _ = _global_.wTools;
 let Self = _.git = _.git || Object.create( null );
 let Ini = null;
 
 // --
-// inter
+// path
 // --
-
-function configRead( filePath )
-{
-  let fileProvider = _.fileProvider;
-  let path = fileProvider.path;
-
-  // debugger;
-
-  _.assert( arguments.length === 1 );
-  _.assert( _.strIs( filePath ) );
-
-  if( !Ini )
-  Ini = require( 'ini' );
-
-  let read = fileProvider.fileRead( path.join( filePath, '.git/config' ) );
-  let config = Ini.parse( read );
-
-  return config;
-}
-
-//
 
 function objectsParse( remotePath )
 {
@@ -63,138 +37,10 @@ function objectsParse( remotePath )
  * @property {String} longPath
  * @property {String} localVcsPath
  * @property {String} remoteVcsPath
- * @property {String} longerRemoteVcsPath
+ * @property {String} remoteVcsLongerPath
  * @namespace wTools.git
  * @module Tools/mid/GitTools
  */
-
-
-// function pathParse( remotePath )
-// {
-//   let path = _.uri;
-//   let result = Object.create( null );
-
-//   if( _.mapIs( remotePath ) )
-//   return remotePath;
-
-//   _.assert( arguments.length === 1 );
-//   _.assert( _.strIs( remotePath ) );
-//   _.assert( path.isGlobal( remotePath ) )
-
-//   /* */
-
-//   // debugger;
-//   let parsed1 = path.parseConsecutive( remotePath );
-//   // parsed1.hash = parsed1.hash || 'master';
-//   _.mapExtend( result, parsed1 );
-
-//   if( !result.tag && !result.hash )
-//   result.tag = 'master';
-
-//   _.assert( !result.tag || !result.hash, 'Remote path:', _.strQuote( remotePath ), 'should contain only hash or tag, but not both.' )
-
-//   let p = pathIsolateGlobalAndLocal();
-//   result.localVcsPath = p[ 1 ];
-
-//   /* */
-
-//   let parsed2 = _.mapExtend( null, parsed1 );
-//   parsed2.hash = null;
-//   parsed2.tag = null;
-//   parsed2.protocols = parsed2.protocol ? parsed2.protocol.split( '+' ) : [];
-//   delete parsed2.protocol;
-
-//   // let isHardDrive = !_.longHasAny( parsed2.protocols, [ 'http', 'https', 'ssh' ] );
-//   let isHardDrive = _.longHasAny( parsed2.protocols, [ 'hd' ] );
-//   let isRelative = path.isRelative( parsed2.longPath );
-
-//   if( parsed2.protocols.length > 0 && parsed2.protocols[ 0 ].toLowerCase() === 'git' )
-//   {
-//     parsed2.protocols.splice( 0,1 );
-//   }
-
-//   if( parsed2.protocols.length > 0 && parsed2.protocols[ 0 ].toLowerCase() === 'hd' )
-//   {
-//     parsed2.protocols.splice( 0,1 );
-//   }
-
-//   parsed2.longPath = p[ 0 ];
-//   if( !isHardDrive )
-//   parsed2.longPath = _.strRemoveBegin( parsed2.longPath, '/' );
-//   parsed2.longPath = _.strRemoveEnd( parsed2.longPath, '/' );
-//   delete parsed2.query;
-
-//   result.remoteVcsPath = path.str( parsed2 );
-
-//   if( isHardDrive )
-//   result.remoteVcsPath = _.fileProvider.path.nativize( result.remoteVcsPath );
-
-//   /* */
-
-//   let parsed3 = _.mapExtend( null, parsed1 );
-//   parsed3.longPath = parsed2.longPath;
-
-//   parsed3.protocols = parsed2.protocols.slice();
-//   parsed3.protocol = null;
-//   parsed3.hash = null;
-//   parsed3.tag = null;
-//   delete parsed3.query;
-//   result.longerRemoteVcsPath = path.str( parsed3 );
-
-//   if( isHardDrive )
-//   result.longerRemoteVcsPath = _.fileProvider.path.nativize( result.longerRemoteVcsPath );
-
-//   result.isFixated = _.git.pathIsFixated( result );
-
-//   /* */
-
-//   // debugger;
-//   _.assert( !_.boolLike( result.hash ) );
-//   return result
-
-// /*
-
-//   remotePath : 'git+https:///github.com/Wandalen/wTools.git/out/wTools#master'
-//   protocol : 'git+https',
-//   hash : 'master',
-//   longPath : '/github.com/Wandalen/wTools.git/out/wTools',
-//   localVcsPath : 'out/wTools',
-//   remoteVcsPath : 'github.com/Wandalen/wTools.git',
-//   longerRemoteVcsPath : 'https://github.com/Wandalen/wTools.git'
-
-// */
-
-//   /* */
-
-//   function pathIsolateGlobalAndLocal()
-//   {
-//     let splits = _.strIsolateLeftOrAll( parsed1.longPath, '.git/' );
-//     if( parsed1.query )
-//     {
-//       let query = _.strStructureParse({ src : parsed1.query, keyValDelimeter : '=', entryDelimeter : '&' });
-//       if( query.out )
-//       splits[ 2 ] = path.join( splits[ 2 ], query.out );
-//     }
-//     let globalPath = splits[ 0 ] + ( splits[ 1 ] || '' );
-//     let localPath = splits[ 2 ] === '' ? './' : splits[ 2 ];
-//     return [ globalPath, localPath ];
-//   }
-
-// /*
-//   function pathIsolateGlobalAndLocal( remotePath )
-//   {
-//     let parsed = path.parseConsecutive( remotePath );
-//     let splits = _.strIsolateLeftOrAll( parsed.longPath, '.git/' );
-//     parsed.longPath = splits[ 0 ] + ( splits[ 1 ] || '' );
-//     let globalPath = path.str( parsed );
-//     return [ globalPath, splits[ 2 ] ];
-//   }
-
-// */
-
-// }
-
-//
 
 function pathParse( remotePath )
 {
@@ -255,15 +101,15 @@ function pathParse( remotePath )
   if( isHardDrive )
   result.remoteVcsPath = provider.path.nativize( result.remoteVcsPath );
 
-  /* longerRemoteVcsPath */
+  /* remoteVcsLongerPath */
 
   let parsed3 = _.mapBut( parsed1, ignoreComponents );
   parsed3.longPath = parsed2.longPath;
   parsed3.protocols = parsed2.protocols.slice();
-  result.longerRemoteVcsPath = path.str( parsed3 );
+  result.remoteVcsLongerPath = path.str( parsed3 );
 
   if( isHardDrive )
-  result.longerRemoteVcsPath = provider.path.nativize( result.longerRemoteVcsPath );
+  result.remoteVcsLongerPath = provider.path.nativize( result.remoteVcsLongerPath );
 
   /* */
 
@@ -292,6 +138,7 @@ function pathParse( remotePath )
     let localPath = splits[ 2 ] || './';
     return { globalPath, localPath };
   }
+
 }
 
 //
@@ -448,7 +295,9 @@ function localPathFromInside( o )
 var defaults = localPathFromInside.defaults = Object.create( null );
 defaults.insidePath = null;
 
-//
+// --
+// version
+// --
 
 function versionLocalChange( o )
 {
@@ -587,7 +436,7 @@ function versionRemoteLatestRetrive( o )
     outputCollecting : 1,
   });
 
-  let got = start( 'git ls-remote ' + parsed.longerRemoteVcsPath );
+  let got = start( 'git ls-remote ' + parsed.remoteVcsLongerPath );
   let latestVersion = /([0-9a-f]+)\s+HEAD/.exec( got.output );
   if( !latestVersion || !latestVersion[ 1 ] )
   return null;
@@ -715,6 +564,75 @@ versionIsCommitHash.defaults =
 
 //
 
+function versionsRemoteRetrive( o )
+{
+  _.routineOptions( versionsRemoteRetrive, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strIs( o.localPath ) );
+
+  let ready = _.process.start
+  ({
+    execPath : 'git',
+    mode : 'spawn',
+    currentPath : o.localPath,
+    args :
+    [
+      'for-each-ref',
+      'refs/remotes',
+      '--format=%(refname:strip=3)'
+    ],
+    inputMirroring : 0,
+    outputPiping : 0,
+    outputCollecting : 1,
+  })
+
+  ready.finally( ( err, got ) =>
+  {
+    if( err )
+    throw _.err( 'Can\'t retrive remote versions. Reason:', err );
+
+    let result = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+    return result.slice( 1 );
+  })
+
+  return ready;
+}
+
+var defaults = versionsRemoteRetrive.defaults = Object.create( null );
+defaults.localPath = null;
+
+//
+
+function versionsPull( o )
+{
+  _.routineOptions( versionsPull, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+
+  return _.git.versionsRemoteRetrive({ localPath : o.localPath })
+  .then( ( versions ) =>
+  {
+    _.assert( _.arrayIs( versions ) && versions.length );
+
+    let ready = new _.Consequence().take( null );
+    let start = _.process.starter
+    ({
+      mode : 'shell',
+      currentPath : o.localPath,
+      ready : ready
+    });
+    _.each( versions, ( version ) => start( `git checkout ${version} && git pull` ) );
+
+    return ready;
+  })
+}
+
+var defaults = versionsPull.defaults = Object.create( null );
+defaults.localPath = null;
+
+// --
+// checker
+// --
+
 /**
  * @summary Returns true if local copy of repository `o.localPath` is up to date with remote repository `o.remotePath`.
  * @param {Object} o Options map.
@@ -812,7 +730,7 @@ function isUpToDate( o )
     // throw _.err( `Remote path: ${_.color.strFormat( String( o.remotePath ), 'path' )} is fixated, but hash: ${_.color.strFormat( String( parsed.hash ), 'path' ) } doesn't look like commit hash.` )
     throw _.err( `Remote path: ( ${_.color.strFormat( String( o.remotePath ), 'path' )} ) looks like path with tag, but defined as path with version. Please use @ instead of # to specify tag` );
 
-    result = _.git.isHeadOn
+    result = _.git.isHead
     ({
       localPath : o.localPath,
       tag : parsed.tag,
@@ -1086,17 +1004,17 @@ defaults.verbosity = 0;
  * @param {String} o.localPath Local path to package.
  * @param {String} o.tag Target tag or branch name.
  * @param {String} o.hash Target commit hash.
- * @function isHeadOn
+ * @function isHead
  * @namespace wTools.git
  * @module Tools/mid/GitTools
  */
 
-function isHeadOn( o )
+function isHead( o )
 {
   let localProvider = _.fileProvider;
   let path = localProvider.path;
 
-  _.routineOptions( isHeadOn, o );
+  _.routineOptions( isHead, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( o.tag || o.hash, 'Expects {-o.hash-} or {-o.tag-} to be defined.' )
@@ -1235,80 +1153,15 @@ function isHeadOn( o )
   }
 }
 
-var defaults = isHeadOn.defaults = Object.create( null );
+var defaults = isHead.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.hash = null;
 defaults.tag = null;
 defaults.sync = 1;
 
-//
-
-function versionsRemoteRetrive( o )
-{
-  _.routineOptions( versionsRemoteRetrive, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
-  _.assert( _.strIs( o.localPath ) );
-
-  let ready = _.process.start
-  ({
-    execPath : 'git',
-    mode : 'spawn',
-    currentPath : o.localPath,
-    args :
-    [
-      'for-each-ref',
-      'refs/remotes',
-      '--format=%(refname:strip=3)'
-    ],
-    inputMirroring : 0,
-    outputPiping : 0,
-    outputCollecting : 1,
-  })
-
-  ready.finally( ( err, got ) =>
-  {
-    if( err )
-    throw _.err( 'Can\'t retrive remote versions. Reason:', err );
-
-    let result = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
-    return result.slice( 1 );
-  })
-
-  return ready;
-}
-
-var defaults = versionsRemoteRetrive.defaults = Object.create( null );
-defaults.localPath = null;
-
-//
-
-function versionsPull( o )
-{
-  _.routineOptions( versionsPull, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
-
-  return _.git.versionsRemoteRetrive({ localPath : o.localPath })
-  .then( ( versions ) =>
-  {
-    _.assert( _.arrayIs( versions ) && versions.length );
-
-    let ready = new _.Consequence().take( null );
-    let start = _.process.starter
-    ({
-      mode : 'shell',
-      currentPath : o.localPath,
-      ready : ready
-    });
-    _.each( versions, ( version ) => start( `git checkout ${version} && git pull` ) );
-
-    return ready;
-  })
-}
-
-var defaults = versionsPull.defaults = Object.create( null );
-defaults.localPath = null;
-
-//
+// --
+// status
+// --
 
 /**
  * @summary Checks local repo for uncommitted, unpushed changes and conflicts.
@@ -2383,7 +2236,9 @@ _.routineExtend( hasLocalChanges, statusLocal )
 
 function hasRemoteChanges()
 {
-  let result = statusRemote.apply( this, arguments );
+  let self = this;
+
+  let result = self.statusRemote.apply( this, arguments );
 
   if( _.consequenceIs( result ) )
   return result.then( end );
@@ -2428,467 +2283,6 @@ function hasChanges()
 }
 
 _.routineExtend( hasChanges, status )
-
-//
-
-function prsGet( o )
-{
-  let ready = new _.Consequence().take( null );
-
-  if( _.strIs( o ) )
-  o = { remotePath : o }
-  o = _.routineOptions( prsGet, o );
-
-  let parsed = this.objectsParse( o.remotePath );
-
-  ready
-  .then( () =>
-  {
-    if( parsed.service === 'github.com' )
-    return prsOnGithub();
-    if( o.throwing )
-    throw _.err( 'Unknown service' );
-    return null;
-  })
-  .finally( ( err, prs ) =>
-  {
-    if( !err && !prs && o.throwing )
-    err = _.err( 'Failed' );
-    if( err )
-    if( !o.throwing )
-    {
-      _.errAttend( err );
-      return null;
-    }
-    else
-    {
-      throw _.err( err, '\nFailed to get list of pull requests' );
-    }
-    return prs;
-  });
-
-  if( o.sync )
-  {
-    ready.deasync();
-    return ready.sync();
-  }
-
-  return ready;
-
-  /* */
-
-  function prsOnGithub()
-  {
-    let ready = new _.Consequence().take( null );
-    ready
-    .then( () =>
-    {
-      let github = require( 'octonode' );
-      // let client = github.client();
-      let client = o.token ? github.client( o.token ) : github.client();
-      let repo = client.repo( `${parsed.user}/${parsed.repo}` );
-      return repo.prsAsync();
-    })
-    .then( ( result ) =>
-    {
-      return result[ 0 ];
-    });
-    return ready;
-  }
-
-}
-
-prsGet.defaults =
-{
-  token : null,
-  remotePath : null,
-  throwing : 1,
-  sync : 1,
-}
-
-//
-
-function repositoryInit( o )
-{
-  let self = this;
-  let ready = new _.Consequence().take( null );
-
-  o = _.routineOptions( repositoryInit, o );
-
-  let nativeRemotePath = null;
-  let parsed = null;
-  let remoteExists = null;
-
-  _.assert( !o.remote || _.strDefined( o.remotePath ), `Expects path to remote repository {-o.remotePath-}, but got ${_.color.strFormat( String( o.remotePath ), 'path' )}` )
-
-  if( o.remotePath )
-  {
-    o.remotePath = self.remotePathNormalize( o.remotePath );
-    nativeRemotePath = self.remotePathNativize( o.remotePath );
-    parsed = self.objectsParse( o.remotePath );
-    remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
-  }
-
-  if( o.remote === null )
-  o.remote = !!o.remotePath;
-  if( o.local === null )
-  o.local = !!o.localPath;
-
-  let start = _.process.starter
-  ({
-    verbosity : o.verbosity - 1,
-    sync : 0,
-    deasync : 0,
-    outputCollecting : 1,
-    mode : 'spawn',
-    currentPath : o.localPath,
-  });
-
-  ready
-  .then( () =>
-  {
-    if( !o.remote )
-    return null;
-    if( remoteExists )
-    return null;
-    return remoteInit();
-  })
-  .then( () =>
-  {
-    if( !o.local )
-    return null;
-    return localInit();
-  })
-  .finally( ( err, arg ) =>
-  {
-    if( err )
-    if( !o.throwing )
-    {
-      _.errAttend( err );
-      return null;
-    }
-    else
-    {
-      throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-    }
-    return arg;
-  });
-
-  if( o.sync )
-  {
-    ready.deasync();
-    return ready.sync();
-  }
-
-  return ready;
-
-  /* */
-
-  function repositoryInitOnGithub()
-  {
-    if( !o.token )
-    {
-      if( o.throwing )
-      throw _.err( 'Requires an access token to create a repository on github.com' );
-      return null;
-    }
-    let ready = new _.Consequence().take( null );
-    ready
-    .then( () =>
-    {
-
-      if( o.verbosity )
-      logger.log( `Making remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-
-      if( o.dry )
-      return true;
-
-      let github = require( 'octonode' );
-      let client = github.client( o.token );
-      let me = client.me();
-
-      return me.repoAsync
-      ({
-        'name' : parsed.repo,
-        'description' : o.description || '',
-      });
-    })
-    .then( ( result ) =>
-    {
-      /* remoteExists = true; */
-      return result[ 0 ] || null;
-    });
-    return ready;
-  }
-
-  /**/
-
-  function remoteInit()
-  {
-    if( parsed.service === 'github.com' )
-    return repositoryInitOnGithub();
-    if( o.throwing )
-    throw _.err( `Cant init remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-    return null;
-  }
-
-  /**/
-
-  function localInit()
-  {
-    _.assert( _.uri.is( o.localPath ) && !_.uri.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
-
-    o.localPath = _.path.canonize( o.localPath );
-
-    if( _.fileProvider.fileExists( o.localPath ) && !_.fileProvider.isDir( o.localPath ) )
-    throw _.err( `Cant clone repository to ${_.color.strFormat( String( o.localPath ), 'path' )}. It is occupied by non-directory.` );
-
-    if( o.remotePath && remoteExists )
-    {
-
-      if( self.isRepository({ localPath : o.localPath }) )
-      return localRepositoryRemoteAdd();
-      else
-      return localRepositoryClone();
-
-    }
-    else
-    {
-
-      if( self.isRepository({ localPath : o.localPath }) )
-      return localRepositoryRemoteAdd();
-      else
-      return localRepositoryNew();
-
-    }
-  }
-
-  /**/
-
-  function localRepositoryNew()
-  {
-    if( o.verbosity )
-    logger.log( `Making a new local repository at ${_.color.strFormat( String( o.localPath ), 'path' )}` );
-    if( o.dry )
-    return null;
-    _.fileProvider.dirMake( o.localPath );
-    start( `git init .` );
-    return start( `git remote add origin ${nativeRemotePath}` );
-  }
-
-  /**/
-
-  function localRepositoryRemoteAdd()
-  {
-    let wasRemotePath = _.git.remotePathFromLocal( o.localPath );
-    if( wasRemotePath )
-    {
-      if( wasRemotePath !== o.remotePath )
-      throw _.err( `Repository at ${o.localPath} already exists, but has different origin ${wasRemotePath}` );
-      return null;
-    }
-    if( o.verbosity )
-    logger.log( `Adding origin ${_.color.strFormat( String( o.remotePath ), 'path' )} to local repository ${_.color.strFormat( String( o.localPath ), 'path' )}` );
-    if( o.dry )
-    return null;
-    // if( _.git.remotePathFromLocal( o.localPath ) )
-    // start( `git remote rm origin` );
-    return start( `git remote add origin ${nativeRemotePath}` );
-  }
-
-  /**/
-
-  function localRepositoryClone()
-  {
-
-    if( o.verbosity )
-    if( _.fileProvider.isDir( o.localPath ) )
-    logger.log( `Directory ${_.color.strFormat( String( o.localPath ), 'path' )} will be moved` );
-
-    if( o.verbosity )
-    logger.log( `Cloning repository from ${_.color.strFormat( String( o.remotePath ), 'path' )} to ${_.color.strFormat( String( o.localPath ), 'path' )}` );
-
-    if( o.dry )
-    return null;
-
-    let downloadPath = o.localPath;
-    if( _.fileProvider.isDir( o.localPath ) )
-    {
-      downloadPath = _.path.join( o.localPath + '-' + _.idWithGuid() );
-    }
-
-    _.fileProvider.dirMake( downloadPath );
-
-    let start = _.process.starter
-    ({
-      verbosity : o.verbosity - 1,
-      sync : 0,
-      deasync : 0,
-      outputCollecting : 1,
-      mode : 'spawn',
-      currentPath : downloadPath,
-    });
-
-    return start( `git clone ${nativeRemotePath} .` )
-    .finally( ( err, arg ) =>
-    {
-      if( err )
-      {
-        debugger;
-        _.fileProvider.filesDelete( downloadPath );
-        if( err )
-        throw _.err( err );
-      }
-      try
-      {
-        let o2 =
-        {
-          dst : o.localPath,
-          src : downloadPath,
-          dstRewriting : 1,
-          dstRewritingOnlyPreserving : 1,
-          linking : 'hardLink',
-        }
-        _.fileProvider.filesReflect( o2 );
-        debugger;
-      }
-      catch( err )
-      {
-        _.fileProvider.filesDelete( downloadPath );
-        throw _.err( err, `\nCollision of local files with remote files at ${_.color.strFormat( String( o.localPath ), 'path' )}` );
-      }
-      _.fileProvider.filesDelete( downloadPath );
-      return arg;
-    });
-
-  }
-
-  /**/
-
-}
-
-repositoryInit.defaults =
-{
-  remotePath : null,
-  localPath : null,
-  remote : null,
-  local : null,
-  throwing : 1,
-  sync : 1,
-  verbosity : 0,
-  dry : 0,
-  description : null,
-  token : null,
-}
-
-//
-
-function repositoryDelete( o )
-{
-  let self = this;
-  let ready = new _.Consequence().take( null );
-
-  o = _.routineOptions( repositoryInit, o );
-
-  let nativeRemotePath = null;
-  let parsed = null;
-  let remoteExists = null;
-
-  if( o.remotePath )
-  {
-    o.remotePath = self.remotePathNormalize( o.remotePath );
-    nativeRemotePath = self.remotePathNativize( o.remotePath );
-    parsed = self.objectsParse( o.remotePath );
-    remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
-  }
-
-  if( !remoteExists )
-  return false;
-
-  ready
-  .then( () =>
-  {
-    return remove();
-  })
-  .finally( ( err, arg ) =>
-  {
-    debugger;
-    if( err )
-    if( !o.throwing )
-    {
-      _.errAttend( err );
-      return null;
-    }
-    else
-    {
-      throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-    }
-    return arg;
-  });
-
-  if( o.sync )
-  {
-    ready.deasync();
-    return ready.sync();
-  }
-
-  return ready;
-
-  /* */
-
-  function removeGithub()
-  {
-    if( !o.token )
-    {
-      if( o.throwing )
-      throw _.err( 'Requires an access token to create a repository on github.com' );
-      return null;
-    }
-    let ready = new _.Consequence().take( null );
-    ready
-    .then( () =>
-    {
-
-      if( o.verbosity )
-      logger.log( `Removing remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-
-      if( o.dry )
-      return true;
-
-      let github = require( 'octonode' );
-      let client = github.client( o.token );
-      let repo = client.repo( `${parsed.user}/${parsed.repo}` );
-      return repo.destroyAsync();
-    })
-    .then( ( result ) =>
-    {
-      return result[ 0 ] || null;
-    });
-    return ready;
-  }
-
-  /**/
-
-  function remove()
-  {
-    if( parsed.service === 'github.com' )
-    return removeGithub();
-    if( o.throwing )
-    throw _.err( `Cant remove remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-    return null;
-  }
-
-}
-
-repositoryDelete.defaults =
-{
-  remotePath : null,
-  throwing : 1,
-  sync : 1,
-  verbosity : 1,
-  dry : 0,
-  token : null,
-}
 
 //
 
@@ -3123,165 +2517,9 @@ tagMake.defaults =
   sync : 1,
 }
 
-//
-
-function diff( o )
-{
-  o = _.routineOptions( diff, o );
-
-  _.assert( arguments.length === 1 );
-  _.assert( _.strDefined( o.state1 ) || o.state1 === null );
-  _.assert( _.strDefined( o.state2 ) );
-  _.assert( _.strDefined( o.localPath ) );
-
-  if( o.state1 === null )
-  o.state1 = 'version::HEAD';
-
-  let ready = new _.Consequence().take( null );
-  let state1 = stateParse( o.state1, true );
-  let state2 = stateParse( o.state2 );
-  let result = Object.create( null );
-
-  let start = _.process.starter
-  ({
-    sync : 0,
-    deasync : 0,
-    outputCollecting : 1,
-    mode : 'spawn',
-    currentPath : o.localPath,
-    throwingExitCode : 0,
-    inputMirroring : 0,
-    outputPiping : 0,
-    ready
-  });
-
-  let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
-
-  if( state1 === 'working' )
-  start( `git diff ${diffMode} --exit-code ${state2}` )
-  else if( state1 === 'staging' )
-  start( `git diff --staged ${diffMode} --exit-code ${state2}` )
-  else if( state1 === 'committed' )
-  start( `git diff ${diffMode} --exit-code HEAD ${state2}` )
-  else
-  start( `git diff ${diffMode} --exit-code ${state1} ${state2}` )
-
-  ready.then( handleOutput );
-
-  if( o.sync )
-  {
-    ready.deasync();
-    return ready.sync();
-  }
-
-  return ready;
-
-  //
-
-  function stateParse( state, allowSpecial )
-  {
-    let statesBegin = [ 'version::', 'tag::' ];
-    let statesSpecial = [ 'working', 'staging', 'committed' ];
-
-    if( _.strBegins( state, statesBegin ) )
-    return _.strRemoveBegin( state, statesBegin );
-
-    if( !allowSpecial )
-    throw _.err( `Expects state in one of formats:${statesBegin}, but got:${state}` );
-
-    if( !_.longHas( statesSpecial, state ) )
-    throw _.err( `Expects one of special states: ${statesSpecial}, but got:${state}` );
-
-    return state;
-  }
-
-  /*  */
-
-  function handleOutput( got )
-  {
-    result.modifiedFiles = '';
-    result.deletedFiles = '';
-    result.addedFiles = '';
-    result.renamedFiles = '';
-    result.copiedFiles = '';
-    result.typechangedFiles = '';
-    result.unmergedFiles = '';
-
-    let status = '';
-
-    if( o.detailing )
-    detailingHandle( got );
-
-    for( var k in result )
-    {
-      if( !o.detailing )
-      result[ k ] = got.exitCode === 1 ? _.maybe : false;
-      else if( !o.explaining )
-      result[ k ] = !!result[ k ];
-      else if( result[ k ] )
-      {
-        _.assert( _.strDefined( result[ k ] ) );
-        status += status ? '\n' + k : k;
-        status += ':\n  ' + _.strLinesIndentation( result[ k ], '  ' );
-      }
-    }
-
-    if( o.attachOriginalDiffOutput )
-    result.output = got.output;
-
-    if( o.explaining && !o.detailing )
-    status = got.output;
-
-    result.status = o.explaining ? status : got.exitCode === 1;
-
-
-    return result;
-  }
-
-  /*  */
-
-  function detailingHandle( got )
-  {
-    let statusToPropertyMap =
-    {
-      'A' : 'addedFiles',
-      'C' : 'copiedFiles',
-      'C' : 'copiedFiles',
-      'D' : 'deletedFiles',
-      'M' : 'modifiedFiles',
-      'R' : 'renamedFiles',
-      'T' : 'typechangedFiles',
-      'U' : 'unmergedFiles',
-    }
-    let lines = _.strSplitNonPreserving({ src : got.output, delimeter : '\n', stripping : 1 });
-    for( var i = 0; i < lines.length; i++ )
-    {
-      lines[ i ] = _.strSplitNonPreserving({ src : lines[ i ], delimeter : /\s+/, stripping : 1 })
-      let type = lines[ i ][ 4 ].charAt( 0 );
-      let path = lines[ i ][ 5 ];
-      let pName = statusToPropertyMap[ type ];
-      if( !pName )
-      throw _.err( `Unexpected change type: ${_.strQuote( type )}, filePath: ${_.strQuote( path )}`, got.output );
-      if( o.explaining )
-      result[ pName ] += result[ pName ] ? '\n' + path : path;
-      else
-      result[ pName ] = true;
-    }
-  }
-}
-
-diff.defaults =
-{
-  state1 : null,
-  state2 : null,
-  localPath : null,
-  detailing : 1,
-  explaining : 1,
-  attachOriginalDiffOutput : 0,
-  sync : 1
-}
-
-//
+// --
+// hook
+// --
 
 function hookRegister( o )
 {
@@ -3574,7 +2812,9 @@ function hookPreservingHardLinksUnregister( repoPath )
   })
 }
 
-//
+// --
+// ignore
+// --
 
 function ignoreAdd( o )
 {
@@ -3689,6 +2929,696 @@ var defaults = ignoreRemoveAll.defaults = Object.create( null );
 defaults.insidePath = null;
 
 // --
+// maker
+// --
+
+function repositoryInit( o )
+{
+  let self = this;
+  let ready = new _.Consequence().take( null );
+
+  o = _.routineOptions( repositoryInit, o );
+
+  let nativeRemotePath = null;
+  let parsed = null;
+  let remoteExists = null;
+
+  _.assert( !o.remote || _.strDefined( o.remotePath ), `Expects path to remote repository {-o.remotePath-}, but got ${_.color.strFormat( String( o.remotePath ), 'path' )}` )
+
+  debugger;
+  if( o.remotePath )
+  {
+    o.remotePath = self.remotePathNormalize( o.remotePath );
+    nativeRemotePath = self.remotePathNativize( o.remotePath );
+    parsed = self.objectsParse( o.remotePath );
+    remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
+  }
+
+  if( o.remote === null )
+  o.remote = !!o.remotePath;
+  if( o.local === null )
+  o.local = !!o.localPath;
+
+  let start = _.process.starter
+  ({
+    verbosity : o.verbosity - 1,
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+  });
+
+  ready
+  .then( () =>
+  {
+    if( !o.remote )
+    return null;
+    if( remoteExists )
+    return null;
+    return remoteInit();
+  })
+  .then( () =>
+  {
+    if( !o.local )
+    return null;
+    return localInit();
+  })
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    if( !o.throwing )
+    {
+      _.errAttend( err );
+      return null;
+    }
+    else
+    {
+      throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+    }
+    return arg;
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /* */
+
+  function repositoryInitOnGithub()
+  {
+    if( !o.token )
+    {
+      if( o.throwing )
+      throw _.err( 'Requires an access token to create a repository on github.com' );
+      return null;
+    }
+    let ready = new _.Consequence().take( null );
+    ready
+    .then( () =>
+    {
+
+      if( o.verbosity )
+      logger.log( `Making remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+
+      if( o.dry )
+      return true;
+
+      let github = require( 'octonode' );
+      let client = github.client( o.token );
+      let me = client.me();
+
+      return me.repoAsync
+      ({
+        'name' : parsed.repo,
+        'description' : o.description || '',
+      });
+    })
+    .then( ( result ) =>
+    {
+      return result[ 0 ] || null;
+    });
+    return ready;
+  }
+
+  /**/
+
+  function remoteInit()
+  {
+    if( parsed.service === 'github.com' )
+    return repositoryInitOnGithub();
+    if( o.throwing )
+    throw _.err( `Cant init remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+    return null;
+  }
+
+  /**/
+
+  function localInit()
+  {
+    _.assert( _.uri.is( o.localPath ) && !_.uri.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+
+    o.localPath = _.path.canonize( o.localPath );
+
+    if( _.fileProvider.fileExists( o.localPath ) && !_.fileProvider.isDir( o.localPath ) )
+    throw _.err( `Cant clone repository to ${_.color.strFormat( String( o.localPath ), 'path' )}. It is occupied by non-directory.` );
+
+    if( o.remotePath && remoteExists )
+    {
+
+      if( self.isRepository({ localPath : o.localPath }) )
+      return localRepositoryRemoteAdd();
+      else
+      return localRepositoryClone();
+
+    }
+    else
+    {
+
+      if( self.isRepository({ localPath : o.localPath }) )
+      return localRepositoryRemoteAdd();
+      else
+      return localRepositoryNew();
+
+    }
+  }
+
+  /**/
+
+  function localRepositoryNew()
+  {
+    if( o.verbosity )
+    logger.log( `Making a new local repository at ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    if( o.dry )
+    return null;
+    _.fileProvider.dirMake( o.localPath );
+    start( `git init .` );
+    return start( `git remote add origin ${nativeRemotePath}` );
+  }
+
+  /**/
+
+  function localRepositoryRemoteAdd()
+  {
+    let wasRemotePath = _.git.remotePathFromLocal( o.localPath );
+    if( wasRemotePath )
+    {
+      if( wasRemotePath !== o.remotePath )
+      throw _.err( `Repository at ${o.localPath} already exists, but has different origin ${wasRemotePath}` );
+      return null;
+    }
+    if( o.verbosity )
+    logger.log( `Adding origin ${_.color.strFormat( String( o.remotePath ), 'path' )} to local repository ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    if( o.dry )
+    return null;
+    // if( _.git.remotePathFromLocal( o.localPath ) )
+    // start( `git remote rm origin` );
+    return start( `git remote add origin ${nativeRemotePath}` );
+  }
+
+  /**/
+
+  function localRepositoryClone()
+  {
+
+    if( o.verbosity )
+    if( _.fileProvider.isDir( o.localPath ) )
+    logger.log( `Directory ${_.color.strFormat( String( o.localPath ), 'path' )} will be moved` );
+
+    if( o.verbosity )
+    logger.log( `Cloning repository from ${_.color.strFormat( String( o.remotePath ), 'path' )} to ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+
+    if( o.dry )
+    return null;
+
+    let downloadPath = o.localPath;
+    if( _.fileProvider.isDir( o.localPath ) )
+    {
+      downloadPath = _.path.join( o.localPath + '-' + _.idWithGuid() );
+    }
+
+    _.fileProvider.dirMake( downloadPath );
+
+    let start = _.process.starter
+    ({
+      verbosity : o.verbosity - 1,
+      sync : 0,
+      deasync : 0,
+      outputCollecting : 1,
+      mode : 'spawn',
+      currentPath : downloadPath,
+    });
+
+    return start( `git clone ${nativeRemotePath} .` )
+    .finally( ( err, arg ) =>
+    {
+      if( err )
+      {
+        debugger;
+        _.fileProvider.filesDelete( downloadPath );
+        if( err )
+        throw _.err( err );
+      }
+      try
+      {
+        let o2 =
+        {
+          dst : o.localPath,
+          src : downloadPath,
+          dstRewriting : 1,
+          dstRewritingOnlyPreserving : 1,
+          linking : 'hardLink',
+        }
+        _.fileProvider.filesReflect( o2 );
+        debugger;
+      }
+      catch( err )
+      {
+        _.fileProvider.filesDelete( downloadPath );
+        throw _.err( err, `\nCollision of local files with remote files at ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+      }
+      _.fileProvider.filesDelete( downloadPath );
+      return arg;
+    });
+
+  }
+
+  /**/
+
+}
+
+repositoryInit.defaults =
+{
+  remotePath : null,
+  localPath : null,
+  remote : null,
+  local : null,
+  throwing : 1,
+  sync : 1,
+  verbosity : 0,
+  dry : 0,
+  description : null,
+  token : null,
+}
+
+//
+
+function repositoryDelete( o )
+{
+  let self = this;
+  let ready = new _.Consequence().take( null );
+
+  o = _.routineOptions( repositoryDelete, o );
+
+  let nativeRemotePath = null;
+  let parsed = null;
+  let remoteExists = null;
+
+  if( o.remotePath )
+  {
+    o.remotePath = self.remotePathNormalize( o.remotePath );
+    nativeRemotePath = self.remotePathNativize( o.remotePath );
+    parsed = self.objectsParse( o.remotePath );
+    remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
+  }
+
+  if( !remoteExists )
+  return false;
+
+  ready
+  .then( () =>
+  {
+    return remove();
+  })
+  .finally( ( err, arg ) =>
+  {
+    debugger;
+    if( err )
+    if( !o.throwing )
+    {
+      _.errAttend( err );
+      return null;
+    }
+    else
+    {
+      throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+    }
+    return arg;
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /* */
+
+  function removeGithub()
+  {
+    if( !o.token )
+    {
+      if( o.throwing )
+      throw _.err( 'Requires an access token to create a repository on github.com' );
+      return null;
+    }
+    let ready = new _.Consequence().take( null );
+    ready
+    .then( () =>
+    {
+
+      if( o.verbosity )
+      logger.log( `Removing remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+
+      if( o.dry )
+      return true;
+
+      let github = require( 'octonode' );
+      let client = github.client( o.token );
+      let repo = client.repo( `${parsed.user}/${parsed.repo}` );
+      return repo.destroyAsync();
+    })
+    .then( ( result ) =>
+    {
+      return result[ 0 ] || null;
+    });
+    return ready;
+  }
+
+  /**/
+
+  function remove()
+  {
+    if( parsed.service === 'github.com' )
+    return removeGithub();
+    if( o.throwing )
+    throw _.err( `Cant remove remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+    return null;
+  }
+
+}
+
+repositoryDelete.defaults =
+{
+  remotePath : null,
+  throwing : 1,
+  sync : 1,
+  verbosity : 1,
+  dry : 0,
+  token : null,
+}
+
+//
+
+function prsGet( o )
+{
+  let ready = new _.Consequence().take( null );
+
+  if( _.strIs( o ) )
+  o = { remotePath : o }
+  o = _.routineOptions( prsGet, o );
+
+  let parsed = this.objectsParse( o.remotePath );
+
+  ready
+  .then( () =>
+  {
+    if( parsed.service === 'github.com' )
+    return prsOnGithub();
+    if( o.throwing )
+    throw _.err( 'Unknown service' );
+    return null;
+  })
+  .finally( ( err, prs ) =>
+  {
+    if( !err && !prs && o.throwing )
+    err = _.err( 'Failed' );
+    if( err )
+    if( !o.throwing )
+    {
+      _.errAttend( err );
+      return null;
+    }
+    else
+    {
+      throw _.err( err, '\nFailed to get list of pull requests' );
+    }
+    return prs;
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /* */
+
+  function prsOnGithub()
+  {
+    let ready = new _.Consequence().take( null );
+    ready
+    .then( () =>
+    {
+      let github = require( 'octonode' );
+      // let client = github.client();
+      let client = o.token ? github.client( o.token ) : github.client();
+      let repo = client.repo( `${parsed.user}/${parsed.repo}` );
+      return repo.prsAsync();
+    })
+    .then( ( result ) =>
+    {
+      return result[ 0 ];
+    });
+    return ready;
+  }
+
+}
+
+prsGet.defaults =
+{
+  token : null,
+  remotePath : null,
+  throwing : 1,
+  sync : 1,
+}
+
+// --
+// etc
+// --
+
+function configRead( filePath )
+{
+  let fileProvider = _.fileProvider;
+  let path = fileProvider.path;
+
+  _.assert( arguments.length === 1 );
+  _.assert( _.strIs( filePath ) );
+
+  if( !Ini )
+  Ini = require( 'ini' );
+
+  let read = fileProvider.fileRead( path.join( filePath, '.git/config' ) );
+  let config = Ini.parse( read );
+
+  return config;
+}
+
+//
+
+/* qqq : routine to find out does exist */
+/* qqq : routine to convert one kind of name to another */
+
+function diff( o )
+{
+  o = _.routineOptions( diff, o );
+
+  _.assert( arguments.length === 1 );
+  _.assert( _.strDefined( o.state1 ) || o.state1 === null );
+  _.assert( _.strDefined( o.state2 ) );
+  _.assert( _.strDefined( o.localPath ) );
+
+  if( o.state1 === null ) /* qqq : discuss */
+  o.state1 = 'version::HEAD';
+
+  let ready = new _.Consequence().take( null );
+  let state1 = stateParse( o.state1, true );
+  let state2 = stateParse( o.state2 );
+  let result = Object.create( null );
+
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    inputMirroring : 0,
+    outputPiping : 0,
+    ready
+  });
+
+  let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
+
+  if( state1 === 'working' )
+  start( `git diff ${diffMode} --exit-code ${state2}` )
+  else if( state1 === 'staging' )
+  start( `git diff --staged ${diffMode} --exit-code ${state2}` )
+  else if( state1 === 'committed' )
+  start( `git diff ${diffMode} --exit-code HEAD ${state2}` )
+  else
+  start( `git diff ${diffMode} --exit-code ${state1} ${state2}` )
+
+  ready.then( handleOutput );
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /* - */
+
+  function stateParse( state, allowSpecial )
+  {
+    let statesBegin = [ 'version::', 'tag::' ];
+    let statesSpecial = [ 'working', 'staging', 'committed' ];
+
+    if( _.strBegins( state, statesBegin ) )
+    return _.strRemoveBegin( state, statesBegin );
+
+    if( !allowSpecial )
+    throw _.err( `Expects state in one of formats:${statesBegin}, but got:${state}` );
+
+    if( !_.longHas( statesSpecial, state ) )
+    throw _.err( `Expects one of special states: ${statesSpecial}, but got:${state}` );
+
+    return state;
+  }
+
+  /*  */
+
+  function handleOutput( got )
+  {
+    result.modifiedFiles = '';
+    result.deletedFiles = '';
+    result.addedFiles = '';
+    result.renamedFiles = '';
+    result.copiedFiles = '';
+    result.typechangedFiles = '';
+    result.unmergedFiles = '';
+
+    let status = '';
+
+    if( o.detailing )
+    detailingHandle( got );
+
+    for( var k in result )
+    {
+      if( !o.detailing )
+      result[ k ] = got.exitCode === 1 ? _.maybe : false;
+      else if( !o.explaining )
+      result[ k ] = !!result[ k ];
+      else if( result[ k ] )
+      {
+        _.assert( _.strDefined( result[ k ] ) );
+        status += status ? '\n' + k : k;
+        status += ':\n  ' + _.strLinesIndentation( result[ k ], '  ' );
+      }
+    }
+
+    if( o.attachOriginalDiffOutput )
+    result.output = got.output;
+
+    if( o.explaining && !o.detailing )
+    status = got.output;
+
+    result.status = o.explaining ? status : got.exitCode === 1;
+
+
+    return result;
+  }
+
+  /*  */
+
+  function detailingHandle( got )
+  {
+    let statusToPropertyMap =
+    {
+      'A' : 'addedFiles',
+      'C' : 'copiedFiles',
+      'C' : 'copiedFiles',
+      'D' : 'deletedFiles',
+      'M' : 'modifiedFiles',
+      'R' : 'renamedFiles',
+      'T' : 'typechangedFiles',
+      'U' : 'unmergedFiles',
+    }
+    let lines = _.strSplitNonPreserving({ src : got.output, delimeter : '\n', stripping : 1 });
+    for( var i = 0; i < lines.length; i++ )
+    {
+      lines[ i ] = _.strSplitNonPreserving({ src : lines[ i ], delimeter : /\s+/, stripping : 1 })
+      let type = lines[ i ][ 4 ].charAt( 0 );
+      let path = lines[ i ][ 5 ];
+      let pName = statusToPropertyMap[ type ];
+      if( !pName )
+      throw _.err( `Unexpected change type: ${_.strQuote( type )}, filePath: ${_.strQuote( path )}`, got.output );
+      if( o.explaining )
+      result[ pName ] += result[ pName ] ? '\n' + path : path;
+      else
+      result[ pName ] = true;
+    }
+  }
+}
+
+diff.defaults =
+{
+  state1 : 'working',
+  state2 : null,
+  localPath : null,
+  detailing : 1,
+  explaining : 1,
+  attachOriginalDiffOutput : 0,
+  sync : 1
+}
+
+//
+
+function reset( o )
+{
+  let ready = new _.Consequence().take( null );
+
+  _.routineOptions( reset, arguments );
+  _.assert( arguments.length === 1 );
+  _.assert( _.strDefined( o.localPath ) );
+
+  if( o.removingUntracked === null )
+  o.removingUntracked = 1;
+
+  start( `git reset --hard` );
+  if( o.removingUntracked )
+  start( `git clean -df` );
+
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    inputMirroring : 0,
+    outputPiping : 0,
+    ready
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+  return ready;
+}
+
+reset.defaults =
+{
+  localPath : null,
+  removingUntracked : 1,
+  sync : 1,
+}
+
+// --
 // relations
 // --
 
@@ -3722,7 +3652,7 @@ let Extend =
 
   protocols : [ 'git' ],
 
-  configRead,
+  // path
 
   objectsParse,
   pathParse,
@@ -3735,20 +3665,25 @@ let Extend =
   insideRepository,
   localPathFromInside,
 
+  // version
+
   versionLocalChange,
   versionLocalRetrive,
   versionRemoteLatestRetrive,
   versionRemoteCurrentRetrive,
   versionIsCommitHash,
+  versionsRemoteRetrive,
+  versionsPull,
+
+  // checker
 
   isUpToDate,
   hasFiles,
   isRepository,
   hasRemote,
-  isHeadOn,
+  isHead,
 
-  versionsRemoteRetrive,
-  versionsPull,
+  // status
 
   statusLocal,
   statusRemote,
@@ -3759,27 +3694,37 @@ let Extend =
   hasRemoteChanges,
   hasChanges,
 
-  prsGet,
-  repositoryInit,
-  repositoryDelete,
+  // tag and version
 
   repositoryHasTag,
   repositoryHasVersion,
   tagMake, /* qqq : cover */
 
-  diff,
-
-  //
+  // hook
 
   hookRegister,
   hookUnregister,
-
   hookPreservingHardLinksRegister,
   hookPreservingHardLinksUnregister,
 
+  // ignore
+
   ignoreAdd,
   ignoreRemove,
-  ignoreRemoveAll
+  ignoreRemoveAll,
+
+  // top
+
+  repositoryInit,
+  repositoryDelete,
+  prsGet,
+
+  // etc
+
+  configRead,
+  diff,
+  reset,
+  /* qqq : implement routine _.git.profileConfigure */
 
 }
 

@@ -72,7 +72,7 @@ path :
       content : prime
 
   entry.proto.no.tests :
-    path : proto/dwtools/amid/l3/git/IncludeMid.s
+    path : proto/dwtools/amid/l3/git/entry/Include.s
     criterion :
       tests : 'no.tests'
   entry.proto.only.tests :
@@ -84,7 +84,7 @@ path :
   # npm.files : proto
 
   entry.out.raw.debug :
-    path : '{path::out.*=1}/source/dwtools/amid/l3/git/IncludeMid.s'
+    path : '{path::out.*=1}/source/dwtools/amid/l3/git/entry/Include.s'
     criterion :
       debug : [ debug, release ]
       raw : raw
