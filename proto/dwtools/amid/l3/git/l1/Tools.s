@@ -3462,6 +3462,8 @@ function diff( o )
 
   let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
 
+  debugger
+
   if( state1 === 'working' )
   start( `git diff ${diffMode} --exit-code ${state2}` )
   else if( state1 === 'staging' )
@@ -3471,6 +3473,8 @@ function diff( o )
   else
   start( `git diff ${diffMode} --exit-code ${state1} ${state2}` )
 
+  debugger
+  
   ready.then( handleOutput );
 
   if( o.sync )
