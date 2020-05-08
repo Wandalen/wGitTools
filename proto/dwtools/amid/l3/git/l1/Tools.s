@@ -3539,7 +3539,6 @@ function diff( o )
 
     result.status = o.explaining ? status : got.exitCode === 1;
 
-
     return result;
   }
 
