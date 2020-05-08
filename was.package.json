@@ -2,7 +2,7 @@
   "name" : "wgittools",
   "version" : "0.3.140",
   "description" : "Collection of tools to use git programmatically.",
-  "author" : "Kostiantyn Wandalen <wanalen@willbe.so>",
+  "author" : "Kostiantyn Wandalen <wanalen@01.school>",
   "license" : "MIT",
   "main" : "proto/dwtools/amid/l3/git/entry/Include.s",
   "files" : [ "proto/dwtools/amid/l3/git", "proto/dwtools/Tools.s", "out" ],

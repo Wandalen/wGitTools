@@ -3417,6 +3417,19 @@ function configRead( filePath )
 /* qqq : implement routine to find out does exist version/tag */
 /* qqq : implement routine to convert one kind of version/tag to one another */
 
+/* qqq :
+
+ = Message of error#1
+    Unexpected change type: "u", filePath: "revision" fatal: ambiguous argument 'alhpa': unknown revision or path not in the working tree.
+    Use '--' to separate paths from revisions, like this:
+    'git <command> [<revision>...] -- [<file>...]'
+
+ = Beautified calls stack
+    at detailingHandle (/pro/builder/proto/dwtools/amid/l3/git/l1/Tools.s:3556:15)
+    at wConsequence.handleOutput (/pro/builder/proto/dwtools/amid/l3/git/l1/Tools.s:3505:5)
+
+*/
+
 function diff( o )
 {
   o = _.routineOptions( diff, o );
