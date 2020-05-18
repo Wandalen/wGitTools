@@ -3474,7 +3474,7 @@ function diff( o )
   start( `git diff ${diffMode} --exit-code ${state1} ${state2}` )
 
   debugger
-  
+
   ready.then( handleOutput );
 
   if( o.sync )
