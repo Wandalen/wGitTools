@@ -3414,6 +3414,24 @@ function configRead( filePath )
 
 //
 
+function configSave( filePath, config )
+{
+  let fileProvider = _.fileProvider;
+  let path = fileProvider.path;
+
+  _.assert( arguments.length === 2 );
+  _.assert( _.strDefined( filePath ) );
+  _.assert( _.objectIs( config ) );
+
+  if( !Ini )
+  Ini = require( 'ini' );
+
+  let data = Ini.stringify( config, { whitespace : true } );
+  fileProvider.fileWrite( path.join( filePath, '.git/config' ), data );
+}
+
+//
+
 /* qqq : implement routine to find out does exist version/tag */
 /* qqq : implement routine to convert one kind of version/tag to one another */
 
@@ -3655,8 +3673,6 @@ function renormalize( o )
   else
   ready.take( null );
 
-
-
   ready.then( () =>
   {
     let config = _.git.configRead( o.localPath );
@@ -3673,8 +3689,8 @@ function renormalize( o )
 
     config.core.autocrlf = false;
     config.core.eol = 'lf';
-    let data = Ini.stringify( config, { whitespace : true } );
-    localProvider.fileWrite( path.join( o.localPath, '.git/config' ), data )
+
+    _.git.configSave( o.localPath, config );
 
     return null;
   })
@@ -3818,6 +3834,7 @@ let Extend =
   // etc
 
   configRead,
+  configSave,
   diff,
   reset,
   /* qqq : implement routine _.git.profileConfigure */
