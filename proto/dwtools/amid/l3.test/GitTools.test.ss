@@ -15636,6 +15636,94 @@ function hookPreservingHardLinks( test )
 
 }
 
+//
+
+function renormalize( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let repoPath = path.join( testPath, 'repo' );
+  let clonePath = path.join( testPath, 'clone' );
+  let repoPathNative = path.nativize( repoPath );
+  let file1Data = 'abc\n';
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : testPath,
+    ready : con
+  })
+
+  prepare()
+
+
+  clone()
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+    test.identical( config.core.eol, 'lf' );
+
+    return null;
+  })
+
+  return con;
+
+  /* - */
+
+  function prepare()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( testPath );
+      provider.dirMake( testPath )
+      provider.dirMake( repoPath )
+
+      provider.fileWrite( path.join( repoPath, 'file1' ), file1Data );
+
+      return null;
+    })
+
+    shell( 'git init' )
+    shell( 'git add .' )
+    shell( 'git commit -m init' )
+
+    return con;
+  }
+
+  function clone()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( clonePath );
+      return null;
+    })
+
+    shell2( 'git -c "core.autocrlf=true" clone repo clone' )
+
+    return con;
+  }
+
+}
+
 // --
 // declare
 // --
@@ -15706,6 +15794,8 @@ var Proto =
 
     hookTrivial,
     hookPreservingHardLinks,
+
+    renormalize
 
   },
 

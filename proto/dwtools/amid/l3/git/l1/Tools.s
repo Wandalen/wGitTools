@@ -3634,6 +3634,86 @@ reset.defaults =
   sync : 1,
 }
 
+//
+
+function renormalize( o )
+{
+  let localProvider = _.fileProvider;
+  let path = localProvider.path;
+
+  if( !_.mapIs( o ) )
+  o = { localPath : o }
+
+  _.routineOptions( versionLocalRetrive, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strIs( o.localPath ), 'Expects local path' );
+
+  let ready = new _.Consequence();
+
+  if( !_.git.isRepository({ localPath : o.localPath }) )
+  ready.err( _.err( `Provided path is not a git repository:${o.localPath}` ) );
+  else
+  ready.take( null );
+
+
+
+  ready.then( () =>
+  {
+    let config = _.git.configRead( o.localPath );
+
+    if( config.core.autocrlf === false )
+    {
+      if( config.core.eol === 'lf' )
+      return true;
+
+      if( process.platform !== 'win32' )
+      if( !config.core.eol || config.core.eol === 'native' )
+      return true;
+    }
+
+    config.core.autocrlf = false;
+    config.core.eol = 'lf';
+    let data = Ini.stringify( config, { whitespace : true } );
+    localProvider.fileWrite( path.join( o.localPath, '.git/config' ), data )
+
+    return null;
+  })
+
+  ready.then( ( skip ) =>
+  {
+    if( skip )
+    return true;
+
+    let con = new _.Consequence().take( null )
+    let start = _.process.starter
+    ({
+      verbosity : o.verbosity - 1,
+      outputCollecting : 1,
+      currentPath : o.localPath,
+      ready : con
+    });
+
+    start( 'git rm --cached -r .' )
+    start( 'git reset --hard' )
+
+    return con;
+  })
+
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+renormalize.defaults =
+{
+  localPath : null,
+  sync : 0
+}
+
 // --
 // relations
 // --
@@ -3741,6 +3821,7 @@ let Extend =
   diff,
   reset,
   /* qqq : implement routine _.git.profileConfigure */
+  renormalize
 
 }
 
