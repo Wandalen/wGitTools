@@ -3673,10 +3673,28 @@ function renormalize( o )
   else
   ready.take( null );
 
+  if( o.safe )
   ready.then( () =>
   {
+    return _.git.statusLocal
+    ({
+      localPath : o.localPath,
+      uncommitted : 1,
+      detailing : 0,
+      unpushed : 1,
+      explaining : 0,
+      sync : 0,
+    });
+  })
+
+  ready.then( ( status ) =>
+  {
+    if( status )
+    return true;
+
     let config = _.git.configRead( o.localPath );
 
+    if( !o.force )
     if( config.core.autocrlf === false )
     {
       if( config.core.eol === 'lf' )
@@ -3715,6 +3733,16 @@ function renormalize( o )
     return con;
   })
 
+  ready.catch( ( err ) =>
+  {
+    _.errAttend( err );
+
+    if( o.throwing )
+    throw _.err( `Failed to renormalize repository at: ${o.localPath}\nReason:`, err );
+
+    return null;
+  })
+
   if( o.sync )
   {
     ready.deasyncWait();
@@ -3727,7 +3755,10 @@ function renormalize( o )
 renormalize.defaults =
 {
   localPath : null,
-  sync : 0
+  sync : 0,
+  safe : 1,
+  force : 0,
+  throwing : 0
 }
 
 // --
