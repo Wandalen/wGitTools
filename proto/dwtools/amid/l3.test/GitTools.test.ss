@@ -15691,169 +15691,6 @@ function renormalize( test )
 
   /* - */
 
-  prepare({ attributes : '* text eol=lf' })
-  clone()
-  .then( () =>
-  {
-    test.case = 'eol=lf in gitattributes'
-
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1Data );
-
-    return _.git.renormalize( clonePath );
-  })
-  .then( () =>
-  {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1Data );
-
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
-
-    let config = _.git.configRead( clonePath );
-    test.identical( config.core.autocrlf, false );
-
-    return null;
-  })
-
-
-  /* - */
-
-  prepare({ attributes : '* text eol=crlf' })
-  clone()
-  .then( () =>
-  {
-    test.case = 'eol=crlf in gitattributes'
-
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.notIdentical( file1, file1Data );
-
-    return _.git.renormalize( clonePath );
-  })
-  .then( () =>
-  {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1DataCrlf );
-
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
-
-    let config = _.git.configRead( clonePath );
-    test.identical( config.core.autocrlf, false );
-
-
-    return null;
-  })
-
-
-  /* - */
-
-  prepare({ attributes : '*.s linguist-language=JavaScript' })
-  clone()
-  .then( () =>
-  {
-    test.case = 'gitattributes without eol'
-
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.notIdentical( file1, file1Data );
-
-    return _.git.renormalize( clonePath );
-  })
-  .then( () =>
-  {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1Data );
-
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
-
-    let config = _.git.configRead( clonePath );
-    test.identical( config.core.autocrlf, false );
-
-
-    return null;
-  })
-
-  /* - */
-
-  prepare({ attributes : '* text' })
-  clone()
-  .then( () =>
-  {
-    test.case = 'text in gitattributes'
-
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.notIdentical( file1, file1Data );
-
-    return _.git.renormalize( clonePath );
-  })
-  .then( () =>
-  {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1Data );
-
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
-
-    let config = _.git.configRead( clonePath );
-    test.identical( config.core.autocrlf, false );
-
-
-    return null;
-  })
-
-  /* - */
-
-  prepare({ attributes : '* text=auto' })
-  clone()
-  .then( () =>
-  {
-    test.case = 'eol=auto in gitattributes'
-
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.notIdentical( file1, file1Data );
-
-    return _.git.renormalize( clonePath );
-  })
-  .then( () =>
-  {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1Data );
-
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
-
-    let config = _.git.configRead( clonePath );
-    test.identical( config.core.autocrlf, false );
-
-
-    return null;
-  })
-
-  /* - */
-
-  prepare({ attributes : '* -text' })
-  clone()
-  .then( () =>
-  {
-    test.case = '-text in gitattributes'
-
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1Data );
-
-    return _.git.renormalize( clonePath );
-  })
-  .then( () =>
-  {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1Data );
-
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
-
-    let config = _.git.configRead( clonePath );
-    test.identical( config.core.autocrlf, false );
-
-
-    return null;
-  })
-
-  /* - */
-
   prepare()
   clone()
   .then( () =>
@@ -15974,6 +15811,453 @@ function renormalize( test )
 
   /* - */
 
+  function prepare()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( testPath );
+      provider.dirMake( testPath )
+      provider.dirMake( repoPath )
+
+      provider.fileWrite( path.join( repoPath, 'file1' ), file1Data );
+
+      return null;
+    })
+
+    shell( 'git init' )
+    shell( 'git add -fA .' )
+    shell( 'git commit -m init' )
+
+    return con;
+  }
+
+  function clone()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( clonePath );
+      return null;
+    })
+
+    shell2( 'git clone repo clone --config core.autocrlf=true' )
+
+    return con;
+  }
+
+}
+
+//
+
+function renormalizeOriginHasAttributes( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let repoPath = path.join( testPath, 'repo' );
+  let clonePath = path.join( testPath, 'clone' );
+  let repoPathNative = path.nativize( repoPath );
+  let file1Data = 'abc\n';
+  let file1DataCrlf = 'abc\r\n';
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : testPath,
+    ready : con
+  })
+
+  /* - */
+
+  prepare({ attributes : '* text eol=lf' })
+  clone()
+  .then( () =>
+  {
+    test.case = 'eol=lf in gitattributes'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+    return null;
+  })
+
+
+  /* - */
+
+  prepare({ attributes : '* text eol=crlf' })
+  clone()
+  .then( () =>
+  {
+    test.case = 'eol=crlf in gitattributes'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1DataCrlf );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+
+  /* - */
+
+  prepare({ attributes : '*.s linguist-language=JavaScript' })
+  clone()
+  .then( () =>
+  {
+    test.case = 'gitattributes without eol'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '*.s linguist-language=JavaScript' })
+  clone({ config : 'core.eol lf' })
+  .then( () =>
+  {
+    test.case = 'gitattributes without eol, core.eol=lf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '*.s linguist-language=JavaScript' })
+  clone({ config : 'core.eol crlf' })
+  .then( () =>
+  {
+    test.case = 'gitattributes without eol, core.eol=crlf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* text' })
+  clone()
+  .then( () =>
+  {
+    test.case = 'text in gitattributes'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* text' })
+  clone({ config : 'core.eol lf' })
+  .then( () =>
+  {
+    test.case = 'text in gitattributes, core.eol=lf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* text' })
+  clone({ config : 'core.eol crlf' })
+  .then( () =>
+  {
+    test.case = 'text in gitattributes, core.eol=crlf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+
+  /* - */
+
+  prepare({ attributes : '* text=auto' })
+  clone()
+  .then( () =>
+  {
+    test.case = 'eol=auto in gitattributes'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* text=auto' })
+  clone({ config : 'core.eol lf' })
+  .then( () =>
+  {
+    test.case = 'eol=auto in gitattributes, core.eol=lf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* text=auto' })
+  clone({ config : 'core.eol crlf' })
+  .then( () =>
+  {
+    test.case = 'eol=auto in gitattributes, core.eol=crlf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* -text' })
+  clone()
+  .then( () =>
+  {
+    test.case = '-text in gitattributes'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* -text' })
+  clone({ config : 'core.eol lf' })
+  .then( () =>
+  {
+    test.case = '-text in gitattributes, core.eol=lf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* -text' })
+  clone({ config : 'core.eol crlf' })
+  .then( () =>
+  {
+    test.case = '-text in gitattributes, core.eol=crlf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  return con;
+
+  /* - */
+
   function prepare( o )
   {
     o = o || {};
@@ -15999,8 +16283,9 @@ function renormalize( test )
     return con;
   }
 
-  function clone()
+  function clone( o )
   {
+    o = o || {}
     con.then( () =>
     {
       provider.filesDelete( clonePath );
@@ -16008,6 +16293,9 @@ function renormalize( test )
     })
 
     shell2( 'git clone repo clone --config core.autocrlf=true' )
+
+    if( o.config )
+    shell2( 'git -C clone config ' + o.config )
 
     return con;
   }
@@ -16085,7 +16373,8 @@ var Proto =
     hookTrivial,
     hookPreservingHardLinks,
 
-    renormalize
+    renormalize,
+    renormalizeOriginHasAttributes
 
   },
 
