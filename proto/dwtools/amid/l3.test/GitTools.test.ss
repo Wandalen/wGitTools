@@ -15667,7 +15667,7 @@ function renormalize( test )
   let shell3 = _.process.starter
   ({
     currentPath : clonePath,
-    ready : con
+    sync : 1
   })
 
   prepare()
@@ -15803,6 +15803,88 @@ function renormalize( test )
     let config = _.git.configRead( clonePath );
     test.identical( config.core.autocrlf, false );
 
+
+    return null;
+  })
+
+  /* - */
+
+  prepare()
+  clone()
+  .then( () =>
+  {
+    test.case = 'local unpushed commit, safe'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    provider.fileWrite( path.join( clonePath, 'file1' ), 'data' );
+
+    shell3( 'git commit -am change' );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, 'data' );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, true );
+    test.identical( config.core.eol, undefined );
+
+    let status = _.git.statusLocal
+    ({
+      localPath : clonePath,
+      uncommitted : 1,
+      detailing : 1,
+      unpushed : 1,
+      explaining : 0,
+      sync : 1,
+    });
+
+    test.identical( status.unpushedCommits, true )
+
+    return null;
+  })
+
+  /* - */
+
+  prepare()
+  clone()
+  .then( () =>
+  {
+    test.case = 'local unpushed commit, safe:0'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    shell3( 'git commit -m change --allow-empty' );
+
+    return _.git.renormalize({ localPath : clonePath, safe : 0 });
+  })
+  .then( () =>
+  {
+    shell3( 'git status' );
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+    test.identical( config.core.eol, undefined );
+
+    let status = _.git.statusLocal
+    ({
+      localPath : clonePath,
+      uncommitted : 1,
+      detailing : 1,
+      unpushed : 1,
+      explaining : 0,
+      sync : 1,
+    });
+
+    test.identical( status.unpushedCommits, true )
 
     return null;
   })
