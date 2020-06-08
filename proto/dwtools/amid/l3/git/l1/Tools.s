@@ -2032,7 +2032,7 @@ function status_body( o )
   o3.sync = 0;
   remoteReady = self.statusRemote.call( this, o3 );
 
-  let ready = _.Consequence.AndKeep([ localReady, remoteReady ])
+  let ready = _.Consequence.AndKeep_( localReady, remoteReady )
   .finally( ( err, arg ) =>
   {
     if( err )
@@ -2132,7 +2132,7 @@ function statusFull( o )
   if( o.prs )
   prsReady = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0, token : o.token });
 
-  let ready = _.Consequence.AndKeep([ statusReady, prsReady ])
+  let ready = _.Consequence.AndKeep_( statusReady, prsReady )
   .finally( ( err, arg ) =>
   {
     if( err )
