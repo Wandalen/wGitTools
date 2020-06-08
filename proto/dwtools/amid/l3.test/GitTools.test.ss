@@ -15928,6 +15928,8 @@ function renormalize( test )
 
 }
 
+renormalize.timeOut = 30000;
+
 //
 
 function renormalizeOriginHasAttributes( test )
@@ -16383,6 +16385,9 @@ function renormalizeOriginHasAttributes( test )
   }
 
 }
+
+renormalizeOriginHasAttributes.timeOut = 60000;
+
 
 // --
 // declare
