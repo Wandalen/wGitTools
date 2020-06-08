@@ -15943,6 +15943,7 @@ function renormalizeOriginHasAttributes( test )
   let repoPathNative = path.nativize( repoPath );
   let file1Data = 'abc\n';
   let file1DataCrlf = 'abc\r\n';
+  let eolConfig = globalGitEolGet();
 
   let con = new _.Consequence().take( null );
 
@@ -16109,8 +16110,13 @@ function renormalizeOriginHasAttributes( test )
   })
   .then( () =>
   {
+
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+
+    if( eolConfig === 'lf' )
     test.identical( file1, file1Data );
+    else
+    test.identical( file1, file1DataCrlf );
 
     test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
 
@@ -16120,6 +16126,7 @@ function renormalizeOriginHasAttributes( test )
 
     return null;
   })
+
 
   /* - */
 
@@ -16164,7 +16171,7 @@ function renormalizeOriginHasAttributes( test )
   .then( () =>
   {
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1Data );
+    test.identical( file1, file1DataCrlf );
 
     test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
 
@@ -16192,7 +16199,11 @@ function renormalizeOriginHasAttributes( test )
   .then( () =>
   {
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+
+    if( eolConfig === 'lf')
     test.identical( file1, file1Data );
+    else
+    test.identical( file1, file1DataCrlf );
 
     test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
 
@@ -16246,7 +16257,8 @@ function renormalizeOriginHasAttributes( test )
   .then( () =>
   {
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1Data );
+
+    test.identical( file1, file1DataCrlf );
 
     test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
 
@@ -16382,6 +16394,23 @@ function renormalizeOriginHasAttributes( test )
     shell2( 'git -C clone config ' + o.config )
 
     return con;
+  }
+
+  function globalGitEolGet()
+  {
+    var result = _.process.start
+    ({
+      execPath : 'git config --global core.eol',
+      sync : 1,
+      outputCollecting : 1
+    });
+
+    result = _.strStrip( result.output );
+
+    if( !result )
+    result = process.platform === 'win32' ? 'crlf' : 'lf';
+
+    return result;
   }
 
 }
