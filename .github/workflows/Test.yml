@@ -26,5 +26,7 @@ jobs :
         node-version : ${{ matrix.node-version }}
     - run : npm i
     # - run : npm test
+    - run : git config --global user.email "testrunner@example.com"
+    - run : git config --global user.name "TestRunner"
     - run : node proto/dwtools/amid/l3.test/GitTools.test.ss r:renormalize v:10
     - run : node proto/dwtools/amid/l3.test/GitTools.test.ss r:renormalizeOriginHasAttributes v:10
