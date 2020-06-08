@@ -3669,7 +3669,7 @@ function renormalize( o )
   let ready = new _.Consequence();
 
   if( !_.git.isRepository({ localPath : o.localPath }) )
-  ready.err( _.err( `Provided path is not a git repository:${o.localPath}` ) );
+  ready.error( _.err( `Provided path is not a git repository:${o.localPath}` ) );
   else
   ready.take( null );
 
