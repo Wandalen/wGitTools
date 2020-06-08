@@ -16402,7 +16402,8 @@ function renormalizeOriginHasAttributes( test )
     ({
       execPath : 'git config --global core.eol',
       sync : 1,
-      outputCollecting : 1
+      outputCollecting : 1,
+      throwingExitCode : 0
     });
 
     result = _.strStrip( result.output );
