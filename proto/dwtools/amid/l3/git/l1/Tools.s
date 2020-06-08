@@ -3696,9 +3696,11 @@ function renormalize( o )
 
     if( !o.force )
     if( config.core.autocrlf === false )
+    if( config.core.eol === undefined )
     return true;
 
     config.core.autocrlf = false;
+    delete config.core.eol;
 
     _.git.configSave( o.localPath, config );
 
