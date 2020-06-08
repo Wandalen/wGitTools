@@ -15671,8 +15671,6 @@ function renormalize( test )
   })
 
   prepare()
-
-
   clone()
   .then( () =>
   {
@@ -15687,22 +15685,20 @@ function renormalize( test )
 
     let config = _.git.configRead( clonePath );
     test.identical( config.core.autocrlf, false );
-    test.identical( config.core.eol, 'lf' );
 
     return null;
   })
 
   /* - */
 
+  prepare({ attributes : '* text eol=lf' })
   clone()
   .then( () =>
   {
     test.case = 'eol=lf in gitattributes'
 
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.notIdentical( file1, file1Data );
-
-    provider.fileWrite( path.join( clonePath, '.gitattributes'), '* text eol=lf' )
+    test.identical( file1, file1Data );
 
     return _.git.renormalize( clonePath );
   })
@@ -15715,13 +15711,14 @@ function renormalize( test )
 
     let config = _.git.configRead( clonePath );
     test.identical( config.core.autocrlf, false );
-    test.identical( config.core.eol, 'lf' );
 
     return null;
   })
 
+
   /* - */
 
+  prepare({ attributes : '* text eol=crlf' })
   clone()
   .then( () =>
   {
@@ -15729,8 +15726,6 @@ function renormalize( test )
 
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
     test.notIdentical( file1, file1Data );
-
-    provider.fileWrite( path.join( clonePath, '.gitattributes'), '* text eol=crlf' )
 
     return _.git.renormalize( clonePath );
   })
@@ -15743,13 +15738,15 @@ function renormalize( test )
 
     let config = _.git.configRead( clonePath );
     test.identical( config.core.autocrlf, false );
-    test.identical( config.core.eol, 'lf' );
+
 
     return null;
   })
 
+
   /* - */
 
+  prepare({ attributes : '*.s linguist-language=JavaScript' })
   clone()
   .then( () =>
   {
@@ -15758,8 +15755,6 @@ function renormalize( test )
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    provider.fileWrite( path.join( clonePath, '.gitattributes'), '*.s linguist-language=JavaScript' )
-
     return _.git.renormalize( clonePath );
   })
   .then( () =>
@@ -15771,13 +15766,14 @@ function renormalize( test )
 
     let config = _.git.configRead( clonePath );
     test.identical( config.core.autocrlf, false );
-    test.identical( config.core.eol, 'lf' );
+
 
     return null;
   })
 
   /* - */
 
+  prepare({ attributes : '* text' })
   clone()
   .then( () =>
   {
@@ -15786,8 +15782,6 @@ function renormalize( test )
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    provider.fileWrite( path.join( clonePath, '.gitattributes'), '* text' )
-
     return _.git.renormalize( clonePath );
   })
   .then( () =>
@@ -15799,13 +15793,14 @@ function renormalize( test )
 
     let config = _.git.configRead( clonePath );
     test.identical( config.core.autocrlf, false );
-    test.identical( config.core.eol, 'lf' );
+
 
     return null;
   })
 
   /* - */
 
+  prepare({ attributes : '* text=auto' })
   clone()
   .then( () =>
   {
@@ -15814,8 +15809,6 @@ function renormalize( test )
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    provider.fileWrite( path.join( clonePath, '.gitattributes'), '* text=auto' )
-
     return _.git.renormalize( clonePath );
   })
   .then( () =>
@@ -15827,22 +15820,21 @@ function renormalize( test )
 
     let config = _.git.configRead( clonePath );
     test.identical( config.core.autocrlf, false );
-    test.identical( config.core.eol, 'lf' );
+
 
     return null;
   })
 
   /* - */
 
+  prepare({ attributes : '* -text' })
   clone()
   .then( () =>
   {
     test.case = '-text in gitattributes'
 
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.notIdentical( file1, file1Data );
-
-    provider.fileWrite( path.join( clonePath, '.gitattributes'), '* -text' )
+    test.identical( file1, file1Data );
 
     return _.git.renormalize( clonePath );
   })
@@ -15855,41 +15847,14 @@ function renormalize( test )
 
     let config = _.git.configRead( clonePath );
     test.identical( config.core.autocrlf, false );
-    test.identical( config.core.eol, 'lf' );
+
 
     return null;
   })
 
   /* - */
 
-  clone()
-  .then( () =>
-  {
-    test.case = 'text=auto in gitattributes'
-
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.notIdentical( file1, file1Data );
-
-    provider.fileWrite( path.join( clonePath, '.gitattributes'), '* text=auto' )
-
-    return _.git.renormalize( clonePath );
-  })
-  .then( () =>
-  {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1Data );
-
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
-
-    let config = _.git.configRead( clonePath );
-    test.identical( config.core.autocrlf, false );
-    test.identical( config.core.eol, 'lf' );
-
-    return null;
-  })
-
-  /* - */
-
+  prepare()
   clone()
   .then( () =>
   {
@@ -15905,17 +15870,46 @@ function renormalize( test )
   .then( () =>
   {
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
-    test.identical( file1, file1Data );
+    test.identical( file1, 'data' );
 
     let config = _.git.configRead( clonePath );
-    test.identical( config.core.autocrlf, false );
-    test.identical( config.core.eol, 'lf' );
+    test.identical( config.core.autocrlf, true );
+    test.identical( config.core.eol, undefined );
 
     return null;
   })
 
   /* - */
 
+  prepare()
+  clone()
+  .then( () =>
+  {
+    test.case = 'local uncommited change, safe:0'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    provider.fileWrite( path.join( clonePath, 'file1' ), 'data' );
+
+    return _.git.renormalize({ localPath : clonePath, safe : 0 });
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+
+  /* - */
+
+  prepare()
   clone()
   .then( () =>
   {
@@ -15933,11 +15927,45 @@ function renormalize( test )
     test.is( provider.fileExists( path.join( clonePath, 'file2' ) ) );
 
     let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    let file2 = provider.fileRead( path.join( clonePath, 'file2' ) );
+    test.identical( file2, 'data' );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, true );
+
+    return null;
+  })
+
+  /* - */
+
+  prepare()
+  clone()
+  .then( () =>
+  {
+    test.case = 'local uncommited file'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    provider.fileWrite( path.join( clonePath, 'file2' ), 'data' );
+
+    return _.git.renormalize({ localPath : clonePath, safe : 0 });
+  })
+  .then( () =>
+  {
+    test.is( provider.fileExists( path.join( clonePath, 'file2' ) ) );
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
     test.identical( file1, file1Data );
+
+    let file2 = provider.fileRead( path.join( clonePath, 'file2' ) );
+    test.identical( file2, 'data' );
 
     let config = _.git.configRead( clonePath );
     test.identical( config.core.autocrlf, false );
-    test.identical( config.core.eol, 'lf' );
+
 
     return null;
   })
@@ -15946,8 +15974,10 @@ function renormalize( test )
 
   /* - */
 
-  function prepare()
+  function prepare( o )
   {
+    o = o || {};
+
     con.then( () =>
     {
       provider.filesDelete( testPath );
@@ -15956,11 +15986,14 @@ function renormalize( test )
 
       provider.fileWrite( path.join( repoPath, 'file1' ), file1Data );
 
+      if( o.attributes )
+      provider.fileWrite( path.join( repoPath, '.gitattributes' ), o.attributes );
+
       return null;
     })
 
     shell( 'git init' )
-    shell( 'git add .' )
+    shell( 'git add -fA .' )
     shell( 'git commit -m init' )
 
     return con;
@@ -15974,7 +16007,7 @@ function renormalize( test )
       return null;
     })
 
-    shell2( 'git -c "core.autocrlf=true" clone repo clone' )
+    shell2( 'git clone repo clone --config core.autocrlf=true' )
 
     return con;
   }
