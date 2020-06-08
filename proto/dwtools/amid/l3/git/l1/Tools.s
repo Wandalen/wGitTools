@@ -3662,7 +3662,7 @@ function renormalize( o )
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( versionLocalRetrive, o );
+  _.routineOptions( renormalize, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
@@ -3689,24 +3689,16 @@ function renormalize( o )
 
   ready.then( ( status ) =>
   {
-    if( status )
+    if( _.objectIs( status ) && status.status )
     return true;
 
     let config = _.git.configRead( o.localPath );
 
     if( !o.force )
     if( config.core.autocrlf === false )
-    {
-      if( config.core.eol === 'lf' )
-      return true;
-
-      if( process.platform !== 'win32' )
-      if( !config.core.eol || config.core.eol === 'native' )
-      return true;
-    }
+    return true;
 
     config.core.autocrlf = false;
-    config.core.eol = 'lf';
 
     _.git.configSave( o.localPath, config );
 
