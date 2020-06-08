@@ -3698,6 +3698,11 @@ function renormalize( o )
     if( config.core.autocrlf === false )
     return true;
 
+    if( o.audit )
+    {
+      audit();
+    }
+
     config.core.autocrlf = false;
 
     _.git.configSave( o.localPath, config );
@@ -3742,6 +3747,33 @@ function renormalize( o )
   }
 
   return ready;
+
+  //
+
+  function audit()
+  {
+    let attributesPath = path.join( o.localPath, '.gitattributes' );
+    if( !localProvider.fileExists( attributesPath ) )
+    return;
+    let attributes = localProvider.fileRead( attributesPath );
+    attributes = _.strSplitNonPreserving( attributes, '\n' );
+    attributes = attributes.map( e => _.strSplitNonPreserving( e, /\s+/ ) );
+
+    attributes = attributes.filter( e =>
+    {
+      if( _.longHasAny( e, [ 'text', 'text=auto' ] ) )
+      if( !_.longHasAny( e, [ 'eol=crlf', 'eol=lf' ] ) )
+      return true;
+      return false;
+    })
+
+    if( !attributes.length )
+    return;
+
+    attributes = attributes.map( ( e ) => e.join( ' ' ) );
+
+    logger.warn( `File .gitattributes from the repository at ${o.localPath} contains lines that can affect the result of EOL normalization.\nThese lines are:\n ${attributes.join('\n')}` );
+  }
 }
 
 renormalize.defaults =
@@ -3750,7 +3782,8 @@ renormalize.defaults =
   sync : 0,
   safe : 1,
   force : 0,
-  throwing : 0
+  throwing : 0,
+  audit : 0
 }
 
 // --
