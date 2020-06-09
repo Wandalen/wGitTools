@@ -16,8 +16,7 @@ jobs :
       fail-fast  : false
       matrix :
         os : [ windows-latest, ubuntu-latest, macos-latest ]
-        # node-version : [ 10.x, 12.x, 13.x, 14.x ]
-        node-version : [ 12.x ]
+        node-version : [ 10.x, 12.x, 13.x, 14.x ]
     steps :
     - uses : actions/checkout@v2
     - name : ${{ matrix.node-version }}
@@ -25,8 +24,6 @@ jobs :
       with :
         node-version : ${{ matrix.node-version }}
     - run : npm i
-    # - run : npm test
     - run : git config --global user.email "testrunner@example.com"
     - run : git config --global user.name "TestRunner"
-    - run : node proto/dwtools/amid/l3.test/GitTools.test.ss r:renormalize v:10
-    - run : node proto/dwtools/amid/l3.test/GitTools.test.ss r:renormalizeOriginHasAttributes v:10
+    - run : npm test
