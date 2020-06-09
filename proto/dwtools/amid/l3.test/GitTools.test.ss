@@ -24,9 +24,9 @@ function onSuiteBegin( test )
   let context = this;
   context.provider = _.fileProvider;
   let path = context.provider.path;
-  context.suitePath = context.provider.path.pathDirTempOpen( path.join( __dirname, '../..'  ),'GitTools' );
-  context.suitePath = context.provider.pathResolveLinkFull({ filePath : context.suitePath, resolvingSoftLink : 1 });
-  context.suitePath = context.suitePath.absolutePath;
+  context.suiteTempPath = context.provider.path.pathDirTempOpen( path.join( __dirname, '../..'  ),'GitTools' );
+  context.suiteTempPath = context.provider.pathResolveLinkFull({ filePath : context.suiteTempPath, resolvingSoftLink : 1 });
+  context.suiteTempPath = context.suiteTempPath.absolutePath;
 
 }
 
@@ -34,8 +34,8 @@ function onSuiteEnd( test )
 {
   let context = this;
   let path = context.provider.path;
-  _.assert( _.strHas( context.suitePath, 'GitTools' ), context.suitePath );
-  path.pathDirTempClose( context.suitePath );
+  _.assert( _.strHas( context.suiteTempPath, 'GitTools' ), context.suiteTempPath );
+  path.pathDirTempClose( context.suiteTempPath );
 }
 
 // --
@@ -199,7 +199,7 @@ function versionsRemoteRetrive( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -311,7 +311,7 @@ function versionsPull( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -478,7 +478,7 @@ function versionIsCommitHash( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'wPathBasic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
   let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
@@ -637,7 +637,7 @@ function statusLocal( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -3428,7 +3428,7 @@ function statusLocalEmpty( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -3887,7 +3887,7 @@ function statusLocalEmptyWithOrigin( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -4362,7 +4362,7 @@ function statusLocalAsync( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -4556,7 +4556,7 @@ function statusLocalExplainingTrivial( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -4742,7 +4742,7 @@ function statusLocalExtended( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -5078,7 +5078,7 @@ function statusFullHalfStaged( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -5232,7 +5232,7 @@ function statusRemote( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -5729,7 +5729,7 @@ function statusRemoteTags( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let remotePath = 'https://github.com/Wandalen/willbe.git';
 
@@ -5899,7 +5899,7 @@ function statusRemoteVersionOption( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -7006,7 +7006,7 @@ function hasLocalChanges( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -7557,7 +7557,7 @@ function hasRemoteChanges( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -7845,7 +7845,7 @@ function hasChanges( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -8462,7 +8462,7 @@ function hasLocalChangesSpecial( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -8538,7 +8538,7 @@ function hasFiles( test )
   let context = this;
   let provider = context.provider;
   let path = context.provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'repo' );
   let filePath = path.join( localPath, 'file' );
 
@@ -8580,7 +8580,7 @@ function hasRemote( test )
   let context = this;
   let provider = _.fileProvider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'wPathBasic' );
   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
   let remotePath2 = 'git+https:///github.com/Wandalen/wTools.git';
@@ -8655,7 +8655,7 @@ function isUpToDate( test )
   let context = this;
   let provider = context.provider;
   let path = context.provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'wPathBasic' );
 
   let con = new _.Consequence().take( null )
@@ -8984,7 +8984,7 @@ function isUpToDateExtended( test )
   let context = this;
   let provider = context.provider;
   let path = context.provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'wTools' );
 
   let con = new _.Consequence().take( null )
@@ -9300,7 +9300,7 @@ function isUpToDateThrowing( test )
   let context = this;
   let provider = context.provider;
   let path = context.provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'wPathBasic' );
 
   let con = new _.Consequence().take( null )
@@ -9397,7 +9397,7 @@ function isRepository( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -9653,7 +9653,7 @@ function status( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -10616,7 +10616,7 @@ function statusFull( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -11739,7 +11739,7 @@ function statusEveryCheck( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let secondaryPath = path.join( testPath, 'secondary' );
@@ -12222,7 +12222,7 @@ function repositoryHasTag( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'wPathBasic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
   let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
@@ -12470,7 +12470,7 @@ function repositoryHasVersion( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'wPathBasic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
   let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
@@ -12636,7 +12636,7 @@ function diff( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'wPathBasic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
   let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
@@ -13139,7 +13139,7 @@ function diffSpecial( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'repo' );
   let barePath = path.join( testPath, 'bare' );
   let ready = new _.Consequence().take( null );
@@ -14438,7 +14438,7 @@ function gitHooksManager( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'repo' )
   let hooksPath = path.join( localPath, './.git/hooks' )
 
@@ -15026,7 +15026,7 @@ function gitHooksManagerErrors( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'repo' )
   let hooksPath = path.join( localPath, './.git/hooks' )
 
@@ -15394,7 +15394,7 @@ function hookTrivial( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
 
   provider.dirMake( testPath );
 
@@ -15480,7 +15480,7 @@ function hookPreservingHardLinks( test )
   let context = this;
   let provider = context.provider;
   let path = provider.path;
-  let testPath = path.join( context.suitePath, 'routine-' + test.name );
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
   let localPath = path.join( testPath, 'clone' );
   let repoPath = path.join( testPath, 'repo' );
   let repoPathNative = path.nativize( repoPath );
@@ -15636,6 +15636,899 @@ function hookPreservingHardLinks( test )
 
 }
 
+//
+
+function renormalize( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
+  let repoPath = path.join( testPath, 'repo' );
+  let clonePath = path.join( testPath, 'clone' );
+  let repoPathNative = path.nativize( repoPath );
+  let file1Data = 'abc\n';
+  let file1DataCrlf = 'abc\r\n';
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : testPath,
+    ready : con
+  })
+
+  let shell3 = _.process.starter
+  ({
+    currentPath : clonePath,
+    sync : 1
+  })
+
+  prepare()
+  clone()
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+    return null;
+  })
+
+  /* - */
+
+  prepare()
+  clone()
+  .then( () =>
+  {
+    test.case = 'local uncommited change'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    provider.fileWrite( path.join( clonePath, 'file1' ), 'data' );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, 'data' );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, true );
+    test.identical( config.core.eol, undefined );
+
+    return null;
+  })
+
+  /* - */
+
+  prepare()
+  clone()
+  .then( () =>
+  {
+    test.case = 'local uncommited change, safe:0'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    provider.fileWrite( path.join( clonePath, 'file1' ), 'data' );
+
+    return _.git.renormalize({ localPath : clonePath, safe : 0 });
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+
+  /* - */
+
+  prepare()
+  clone()
+  .then( () =>
+  {
+    test.case = 'local uncommited file'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    provider.fileWrite( path.join( clonePath, 'file2' ), 'data' );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    test.is( provider.fileExists( path.join( clonePath, 'file2' ) ) );
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    let file2 = provider.fileRead( path.join( clonePath, 'file2' ) );
+    test.identical( file2, 'data' );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, true );
+
+    return null;
+  })
+
+  /* - */
+
+  prepare()
+  clone()
+  .then( () =>
+  {
+    test.case = 'local uncommited file'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    provider.fileWrite( path.join( clonePath, 'file2' ), 'data' );
+
+    return _.git.renormalize({ localPath : clonePath, safe : 0 });
+  })
+  .then( () =>
+  {
+    test.is( provider.fileExists( path.join( clonePath, 'file2' ) ) );
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    let file2 = provider.fileRead( path.join( clonePath, 'file2' ) );
+    test.identical( file2, 'data' );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare()
+  clone()
+  .then( () =>
+  {
+    test.case = 'local unpushed commit, safe'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    provider.fileWrite( path.join( clonePath, 'file1' ), 'data' );
+
+    shell3( 'git commit -am change' );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, 'data' );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, true );
+    test.identical( config.core.eol, undefined );
+
+    let status = _.git.statusLocal
+    ({
+      localPath : clonePath,
+      uncommitted : 1,
+      detailing : 1,
+      unpushed : 1,
+      explaining : 0,
+      sync : 1,
+    });
+
+    test.identical( status.unpushedCommits, true )
+
+    return null;
+  })
+
+  /* - */
+
+  prepare()
+  clone()
+  .then( () =>
+  {
+    test.case = 'local unpushed commit, safe:0'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    shell3( 'git commit -m change --allow-empty' );
+
+    return _.git.renormalize({ localPath : clonePath, safe : 0 });
+  })
+  .then( () =>
+  {
+    shell3( 'git status' );
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+    test.identical( config.core.eol, undefined );
+
+    let status = _.git.statusLocal
+    ({
+      localPath : clonePath,
+      uncommitted : 1,
+      detailing : 1,
+      unpushed : 1,
+      explaining : 0,
+      sync : 1,
+    });
+
+    test.identical( status.unpushedCommits, true )
+
+    return null;
+  })
+
+  return con;
+
+  /* - */
+
+  function prepare()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( testPath );
+      provider.dirMake( testPath )
+      provider.dirMake( repoPath )
+
+      provider.fileWrite( path.join( repoPath, 'file1' ), file1Data );
+
+      return null;
+    })
+
+    shell( 'git init' )
+    shell( 'git add -fA .' )
+    shell( 'git commit -m init' )
+
+    return con;
+  }
+
+  function clone()
+  {
+    con.then( () =>
+    {
+      provider.filesDelete( clonePath );
+      return null;
+    })
+
+    shell2( 'git clone repo clone --config core.autocrlf=true' )
+
+    return con;
+  }
+
+}
+
+renormalize.timeOut = 30000;
+
+//
+
+function renormalizeOriginHasAttributes( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
+  let repoPath = path.join( testPath, 'repo' );
+  let clonePath = path.join( testPath, 'clone' );
+  let repoPathNative = path.nativize( repoPath );
+  let file1Data = 'abc\n';
+  let file1DataCrlf = 'abc\r\n';
+  let eolConfig = globalGitEolGet();
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : testPath,
+    ready : con
+  })
+
+  /* - */
+
+  prepare({ attributes : '* text eol=lf' })
+  clone()
+  .then( () =>
+  {
+    test.case = 'eol=lf in gitattributes'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+    return null;
+  })
+
+
+  /* - */
+
+  prepare({ attributes : '* text eol=crlf' })
+  clone()
+  .then( () =>
+  {
+    test.case = 'eol=crlf in gitattributes'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1DataCrlf );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+
+  /* - */
+
+  prepare({ attributes : '*.s linguist-language=JavaScript' })
+  clone()
+  .then( () =>
+  {
+    test.case = 'gitattributes without eol'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '*.s linguist-language=JavaScript' })
+  clone({ config : 'core.eol lf' })
+  .then( () =>
+  {
+    test.case = 'gitattributes without eol, core.eol=lf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '*.s linguist-language=JavaScript' })
+  clone({ config : 'core.eol crlf' })
+  .then( () =>
+  {
+    test.case = 'gitattributes without eol, core.eol=crlf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* text' })
+  clone()
+  .then( () =>
+  {
+    test.case = 'text in gitattributes'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+
+    if( eolConfig === 'lf' )
+    test.identical( file1, file1Data );
+    else
+    test.identical( file1, file1DataCrlf );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+
+  /* - */
+
+  prepare({ attributes : '* text' })
+  clone({ config : 'core.eol lf' })
+  .then( () =>
+  {
+    test.case = 'text in gitattributes, core.eol=lf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* text' })
+  clone({ config : 'core.eol crlf' })
+  .then( () =>
+  {
+    test.case = 'text in gitattributes, core.eol=crlf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1DataCrlf );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+
+  /* - */
+
+  prepare({ attributes : '* text=auto' })
+  clone()
+  .then( () =>
+  {
+    test.case = 'eol=auto in gitattributes'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+
+    if( eolConfig === 'lf')
+    test.identical( file1, file1Data );
+    else
+    test.identical( file1, file1DataCrlf );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* text=auto' })
+  clone({ config : 'core.eol lf' })
+  .then( () =>
+  {
+    test.case = 'eol=auto in gitattributes, core.eol=lf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* text=auto' })
+  clone({ config : 'core.eol crlf' })
+  .then( () =>
+  {
+    test.case = 'eol=auto in gitattributes, core.eol=crlf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.notIdentical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+
+    test.identical( file1, file1DataCrlf );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* -text' })
+  clone()
+  .then( () =>
+  {
+    test.case = '-text in gitattributes'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* -text' })
+  clone({ config : 'core.eol lf' })
+  .then( () =>
+  {
+    test.case = '-text in gitattributes, core.eol=lf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  /* - */
+
+  prepare({ attributes : '* -text' })
+  clone({ config : 'core.eol crlf' })
+  .then( () =>
+  {
+    test.case = '-text in gitattributes, core.eol=crlf'
+
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    return _.git.renormalize( clonePath );
+  })
+  .then( () =>
+  {
+    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    test.identical( file1, file1Data );
+
+    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+
+    let config = _.git.configRead( clonePath );
+    test.identical( config.core.autocrlf, false );
+
+
+    return null;
+  })
+
+  return con;
+
+  /* - */
+
+  function prepare( o )
+  {
+    o = o || {};
+
+    con.then( () =>
+    {
+      provider.filesDelete( testPath );
+      provider.dirMake( testPath )
+      provider.dirMake( repoPath )
+
+      provider.fileWrite( path.join( repoPath, 'file1' ), file1Data );
+
+      if( o.attributes )
+      provider.fileWrite( path.join( repoPath, '.gitattributes' ), o.attributes );
+
+      return null;
+    })
+
+    shell( 'git init' )
+    shell( 'git add -fA .' )
+    shell( 'git commit -m init' )
+
+    return con;
+  }
+
+  function clone( o )
+  {
+    o = o || {}
+    con.then( () =>
+    {
+      provider.filesDelete( clonePath );
+      return null;
+    })
+
+    shell2( 'git clone repo clone --config core.autocrlf=true' )
+
+    if( o.config )
+    shell2( 'git -C clone config ' + o.config )
+
+    return con;
+  }
+
+  function globalGitEolGet()
+  {
+    var result = _.process.start
+    ({
+      execPath : 'git config --global core.eol',
+      sync : 1,
+      outputCollecting : 1,
+      throwingExitCode : 0
+    });
+
+    result = _.strStrip( result.output );
+
+    if( !result )
+    result = process.platform === 'win32' ? 'crlf' : 'lf';
+
+    return result;
+  }
+
+}
+
+renormalizeOriginHasAttributes.timeOut = 60000;
+
+//
+
+function renormalizeAudit( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
+  let repoPath = path.join( testPath, 'repo' );
+  let clonePath = path.join( testPath, 'clone' );
+  let file1Data = 'abc\n';
+  let a = test.assetFor( false );
+
+  let con = new _.Consequence().take( null );
+
+  let shell = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  let shell2 = _.process.starter
+  ({
+    currentPath : testPath,
+    ready : con
+  })
+
+  let programPath = a.program
+  ({
+    routine : program,
+    locals :
+    {
+      GitToolsPath : path.nativize( path.resolve( __dirname, '../l3/git/entry/Include.s' ) ),
+      ClonePath : clonePath
+    }
+  });
+
+  /* - */
+
+  prepare({ attributes : '* text' })
+  clone({ config : 'core.eol crlf' })
+  .then( () =>
+  {
+    test.case = 'text in gitattributes, core.eol=crlf';
+
+    return a.appStartNonThrowing({ execPath : programPath })
+    .then( ( op ) =>
+    {
+      test.identical( op.exitCode, 0 );
+      test.is( _.strHas( op.output, 'contains lines that can affect the result of EOL normalization'  ) );
+
+      return null;
+    });
+  })
+
+  return con;
+
+  /* - */
+
+  function prepare( o )
+  {
+    o = o || {};
+
+    con.then( () =>
+    {
+      provider.filesDelete( testPath );
+      provider.dirMake( testPath )
+      provider.dirMake( repoPath )
+
+      provider.fileWrite( path.join( repoPath, 'file1' ), file1Data );
+
+      if( o.attributes )
+      provider.fileWrite( path.join( repoPath, '.gitattributes' ), o.attributes );
+
+      return null;
+    })
+
+    shell( 'git init' )
+    shell( 'git add -fA .' )
+    shell( 'git commit -m init' )
+
+    return con;
+  }
+
+  function clone( o )
+  {
+    o = o || {}
+    con.then( () =>
+    {
+      provider.filesDelete( clonePath );
+      return null;
+    })
+
+    shell2( 'git clone repo clone --config core.autocrlf=true' )
+
+    if( o.config )
+    shell2( 'git -C clone config ' + o.config )
+
+    return con;
+  }
+
+  function program()
+  {
+    var _ = require( GitToolsPath );
+    _.git.renormalize({ localPath : ClonePath, audit : 1 });
+  }
+}
+
+renormalizeAudit.timeOut = 15000;
+
+
 // --
 // declare
 // --
@@ -15655,7 +16548,9 @@ var Proto =
   context :
   {
     provider : null,
-    suitePath : null,
+    suiteTempPath : null,
+    assetsOriginalPath : null,
+    appJsPath : null
   },
 
   tests :
@@ -15706,6 +16601,10 @@ var Proto =
 
     hookTrivial,
     hookPreservingHardLinks,
+
+    renormalize,
+    renormalizeOriginHasAttributes,
+    renormalizeAudit
 
   },
 

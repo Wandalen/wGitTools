@@ -1159,6 +1159,50 @@ defaults.hash = null;
 defaults.tag = null;
 defaults.sync = 1;
 
+//
+
+function sureHasOrigin( o )
+{
+  if( !_.mapIs( o ) )
+  o = { localPath : o }
+
+  _.routineOptions( sureHasOrigin, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ), 'Expects local path' );
+  _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
+
+  if( !_.git.isRepository({ localPath : o.localPath }) )
+  throw _.err( `Provided path is not a git repository:${o.localPath}` );
+
+  let parsed = _.git.pathParse( o.remotePath );
+  let config = _.git.configRead( o.localPath );
+
+  // debugger;
+  _.sure
+  (
+    !!config[ 'remote "origin"' ] && !!config[ 'remote "origin"' ] && _.strIs( config[ 'remote "origin"' ].url ),
+    'GIT config does not have {-remote.origin.url-}'
+  );
+
+  let srcCurrentPath = config[ 'remote "origin"' ].url;
+
+  _.sure
+  (
+    _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( parsed.remoteVcsPath, '/' ) ),
+    () => 'GIT repository at directory ' + _.strQuote( o.localPath ) + '\n' +
+    'Has origin ' + _.strQuote( srcCurrentPath ) + '\n' +
+    'Should have ' + _.strQuote( parsed.remoteVcsPath )
+  );
+
+  return config;
+}
+
+sureHasOrigin.defaults =
+{
+  localPath : null,
+  remotePath : null
+}
+
 // --
 // status
 // --
@@ -3391,6 +3435,232 @@ prsGet.defaults =
   sync : 1,
 }
 
+//
+
+function repositoryClone( o )
+{
+  let localProvider = _.fileProvider;
+
+  _.routineOptions( repositoryClone, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ), 'Expects local path' );
+  _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
+
+  let ready = new _.Consequence().take( null );
+
+  if( _.git.isRepository({ localPath : o.localPath }) )
+  return ready;
+
+  let parsed = _.git.pathParse( o.remotePath );
+
+  if( !localProvider.fileExists( o.localPath ) )
+  localProvider.dirMake( o.localPath );
+  else
+  _.sure( localProvider.dirIsEmpty( o.localPath ) );
+
+  let shell = _.process.starter
+  ({
+    verbosity : o.verbosity,
+    currentPath : o.localPath,
+    ready,
+  });
+
+  shell( `git clone ${parsed.remoteVcsLongerPath} . --config core.autocrlf=false` );
+
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+repositoryClone.defaults =
+{
+  remotePath : null,
+  localPath : null,
+  verbosity : null,
+  sync : 0
+}
+
+//
+
+function repositoryCheckout( o )
+{
+  let localProvider = _.fileProvider;
+
+  _.routineOptions( repositoryCheckout, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ), 'Expects local path' );
+  _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
+
+  let ready = new _.Consequence().take( null );
+  let parsed = _.git.pathParse( o.remotePath );
+
+  let shell = _.process.starter
+  ({
+    verbosity : o.verbosity,
+    currentPath : o.localPath,
+    outputCollecting : 1,
+    ready,
+  });
+
+  if( parsed.tag )
+  ready.then( () =>
+  {
+    let repoHasTag = _.git.repositoryHasTag({ localPath : o.localPath, tag : parsed.tag });
+    if( !repoHasTag )
+    throw _.err
+    (
+      `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
+      \nLocal path: ${_.color.strFormat( String( o.localPath ), 'path' )}\
+      \nRemote path: ${_.color.strFormat( String( parsed.remoteVcsPath ), 'path' )}`
+    );
+    return null;
+  });
+
+  let checkoutOptions =
+  {
+    execPath : 'git -c "core.autocrlf=false" checkout ' + ( parsed.hash || parsed.tag )
+  }
+
+  shell( checkoutOptions )
+
+  ready.catch( ( err ) =>
+  {
+    _.errAttend( err );
+    if( o.localChanges && o.stashing )
+    shell
+    ({
+      execPath : 'git -c "core.autocrlf=false" stash pop',
+      sync : 1,
+      deasync : 0,
+      throwingExitCode : 0,
+      ready : null
+    })
+
+    if( !_.strHasAny( checkoutOptions.output, [ 'fatal: reference', 'error: pathspec' ] ) )
+    throw _.err( err );
+
+    err = _.err( 'Failed to checkout, branch/commit: ' + _.strQuote( parsed.hash || parsed.tag ) + ' doesn\'t exist in repository at ' + _.strQuote( o.localPath ) );
+    err.reason = 'git';
+    throw err;
+  })
+
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+repositoryCheckout.defaults =
+{
+  remotePath : null,
+  localPath : null,
+  verbosity : null,
+  sync : 0
+}
+
+//
+
+function repositoryStash( o )
+{
+  _.routineOptions( repositoryStash, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ), 'Expects local path' );
+
+  let ready = new _.Consequence().take( null );
+  let shell = _.process.starter
+  ({
+    verbosity : o.verbosity,
+    currentPath : o.localPath,
+    outputCollecting : 1,
+    ready,
+  });
+
+  let shellOptions = { execPath : `git -c "core.autocrlf=false" stash ${ o.pop ? 'pop' : '' }` }
+
+  shell( shellOptions );
+
+  ready.catch( ( err ) =>
+  {
+    if( !_.strHas( shellOptions.output, 'CONFLICT' ) )
+    throw _.err( err );
+    _.errAttend( err );
+    err = _.err( 'Automatic merge of stashed changes failed in repository at ' + _.strQuote( o.localPath ) + '. Fix conflict(s) manually.' );
+    err.reason = 'git';
+    throw err;
+  })
+
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+repositoryStash.defaults =
+{
+  localPath : null,
+  verbosity : null,
+  pop : 0
+}
+
+//
+
+function repositoryMerge( o )
+{
+  _.routineOptions( repositoryMerge, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strDefined( o.localPath ), 'Expects local path' );
+
+  let ready = new _.Consequence().take( null );
+  let shell = _.process.starter
+  ({
+    verbosity : o.verbosity,
+    currentPath : o.localPath,
+    outputCollecting : 1,
+    ready,
+  });
+
+  let shellOptions =
+  {
+    execPath : `git -c "merge.defaultToUpstream=true" -c "core.autocrlf=false" merge`
+  }
+
+  shell( shellOptions );
+
+  ready.catch( ( err ) =>
+  {
+    if( !_.strHas( shellOptions.output, 'CONFLICT' ) )
+    throw _.err( err )
+    _.errAttend( err );
+    err = _.err( 'Automatic merge of remote-tracking branch failed in repository at ' + _.strQuote( o.localPath ) + '. Fix conflict(s) manually.' );
+    err.reason = 'git';
+    throw err;
+  })
+
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+repositoryMerge.defaults =
+{
+  localPath : null,
+  verbosity : null
+}
+
 // --
 // etc
 // --
@@ -3410,6 +3680,24 @@ function configRead( filePath )
   let config = Ini.parse( read );
 
   return config;
+}
+
+//
+
+function configSave( filePath, config )
+{
+  let fileProvider = _.fileProvider;
+  let path = fileProvider.path;
+
+  _.assert( arguments.length === 2 );
+  _.assert( _.strDefined( filePath ) );
+  _.assert( _.objectIs( config ) );
+
+  if( !Ini )
+  Ini = require( 'ini' );
+
+  let data = Ini.stringify( config, { whitespace : true } );
+  fileProvider.fileWrite( path.join( filePath, '.git/config' ), data );
 }
 
 //
@@ -3634,6 +3922,140 @@ reset.defaults =
   sync : 1,
 }
 
+//
+
+function renormalize( o )
+{
+  let localProvider = _.fileProvider;
+  let path = localProvider.path;
+
+  if( !_.mapIs( o ) )
+  o = { localPath : o }
+
+  _.routineOptions( renormalize, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strIs( o.localPath ), 'Expects local path' );
+
+  let ready = new _.Consequence();
+
+  if( !_.git.isRepository({ localPath : o.localPath }) )
+  ready.error( _.err( `Provided path is not a git repository:${o.localPath}` ) );
+  else
+  ready.take( null );
+
+  if( o.safe )
+  ready.then( () =>
+  {
+    return _.git.statusLocal
+    ({
+      localPath : o.localPath,
+      uncommitted : 1,
+      detailing : 0,
+      unpushed : 1,
+      explaining : 0,
+      sync : 0,
+    });
+  })
+
+  ready.then( ( status ) =>
+  {
+    if( _.objectIs( status ) && status.status )
+    return true;
+
+    let config = _.git.configRead( o.localPath );
+
+    if( !o.force )
+    if( config.core.autocrlf === false )
+    return true;
+
+    if( o.audit )
+    {
+      audit();
+    }
+
+    config.core.autocrlf = false;
+
+    _.git.configSave( o.localPath, config );
+
+    return null;
+  })
+
+  ready.then( ( skip ) =>
+  {
+    if( skip )
+    return true;
+
+    let con = new _.Consequence().take( null )
+    let start = _.process.starter
+    ({
+      verbosity : o.verbosity - 1,
+      outputCollecting : 1,
+      currentPath : o.localPath,
+      ready : con
+    });
+
+    start( 'git rm --cached -r .' )
+    start( 'git reset --hard' )
+
+    return con;
+  })
+
+  ready.catch( ( err ) =>
+  {
+    _.errAttend( err );
+
+    if( o.throwing )
+    throw _.err( `Failed to renormalize repository at: ${o.localPath}\nReason:`, err );
+
+    return null;
+  })
+
+  if( o.sync )
+  {
+    ready.deasyncWait();
+    return ready.sync();
+  }
+
+  return ready;
+
+  //
+
+  function audit()
+  {
+    let attributesPath = path.join( o.localPath, '.gitattributes' );
+    if( !localProvider.fileExists( attributesPath ) )
+    return;
+    let attributes = localProvider.fileRead( attributesPath );
+    attributes = _.strSplitNonPreserving( attributes, '\n' );
+    attributes = attributes.map( e => _.strSplitNonPreserving( e, /\s+/ ) );
+
+    attributes = attributes.filter( e =>
+    {
+      if( _.longHasAny( e, [ 'text', 'text=auto' ] ) )
+      if( !_.longHasAny( e, [ 'eol=crlf', 'eol=lf' ] ) )
+      return true;
+      return false;
+    })
+
+    if( !attributes.length )
+    return;
+
+    attributes = attributes.map( ( e ) => e.join( ' ' ) );
+
+    logger.warn( `File .gitattributes from the repository at ${o.localPath} contains lines that can affect the result of EOL normalization.\nThese lines are:\n ${attributes.join('\n')}` );
+  }
+}
+
+renormalize.defaults =
+{
+  localPath : null,
+  sync : 0,
+  safe : 1,
+  force : 0,
+  throwing : 0,
+  audit : 0
+}
+
 // --
 // relations
 // --
@@ -3698,6 +4120,7 @@ let Extend =
   isRepository,
   hasRemote,
   isHead,
+  sureHasOrigin,
 
   // status
 
@@ -3734,13 +4157,19 @@ let Extend =
   repositoryInit,
   repositoryDelete,
   prsGet,
+  repositoryClone,
+  repositoryCheckout,
+  repositoryStash,
+  repositoryMerge,
 
   // etc
 
   configRead,
+  configSave,
   diff,
   reset,
   /* qqq : implement routine _.git.profileConfigure */
+  renormalize
 
 }
 
