@@ -188,8 +188,8 @@ module:
         path: 'npm:///wfilesarchive'
         autoExporting: 0
         enabled: 0
-      wAppBasic:
-        path: 'npm:///wappbasic'
+      wProcess:
+        path: 'npm:///wprocess'
         autoExporting: 0
         enabled: 0
       ini:
@@ -1002,8 +1002,8 @@ module:
         path: 'npm:///wfilesarchive'
         autoExporting: 0
         enabled: 0
-      wAppBasic:
-        path: 'npm:///wappbasic'
+      wProcess:
+        path: 'npm:///wprocess'
         autoExporting: 0
         enabled: 0
       ini:

@@ -23,7 +23,7 @@
     "wCopyable" : "alpha",
     "wFiles" : "alpha",
     "wfilesarchive" : "alpha",
-    "wappbasic" : "alpha",
+    "wprocess" : "alpha",
     "ini" : "1.3.5"
   },
   "devDependencies" : { "wTesting" : "alpha" },
