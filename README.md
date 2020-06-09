@@ -1,5 +1,5 @@
 
-# wGitTools [![Build Status](https://travis-ci.org/Wandalen/wGitTools.svg?branch=master)](https://travis-ci.org/Wandalen/wGitTools)
+# wGitTools [![Status](https://github.com/Wandalen/wGitTools/workflows/Test/badge.svg)](https://github.com/Wandalen/wGitTools/actions?query=workflow%3ATest)
 
 Collection of tools to use git programmatically.
 
