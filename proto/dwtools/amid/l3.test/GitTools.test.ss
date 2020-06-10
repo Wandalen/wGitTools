@@ -3425,7 +3425,7 @@ function statusLocal( test )
 
 }
 
-statusLocal.timeOut = 30000;
+statusLocal.timeOut = 60000;
 
 //
 
