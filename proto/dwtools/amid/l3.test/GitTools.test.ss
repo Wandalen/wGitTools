@@ -8477,7 +8477,7 @@ function hasChanges( test )
 
 }
 
-hasChanges.timeOut = 30000;
+hasChanges.timeOut = 60000;
 
 //
 
