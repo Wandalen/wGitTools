@@ -15043,6 +15043,8 @@ function gitHooksManager( test )
   }
 }
 
+gitHooksManager.timeOut = 30000;
+
 //
 
 function gitHooksManagerErrors( test )
