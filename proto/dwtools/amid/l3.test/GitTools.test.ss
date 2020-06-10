@@ -51,6 +51,7 @@ function pathParse( test )
     'tag' : 'master',
     'longPath' : '/git@bitbucket.org:someorg/somerepo.git',
     'localVcsPath' : './',
+    'parametrizedPath' : '/git@bitbucket.org:someorg/somerepo.git',
     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'isFixated' : false
@@ -65,6 +66,7 @@ function pathParse( test )
     'hash' : 'master',
     'longPath' : '/git@bitbucket.org:someorg/somerepo.git/',
     'localVcsPath' : './',
+    'parametrizedPath' : '/git@bitbucket.org:someorg/somerepo.git/#master',
     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'isFixated' : false
@@ -79,6 +81,7 @@ function pathParse( test )
     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'longPath' : '/github.com/Wandalen/wTools.git/',
     'localVcsPath' : './',
+    'parametrizedPath' : '/github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wTools.git',
     'isFixated' : true
@@ -93,6 +96,7 @@ function pathParse( test )
     'tag' : 'v0.8.505',
     'longPath' : '/github.com/Wandalen/wTools.git/',
     'localVcsPath' : './',
+    'parametrizedPath' : '/github.com/Wandalen/wTools.git/@v0.8.505',
     'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wTools.git',
     'isFixated' : false
@@ -107,6 +111,7 @@ function pathParse( test )
     'tag' : 'master',
     'longPath' : '/github.com/Wandalen/wTools.git/',
     'localVcsPath' : './',
+    'parametrizedPath' : '/github.com/Wandalen/wTools.git/@master',
     'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wTools.git',
     'isFixated' : false
@@ -122,6 +127,7 @@ function pathParse( test )
     'tag' : 'master',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will',
+    'parametrizedPath' : 'Tools?out=out/wTools.out.will@master',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : false
@@ -137,6 +143,7 @@ function pathParse( test )
     'tag' : 'v0.8.505',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will',
+    'parametrizedPath' : 'Tools?out=out/wTools.out.will@v0.8.505',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : false
@@ -151,6 +158,7 @@ function pathParse( test )
     'query' : 'out=out/wTools.out.will/',
     'tag' : 'v0.8.505',
     'longPath' : 'Tools',
+    'parametrizedPath' : 'Tools?out=out/wTools.out.will/@v0.8.505',
     'localVcsPath' : 'out/wTools.out.will/',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
@@ -167,6 +175,7 @@ function pathParse( test )
     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will',
+    'parametrizedPath' : 'Tools?out=out/wTools.out.will#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : true
@@ -182,6 +191,7 @@ function pathParse( test )
     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will/',
+    'parametrizedPath' : 'Tools?out=out/wTools.out.will/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : true
@@ -3415,7 +3425,7 @@ function statusLocal( test )
 
 }
 
-statusLocal.timeOut = 30000;
+statusLocal.timeOut = 60000;
 
 //
 
@@ -8317,9 +8327,9 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'local clone has unpushed tag';
-    let ignoredFilePath = path.join( localPath, 'file' );
+    let ignoredFilePath = path.join( localPath, 'fileToIgnore' );
     provider.fileWrite( ignoredFilePath,ignoredFilePath )
-    _.git.ignoreAdd( localPath, { 'file' : null } )
+    _.git.ignoreAdd( localPath, { 'fileToIgnore' : null } )
     return null;
   })
   shell( 'git add --all' )
@@ -8392,7 +8402,13 @@ function hasChanges( test )
     })
 
     shell( 'git clone ' + repoPathNative + ' secondary' )
-    shell( 'git -C secondary commit --allow-empty -m ' + message )
+    con.then( () =>
+    {
+      provider.fileWrite( path.join( testPath, 'secondary/file' ), _.time.now().toString() );
+      return null;
+    })
+    shell( 'git -C secondary add .' )
+    shell( 'git -C secondary commit -m ' + message )
     shell( 'git -C secondary push' )
 
     return con;
@@ -8438,7 +8454,15 @@ function hasChanges( test )
       else
       shell2( 'git -C secondary checkout ' + branch )
 
-      shell2( 'git -C secondary commit --allow-empty -m ' + message )
+      con2.then( () =>
+      {
+        provider.fileWrite( path.join( testPath, 'secondary/file' ), _.time.now().toString() );
+        return null;
+      })
+
+      shell2( 'git -C secondary add .' )
+
+      shell2( 'git -C secondary commit -m ' + message )
 
       if( create )
       shell2( 'git -C secondary push -f --set-upstream origin ' + branch )
@@ -8453,7 +8477,7 @@ function hasChanges( test )
 
 }
 
-hasChanges.timeOut = 30000;
+hasChanges.timeOut = 60000;
 
 //
 
@@ -15018,6 +15042,8 @@ function gitHooksManager( test )
     return con;
   }
 }
+
+gitHooksManager.timeOut = 30000;
 
 //
 
