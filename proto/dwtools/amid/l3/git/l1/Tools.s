@@ -3750,8 +3750,6 @@ function diff( o )
 
   let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
 
-  debugger
-
   if( state1 === 'working' )
   start( `git diff ${diffMode} --exit-code ${state2}` )
   else if( state1 === 'staging' )
@@ -3760,8 +3758,6 @@ function diff( o )
   start( `git diff ${diffMode} --exit-code HEAD ${state2}` )
   else
   start( `git diff ${diffMode} --exit-code ${state1} ${state2}` )
-
-  debugger
 
   ready.then( handleOutput );
 
@@ -4155,7 +4151,7 @@ let Extend =
   // top
 
   repositoryInit,
-  repositoryDelete,
+  repositoryDelete, /* qqq : cover */
   prsGet,
   repositoryClone,
   repositoryCheckout,
