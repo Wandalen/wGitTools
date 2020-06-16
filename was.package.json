@@ -1,6 +1,6 @@
 {
   "name" : "wgittools",
-  "version" : "0.3.155",
+  "version" : "0.3.156",
   "description" : "Collection of tools to use git programmatically.",
   "author" : "Kostiantyn Wandalen <wanalen@01.school>",
   "license" : "MIT",
