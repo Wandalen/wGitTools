@@ -9,7 +9,7 @@
 
 if( typeof module !== 'undefined' )
 {
-  require( '../include/Mid.s' );
+  let _ = require( '../include/Mid.s' );
   module[ 'exports' ] = _global_.wTools;
 }
 
