@@ -51,7 +51,7 @@ function pathParse( test )
     'tag' : 'master',
     'longPath' : '/git@bitbucket.org:someorg/somerepo.git',
     'localVcsPath' : './',
-    'parametrizedPath' : '/git@bitbucket.org:someorg/somerepo.git',
+    'postfixedPath' : '/git@bitbucket.org:someorg/somerepo.git',
     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'isFixated' : false
@@ -66,7 +66,7 @@ function pathParse( test )
     'hash' : 'master',
     'longPath' : '/git@bitbucket.org:someorg/somerepo.git/',
     'localVcsPath' : './',
-    'parametrizedPath' : '/git@bitbucket.org:someorg/somerepo.git/#master',
+    'postfixedPath' : '/git@bitbucket.org:someorg/somerepo.git/#master',
     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'isFixated' : false
@@ -81,7 +81,7 @@ function pathParse( test )
     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'longPath' : '/github.com/Wandalen/wTools.git/',
     'localVcsPath' : './',
-    'parametrizedPath' : '/github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+    'postfixedPath' : '/github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wTools.git',
     'isFixated' : true
@@ -96,7 +96,7 @@ function pathParse( test )
     'tag' : 'v0.8.505',
     'longPath' : '/github.com/Wandalen/wTools.git/',
     'localVcsPath' : './',
-    'parametrizedPath' : '/github.com/Wandalen/wTools.git/@v0.8.505',
+    'postfixedPath' : '/github.com/Wandalen/wTools.git/@v0.8.505',
     'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wTools.git',
     'isFixated' : false
@@ -111,7 +111,7 @@ function pathParse( test )
     'tag' : 'master',
     'longPath' : '/github.com/Wandalen/wTools.git/',
     'localVcsPath' : './',
-    'parametrizedPath' : '/github.com/Wandalen/wTools.git/@master',
+    'postfixedPath' : '/github.com/Wandalen/wTools.git/@master',
     'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wTools.git',
     'isFixated' : false
@@ -127,7 +127,7 @@ function pathParse( test )
     'tag' : 'master',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will',
-    'parametrizedPath' : 'Tools?out=out/wTools.out.will@master',
+    'postfixedPath' : 'Tools?out=out/wTools.out.will@master',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : false
@@ -143,7 +143,7 @@ function pathParse( test )
     'tag' : 'v0.8.505',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will',
-    'parametrizedPath' : 'Tools?out=out/wTools.out.will@v0.8.505',
+    'postfixedPath' : 'Tools?out=out/wTools.out.will@v0.8.505',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : false
@@ -158,7 +158,7 @@ function pathParse( test )
     'query' : 'out=out/wTools.out.will/',
     'tag' : 'v0.8.505',
     'longPath' : 'Tools',
-    'parametrizedPath' : 'Tools?out=out/wTools.out.will/@v0.8.505',
+    'postfixedPath' : 'Tools?out=out/wTools.out.will/@v0.8.505',
     'localVcsPath' : 'out/wTools.out.will/',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
@@ -175,7 +175,7 @@ function pathParse( test )
     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will',
-    'parametrizedPath' : 'Tools?out=out/wTools.out.will#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+    'postfixedPath' : 'Tools?out=out/wTools.out.will#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : true
@@ -191,7 +191,7 @@ function pathParse( test )
     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will/',
-    'parametrizedPath' : 'Tools?out=out/wTools.out.will/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+    'postfixedPath' : 'Tools?out=out/wTools.out.will/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : true
