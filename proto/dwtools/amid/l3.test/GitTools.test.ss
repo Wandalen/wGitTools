@@ -51,7 +51,6 @@ function pathParse( test )
     'tag' : 'master',
     'longPath' : '/git@bitbucket.org:someorg/somerepo.git',
     'localVcsPath' : './',
-    'postfixedPath' : '/git@bitbucket.org:someorg/somerepo.git',
     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'isFixated' : false
@@ -66,7 +65,6 @@ function pathParse( test )
     'hash' : 'master',
     'longPath' : '/git@bitbucket.org:someorg/somerepo.git/',
     'localVcsPath' : './',
-    'postfixedPath' : '/git@bitbucket.org:someorg/somerepo.git/#master',
     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
     'isFixated' : false
@@ -81,7 +79,6 @@ function pathParse( test )
     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'longPath' : '/github.com/Wandalen/wTools.git/',
     'localVcsPath' : './',
-    'postfixedPath' : '/github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wTools.git',
     'isFixated' : true
@@ -89,14 +86,13 @@ function pathParse( test )
   var got = _.git.pathParse( remotePath );
   test.identical( got, expected )
 
-  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505'
+  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/!v0.8.505'
   var expected =
   {
     'protocol' : 'git+https',
     'tag' : 'v0.8.505',
     'longPath' : '/github.com/Wandalen/wTools.git/',
     'localVcsPath' : './',
-    'postfixedPath' : '/github.com/Wandalen/wTools.git/@v0.8.505',
     'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wTools.git',
     'isFixated' : false
@@ -104,14 +100,13 @@ function pathParse( test )
   var got = _.git.pathParse( remotePath );
   test.identical( got, expected )
 
-  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master'
+  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/!master'
   var expected =
   {
     'protocol' : 'git+https',
     'tag' : 'master',
     'longPath' : '/github.com/Wandalen/wTools.git/',
     'localVcsPath' : './',
-    'postfixedPath' : '/github.com/Wandalen/wTools.git/@master',
     'remoteVcsPath' : 'https://github.com/Wandalen/wTools.git',
     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wTools.git',
     'isFixated' : false
@@ -119,7 +114,7 @@ function pathParse( test )
   var got = _.git.pathParse( remotePath );
   test.identical( got, expected )
 
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will@master'
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will!master'
   var expected =
   {
     'protocol' : 'git+hd',
@@ -127,7 +122,6 @@ function pathParse( test )
     'tag' : 'master',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will',
-    'postfixedPath' : 'Tools?out=out/wTools.out.will@master',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : false
@@ -135,7 +129,7 @@ function pathParse( test )
   var got = _.git.pathParse( remotePath );
   test.identical( got, expected )
 
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will@v0.8.505'
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will!v0.8.505'
   var expected =
   {
     'protocol' : 'git+hd',
@@ -143,7 +137,6 @@ function pathParse( test )
     'tag' : 'v0.8.505',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will',
-    'postfixedPath' : 'Tools?out=out/wTools.out.will@v0.8.505',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : false
@@ -151,14 +144,13 @@ function pathParse( test )
   var got = _.git.pathParse( remotePath );
   test.identical( got, expected )
 
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/@v0.8.505'
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/!v0.8.505'
   var expected =
   {
     'protocol' : 'git+hd',
     'query' : 'out=out/wTools.out.will/',
     'tag' : 'v0.8.505',
     'longPath' : 'Tools',
-    'postfixedPath' : 'Tools?out=out/wTools.out.will/@v0.8.505',
     'localVcsPath' : 'out/wTools.out.will/',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
@@ -175,7 +167,6 @@ function pathParse( test )
     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will',
-    'postfixedPath' : 'Tools?out=out/wTools.out.will#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : true
@@ -191,7 +182,6 @@ function pathParse( test )
     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'longPath' : 'Tools',
     'localVcsPath' : 'out/wTools.out.will/',
-    'postfixedPath' : 'Tools?out=out/wTools.out.will/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
     'remoteVcsPath' : 'Tools',
     'remoteVcsLongerPath' : 'Tools',
     'isFixated' : true
@@ -200,7 +190,7 @@ function pathParse( test )
   test.identical( got, expected )
 
   test.case = 'both hash and tag'
-  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3@master';
+  var remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3!master';
   test.shouldThrowErrorSync( () => _.git.pathParse( remotePath ) );
 }
 
@@ -8717,7 +8707,7 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'remote has different branch that does not exist';
-    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@other';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!other';
     var con = _.git.isUpToDate({ localPath, remotePath })
     return test.shouldThrowErrorAsync( con )
   })
@@ -8781,7 +8771,7 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'remote has other branch that does not exist';
-    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@other';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!other';
     var con = _.git.isUpToDate({ localPath, remotePath })
     return test.shouldThrowErrorAsync( con )
   })
@@ -8797,7 +8787,7 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'hash as tag';
-    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@469a6497f616cf18639b2aa68957f4dab78b7965';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!469a6497f616cf18639b2aa68957f4dab78b7965';
     var con = _.git.isUpToDate({ localPath, remotePath })
     return test.shouldThrowErrorAsync( con )
   })
@@ -8807,7 +8797,7 @@ function isUpToDate( test )
     con.then( () =>
     {
       test.case = 'hash and tag';
-      let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#469a6497f616cf18639b2aa68957f4dab78b7965@master';
+      let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#469a6497f616cf18639b2aa68957f4dab78b7965!master';
       test.shouldThrowErrorSync( () => _.git.isUpToDate({ localPath, remotePath }) )
       return null;
     })
@@ -8963,7 +8953,7 @@ function isUpToDate( test )
 
   .then( () =>
   {
-    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/@master';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/!master';
     return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
@@ -8987,7 +8977,7 @@ function isUpToDate( test )
 
   .then( () =>
   {
-    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/@newbranch';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/!newbranch';
     return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
@@ -9026,7 +9016,7 @@ function isUpToDateExtended( test )
   .then( () =>
   {
     test.case = 'both on master, no changes';
-    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!master';
     return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
@@ -9040,7 +9030,7 @@ function isUpToDateExtended( test )
   .then( () =>
   {
     test.case = 'both on master, local one commit behind';
-    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!master';
     return shell( 'git -C wTools reset --hard HEAD~1' )
     .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
@@ -9059,7 +9049,7 @@ function isUpToDateExtended( test )
   .then( () =>
   {
     test.case = 'local on master, remote on other branch that does not exist';
-    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@other';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!other';
     var con = _.git.isUpToDate({ localPath, remotePath })
     return test.shouldThrowErrorAsync( con )
   })
@@ -9069,7 +9059,7 @@ function isUpToDateExtended( test )
   .then( () =>
   {
     test.case = 'local on newbranch, remote on master';
-    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!master';
     return shell( 'git -C wTools checkout -b newbranch' )
     .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
@@ -9090,7 +9080,7 @@ function isUpToDateExtended( test )
   .then( () =>
   {
     test.case = 'local on master, remote on tag points to other commit';
-    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!v0.8.505';
     return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
@@ -9104,7 +9094,7 @@ function isUpToDateExtended( test )
   .then( () =>
   {
     test.case = 'local on same tag with remote';
-    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!v0.8.505';
     return shell( 'git -C wTools checkout v0.8.505' )
     .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
@@ -9119,7 +9109,7 @@ function isUpToDateExtended( test )
   .then( () =>
   {
     test.case = 'local on different tag with remote';
-    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!v0.8.505';
     return shell( 'git -C wTools checkout v0.8.504' )
     .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
@@ -9134,7 +9124,7 @@ function isUpToDateExtended( test )
   .then( () =>
   {
     test.case = 'local on same commit as tag on remote';
-    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!v0.8.505';
     return shell( 'git -C wTools checkout 8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3' )
     .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
@@ -9149,7 +9139,7 @@ function isUpToDateExtended( test )
   .then( () =>
   {
     test.case = 'local on different commit as tag on remote';
-    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@v0.8.505';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!v0.8.505';
     return shell( 'git -C wTools checkout 8b5d86906b761c464a10618fc06f13724ee654ab' )
     .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
@@ -9164,7 +9154,7 @@ function isUpToDateExtended( test )
   .then( () =>
   {
     test.case = 'local on tag, remote on master';
-    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/@master';
+    let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!master';
     return shell( 'git -C wTools checkout v0.8.504' )
     .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
@@ -9355,7 +9345,7 @@ function isUpToDateThrowing( test )
   .then( () =>
   {
     test.case = 'not existing branch name';
-    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@master2';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!master2';
     var con = _.git.isUpToDate({ localPath, remotePath })
     return test.shouldThrowErrorAsync( con );
   })
@@ -9363,7 +9353,7 @@ function isUpToDateThrowing( test )
   .then( () =>
   {
     test.case = 'branch name as tag';
-    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git@master';
+    let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!master';
     var con = _.git.isUpToDate({ localPath, remotePath })
     return test.mustNotThrowError( con );
   })

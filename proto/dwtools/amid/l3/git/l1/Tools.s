@@ -44,7 +44,7 @@ function objectsParse( remotePath )
 
 function pathParse( remotePath )
 {
-  let path = _.uriOld;
+  let path = _.uri;
   let result = Object.create( null );
 
   if( _.mapIs( remotePath ) )
@@ -173,7 +173,7 @@ function pathIsFixated( filePath )
 
 function pathFixate( o )
 {
-  let path = _.uriOld;
+  let path = _.uri;
 
   if( !_.mapIs( o ) )
   o = { remotePath : o }
@@ -826,7 +826,7 @@ defaults.verbosity = 0;
 
 function isRepository( o )
 {
-  let path = _.uriOld;
+  let path = _.uri;
 
   _.routineOptions( isRepository, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
@@ -3104,7 +3104,7 @@ function repositoryInit( o )
 
   function localInit()
   {
-    _.assert( _.uriOld.is( o.localPath ) && !_.uriOld.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    _.assert( _.uri.is( o.localPath ) && !_.uri.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
 
     o.localPath = _.path.canonize( o.localPath );
 
