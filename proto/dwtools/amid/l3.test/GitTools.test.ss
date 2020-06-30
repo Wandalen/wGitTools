@@ -6962,7 +6962,7 @@ function statusRemoteVersionOption( test )
     shell( 'git clone ' + repoPathNative + ' secondary' )
 
     con.then( () =>
-    {``
+    {
       if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
       create = false;
       return null;
