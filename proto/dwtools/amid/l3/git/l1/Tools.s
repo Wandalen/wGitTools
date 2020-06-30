@@ -2106,6 +2106,7 @@ function status_body( o )
         }
 
         if( o.explaining && arg[ 1 ].status )
+        if( arg[ 0 ] && arg[ 0 ].status )
         result.status += '\n' + arg[ 1 ].status;
       }
     }
