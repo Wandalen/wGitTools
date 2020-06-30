@@ -6962,7 +6962,7 @@ function statusRemoteVersionOption( test )
     shell( 'git clone ' + repoPathNative + ' secondary' )
 
     con.then( () =>
-    {
+    {``
       if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
       create = false;
       return null;
@@ -6998,6 +6998,105 @@ function statusRemoteVersionOption( test )
 }
 
 statusRemoteVersionOption.timeOut = 30000;
+
+//
+
+function statusExperiment( test )
+{
+  let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
+  let ready = new _.Consequence().take( null );
+
+  ready.then( () =>
+  {
+    provider.filesDelete( repoPath );
+    provider.dirMake( repoPath );
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    provider.fileAppend( filePath, 'newFile\n' );
+    provider.fileAppend( readmePath, 'README\n' );
+    return null;
+  })
+
+  _.process.start
+  ({
+    execPath : 'git init --bare',
+    currentPath : repoPath,
+    ready : ready,
+  })
+
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    ready : ready,
+  })
+
+  let cloneShell = _.process.starter
+  ({
+    currentPath : localPath,
+    ready : ready,
+  })
+
+  let clone2Shell = _.process.starter
+  ({
+    currentPath : path.join( testPath, 'clone2' ),
+    ready : ready,
+  })
+
+  /* - */
+
+  cloneShell( 'git init' );
+  cloneShell( 'git remote add origin ../repo' );
+  cloneShell( 'git add --all' );
+  cloneShell( 'git commit -am first' );
+  cloneShell( 'git push -u origin --all' );
+  shell( 'git clone repo/ clone2' );
+  ready.then( () =>
+  {
+    provider.fileAppend( path.join( testPath, 'clone/File.txt' ), 'new line\n' );
+    provider.fileAppend( path.join( testPath, 'clone/newFile' ), 'new line\n' );
+    provider.fileAppend( path.join( testPath, 'clone2/README' ), 'new line\n' );
+    return null;
+  })
+  clone2Shell( 'git commit -am first' );
+  clone2Shell( 'git push' );
+
+  ready.then( () =>
+  {
+    var got = _.git.status
+    ({
+      detailing : 1,
+      explaining : 1,
+      local : 0,
+      localPath : localPath,
+      remote : 1,
+      remoteBranches : 0,
+      sync : 1,
+      uncommittedIgnored : 0,
+      verbosity : 1,
+    });
+
+    test.identical( _.strCount( got.status, 'List of remote branches' ), 1 );
+
+    return null;
+  })
+
+  return ready;
+}
+
+statusExperiment.experimental = 1;
+statusExperiment.description =
+`
+The routine has some strange feature. It is duplicated output for remote branches. Maybe, needs some improvements if option 'explaining' has value 1.
+This feature is found in 'willbe'.
+`
 
 //
 
@@ -16589,6 +16688,7 @@ var Proto =
     statusRemoteVersionOption,
     //qqq Vova: add test routine for statuRemote with case when local is in detached state
     status,
+    statusExperiment,
     hasLocalChanges,
     hasRemoteChanges,
     hasChanges,
