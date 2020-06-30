@@ -15642,17 +15642,17 @@ function hookPreservingHardLinks( test )
 
   .then( () =>
   {
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
 
     return null;
   })
@@ -15664,17 +15664,17 @@ function hookPreservingHardLinks( test )
 
   .then( () =>
   {
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), true );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), true );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), true );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), true );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
 
     debugger
 
@@ -15697,17 +15697,17 @@ function hookPreservingHardLinks( test )
 
   .then( () =>
   {
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), false );
-    test.identical( provider.filesAreHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), false );
+    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
 
     return null;
   })
