@@ -7001,7 +7001,7 @@ statusRemoteVersionOption.timeOut = 30000;
 
 //
 
-function statusExperiment( test )
+function statusExplaining( test )
 {
   let context = this;
   let provider = context.provider;
@@ -7013,24 +7013,6 @@ function statusExperiment( test )
   let filePath = path.join( localPath, 'newFile' );
   let readmePath = path.join( localPath, 'README' );
   let ready = new _.Consequence().take( null );
-
-  ready.then( () =>
-  {
-    provider.filesDelete( repoPath );
-    provider.dirMake( repoPath );
-    provider.filesDelete( localPath );
-    provider.dirMake( localPath );
-    provider.fileAppend( filePath, 'newFile\n' );
-    provider.fileAppend( readmePath, 'README\n' );
-    return null;
-  })
-
-  _.process.start
-  ({
-    execPath : 'git init --bare',
-    currentPath : repoPath,
-    ready : ready,
-  })
 
   let shell = _.process.starter
   ({
@@ -7052,6 +7034,7 @@ function statusExperiment( test )
 
   /* - */
 
+  begin();
   cloneShell( 'git init' );
   cloneShell( 'git remote add origin ../repo' );
   cloneShell( 'git add --all' );
@@ -7088,15 +7071,37 @@ function statusExperiment( test )
     return null;
   })
 
+  /* */
+
   return ready;
+
+  /* */
+
+  function begin()
+  {
+    ready.then( () =>
+    {
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
+      provider.filesDelete( localPath );
+      provider.dirMake( localPath );
+      provider.fileAppend( filePath, 'newFile\n' );
+      provider.fileAppend( readmePath, 'README\n' );
+      return null;
+    })
+
+    _.process.start
+    ({
+      execPath : 'git init --bare',
+      currentPath : repoPath,
+      ready : ready,
+    })
+
+    return ready;
+  }
 }
 
-statusExperiment.experimental = 1;
-statusExperiment.description =
-`
-The routine has some strange feature. It is duplicated output for remote branches. Maybe, needs some improvements if option 'explaining' has value 1.
-This feature is found in 'willbe'.
-`
+statusExplaining.timeOut = 30000;
 
 //
 
@@ -16688,7 +16693,7 @@ var Proto =
     statusRemoteVersionOption,
     //qqq Vova: add test routine for statuRemote with case when local is in detached state
     status,
-    statusExperiment,
+    statusExplaining,
     hasLocalChanges,
     hasRemoteChanges,
     hasChanges,
