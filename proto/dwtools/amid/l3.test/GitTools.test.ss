@@ -197,46 +197,35 @@ function pathParse( test )
 function versionsRemoteRetrive( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'clone' );
-  let repoPath = path.join( testPath, 'repo' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
 
-  let con = new _.Consequence().take( null );
+  a.shell.predefined.currentPath = a.abs( a.routinePath, 'clone' );
 
-  let shell = _.process.starter
+  a.shell2 = _.process.starter
   ({
-    currentPath : localPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready
   })
 
-  let shell2 = _.process.starter
-  ({
-    currentPath : repoPath,
-    ready : con
-  })
-
-  provider.dirMake( testPath );
+  a.fileProvider.dirMake( a.abs( a.routinePath ) );
 
   /* */
 
-  con.then( () =>
+  a.ready.then( () =>
   {
     test.case = 'not git repository';
-    return test.shouldThrowErrorAsync( _.git.versionsRemoteRetrive({ localPath }) );
+    return test.shouldThrowErrorAsync( _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) );
   })
 
   .then( () =>
   {
     test.case = 'setup repo';
-    provider.filesDelete( repoPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
     return _.process.start
     ({
-      execPath : 'git clone ' + remotePath + ' ' + path.name( repoPath ),
-      currentPath : testPath,
+      execPath : 'git clone ' + remotePath + ' ' + a.path.name( a.abs( a.routinePath, 'repo' ) ),
+      currentPath : a.abs( a.routinePath ),
     })
   })
 
@@ -245,27 +234,27 @@ function versionsRemoteRetrive( test )
   .then( () =>
   {
     test.case = 'setup';
-    provider.filesDelete( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
     return _.process.start
     ({
-      execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-      currentPath : testPath,
+      execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+      currentPath : a.abs( a.routinePath ),
     })
   })
 
   /* */
 
-  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
+  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
   .then( ( got ) =>
   {
-    test.identical( got, [ 'master'] );
+    test.identical( got, [ 'master' ] );
     return got;
   })
 
   /* */
 
-  shell2( 'git checkout -b feature' )
-  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
+  a.shell2( 'git checkout -b feature' )
+  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
   .then( ( got ) =>
   {
     test.case = 'remote has new branch, clone is outdated'
@@ -273,8 +262,8 @@ function versionsRemoteRetrive( test )
     return got;
   })
 
-  shell( 'git fetch' )
-  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
+  a.shell( 'git fetch' )
+  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
   .then( ( got ) =>
   {
     test.case = 'remote has new branch, clone is up-to-date'
@@ -282,9 +271,9 @@ function versionsRemoteRetrive( test )
     return got;
   })
 
-  shell2( 'git checkout master' )
-  shell2( 'git branch -d feature' )
-  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
+  a.shell2( 'git checkout master' )
+  a.shell2( 'git branch -d feature' )
+  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
   .then( ( got ) =>
   {
     test.case = 'remote removed new branch, clone is outdated'
@@ -292,8 +281,8 @@ function versionsRemoteRetrive( test )
     return got;
   })
 
-  shell( 'git fetch -p' )
-  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
+  a.shell( 'git fetch -p' )
+  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
   .then( ( got ) =>
   {
     test.case = 'remote removed new branch, clone is up-to-date'
@@ -301,7 +290,7 @@ function versionsRemoteRetrive( test )
     return got;
   })
 
-  return con;
+  return a.ready;
 }
 
 //
