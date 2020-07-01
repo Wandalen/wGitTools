@@ -609,7 +609,7 @@ function versionIsCommitHash( test )
 
   function begin()
   {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) ) )
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wPathBasic' ) ) )
     a.shell( `git clone ${remotePath}` )
     return a.ready;
   }
