@@ -24,7 +24,7 @@ function onSuiteBegin( test )
   let context = this;
   context.provider = _.fileProvider;
   let path = context.provider.path;
-  context.suiteTempPath = context.provider.path.pathDirTempOpen( path.join( __dirname, '../..'  ),'GitTools' );
+  context.suiteTempPath = context.provider.path.pathDirTempOpen( path.join( __dirname, '../..'), 'GitTools' );
   context.suiteTempPath = context.provider.pathResolveLinkFull({ filePath : context.suiteTempPath, resolvingSoftLink : 1 });
   context.suiteTempPath = context.suiteTempPath.absolutePath;
 
@@ -476,22 +476,10 @@ function versionsPull( test )
 function versionIsCommitHash( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'wPathBasic' );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
-  let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
 
-  let ready = new _.Consequence().take( null );
-
-  let shell = _.process.starter
-  ({
-    currentPath : testPath,
-    ready
-  })
-
-  provider.dirMake( testPath )
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
   /*  */
 
@@ -501,7 +489,7 @@ function versionIsCommitHash( test )
     test.description = 'full hash length, commit exists in repo'
     var got = _.git.versionIsCommitHash
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
       sync : 1
     })
@@ -510,7 +498,7 @@ function versionIsCommitHash( test )
     test.description = 'less then full hash length, commit exists in repo'
     var got = _.git.versionIsCommitHash
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : '1c5607cbae0b62c8a0553',
       sync : 1
     })
@@ -519,7 +507,7 @@ function versionIsCommitHash( test )
     test.description = 'minimal hash length, commit exists in repo'
     var got = _.git.versionIsCommitHash
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : '1c5607c',
       sync : 1
     })
@@ -528,7 +516,7 @@ function versionIsCommitHash( test )
     test.description = 'full hash length, commit does not exist in repo'
     var got = _.git.versionIsCommitHash
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
       sync : 1
     })
@@ -536,7 +524,7 @@ function versionIsCommitHash( test )
 
     var got = _.git.versionIsCommitHash
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : 'master',
       sync : 1
     })
@@ -544,7 +532,7 @@ function versionIsCommitHash( test )
 
     var got = _.git.versionIsCommitHash
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : '0.7.50',
       sync : 1
     })
@@ -553,7 +541,7 @@ function versionIsCommitHash( test )
     test.description = 'minimal hash length, commit does not exist in repo'
     var got = _.git.versionIsCommitHash
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : 'd290dba',
       sync : 1
     })
@@ -562,7 +550,7 @@ function versionIsCommitHash( test )
     test.description = 'version length less than 7'
     var got = _.git.versionIsCommitHash
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : '1c',
       sync : 1
     })
@@ -571,19 +559,19 @@ function versionIsCommitHash( test )
     test.description = 'version length less than 7'
     var got = _.git.versionIsCommitHash
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : 'd290db',
       sync : 1
     })
     test.identical( got, false )
 
     test.description = 'remove repository, should throw error'
-    _.fileProvider.filesDelete( localPath )
+    _.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) )
     test.shouldThrowErrorSync( () =>
     {
       _.git.versionIsCommitHash
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
         sync : 1
       })
@@ -606,7 +594,7 @@ function versionIsCommitHash( test )
     {
       _.git.versionIsCommitHash
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         version : null,
         sync : 1
       })
@@ -615,15 +603,15 @@ function versionIsCommitHash( test )
     return null;
   })
 
-  return ready;
+  return a.ready;
 
   /*  */
 
   function begin()
   {
-    ready.then( () => _.fileProvider.filesDelete( localPath ))
-    shell( `git clone ${remotePath}` )
-    return ready;
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) ) )
+    a.shell( `git clone ${remotePath}` )
+    return a.ready;
   }
 
 }
