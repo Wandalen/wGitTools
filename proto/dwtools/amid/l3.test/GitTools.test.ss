@@ -4653,32 +4653,21 @@ statusLocalExplainingTrivial.timeOut = 30000;
 function statusLocalExtended( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'clone' );
-  let repoPath = path.join( testPath, 'repo' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
+  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  //REVISIT LATER------------------------------------------------------------------------------------------------
   let join = _.routineJoin( _.path, _.path.join );
   let write = _.routineJoin( _.fileProvider, _.fileProvider.fileWrite );
   let filesDelete = _.routineJoin( _.fileProvider, _.fileProvider.filesDelete );
   let rename = _.routineJoin( _.fileProvider, _.fileProvider.fileRename );
-
-  let con = new _.Consequence().take( null );
-
-  let shell = _.process.starter
+  //-------------------------------------------------------------------------------------------------------------
+  a.shell2 = _.process.starter
   ({
-    currentPath : testPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready
   })
 
-  let shell2 = _.process.starter
-  ({
-    currentPath : repoPath,
-    ready : con
-  })
-
-  provider.dirMake( testPath )
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
   /*  */
 
@@ -4687,20 +4676,20 @@ function statusLocalExtended( test )
   begin()
   .then( () =>
   {
-    write( join( localPath, 'file1' ), 'file1file1' );
+    write( join( a.abs( a.routinePath, 'clone' ), 'file1' ), 'file1file1' );
     return null;
   })
-  shell( 'git -C clone add .' )
+  a.shell( 'git -C clone add .' )
   .then( () =>
   {
-    write( join( localPath, 'file1' ), 'file1file1file1' );
+    write( join( a.abs( a.routinePath, 'clone' ), 'file1' ), 'file1file1file1' );
     return null;
   })
   .then( () =>
   {
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       detailing : 1,
       explaining : 1,
@@ -4720,22 +4709,22 @@ function statusLocalExtended( test )
   begin()
   .then( () =>
   {
-    write( join( localPath, 'file1' ), 'file1file1' );
+    write( join( a.abs( a.routinePath, 'clone' ), 'file1' ), 'file1file1' );
     return null;
   })
-  shell( 'git -C clone add .' )
+  a.shell( 'git -C clone add .' )
   .then( () =>
   {
-    filesDelete( join( localPath, 'file1' ) );
+    filesDelete( join( a.abs( a.routinePath, 'clone' ), 'file1' ) );
     return null;
   })
-  shell( 'git -C clone status -u --porcelain -b' )
-  shell( 'git -C clone status' )
+  a.shell( 'git -C clone status -u --porcelain -b' )
+  a.shell( 'git -C clone status' )
   .then( () =>
   {
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       detailing : 1,
       explaining : 1,
@@ -4756,18 +4745,18 @@ function statusLocalExtended( test )
   begin()
   .then( () =>
   {
-    write( join( localPath, 'file1' ), 'file1file1' );
+    write( join( a.abs( a.routinePath, 'clone' ), 'file1' ), 'file1file1' );
     return null;
   })
-  shell( 'git -C clone add .' )
-  shell( 'git -C clone mv file1 file3' )
-  shell( 'git -C clone status -u --porcelain -b' )
-  shell( 'git -C clone status' )
+  a.shell( 'git -C clone add .' )
+  a.shell( 'git -C clone mv file1 file3' )
+  a.shell( 'git -C clone status -u --porcelain -b' )
+  a.shell( 'git -C clone status' )
   .then( () =>
   {
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       detailing : 1,
       explaining : 1,
@@ -4788,22 +4777,22 @@ function statusLocalExtended( test )
   begin()
   .then( () =>
   {
-    write( join( localPath, 'file3' ), 'file3' );
+    write( join( a.abs( a.routinePath, 'clone' ), 'file3' ), 'file3' );
     return null;
   })
-  shell( 'git -C clone add file3' )
+  a.shell( 'git -C clone add file3' )
   .then( () =>
   {
-    filesDelete( join( localPath, 'file3' ) );
+    filesDelete( join( a.abs( a.routinePath, 'clone' ), 'file3' ) );
     return null;
   })
-  shell( 'git -C clone status -u --porcelain -b' )
-  shell( 'git -C clone status' )
+  a.shell( 'git -C clone status -u --porcelain -b' )
+  a.shell( 'git -C clone status' )
   .then( () =>
   {
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       detailing : 1,
       explaining : 1,
@@ -4823,22 +4812,22 @@ function statusLocalExtended( test )
   begin()
   .then( () =>
   {
-    write( join( localPath, 'file3' ), 'file3' );
+    write( join( a.abs( a.routinePath, 'clone' ), 'file3' ), 'file3' );
     return null;
   })
-  shell( 'git -C clone add file3' )
+  a.shell( 'git -C clone add file3' )
   .then( () =>
   {
-    write( join( localPath, 'file3' ), 'file3file3' );
+    write( join( a.abs( a.routinePath, 'clone' ), 'file3' ), 'file3file3' );
     return null;
   })
-  shell( 'git -C clone status -u --porcelain -b' )
-  shell( 'git -C clone status' )
+  a.shell( 'git -C clone status -u --porcelain -b' )
+  a.shell( 'git -C clone status' )
   .then( () =>
   {
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       detailing : 1,
       explaining : 1,
@@ -4856,19 +4845,19 @@ function statusLocalExtended( test )
   testCase( 'renamed then modified' )
   prepareRepo()
   begin()
-  shell( 'git -C clone mv file1 file3' )
+  a.shell( 'git -C clone mv file1 file3' )
   .then( () =>
   {
-    write( join( localPath, 'file3' ), 'file3' );
+    write( join( a.abs( a.routinePath, 'clone' ), 'file3' ), 'file3' );
     return null;
   })
-  shell( 'git -C clone status -u --porcelain -b' )
-  shell( 'git -C clone status' )
+  a.shell( 'git -C clone status -u --porcelain -b' )
+  a.shell( 'git -C clone status' )
   .then( () =>
   {
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       detailing : 1,
       explaining : 1,
@@ -4886,19 +4875,19 @@ function statusLocalExtended( test )
   testCase( 'renamed then deleted' )
   prepareRepo()
   begin()
-  shell( 'git -C clone mv file1 file3' )
+  a.shell( 'git -C clone mv file1 file3' )
   .then( () =>
   {
-    filesDelete( join( localPath, 'file3' ) );
+    filesDelete( join( a.abs( a.routinePath, 'clone' ), 'file3' ) );
     return null;
   })
-  shell( 'git -C clone status -u --porcelain -b' )
-  shell( 'git -C clone status' )
+  a.shell( 'git -C clone status -u --porcelain -b' )
+  a.shell( 'git -C clone status' )
   .then( () =>
   {
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       detailing : 1,
       explaining : 1,
@@ -4913,7 +4902,7 @@ function statusLocalExtended( test )
 
   /*  */
 
-  return con;
+  return a.ready;
 
   /* - */
 
@@ -4921,32 +4910,32 @@ function statusLocalExtended( test )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
-    let secondRepoPath = path.join( testPath, 'secondary' );
+    let secondRepoPath = a.abs( a.routinePath, 'secondary' );
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( repoPath );
-      provider.dirMake( repoPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
       return null;
     })
 
-    shell2( 'git init --bare' );
+    a.shell2( 'git init --bare' );
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( secondRepoPath );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file1' ), 'file1' );
-      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file2' ), 'file2' );
+      a.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file1' ), 'file1' );
+      a.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file2' ), 'file2' );
       return null;
     })
 
@@ -4954,31 +4943,31 @@ function statusLocalExtended( test )
     shell( 'git -C secondary commit -m initial' )
     shell( 'git -C secondary push' )
 
-    return con;
+    return a.ready;
   }
 
   /* */
 
   function begin()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
       test.case = 'clean clone';
-      provider.filesDelete( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return _.process.start
       ({
-        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-        currentPath : testPath,
+        execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+        currentPath : a.abs( a.routinePath ),
       })
     })
 
-    return con;
+    return a.ready;
   }
 
   function testCase( title )
   {
-    con.then( () => { test.case = title; return null })
-    return con;
+    a.ready.then( () => { test.case = title; return null })
+    return a.ready;
   }
 }
 
@@ -4989,31 +4978,16 @@ statusLocalExtended.timeOut = 30000;
 function statusFullHalfStaged( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'clone' );
-  let repoPath = path.join( testPath, 'repo' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
-  let filePath = path.join( localPath, 'newFile' );
-  let readmePath = path.join( localPath, 'README' );
 
-  let con = new _.Consequence().take( null );
-
-  let shell = _.process.starter
+  a.shell2 = _.process.starter
   ({
-    currentPath : testPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready
   })
 
-  let shell2 = _.process.starter
-  ({
-    currentPath : repoPath,
-    ready : con
-  })
-
-  provider.dirMake( testPath )
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
   /*  */
 
@@ -5024,7 +4998,7 @@ function statusFullHalfStaged( test )
   {
     var got = _.git.statusFull
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       remote : 0,
       prs : 0,
@@ -5054,87 +5028,87 @@ function statusFullHalfStaged( test )
 
   /*  */
 
-  return con;
+  return a.ready;
 
   /* - */
 
   function prepareRepo()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( repoPath );
-      provider.dirMake( repoPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
       return null;
     })
 
-    shell2( 'git init --bare' );
+    a.shell2( 'git init --bare' );
 
-    return con;
+    return a.ready;
   }
 
   /* */
 
   function begin()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
       test.case = 'clean clone';
-      provider.filesDelete( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return _.process.start
       ({
-        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-        currentPath : testPath,
+        execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+        currentPath : a.abs( a.routinePath ),
       })
     })
 
     .then( () =>
     {
-      _.fileProvider.fileWrite( _.path.join( localPath, 'file1' ), 'file1file1' );
-      _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'file2file1' );
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'file1' ), 'file1file1' );
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'file2' ), 'file2file1' );
       return null;
     })
 
-    shell( 'git -C clone add .' )
+    a.shell( 'git -C clone add .' )
 
     .then( () =>
     {
-      _.fileProvider.fileWrite( _.path.join( localPath, 'file1' ), 'file1file1file1' );
-      _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'file2file1file1' );
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'file1' ), 'file1file1file1' );
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'file2' ), 'file2file1file1' );
       return null;
     })
 
-    return con;
+    return a.ready;
   }
 
   function repoInitCommit()
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
-    let secondRepoPath = path.join( testPath, 'secondary' );
+    let secondRepoPath = a.abs( a.routinePath, 'secondary' );
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( secondRepoPath );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file1' ), 'file1' );
-      _.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file2' ), 'file2' );
+      a.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file1' ), 'file1' );
+      a.fileProvider.fileWrite( _.path.join( secondRepoPath, 'file2' ), 'file2' );
       return null;
     })
 
     shell( 'git -C secondary commit --allow-empty -am initial' )
     shell( 'git -C secondary push' )
 
-    return con;
+    return a.ready;
   }
 }
 
@@ -5143,31 +5117,18 @@ function statusFullHalfStaged( test )
 function statusRemote( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'clone' );
-  let repoPath = path.join( testPath, 'repo' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
-  let filePath = path.join( localPath, 'newFile' );
-  let readmePath = path.join( localPath, 'README' );
 
-  let con = new _.Consequence().take( null );
+  a.shell.predefined.currentPath = a.abs( a.routinePath, 'clone' );
 
-  let shell = _.process.starter
+  a.shell2 = _.process.starter
   ({
-    currentPath : localPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready
   })
 
-  let shell2 = _.process.starter
-  ({
-    currentPath : repoPath,
-    ready : con
-  })
-
-  provider.dirMake( testPath )
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
   /*  */
 
@@ -5179,7 +5140,7 @@ function statusRemote( test )
   {
     test.case = 'remote has new commit';
 
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5189,7 +5150,7 @@ function statusRemote( test )
     }
     test.identical( got, expected );
 
-    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : true,
@@ -5204,7 +5165,7 @@ function statusRemote( test )
   })
   .then( () =>
   {
-    return _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, sync : 0 })
+    return _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 1, remoteBranches : 1, remoteTags : 1, sync : 0 })
     .then( ( got ) =>
     {
       var expected =
@@ -5220,7 +5181,7 @@ function statusRemote( test )
   })
   .then( () =>
   {
-    return _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 1, sync : 0 })
+    return _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 1, sync : 0 })
     .then( ( got ) =>
     {
       var expected =
@@ -5236,7 +5197,7 @@ function statusRemote( test )
   })
   .then( () =>
   {
-    return _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 1, detailing : 1, sync : 0 })
+    return _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 1, detailing : 1, sync : 0 })
     .then( ( got ) =>
     {
       var expected =
@@ -5252,7 +5213,7 @@ function statusRemote( test )
   })
   .then( () =>
   {
-    return _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 0, detailing : 0, sync : 0 })
+    return _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 1, remoteBranches : 1, remoteTags : 1, explaining : 0, detailing : 0, sync : 0 })
     .then( ( got ) =>
     {
       var expected =
@@ -5266,11 +5227,11 @@ function statusRemote( test )
       return null;
     })
   })
-  shell( 'git pull' )
+  a.shell( 'git pull' )
   .then( () =>
   {
     test.case = 'local pulled new commit from remote';
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5279,7 +5240,7 @@ function statusRemote( test )
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : false,
@@ -5300,7 +5261,7 @@ function statusRemote( test )
   .then( () =>
   {
     test.case = 'remote has new branch';
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5309,7 +5270,7 @@ function statusRemote( test )
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5320,11 +5281,11 @@ function statusRemote( test )
     test.identical( got, expected );
     return null;
   })
-  shell( 'git fetch --all' )
+  a.shell( 'git fetch --all' )
   .then( () =>
   {
     test.case = 'remote has new branch, local after fetch';
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5334,7 +5295,7 @@ function statusRemote( test )
     }
     test.identical( got, expected );
 
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5345,11 +5306,11 @@ function statusRemote( test )
     test.identical( got, expected );
     return null;
   })
-  shell( 'git checkout test' )
+  a.shell( 'git checkout test' )
   .then( () =>
   {
     test.case = 'remote has new branch, local after checkout new branch';
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5358,7 +5319,7 @@ function statusRemote( test )
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 1, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5379,7 +5340,7 @@ function statusRemote( test )
   .then( () =>
   {
     test.case = 'remote has new tag';
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5388,7 +5349,7 @@ function statusRemote( test )
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 0, remoteTags : 1 });
     var expected =
     {
       remoteCommits : null,
@@ -5399,11 +5360,11 @@ function statusRemote( test )
     test.identical( got, expected );
     return null;
   })
-  shell( 'git fetch --all' )
+  a.shell( 'git fetch --all' )
   .then( () =>
   {
     test.case = 'remote has new tag, local after fetch';
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5412,7 +5373,7 @@ function statusRemote( test )
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 1 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 0, remoteTags : 1 });
     var expected =
     {
       remoteCommits : null,
@@ -5433,7 +5394,7 @@ function statusRemote( test )
   .then( () =>
   {
     test.case = 'remote has new tag';
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5442,7 +5403,7 @@ function statusRemote( test )
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : false,
@@ -5451,7 +5412,7 @@ function statusRemote( test )
       status : false
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 1, remoteBranches : 0, remoteTags : 1 });
     var expected =
     {
       remoteCommits : false,
@@ -5462,11 +5423,11 @@ function statusRemote( test )
     test.identical( got, expected );
     return null;
   })
-  shell( 'git fetch --all' )
+  a.shell( 'git fetch --all' )
   .then( () =>
   {
     test.case = 'remote has new tag, local after fetch';
-    var got = _.git.statusRemote({ localPath, remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 0, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : null,
@@ -5475,7 +5436,7 @@ function statusRemote( test )
       status : null
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 1, remoteBranches : 0, remoteTags : 0 });
     var expected =
     {
       remoteCommits : false,
@@ -5484,7 +5445,7 @@ function statusRemote( test )
       status : false
     }
     test.identical( got, expected );
-    var got = _.git.statusRemote({ localPath, remoteCommits : 1, remoteBranches : 0, remoteTags : 1 });
+    var got = _.git.statusRemote({ localPath : a.abs( a.routinePath, 'clone' ), remoteCommits : 1, remoteBranches : 0, remoteTags : 1 });
     var expected =
     {
       remoteCommits : false,
@@ -5498,118 +5459,118 @@ function statusRemote( test )
 
   /*  */
 
-  return con;
+  return a.ready;
 
   /* - */
 
   function prepareRepo()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( repoPath );
-      provider.dirMake( repoPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
       return null;
     })
 
-    shell2( 'git init --bare' );
+    a.shell2( 'git init --bare' );
 
-    return con;
+    return a.ready;
   }
 
   /* */
 
   function begin()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
       test.case = 'clean clone';
-      provider.filesDelete( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return _.process.start
       ({
-        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-        currentPath : testPath,
+        execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+        currentPath : a.abs( a.routinePath ),
       })
     })
 
-    return con;
+    return a.ready;
   }
 
   function repoNewCommit( message )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      let secondRepoPath = path.join( testPath, 'secondary' );
-      provider.filesDelete( secondRepoPath );
+      let secondRepoPath = a.abs( a.routinePath, 'secondary' );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
     shell( 'git -C secondary commit --allow-empty -m ' + message )
     shell( 'git -C secondary push' )
 
-    return con;
+    return a.ready;
   }
 
   function repoNewTag( tag )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      let secondRepoPath = path.join( testPath, 'secondary' );
-      provider.filesDelete( secondRepoPath );
+      let secondRepoPath = a.abs( a.routinePath, 'secondary' );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
     shell( 'git -C secondary tag ' + tag )
     shell( 'git -C secondary push --tags' )
 
-    return con;
+    return a.ready;
   }
 
   function repoNewCommitToBranch( message, branch )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
     let create = true;
-    let secondRepoPath = path.join( testPath, 'secondary' );
+    let secondRepoPath = a.abs( a.routinePath, 'secondary' );
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( secondRepoPath );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
+      if( a.fileProvider.fileExists( a.abs( secondRepoPath, '.git/refs/head', branch ) ) )
       create = false;
       return null;
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
       let con2 = new _.Consequence().take( null );
       let shell2 = _.process.starter
       ({
-        currentPath : testPath,
+        currentPath : a.abs( a.routinePath ),
         ready : con2
       })
 
@@ -5628,7 +5589,7 @@ function statusRemote( test )
       return con2;
     })
 
-    return con;
+    return a.ready;
   }
 
 }
