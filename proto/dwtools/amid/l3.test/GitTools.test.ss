@@ -1,4 +1,5 @@
-( function _GitTools_test_ss_( ) {
+( function _GitTools_test_ss_( )
+{
 
 'use strict';
 
@@ -368,7 +369,7 @@ function versionsPull( test )
     let execPath = got.map(( branch ) => `git checkout ${branch} && git status` )
     return _.process.start
     ({
-      execPath : execPath,
+      execPath,
       outputCollecting : 1,
       throwingExitCode : 0,
       mode : 'shell',
@@ -403,7 +404,7 @@ function versionsPull( test )
     let execPath = got.map(( branch ) => `git checkout ${branch} && git status` )
     return _.process.start
     ({
-      execPath : execPath,
+      execPath,
       outputCollecting : 1,
       throwingExitCode : 0,
       mode : 'shell',
@@ -441,7 +442,7 @@ function versionsPull( test )
     let execPath = got.map(( branch ) => `git checkout ${branch} && git status` )
     return _.process.start
     ({
-      execPath : execPath,
+      execPath,
       outputCollecting : 1,
       throwingExitCode : 0,
       mode : 'shell',
@@ -612,31 +613,18 @@ versionIsCommitHash.timeOut = 60000;
 function statusLocal( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'clone' );
-  let repoPath = path.join( testPath, 'repo' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
-  let filePath = path.join( localPath, 'newFile' );
-  let readmePath = path.join( localPath, 'README' );
 
-  let con = new _.Consequence().take( null );
+  a.shell.predefined.currentPath = a.abs( a.routinePath, 'clone' );
 
-  let shell = _.process.starter
+  a.shell2 = _.process.starter
   ({
-    currentPath : localPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready
   })
 
-  let shell2 = _.process.starter
-  ({
-    currentPath : repoPath,
-    ready : con
-  })
-
-  provider.dirMake( testPath )
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
   prepareRepo()
 
   /* */
@@ -647,7 +635,7 @@ function statusLocal( test )
     test.case = 'check after fresh clone, defaults'
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -686,7 +674,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -732,7 +720,7 @@ function statusLocal( test )
     test.case = 'check after fresh clone, defaults'
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedIgnored : 0,
       unpushed : 1,
@@ -764,7 +752,7 @@ function statusLocal( test )
     test.case = 'check after fresh clone, defaults + detailing'
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedIgnored : 0,
       unpushed : 1,
@@ -797,7 +785,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedIgnored : 0,
       unpushed : 1,
@@ -830,7 +818,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 0,
       uncommittedUntracked : 0,
       uncommittedAdded : 0,
@@ -877,11 +865,11 @@ function statusLocal( test )
   .then( () =>
   {
     test.case = 'new untraked file'
-    provider.fileWrite( filePath, filePath );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'newFile' ), a.abs( a.routinePath, 'clone', 'newFile' ) );
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -924,7 +912,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -970,21 +958,21 @@ function statusLocal( test )
   .then( () =>
   {
     test.case = 'unstaged change in existing file'
-    provider.fileWrite( readmePath, readmePath );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'README' ), a.abs( a.routinePath, 'clone', 'README' ) );
     return null;
   })
 
-  shell( 'git add README' )
-  shell( 'git commit -m test' )
-  shell( 'git push' )
+  a.shell( 'git add README' )
+  a.shell( 'git commit -m test' )
+  a.shell( 'git push' )
 
   .then( () =>
   {
-    provider.fileWrite( readmePath, readmePath + readmePath );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'README' ), a.abs( a.routinePath, 'clone', 'README' ) + a.abs( a.routinePath, 'clone', 'README' ) );
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1025,7 +1013,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1064,14 +1052,14 @@ function statusLocal( test )
 
     return null;
   })
-  shell( 'git stash' )
+  a.shell( 'git stash' )
   .then( () =>
   {
     test.case = 'after revert'
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1110,7 +1098,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1160,7 +1148,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1199,7 +1187,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1243,13 +1231,13 @@ function statusLocal( test )
 
   begin()
   repoNewCommit( 'testCommit' )
-  shell( 'git fetch' )
+  a.shell( 'git fetch' )
   .then( () =>
   {
     test.case = 'remote has new commit, local executed fetch without merge';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1288,7 +1276,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1327,13 +1315,13 @@ function statusLocal( test )
 
     return null;
   })
-  shell( 'git merge' )
+  a.shell( 'git merge' )
   .then( () =>
   {
     test.case = 'merge after fetch, remote had new commit';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1372,7 +1360,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1414,13 +1402,13 @@ function statusLocal( test )
   /*  */
 
   begin()
-  shell( 'git commit --allow-empty -m test' )
+  a.shell( 'git commit --allow-empty -m test' )
   .then( () =>
   {
     test.case = 'new local commit'
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1460,7 +1448,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1504,14 +1492,14 @@ function statusLocal( test )
 
   begin()
   repoNewCommit( 'testCommit' )
-  shell( 'git commit --allow-empty -m test' )
+  a.shell( 'git commit --allow-empty -m test' )
   .then( () =>
   {
     test.case = 'local and remote has has new commit';
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1551,7 +1539,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1597,13 +1585,13 @@ function statusLocal( test )
   repoNewCommit( 'init' )
   begin()
   repoNewCommitToBranch( 'testCommit', 'feature' )
-  shell( 'git fetch' )
+  a.shell( 'git fetch' )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local executed fetch without merge';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1642,7 +1630,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1688,15 +1676,15 @@ function statusLocal( test )
   repoNewCommit( 'init' )
   begin()
   repoNewCommitToBranch( 'testCommit', 'feature' )
-  shell( 'git commit --allow-empty -m test' )
-  shell( 'git fetch' )
-  shell( 'git status' )
+  a.shell( 'git commit --allow-empty -m test' )
+  a.shell( 'git fetch' )
+  a.shell( 'git status' )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local has commit to master,fetch without merge';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1736,7 +1724,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1780,14 +1768,14 @@ function statusLocal( test )
   prepareRepo()
   repoNewCommit( 'init' )
   begin()
-  shell( 'git tag sometag' )
+  a.shell( 'git tag sometag' )
   .then( () =>
   {
     test.case = 'local has unpushed tag';
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1828,7 +1816,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1868,13 +1856,13 @@ function statusLocal( test )
     return null;
 
   })
-  shell( 'git push --tags' )
+  a.shell( 'git push --tags' )
   .then( () =>
   {
     test.case = 'local has pushed tag';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1913,7 +1901,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -1957,14 +1945,14 @@ function statusLocal( test )
   prepareRepo()
   repoNewCommit( 'init' )
   begin()
-  shell( 'git tag -a sometag -m "testtag"' )
+  a.shell( 'git tag -a sometag -m "testtag"' )
   .then( () =>
   {
     test.case = 'local has unpushed annotated tag';
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2003,7 +1991,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2042,13 +2030,13 @@ function statusLocal( test )
 
     return null;
   })
-  shell( 'git push --follow-tags' )
+  a.shell( 'git push --follow-tags' )
   .then( () =>
   {
     test.case = 'local has pushed annotated tag';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2087,7 +2075,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2133,20 +2121,20 @@ function statusLocal( test )
   begin()
   .then( () =>
   {
-    provider.fileWrite( readmePath, readmePath );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'README' ), a.abs( a.routinePath, 'clone', 'README' ) );
     return null;
   })
-  shell( 'git add README' )
-  shell( 'git commit -m test' )
-  shell( 'git push' )
+  a.shell( 'git add README' )
+  a.shell( 'git commit -m test' )
+  a.shell( 'git push' )
   .then( () =>
   {
     test.case = 'unstaged after rename';
-    provider.fileRename( readmePath + '_', readmePath );
+    a.fileProvider.fileRename( a.abs( a.routinePath, 'clone', 'README' ) + '_', a.abs( a.routinePath, 'clone', 'README' ) );
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2185,7 +2173,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2225,13 +2213,13 @@ function statusLocal( test )
 
     return null;
   })
-  shell( 'git add .' )
+  a.shell( 'git add .' )
   .then( () =>
   {
     test.case = 'staged after rename';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2271,7 +2259,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2309,13 +2297,13 @@ function statusLocal( test )
     test.identical( got, expected )
     return null;
   })
-  shell( 'git commit -m test' )
+  a.shell( 'git commit -m test' )
   .then( () =>
   {
     test.case = 'comitted after rename';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2355,7 +2343,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2393,13 +2381,13 @@ function statusLocal( test )
     test.identical( got, expected )
     return null;
   })
-  shell( 'git push' )
+  a.shell( 'git push' )
   .then( () =>
   {
     test.case = 'pushed after rename';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2438,7 +2426,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2484,19 +2472,19 @@ function statusLocal( test )
   begin()
   .then( () =>
   {
-    provider.fileWrite( readmePath, readmePath );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'README' ), a.abs( a.routinePath, 'clone', 'README' ) );
     return null;
   })
-  shell( 'git add README' )
-  shell( 'git commit -m test' )
-  shell( 'git push' )
+  a.shell( 'git add README' )
+  a.shell( 'git commit -m test' )
+  a.shell( 'git push' )
   .then( () =>
   {
     test.case = 'unstaged after delete';
-    provider.fileDelete( readmePath );
+    a.fileProvider.fileDelete( a.abs( a.routinePath, 'clone', 'README' ) );
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2535,7 +2523,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2573,14 +2561,14 @@ function statusLocal( test )
     test.identical( got, expected )
     return null;
   })
-  shell( 'git add .' )
+  a.shell( 'git add .' )
   .then( () =>
   {
     test.case = 'staged after delete';
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2620,7 +2608,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2659,13 +2647,13 @@ function statusLocal( test )
 
     return null;
   })
-  shell( 'git commit -m test' )
+  a.shell( 'git commit -m test' )
   .then( () =>
   {
     test.case = 'comitted after delete';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2705,7 +2693,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2743,13 +2731,13 @@ function statusLocal( test )
     test.identical( got, expected )
     return null;
   })
-  shell( 'git push' )
+  a.shell( 'git push' )
   .then( () =>
   {
     test.case = 'pushed after delete';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2788,7 +2776,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2832,13 +2820,13 @@ function statusLocal( test )
   prepareRepo()
   repoNewCommit( 'init' )
   begin()
-  shell( 'git checkout -b testbranch' )
+  a.shell( 'git checkout -b testbranch' )
   .then( () =>
   {
     test.case = 'local clone has unpushed branch';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2878,7 +2866,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2916,14 +2904,14 @@ function statusLocal( test )
     test.identical( got, expected )
     return null;
   })
-  shell( 'git push -u origin testbranch' )
+  a.shell( 'git push -u origin testbranch' )
   .then( () =>
   {
     test.case = 'local clone does not have unpushed branch';
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -2962,7 +2950,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -3007,13 +2995,13 @@ function statusLocal( test )
   prepareRepo()
   repoNewCommit( 'init' )
   begin()
-  shell( 'git tag testtag' )
+  a.shell( 'git tag testtag' )
   .then( () =>
   {
     test.case = 'local clone has unpushed tag';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -3054,7 +3042,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -3093,13 +3081,13 @@ function statusLocal( test )
 
     return null;
   })
-  shell( 'git push --tags' )
+  a.shell( 'git push --tags' )
   .then( () =>
   {
     test.case = 'local clone doesnt have unpushed tag';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -3138,7 +3126,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -3185,19 +3173,19 @@ function statusLocal( test )
   .then( () =>
   {
     test.case = 'local clone has ignored file';
-    let ignoredFilePath = path.join( localPath, 'file' );
-    provider.fileWrite( ignoredFilePath,ignoredFilePath )
-    _.git.ignoreAdd( localPath, { 'file' : null } )
+    let ignoredFilePath = a.abs( a.routinePath, 'clone', 'file' );
+    a.fileProvider.fileWrite( ignoredFilePath, ignoredFilePath )
+    _.git.ignoreAdd( a.abs( a.routinePath, 'clone' ), { 'file' : null } )
     return null;
   })
-  shell( 'git add --all' )
-  shell( 'git commit -am "no desc"' )
+  a.shell( 'git add --all' )
+  a.shell( 'git commit -am "no desc"' )
   .then( () =>
   {
     test.case = 'has ignored file';
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -3237,7 +3225,7 @@ function statusLocal( test )
 
     var got = _.git.statusLocal
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       uncommittedUntracked : 1,
       uncommittedAdded : 1,
@@ -3279,96 +3267,96 @@ function statusLocal( test )
 
   /*  */
 
-  return con;
+  return a.ready;
 
   /* - */
 
   function prepareRepo()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( repoPath );
-      provider.dirMake( repoPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
       return null;
     })
 
-    shell2( 'git init --bare' );
+    a.shell2( 'git init --bare' );
 
-    return con;
+    return a.ready;
   }
 
   /* */
 
   function begin()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
       test.case = 'clean clone';
-      provider.filesDelete( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return _.process.start
       ({
-        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-        currentPath : testPath,
+        execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+        currentPath : a.abs( a.routinePath ),
       })
     })
 
-    return con;
+    return a.ready;
   }
 
   function repoNewCommit( message )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      let secondRepoPath = path.join( testPath, 'secondary' );
-      provider.filesDelete( secondRepoPath );
+      let secondRepoPath = a.abs( a.routinePath, 'secondary' );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
     shell( 'git -C secondary commit --allow-empty -m ' + message )
     shell( 'git -C secondary push' )
 
-    return con;
+    return a.ready;
   }
 
   function repoNewCommitToBranch( message, branch )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
     let create = true;
-    let secondRepoPath = path.join( testPath, 'secondary' );
+    let secondRepoPath = a.abs( a.routinePath, 'secondary' );
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( secondRepoPath );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
+      if( a.fileProvider.fileExists( a.abs( secondRepoPath, '.git/refs/head', branch ) ) )
       create = false;
       return null;
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
       let con2 = new _.Consequence().take( null );
       let shell2 = _.process.starter
       ({
-        currentPath : testPath,
+        currentPath : a.abs( a.routinePath ),
         ready : con2
       })
 
@@ -3387,7 +3375,7 @@ function statusLocal( test )
       return con2;
     })
 
-    return con;
+    return a.ready;
   }
 
 }
@@ -4039,7 +4027,6 @@ function statusLocalEmptyWithOrigin( test )
     test.identical( got, expected )
     return null;
   })
-
 
 
   initEmptyWithOrigin()
