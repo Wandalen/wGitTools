@@ -4016,7 +4016,7 @@ function renormalize( o )
 
   return ready;
 
-  //
+  /* */
 
   function audit()
   {
