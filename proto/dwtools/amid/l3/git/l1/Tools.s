@@ -4178,5 +4178,4 @@ _.mapExtend( Self, Extend );
 if( typeof module !== 'undefined' )
 module[ 'exports' ] = _global_.wTools;
 
-
 })();
