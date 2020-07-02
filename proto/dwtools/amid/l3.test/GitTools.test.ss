@@ -8443,40 +8443,36 @@ function hasLocalChangesSpecial( test )
 function hasFiles( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = context.provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'repo' );
-  let filePath = path.join( localPath, 'file' );
+  let a = test.assetFor( 'basic' );
 
   test.case = 'missing';
-  provider.filesDelete( localPath );
-  var got = _.git.hasFiles({ localPath });
+  a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
+  var got = _.git.hasFiles({ localPath : a.abs( a.routinePath, 'clone' ) });
   test.identical( got, false );
 
   test.case = 'terminal';
-  provider.filesDelete( localPath );
-  provider.fileWrite( localPath, localPath )
-  var got = _.git.hasFiles({ localPath });
+  a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
+  a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone' ), a.abs( a.routinePath, 'clone' ) )
+  var got = _.git.hasFiles({ localPath : a.abs( a.routinePath, 'clone' ) });
   test.identical( got, false );
 
   test.case = 'link';
-  provider.filesDelete( localPath );
-  provider.dirMake( localPath );
-  provider.softLink( filePath, localPath );
-  var got = _.git.hasFiles({ localPath : filePath });
+  a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
+  a.fileProvider.dirMake( a.abs( a.routinePath, 'clone' ) );
+  a.fileProvider.softLink( a.abs( a.routinePath, 'clone', 'file' ), a.abs( a.routinePath, 'clone' ) );
+  var got = _.git.hasFiles({ localPath : a.abs( a.routinePath, 'clone', 'file' ) });
   test.identical( got, false );
 
   test.case = 'empty dir';
-  provider.filesDelete( localPath );
-  provider.dirMake( localPath )
-  var got = _.git.hasFiles({ localPath });
+  a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
+  a.fileProvider.dirMake( a.abs( a.routinePath, 'clone' ) )
+  var got = _.git.hasFiles({ localPath : a.abs( a.routinePath, 'clone' ) });
   test.identical( got, false );
 
   test.case = 'dir with file';
-  provider.filesDelete( localPath );
-  provider.fileWrite( filePath, filePath )
-  var got = _.git.hasFiles({ localPath });
+  a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
+  a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'file' ), a.abs( a.routinePath, 'clone', 'file' ) )
+  var got = _.git.hasFiles({ localPath : a.abs( a.routinePath, 'clone' ) });
   test.identical( got, true );
 }
 
@@ -8485,26 +8481,16 @@ function hasFiles( test )
 function hasRemote( test )
 {
   let context = this;
-  let provider = _.fileProvider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'wPathBasic' );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
   let remotePath2 = 'git+https:///github.com/Wandalen/wTools.git';
 
-  let con = new _.Consequence().take( null )
+  a.shell.predefined.mode = 'spawn';
 
-  let shell = _.process.starter
-  ({
-    currentPath : testPath,
-    mode : 'spawn',
-    ready : con
-  })
-
-  con
+  a.ready
   .then( () =>
   {
-    let got = _.git.hasRemote({ localPath, remotePath : remotePath });
+    let got = _.git.hasRemote({ localPath : a.abs( a.routinePath, 'clone' ), remotePath });
     test.identical( got.downloaded, false )
     test.identical( got.remoteIsValid, false )
     return null;
@@ -8513,16 +8499,16 @@ function hasRemote( test )
   .then( () =>
   {
     test.case = 'setup';
-    provider.filesDelete( localPath );
-    provider.dirMake( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
+    a.fileProvider.dirMake( a.abs( a.routinePath, 'clone' ) );
     return null;
   })
 
-  shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ) )
+  a.shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'clone' ) ) )
 
   .then( () =>
   {
-    let got = _.git.hasRemote({ localPath, remotePath });
+    let got = _.git.hasRemote({ localPath : a.abs( a.routinePath, 'clone' ), remotePath });
     test.identical( got.downloaded, true )
     test.identical( got.remoteIsValid, true )
     return null;
@@ -8530,17 +8516,17 @@ function hasRemote( test )
 
   .then( () =>
   {
-    let got = _.git.hasRemote({ localPath, remotePath : remotePath2 });
+    let got = _.git.hasRemote({ localPath : a.abs( a.routinePath, 'clone' ), remotePath : remotePath2 });
     test.identical( got.downloaded, true )
     test.identical( got.remoteIsValid, false )
     return null;
   })
 
-  shell( 'git -C ' + path.name( localPath ) + ' remote remove origin' )
+  a.shell( 'git -C ' + a.path.name( a.abs( a.routinePath, 'clone' ) ) + ' remote remove origin' )
 
   .then( () =>
   {
-    let got = _.git.hasRemote({ localPath, remotePath : remotePath });
+    let got = _.git.hasRemote({ localPath : a.abs( a.routinePath, 'clone' ), remotePath });
     test.identical( got.downloaded, true )
     test.identical( got.remoteIsValid, false )
     return null;
@@ -8548,13 +8534,13 @@ function hasRemote( test )
 
   .then( () =>
   {
-    let got = _.git.hasRemote({ localPath, remotePath : remotePath2 });
+    let got = _.git.hasRemote({ localPath : a.abs( a.routinePath, 'clone' ), remotePath : remotePath2 });
     test.identical( got.downloaded, true )
     test.identical( got.remoteIsValid, false )
     return null;
   })
 
-  return con;
+  return a.ready;
 }
 
 function isUpToDate( test )
