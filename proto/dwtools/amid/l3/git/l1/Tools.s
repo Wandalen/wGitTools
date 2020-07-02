@@ -4016,7 +4016,7 @@ function renormalize( o )
 
   return ready;
 
-  //
+  /* */
 
   function audit()
   {
@@ -4177,6 +4177,5 @@ _.mapExtend( Self, Extend );
 
 if( typeof module !== 'undefined' )
 module[ 'exports' ] = _global_.wTools;
-
 
 })();
