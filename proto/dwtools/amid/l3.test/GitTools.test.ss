@@ -9511,31 +9511,19 @@ isRepository.timeOut = 30000;
 function status( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'clone' );
-  let repoPath = path.join( testPath, 'repo' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
-  let filePath = path.join( localPath, 'newFile' );
-  let readmePath = path.join( localPath, 'README' );
 
-  let con = new _.Consequence().take( null );
+  a.shell.predefined.currentPath = a.abs( a.routinePath, 'clone' );
 
-  let shell = _.process.starter
+  a.shell2 = _.process.starter
   ({
-    currentPath : localPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready
   })
 
-  let shell2 = _.process.starter
-  ({
-    currentPath : repoPath,
-    ready : con
-  })
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
-  provider.dirMake( testPath )
   prepareRepo()
 
   begin()
@@ -9543,7 +9531,7 @@ function status( test )
   {
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       remote : 0,
@@ -9553,38 +9541,38 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
       conflicts : null,
 
       local : null,
       remote : null,
 
 
-      status: null
+      status : null
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : 0,
       remote : 0,
@@ -9594,38 +9582,38 @@ function status( test )
     })
     var expected =
     {
-       remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
       conflicts : null,
 
       local : null,
       remote : null,
 
 
-      status: null
+      status : null
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : null,
       remote : 0,
@@ -9635,38 +9623,38 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
 
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       conflicts : null,
       local : false,
       remote : null,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : 0,
       uncommitted : null,
@@ -9676,38 +9664,38 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: false,
-      uncommittedDeleted: false,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : false,
+      uncommittedDeleted : false,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
 
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : false,
       local : false,
       remote : null,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : null,
       uncommitted : null,
@@ -9717,38 +9705,38 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: false,
-      uncommittedDeleted: false,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : false,
+      uncommittedDeleted : false,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
 
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       conflicts : false,
       local : false,
       remote : null,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : null,
       uncommitted : null,
@@ -9758,38 +9746,38 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
 
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : null,
       local : null,
       remote : null,
 
-      status: null
+      status : null
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 1,
       uncommitted : null,
@@ -9799,38 +9787,38 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
 
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       conflicts : null,
       local : false,
       remote : null,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : null,
       uncommitted : 1,
@@ -9840,38 +9828,38 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      'remoteBranches' : null,
+      'remoteCommits' : null,
+      'remoteTags' : null,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: false,
-      uncommittedDeleted: false,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
+      'uncommitted' : false,
+      'uncommittedAdded' : false,
+      'uncommittedChanged' : false,
+      'uncommittedCopied' : false,
+      'uncommittedDeleted' : false,
+      'uncommittedIgnored' : null,
+      'uncommittedRenamed' : false,
+      'uncommittedUntracked' : false,
+      'uncommittedUnstaged' : false,
 
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      'unpushed' : null,
+      'unpushedBranches' : null,
+      'unpushedCommits' : null,
+      'unpushedTags' : null,
 
       'conflicts' : false,
       'local' : false,
       'remote' : null,
 
-      status: false
+      'status' : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 1,
       uncommitted : 1,
@@ -9881,38 +9869,38 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: false,
-      uncommittedDeleted: false,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : false,
+      uncommittedDeleted : false,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
 
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       conflicts : false,
       local : false,
       remote : null,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -9922,38 +9910,38 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
 
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : null,
       local : null,
       remote : null,
 
-      status: null
+      status : null
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -9967,38 +9955,38 @@ function status( test )
     })
     var expected =
     {
-       remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
       conflicts : null,
 
       local : null,
       remote : null,
 
 
-      status: null
+      status : null
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -10012,37 +10000,37 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: false,
-      remoteTags: false,
+      remoteBranches : false,
+      remoteCommits : false,
+      remoteTags : false,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : null,
       local : null,
       remote : false,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -10056,38 +10044,38 @@ function status( test )
     })
     var expected =
     {
-       remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
       conflicts : null,
 
       local : null,
       remote : null,
 
 
-      status: null
+      status : null
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -10101,37 +10089,37 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : false,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : null,
       local : null,
       remote : false,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -10145,37 +10133,37 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: false,
-      remoteTags: null,
+      remoteBranches : false,
+      remoteCommits : false,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : null,
       local : null,
       remote : false,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -10189,37 +10177,37 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: false,
-      remoteTags: false,
+      remoteBranches : false,
+      remoteCommits : false,
+      remoteTags : false,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : null,
       local : null,
       remote : false,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -10233,37 +10221,37 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: false,
-      remoteTags: false,
+      remoteBranches : false,
+      remoteCommits : false,
+      remoteTags : false,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : null,
       local : null,
       remote : false,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : null,
       uncommitted : null,
@@ -10277,37 +10265,37 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: false,
-      remoteTags: false,
+      remoteBranches : false,
+      remoteCommits : false,
+      remoteTags : false,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: false,
-      uncommittedDeleted: false,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : false,
+      uncommittedDeleted : false,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       conflicts : false,
       local : false,
       remote : false,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : null,
       uncommitted : null,
@@ -10323,127 +10311,127 @@ function status( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: null,
-      remoteTags: false,
+      remoteBranches : false,
+      remoteCommits : null,
+      remoteTags : false,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       conflicts : false,
       local : false,
       remote : false,
 
-      status: false
+      status : false
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     return null;
   })
 
   /*  */
 
-  return con;
+  return a.ready;
 
   /* - */
 
   function prepareRepo()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( repoPath );
-      provider.dirMake( repoPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
       return null;
     })
 
-    shell2( 'git init --bare' );
+    a.shell2( 'git init --bare' );
 
-    return con;
+    return a.ready;
   }
 
   /* */
 
   function begin()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
       test.case = 'clean clone';
-      provider.filesDelete( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return _.process.start
       ({
-        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-        currentPath : testPath,
+        execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+        currentPath : a.abs( a.routinePath ),
       })
     })
 
-    return con;
+    return a.ready;
   }
 
   function repoNewCommit( message )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      let secondRepoPath = path.join( testPath, 'secondary' );
-      provider.filesDelete( secondRepoPath );
+      let secondRepoPath = a.abs( a.routinePath, 'secondary' );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
     shell( 'git -C secondary commit --allow-empty -m ' + message )
     shell( 'git -C secondary push' )
 
-    return con;
+    return a.ready;
   }
 
   function repoNewCommitToBranch( message, branch )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
     let create = true;
-    let secondRepoPath = path.join( testPath, 'secondary' );
+    let secondRepoPath = a.abs( a.routinePath, 'secondary' );
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( secondRepoPath );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
+      if( a.fileProvider.fileExists( a.abs( secondRepoPath, '.git/refs/head', branch ) ) )
       create = false;
       return null;
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
       let con2 = new _.Consequence().take( null );
       let shell2 = _.process.starter
       ({
-        currentPath : testPath,
+        currentPath : a.abs( a.routinePath ),
         ready : con2
       })
 
@@ -10462,7 +10450,7 @@ function status( test )
       return con2;
     })
 
-    return con;
+    return a.ready;
   }
 
 }
@@ -10474,31 +10462,19 @@ status.timeOut = 30000;
 function statusFull( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'clone' );
-  let repoPath = path.join( testPath, 'repo' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
-  let filePath = path.join( localPath, 'newFile' );
-  let readmePath = path.join( localPath, 'README' );
 
-  let con = new _.Consequence().take( null );
+  a.shell.predefined.currentPath = a.abs( a.routinePath, 'clone' );
 
-  let shell = _.process.starter
+  a.shell2 = _.process.starter
   ({
-    currentPath : localPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready
   })
 
-  let shell2 = _.process.starter
-  ({
-    currentPath : repoPath,
-    ready : con
-  })
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
-  provider.dirMake( testPath )
   prepareRepo()
 
   begin()
@@ -10507,7 +10483,7 @@ function statusFull( test )
     debugger
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       remote : 0,
@@ -10518,23 +10494,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : null,
 
@@ -10543,18 +10519,18 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status: null,
+      status : null,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     debugger
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : 0,
       remote : 0,
@@ -10565,23 +10541,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : null,
 
@@ -10590,17 +10566,17 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status: null,
+      status : null,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : null,
       remote : 0,
@@ -10611,24 +10587,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
 
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       conflicts : null,
 
@@ -10637,17 +10613,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : 0,
       uncommitted : null,
@@ -10658,24 +10634,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: false,
-      uncommittedDeleted: false,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : false,
+      uncommittedDeleted : false,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
 
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       prs : null,
 
@@ -10684,17 +10660,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : null,
       uncommitted : null,
@@ -10705,24 +10681,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: false,
-      uncommittedDeleted: false,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : false,
+      uncommittedDeleted : false,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
 
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommit : false,
+      unpushedTags : false,
 
       prs : null,
 
@@ -10731,17 +10707,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : null,
       uncommitted : null,
@@ -10752,24 +10728,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
 
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       prs : null,
 
@@ -10778,17 +10754,17 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status: null,
+      status : null,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 1,
       uncommitted : null,
@@ -10799,24 +10775,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
 
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       prs : null,
 
@@ -10825,17 +10801,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : null,
       uncommitted : 1,
@@ -10846,24 +10822,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: false,
-      uncommittedDeleted: false,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : false,
+      uncommittedDeleted : false,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
 
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       prs : null,
 
@@ -10872,17 +10848,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 1,
       uncommitted : 1,
@@ -10893,24 +10869,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: false,
-      uncommittedDeleted: false,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : false,
+      uncommittedDeleted : false,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
 
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       prs : null,
 
@@ -10919,17 +10895,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -10940,24 +10916,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
 
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       prs : null,
 
@@ -10966,17 +10942,17 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status: null,
+      status : null,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -10991,23 +10967,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       prs : null,
 
@@ -11016,17 +10992,17 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status: null,
+      status : null,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11041,23 +11017,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: false,
-      remoteTags: false,
+      remoteBranches : false,
+      remoteCommits : false,
+      remoteTags : false,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       prs : null,
 
@@ -11066,17 +11042,17 @@ function statusFull( test )
       local : null,
       remote : false,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11091,23 +11067,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       prs : null,
 
@@ -11116,17 +11092,17 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status: null,
+      status : null,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11141,23 +11117,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : false,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       prs : null,
 
@@ -11166,17 +11142,17 @@ function statusFull( test )
       local : null,
       remote : false,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11191,23 +11167,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: false,
-      remoteTags: null,
+      remoteBranches : false,
+      remoteCommits : false,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       prs : null,
 
@@ -11216,17 +11192,17 @@ function statusFull( test )
       local : null,
       remote : false,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11241,23 +11217,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: false,
-      remoteTags: false,
+      remoteBranches : false,
+      remoteCommits : false,
+      remoteTags : false,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       prs : null,
 
@@ -11266,17 +11242,17 @@ function statusFull( test )
       local : null,
       remote : false,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11291,23 +11267,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: false,
-      remoteTags: false,
+      remoteBranches : false,
+      remoteCommits : false,
+      remoteTags : false,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       prs : null,
 
@@ -11316,17 +11292,17 @@ function statusFull( test )
       local : null,
       remote : false,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : null,
       uncommitted : null,
@@ -11340,23 +11316,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: false,
-      remoteTags: false,
+      remoteBranches : false,
+      remoteCommits : false,
+      remoteTags : false,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: false,
-      uncommittedDeleted: false,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : false,
+      uncommittedDeleted : false,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       prs : null,
 
@@ -11365,17 +11341,17 @@ function statusFull( test )
       local : false,
       remote : false,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : null,
       uncommitted : null,
@@ -11391,23 +11367,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: null,
-      remoteTags: false,
+      remoteBranches : false,
+      remoteCommits : null,
+      remoteTags : false,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       prs : null,
 
@@ -11416,17 +11392,17 @@ function statusFull( test )
       local : false,
       remote : false,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       local : 1,
       unpushed : null,
       uncommitted : null,
@@ -11440,23 +11416,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: false,
-      remoteCommits: false,
-      remoteTags: false,
+      remoteBranches : false,
+      remoteCommits : false,
+      remoteTags : false,
 
-      uncommitted: false,
-      uncommittedAdded: false,
-      uncommittedChanged: false,
-      uncommittedCopied: false,
-      uncommittedDeleted: false,
-      uncommittedIgnored: null,
-      uncommittedRenamed: false,
-      uncommittedUntracked: false,
-      uncommittedUnstaged: false,
-      unpushed: false,
-      unpushedBranches: false,
-      unpushedCommits: false,
-      unpushedTags: false,
+      uncommitted : false,
+      uncommittedAdded : false,
+      uncommittedChanged : false,
+      uncommittedCopied : false,
+      uncommittedDeleted : false,
+      uncommittedIgnored : null,
+      uncommittedRenamed : false,
+      uncommittedUntracked : false,
+      uncommittedUnstaged : false,
+      unpushed : false,
+      unpushedBranches : false,
+      unpushedCommits : false,
+      unpushedTags : false,
 
       prs : _.maybe,
 
@@ -11465,107 +11441,107 @@ function statusFull( test )
       local : false,
       remote : false,
 
-      status: false,
+      status : false,
 
       isRepository : true
     }
-    test.identical( status,expected );
+    test.identical( status, expected );
 
     return null;
   })
 
   /*  */
 
-  return con;
+  return a.ready;
 
   /* - */
 
   function prepareRepo()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( repoPath );
-      provider.dirMake( repoPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
       return null;
     })
 
-    shell2( 'git init --bare' );
+    a.shell2( 'git init --bare' );
 
-    return con;
+    return a.ready;
   }
 
   /* */
 
   function begin()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
       test.case = 'clean clone';
-      provider.filesDelete( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return _.process.start
       ({
-        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-        currentPath : testPath,
+        execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+        currentPath : a.abs( a.routinePath ),
       })
     })
 
-    return con;
+    return a.ready;
   }
 
   function repoNewCommit( message )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      let secondRepoPath = path.join( testPath, 'secondary' );
-      provider.filesDelete( secondRepoPath );
+      let secondRepoPath = a.abs( a.routinePath, 'secondary' );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
     shell( 'git -C secondary commit --allow-empty -m ' + message )
     shell( 'git -C secondary push' )
 
-    return con;
+    return a.ready;
   }
 
   function repoNewCommitToBranch( message, branch )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
     let create = true;
-    let secondRepoPath = path.join( testPath, 'secondary' );
+    let secondRepoPath = a.abs( a.routinePath, 'secondary' );
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( secondRepoPath );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
+      if( a.fileProvider.fileExists( a.abs( secondRepoPath, '.git/refs/head', branch ) ) )
       create = false;
       return null;
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
       let con2 = new _.Consequence().take( null );
       let shell2 = _.process.starter
       ({
-        currentPath : testPath,
+        currentPath : a.abs( a.routinePath ),
         ready : con2
       })
 
@@ -11584,7 +11560,7 @@ function statusFull( test )
       return con2;
     })
 
-    return con;
+    return a.ready;
   }
 
 }
@@ -11597,44 +11573,28 @@ statusFull.timeOut = 30000;
 function statusEveryCheck( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'clone' );
-  let repoPath = path.join( testPath, 'repo' );
-  let secondaryPath = path.join( testPath, 'secondary' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
-  let filePath = path.join( localPath, 'newFile' );
-  let readmePath = path.join( localPath, 'README' );
 
-  let con = new _.Consequence().take( null );
-
-  let shell = _.process.starter
+  a.shell2 = _.process.starter
   ({
-    currentPath : testPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready,
   })
 
-  let repo = _.process.starter
+  a.cloned = _.process.starter
   ({
-    currentPath : repoPath,
-    ready : con,
+    currentPath : a.abs( a.routinePath, 'clone' ),
+    ready : a.ready
   })
 
-  let cloned = _.process.starter
+  a.secondary = _.process.starter
   ({
-    currentPath : localPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'secondary' ),
+    ready : a.ready
   })
 
-  let secondary = _.process.starter
-  ({
-    currentPath : secondaryPath,
-    ready : con
-  })
-
-  provider.dirMake( testPath )
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
   /*  */
 
@@ -11648,7 +11608,7 @@ function statusEveryCheck( test )
   {
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
 
       detailing : 1,
       explaining : 1,
@@ -11656,7 +11616,7 @@ function statusEveryCheck( test )
       remote : 1,
       remoteBranches : 1,
       remoteCommits : 1,
-      remoteTags: 1,
+      remoteTags : 1,
 
       local : 1,
       uncommitted : 1,
@@ -11723,19 +11683,19 @@ function statusEveryCheck( test )
   prepareRepo()
   repoNewCommit( 'init' );
   begin()
-  cloned( 'git checkout -b  newbranch' )
-  cloned( 'echo \"Hello World!\" > changed' )
-  cloned( 'git commit -am change' )
-  cloned( 'git checkout master' )
-  cloned( 'echo \"Hello world!\" > changed' )
-  cloned( 'git commit -am change' )
-  cloned({ execPath : 'git merge newbranch', throwingExitCode : 0 })
-  cloned( 'git status --b --porcelain -u ')
+  a.cloned( 'git checkout -b  newbranch' )
+  a.cloned( 'echo \"Hello World!\" > changed' )
+  a.cloned( 'git commit -am change' )
+  a.cloned( 'git checkout master' )
+  a.cloned( 'echo \"Hello world!\" > changed' )
+  a.cloned( 'git commit -am change' )
+  a.cloned({ execPath : 'git merge newbranch', throwingExitCode : 0 })
+  a.cloned( 'git status --b --porcelain -u ')
   .then( () =>
   {
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
 
       detailing : 1,
       explaining : 1,
@@ -11765,25 +11725,25 @@ function statusEveryCheck( test )
   repoNewCommit( 'init' );
   begin()
   remoteChanges()
-  cloned( 'touch untracked' )
-  cloned( 'touch tracked' )
-  cloned( 'touch file' )
-  cloned( 'git add tracked' )
-  cloned( 'git add file' )
-  cloned( 'git commit -m test file' )
-  cloned( 'echo "xxx" > file' )
-  cloned( 'git checkout -b  newbranch' )
-  cloned( 'echo \"Hello World!\" > changed' )
-  cloned( 'git commit -am change' )
-  cloned( 'git checkout master' )
-  cloned( 'echo \"Hello world!\" > changed' )
-  cloned( 'git commit -am change' )
-  cloned({ execPath : 'git merge newbranch', throwingExitCode : 0 })
+  a.cloned( 'touch untracked' )
+  a.cloned( 'touch tracked' )
+  a.cloned( 'touch file' )
+  a.cloned( 'git add tracked' )
+  a.cloned( 'git add file' )
+  a.cloned( 'git commit -m test file' )
+  a.cloned( 'echo "xxx" > file' )
+  a.cloned( 'git checkout -b  newbranch' )
+  a.cloned( 'echo \"Hello World!\" > changed' )
+  a.cloned( 'git commit -am change' )
+  a.cloned( 'git checkout master' )
+  a.cloned( 'echo \"Hello world!\" > changed' )
+  a.cloned( 'git commit -am change' )
+  a.cloned({ execPath : 'git merge newbranch', throwingExitCode : 0 })
   .then( () =>
   {
     var status = _.git.status
     ({
-      localPath : localPath,
+      localPath : a.abs( a.routinePath, 'clone' ),
 
       detailing : 1,
       explaining : 1,
@@ -11823,62 +11783,62 @@ function statusEveryCheck( test )
 
   /*  */
 
-  return con;
+  return a.ready;
 
   /* - */
 
   function prepareRepo()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( repoPath );
-      provider.dirMake( repoPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
       return null;
     })
 
-    repo( 'git init --bare' );
+    a.shell2( 'git init --bare' );
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      let secondRepoPath = path.join( testPath, 'secondary' );
-      provider.filesDelete( secondRepoPath );
+      let secondRepoPath = a.abs( a.routinePath, 'secondary' );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
-    con.then( () =>
+    a.shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
+    a.ready.then( () =>
     {
-      provider.fileWrite( path.join( testPath, 'secondary', 'changed' ), 'changed' )
-      provider.fileWrite( path.join( testPath, 'secondary', 'renamed' ), 'renamed' )
-      provider.fileWrite( path.join( testPath, 'secondary', 'copied' ), 'copied' )
-      provider.fileWrite( path.join( testPath, 'secondary', 'deleted' ), 'deleted' )
-      provider.fileWrite( path.join( testPath, 'secondary', 'changed2' ), 'changed2' )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'secondary', 'changed' ), 'changed' )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'secondary', 'renamed' ), 'renamed' )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'secondary', 'copied' ), 'copied' )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'secondary', 'deleted' ), 'deleted' )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'secondary', 'changed2' ), 'changed2' )
       return null;
     })
 
-    shell( 'git -C secondary add -fA .' )
-    shell( 'git -C secondary commit -m init' )
-    shell( 'git -C secondary push' )
+    a.shell( 'git -C secondary add -fA .' )
+    a.shell( 'git -C secondary commit -m init' )
+    a.shell( 'git -C secondary push' )
 
-    return con;
+    return a.ready;
   }
 
   /* */
 
   function begin()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
       test.case = 'clean clone';
-      provider.filesDelete( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return _.process.start
       ({
-        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-        currentPath : testPath,
+        execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+        currentPath : a.abs( a.routinePath ),
       })
     })
 
-    return con;
+    return a.ready;
   }
 
   function remoteChanges()
@@ -11889,81 +11849,80 @@ function statusEveryCheck( test )
     repoNewTag( 'testtag' )//regular tag
     repoNewTag( 'testtag2', true ) //annotated tag
 
-    return con;
+    return a.ready;
   }
 
   function localChanges()
   {
-    cloned( 'git checkout -b new' )//unpushed branch
-    cloned( 'git checkout second' )//commit to second branch
-    cloned( 'git commit --allow-empty -m test' )
-    cloned( 'git checkout master' )//commit to master branch
-    cloned( 'git commit --allow-empty -m test' )
+    a.cloned( 'git checkout -b new' )//unpushed branch
+    a.cloned( 'git checkout second' )//commit to second branch
+    a.cloned( 'git commit --allow-empty -m test' )
+    a.cloned( 'git checkout master' )//commit to master branch
+    a.cloned( 'git commit --allow-empty -m test' )
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.fileWrite( provider.path.join( localPath, 'added' ), 'added' )
-      provider.fileWrite( provider.path.join( localPath, 'untracked' ), 'untracked' )
-      provider.fileWrite( provider.path.join( localPath, 'ignored' ), 'ignored' )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'added' ), 'added' )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'untracked' ), 'untracked' )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'ignored' ), 'ignored' )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'changed' ), 'changed2' )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'changed2' ), 'changed3' )
+      a.fileProvider.fileDelete( a.abs( a.routinePath, 'clone', 'deleted' ) )
+      a.fileProvider.fileCopy( a.abs( a.routinePath, 'clone', 'copied2' ), a.abs( a.routinePath, 'clone', 'copied' ) )
 
-      provider.fileWrite( provider.path.join( localPath, 'changed' ), 'changed2' )
-      provider.fileWrite( provider.path.join( localPath, 'changed2' ), 'changed3' )
-      provider.fileDelete( provider.path.join( localPath, 'deleted' ) )
-      provider.fileCopy( provider.path.join( localPath, 'copied2' ),provider.path.join( localPath, 'copied' ) )
-
-      _.git.ignoreAdd( localPath, { 'ignored' : null } )
+      _.git.ignoreAdd( a.abs( a.routinePath, 'clone' ), { 'ignored' : null } )
 
       return null;
     })
 
-    cloned( 'git add .gitignore' )
-    cloned( 'git add added' )
-    cloned( 'git mv renamed renamed2' )
-    cloned( 'git add changed' )
-    cloned( 'git tag tag2' )
-    cloned( 'git tag -a tag3 -m "sometag"' )
+    a.cloned( 'git add .gitignore' )
+    a.cloned( 'git add added' )
+    a.cloned( 'git mv renamed renamed2' )
+    a.cloned( 'git add changed' )
+    a.cloned( 'git tag tag2' )
+    a.cloned( 'git tag -a tag3 -m "sometag"' )
 
-    return con;
+    return a.ready;
   }
 
   function repoNewCommit( message )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      let secondRepoPath = path.join( testPath, 'secondary' );
-      provider.filesDelete( secondRepoPath );
+      let secondRepoPath = a.abs( a.routinePath, 'secondary' );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
     shell( 'git -C secondary commit --allow-empty -m ' + message )
     shell( 'git -C secondary push' )
 
-    return con;
+    return a.ready;
   }
 
   function repoNewTag( tag, annotated )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      let secondRepoPath = path.join( testPath, 'secondary' );
-      provider.filesDelete( secondRepoPath );
+      let secondRepoPath = a.abs( a.routinePath, 'secondary' );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
 
     if( !annotated )
     {
@@ -11976,41 +11935,41 @@ function statusEveryCheck( test )
 
     shell( 'git -C secondary push --tags' )
 
-    return con;
+    return a.ready;
   }
 
   function repoNewCommitToBranch( message, branch )
   {
     let shell = _.process.starter
     ({
-      currentPath : testPath,
-      ready : con
+      currentPath : a.abs( a.routinePath ),
+      ready : a.ready
     })
 
     let create = true;
-    let secondRepoPath = path.join( testPath, 'secondary' );
+    let secondRepoPath = a.abs( a.abs( a.routinePath ), 'secondary' );
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( secondRepoPath );
+      a.fileProvider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + repoPathNative + ' secondary' )
+    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
+      if( a.fileProvider.fileExists( a.abs( secondRepoPath, '.git/refs/head', branch ) ) )
       create = false;
       return null;
     })
 
-    con.then( () =>
+    a.ready.then( () =>
     {
       let con2 = new _.Consequence().take( null );
       let shell2 = _.process.starter
       ({
-        currentPath : testPath,
+        currentPath : a.abs( a.routinePath ),
         ready : con2
       })
 
@@ -12031,7 +11990,7 @@ function statusEveryCheck( test )
       return con2;
     })
 
-    return con;
+    return a.ready;
   }
 
 }
@@ -12080,22 +12039,11 @@ function repositoryInit( test )
 function repositoryHasTag( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'wPathBasic' );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
   let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
 
-  let ready = new _.Consequence().take( null );
-
-  let shell = _.process.starter
-  ({
-    currentPath : testPath,
-    ready
-  })
-
-  provider.dirMake( testPath )
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
   /*  */
 
@@ -12104,7 +12052,7 @@ function repositoryHasTag( test )
   {
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : 'master',
       local : 1,
@@ -12115,7 +12063,7 @@ function repositoryHasTag( test )
 
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : 'master',
       local : 0,
@@ -12126,7 +12074,7 @@ function repositoryHasTag( test )
 
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : 'master',
       local : 1,
@@ -12137,7 +12085,7 @@ function repositoryHasTag( test )
 
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : 'abc',
       local : 1,
@@ -12148,7 +12096,7 @@ function repositoryHasTag( test )
 
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : 'abc',
       local : 0,
@@ -12159,7 +12107,7 @@ function repositoryHasTag( test )
 
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : 'abc',
       local : 1,
@@ -12170,7 +12118,7 @@ function repositoryHasTag( test )
 
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : '0.7.50',
       local : 1,
@@ -12181,7 +12129,7 @@ function repositoryHasTag( test )
 
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : '0.7.50',
       local : 1,
@@ -12192,7 +12140,7 @@ function repositoryHasTag( test )
 
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : '0.7.50',
       local : 0,
@@ -12203,7 +12151,7 @@ function repositoryHasTag( test )
 
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
       local : 1,
@@ -12214,7 +12162,7 @@ function repositoryHasTag( test )
 
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
       local : 0,
@@ -12225,7 +12173,7 @@ function repositoryHasTag( test )
 
     var got = _.git.repositoryHasTag
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       remotePath,
       tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
       local : 1,
@@ -12235,12 +12183,12 @@ function repositoryHasTag( test )
     test.identical( got, false );
 
     test.description = 'should throw error if localPath does not contain git repo'
-    _.fileProvider.filesDelete( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
     test.shouldThrowErrorSync( () =>
     {
       _.git.repositoryHasTag
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         remotePath,
         tag : 'master',
         local : 1,
@@ -12253,7 +12201,7 @@ function repositoryHasTag( test )
     {
       _.git.repositoryHasTag
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         remotePath,
         tag : 'master',
         local : 0,
@@ -12270,7 +12218,7 @@ function repositoryHasTag( test )
     {
       _.git.repositoryHasTag
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         remotePath,
         tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
         local : 0,
@@ -12283,7 +12231,7 @@ function repositoryHasTag( test )
     {
       _.git.repositoryHasTag
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         remotePath,
         tag : 'master',
         local : 0,
@@ -12296,7 +12244,7 @@ function repositoryHasTag( test )
     {
       _.git.repositoryHasTag
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         remotePath,
         tag : '0.7.50',
         local : 0,
@@ -12308,15 +12256,15 @@ function repositoryHasTag( test )
     return null;
   })
 
-  return ready;
+  return a.ready;
 
   /*  */
 
   function begin()
   {
-    ready.then( () => _.fileProvider.filesDelete( localPath ))
-    shell( `git clone ${remotePath}` )
-    return ready;
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) ))
+    a.shell( `git clone ${remotePath}` )
+    return a.ready;
   }
 
 }
@@ -12328,22 +12276,11 @@ repositoryHasTag.timeOut = 60000;
 function repositoryHasVersion( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'wPathBasic' );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
   let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
 
-  let ready = new _.Consequence().take( null );
-
-  let shell = _.process.starter
-  ({
-    currentPath : testPath,
-    ready
-  })
-
-  provider.dirMake( testPath )
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
   /*  */
 
@@ -12352,7 +12289,7 @@ function repositoryHasVersion( test )
   {
     var got = _.git.repositoryHasVersion
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
       sync : 1
     })
@@ -12360,7 +12297,7 @@ function repositoryHasVersion( test )
 
     var got = _.git.repositoryHasVersion
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : '1c5607cbae0b62c8a0553',
       sync : 1
     })
@@ -12368,7 +12305,7 @@ function repositoryHasVersion( test )
 
     var got = _.git.repositoryHasVersion
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : '1c5607c',
       sync : 1
     })
@@ -12376,7 +12313,7 @@ function repositoryHasVersion( test )
 
     var got = _.git.repositoryHasVersion
     ({
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
       sync : 1
     })
@@ -12386,7 +12323,7 @@ function repositoryHasVersion( test )
     {
       _.git.repositoryHasVersion
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         version : 'master',
         sync : 1
       })
@@ -12397,7 +12334,7 @@ function repositoryHasVersion( test )
     {
       _.git.repositoryHasVersion
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         version : '1c',
         sync : 1
       })
@@ -12407,20 +12344,20 @@ function repositoryHasVersion( test )
     {
       _.git.repositoryHasVersion
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         version : '0.7.50',
         sync : 1
       })
     })
 
     test.description = 'remote repository, should throw error'
-    _.fileProvider.filesDelete( localPath )
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) )
 
     test.shouldThrowErrorSync( () =>
     {
       _.git.repositoryHasVersion
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
         sync : 1
       })
@@ -12430,7 +12367,7 @@ function repositoryHasVersion( test )
     {
       _.git.repositoryHasVersion
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
         sync : 1
       })
@@ -12440,7 +12377,7 @@ function repositoryHasVersion( test )
     {
       _.git.repositoryHasVersion
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         version : '0.7.50',
         sync : 1
       })
@@ -12465,7 +12402,7 @@ function repositoryHasVersion( test )
     {
       _.git.repositoryHasVersion
       ({
-        localPath,
+        localPath : a.abs( a.routinePath, 'wPathBasic' ),
         version : null,
         sync : 1
       })
@@ -12474,15 +12411,15 @@ function repositoryHasVersion( test )
     return null;
   })
 
-  return ready;
+  return a.ready;
 
   /*  */
 
   function begin()
   {
-    ready.then( () => _.fileProvider.filesDelete( localPath ))
-    shell( `git clone ${remotePath}` )
-    return ready;
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) ))
+    a.shell( `git clone ${remotePath}` )
+    return a.ready;
   }
 
 }
@@ -12494,22 +12431,11 @@ repositoryHasVersion.timeOut = 60000;
 function diff( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'wPathBasic' );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
   let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
 
-  let ready = new _.Consequence().take( null );
-
-  let shell = _.process.starter
-  ({
-    currentPath : testPath,
-    ready
-  })
-
-  provider.dirMake( testPath )
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
   /*  */
 
@@ -12521,7 +12447,7 @@ function diff( test )
     ({
       state1 : 'version::HEAD',
       state2 : `version::${latestCommit}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -12543,7 +12469,7 @@ function diff( test )
     ({
       state1 : 'version::HEAD',
       state2 : `version::${latestCommit}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -12565,7 +12491,7 @@ function diff( test )
     ({
       state1 : 'version::HEAD',
       state2 : `version::${latestCommit}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -12587,9 +12513,9 @@ function diff( test )
     ({
       state1 : 'version::HEAD',
       state2 : `version::${latestCommit}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -12607,8 +12533,6 @@ function diff( test )
 
     return null;
   })
-
-
 
   begin()
   .then( () =>
@@ -12629,7 +12553,7 @@ renamedFiles:
   proto/dwtools/abase/l4.test/Paths.test.s
   proto/dwtools/abase/l4/PathsBasic.s`
 
-  var statusOriginal =
+    var statusOriginal =
 ` .im.will.yml                                       |   10 +-
  out/wPathBasic.out.will.yml                        |   38 +-
  package.json                                       |   10 +-
@@ -12648,7 +12572,7 @@ renamedFiles:
     ({
       state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
       state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -12671,7 +12595,7 @@ renamedFiles:
     ({
       state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
       state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -12693,7 +12617,7 @@ renamedFiles:
     ({
       state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
       state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -12715,9 +12639,9 @@ renamedFiles:
     ({
       state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
       state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -12735,7 +12659,6 @@ renamedFiles:
 
     return null;
   })
-
 
 
   begin()
@@ -12766,7 +12689,7 @@ addedFiles:
   out/wPathFundamentals.out.will.yml
   package-old.json`
 
-  var statusOriginal =
+    var statusOriginal =
 ` .ex.will.yml                                       |   98 +-
  .gitattributes                                     |    1 +
  .im.will.yml                                       |  242 +-
@@ -12794,7 +12717,7 @@ addedFiles:
     ({
       state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
       state2 : `tag::v0.7.4`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -12816,7 +12739,7 @@ addedFiles:
     ({
       state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
       state2 : `tag::v0.7.4`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -12838,7 +12761,7 @@ addedFiles:
     ({
       state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
       state2 : `tag::v0.7.4`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -12860,9 +12783,9 @@ addedFiles:
     ({
       state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
       state2 : `tag::v0.7.4`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -12889,7 +12812,7 @@ addedFiles:
     ({
       state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
       state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -12911,7 +12834,7 @@ addedFiles:
     ({
       state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
       state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -12933,7 +12856,7 @@ addedFiles:
     ({
       state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
       state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -12955,9 +12878,9 @@ addedFiles:
     ({
       state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
       state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      localPath,
+      localPath : a.abs( a.routinePath, 'wPathBasic' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -12978,15 +12901,15 @@ addedFiles:
 
   /* */
 
-  return ready;
+  return a.ready;
 
   /*  */
 
   function begin()
   {
-    ready.then( () => _.fileProvider.filesDelete( localPath ))
-    shell( `git clone ${remotePath}` )
-    return ready;
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) ))
+    a.shell( `git clone ${remotePath}` )
+    return a.ready;
   }
 }
 
@@ -12997,41 +12920,32 @@ diff.timeOut = 60000;
 function diffSpecial( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'repo' );
-  let barePath = path.join( testPath, 'bare' );
-  let ready = new _.Consequence().take( null );
+  let a = test.assetFor( 'basic' );
 
-  let shell = _.process.starter
+  a.shell.predefined.outputCollecting = 1;
+  a.shell.predefined.currentPath = a.abs( a.routinePath, 'repo' )
+
+  a.shell2 = _.process.starter
   ({
-    currentPath : localPath,
-    outputCollecting : 1,
-    ready
+    currentPath : a.abs( a.routinePath, 'bare' ),
+    ready : a.ready
   })
 
-  let shell2 = _.process.starter
-  ({
-    currentPath : barePath,
-    ready
-  })
-
-  provider.dirMake( testPath )
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
   /*  */
 
   begin()
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'data' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m init' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m init' )
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'dat' )
     return null;
   })
   .then( () =>
@@ -13041,7 +12955,7 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `version::HEAD`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -13063,7 +12977,7 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `version::HEAD`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -13085,7 +12999,7 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `version::HEAD`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -13108,9 +13022,9 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `version::HEAD`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -13134,24 +13048,24 @@ function diffSpecial( test )
   begin()
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'data' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m init' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m init' )
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'dat' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m change' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m change' )
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data2' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'data2' )
     return null;
   })
-  shell( 'git rev-parse HEAD^' )
+  a.shell( 'git rev-parse HEAD^' )
   .then( ( got ) =>
   {
     let prevCommit = _.strStrip( got.output );
@@ -13160,7 +13074,7 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `version::${prevCommit}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -13182,7 +13096,7 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `version::${prevCommit}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -13204,7 +13118,7 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `version::${prevCommit}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -13227,9 +13141,9 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `version::${prevCommit}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -13253,15 +13167,15 @@ function diffSpecial( test )
   begin()
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'data' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m init' )
-  shell( 'git tag -a init -m init' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m init' )
+  a.shell( 'git tag -a init -m init' )
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'dat' )
     return null;
   })
   .then( () =>
@@ -13271,7 +13185,7 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -13293,7 +13207,7 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -13315,7 +13229,7 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -13338,9 +13252,9 @@ function diffSpecial( test )
     ({
       state1 : 'working',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -13364,18 +13278,18 @@ function diffSpecial( test )
   begin()
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'data' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m init' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m init' )
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'data' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'dat' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file2' ), 'data' )
     return null;
   })
-  shell( 'git add file' )
+  a.shell( 'git add file' )
   .then( () =>
   {
     test.case = 'staging..HEAD, untracked file should be ignored'
@@ -13383,7 +13297,7 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `version::HEAD`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -13405,7 +13319,7 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `version::HEAD`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -13427,7 +13341,7 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `version::HEAD`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -13450,9 +13364,9 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `version::HEAD`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -13476,25 +13390,25 @@ function diffSpecial( test )
   begin()
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'data' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m init' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m init' )
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'dat' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m change' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m change' )
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data2' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'data2' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git rev-parse HEAD^' )
+  a.shell( 'git add file' )
+  a.shell( 'git rev-parse HEAD^' )
   .then( ( got ) =>
   {
     let prevCommit = _.strStrip( got.output );
@@ -13503,7 +13417,7 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `version::${prevCommit}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -13525,7 +13439,7 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `version::HEAD`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -13547,7 +13461,7 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `version::HEAD`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -13570,9 +13484,9 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `version::HEAD`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -13596,19 +13510,19 @@ function diffSpecial( test )
   begin()
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'data' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m init' )
-  shell( 'git tag -a init -m init' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m init' )
+  a.shell( 'git tag -a init -m init' )
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'dat' )
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file2' ), 'data' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'dat' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file2' ), 'data' )
     return null;
   })
-  shell( 'git add file' )
+  a.shell( 'git add file' )
   .then( () =>
   {
     test.case = 'staging..tag, untracked file should be ignored'
@@ -13616,7 +13530,7 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -13638,7 +13552,7 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -13660,7 +13574,7 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -13683,9 +13597,9 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -13709,18 +13623,18 @@ function diffSpecial( test )
   begin()
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'data' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m init' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m init' )
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'datadata' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'datadata' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m change' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m change' )
   .then( () =>
   {
     test.case = 'committed..HEAD^'
@@ -13728,7 +13642,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::HEAD^`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -13750,7 +13664,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::HEAD^`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -13772,7 +13686,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::HEAD^`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -13795,9 +13709,9 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::HEAD^`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -13822,11 +13736,11 @@ function diffSpecial( test )
   cloneBare()
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'datadata' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'datadata' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m change' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m change' )
   .then( () =>
   {
     test.case = 'committed, unpushed commit..origin'
@@ -13834,7 +13748,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::origin`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -13856,7 +13770,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::origin`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -13878,7 +13792,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::origin`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -13901,9 +13815,9 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::origin`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -13928,12 +13842,12 @@ function diffSpecial( test )
   cloneBare()
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'datadata' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'datadata' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m change' )
-  shell( 'git ls-remote origin HEAD' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m change' )
+  a.shell( 'git ls-remote origin HEAD' )
   .then( ( got ) =>
   {
     let remoteHEAD = _.strIsolateLeftOrAll( got.output, /\s+/ )[ 0 ];
@@ -13942,7 +13856,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::${remoteHEAD}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -13964,7 +13878,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::${remoteHEAD}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -13986,7 +13900,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::${remoteHEAD}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -14009,9 +13923,9 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::${remoteHEAD}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -14036,13 +13950,13 @@ function diffSpecial( test )
   cloneBare()
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'datadata' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'datadata' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m change' )
-  shell( 'git push' )
-  shell( 'git ls-remote origin HEAD' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m change' )
+  a.shell( 'git push' )
+  a.shell( 'git ls-remote origin HEAD' )
   .then( ( got ) =>
   {
     let remoteHEAD = _.strIsolateLeftOrAll( got.output, /\s+/ )[ 0 ];
@@ -14051,7 +13965,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::${remoteHEAD}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -14073,7 +13987,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::${remoteHEAD}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -14095,7 +14009,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::${remoteHEAD}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -14117,9 +14031,9 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `version::${remoteHEAD}`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -14143,19 +14057,19 @@ function diffSpecial( test )
   begin()
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'data' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'data' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m init' )
-  shell( 'git tag -a init -m init' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m init' )
+  a.shell( 'git tag -a init -m init' )
   .then( () =>
   {
-    _.fileProvider.fileWrite( _.path.join( localPath, 'file' ), 'datadata' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file' ), 'datadata' )
     return null;
   })
-  shell( 'git add file' )
-  shell( 'git commit -m change' )
+  a.shell( 'git add file' )
+  a.shell( 'git commit -m change' )
   .then( () =>
   {
     test.case = 'committed..tag'
@@ -14163,7 +14077,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -14185,7 +14099,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -14207,7 +14121,7 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -14230,9 +14144,9 @@ function diffSpecial( test )
     ({
       state1 : 'committed',
       state2 : `tag::init`,
-      localPath,
+      localPath : a.abs( a.routinePath, 'repo' ),
       detailing : 0,
-      explaining :0,
+      explaining : 0,
       sync : 1
     });
     var expected =
@@ -14253,39 +14167,39 @@ function diffSpecial( test )
 
   /* */
 
-  return ready;
+  return a.ready;
 
   /*  */
 
   function begin()
   {
-    ready.then( () => _.fileProvider.filesDelete( localPath ))
-    ready.then( () => { _.fileProvider.dirMake( localPath ); return null })
-    shell( `git init` )
-    return ready;
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) ))
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) ); return null })
+    a.shell( `git init` )
+    return a.ready;
   }
 
   function initBare()
   {
-    ready.then( () => _.fileProvider.filesDelete( barePath ))
-    ready.then( () => { _.fileProvider.dirMake( barePath ); return null })
-    shell2( `git init --bare` )
-    ready.then( () => _.fileProvider.filesDelete( localPath ))
-    ready.then( () => { _.fileProvider.dirMake( localPath ); return null })
-    shell( `git clone ../bare .` )
-    ready.then( () => { _.fileProvider.fileWrite( _.path.join( localPath, 'file'), 'data' ); return null })
-    shell( `git add file` )
-    shell( `git commit -m init` )
-    shell( `git push` )
-    return ready;
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( a.routinePath, 'bare' ) ))
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( a.routinePath, 'bare' ) ); return null })
+    a.shell2( `git init --bare` )
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) ))
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) ); return null })
+    a.shell( `git clone ../bare .` )
+    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file'), 'data' ); return null })
+    a.shell( `git add file` )
+    a.shell( `git commit -m init` )
+    a.shell( `git push` )
+    return a.ready;
   }
 
   function cloneBare()
   {
-    ready.then( () => _.fileProvider.filesDelete( localPath ))
-    ready.then( () => { _.fileProvider.dirMake( localPath ); return null })
-    shell( `git clone ../bare .` )
-    return ready;
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) ))
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) ); return null })
+    a.shell( `git clone ../bare .` )
+    return a.ready;
   }
 }
 
@@ -14296,26 +14210,14 @@ diffSpecial.timeOut = 60000;
 function gitHooksManager( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'repo' )
-  let hooksPath = path.join( localPath, './.git/hooks' )
-
+  let a = test.assetFor( 'basic' );
   let hookName = 'post-commit';
   let handlerName = hookName + '.custom';
-  let originalHookPath = path.join( hooksPath, hookName );
-  let hookHandlerPath = path.join( hooksPath, handlerName );
-  let wasOriginalHookPath = originalHookPath + '.was'
-
-  let handlerCodePath = path.join( testPath, hookName + '.source' );
   let handlerCode =
   `#!/bin/sh
     echo "Custom handler executed."
-  `
+  `;
   var specialComment = 'This script is generated by utility willbe';
-
-  let ready = new _.Consequence().take( null )
 
   /*
     - No git repository
@@ -14327,21 +14229,22 @@ function gitHooksManager( test )
     - Register two handlers for single hook, unregister second handler, only first should be executed
   */
 
+  a.ready
   .then( () =>
   {
     test.case = 'No git repository';
 
-    provider.filesDelete( localPath );
-    provider.fileWrite( handlerCodePath, handlerCode )
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
 
     test.shouldThrowErrorSync( () =>
     {
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
-        handlerName : handlerName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
@@ -14359,48 +14262,48 @@ function gitHooksManager( test )
 
     let shell = _.process.starter
     ({
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'repo' ),
       outputCollecting : 1,
       ready : con
     })
 
     con.then( () =>
     {
-      let files = provider.dirRead( hooksPath );
-      let samples = files.filter( ( file ) => path.ext( file ) === 'sample' );
+      let files = a.fileProvider.dirRead( a.abs( a.routinePath, 'repo', './.git/hooks' ) );
+      let samples = files.filter( ( file ) => a.path.ext( file ) === 'sample' );
       test.will = 'only sample hooks are registered'
       test.identical( files.length, samples.length );
 
       test.will = 'original hook does not exist';
-      test.is( !provider.fileExists( originalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
-      provider.fileWrite( handlerCodePath, handlerCode )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
 
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
-        handlerName : handlerName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
 
       test.will = 'hook runner was created';
-      test.is( provider.fileExists( originalHookPath ) );
-      let hookRead = provider.fileRead( originalHookPath );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
+      let hookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) );
       test.is( _.strHas( hookRead, specialComment ) )
 
       test.will = 'hook handler was created'
-      test.is( provider.fileExists( hookHandlerPath ) );
-      let customHookRead = provider.fileRead( hookHandlerPath );
-      test.identical( customHookRead,handlerCode );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) ) );
+      let customHookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) );
+      test.identical( customHookRead, handlerCode );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -14426,15 +14329,15 @@ function gitHooksManager( test )
 
     let shell = _.process.starter
     ({
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'repo' ),
       outputCollecting : 1,
       ready : con
     })
 
     con.then( () =>
     {
-      let files = provider.dirRead( hooksPath );
-      let samples = files.filter( ( file ) => path.ext( file ) === 'sample' );
+      let files = a.fileProvider.dirRead( a.abs( a.routinePath, 'repo', './.git/hooks' ) );
+      let samples = files.filter( ( file ) => a.path.ext( file ) === 'sample' );
       test.will = 'only sample hooks are registered'
       test.identical( files.length, samples.length );
 
@@ -14442,39 +14345,39 @@ function gitHooksManager( test )
       `#!/bin/sh
       echo "Original user hook."
       `
-      provider.fileWrite( originalHookPath, originalUserHookCode );
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ), originalUserHookCode );
 
       test.will = 'users hook exists';
-      test.is( provider.fileExists( originalHookPath ) );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
-      provider.fileWrite( handlerCodePath, handlerCode )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
 
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
-        handlerName : handlerName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
 
       test.will = 'hook runner was created';
-      test.is( provider.fileExists( originalHookPath ) );
-      let hookRead = provider.fileRead( originalHookPath );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
+      let hookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) );
       test.is( _.strHas( hookRead, specialComment ) )
 
       test.will = 'hook handler was created'
-      test.is( provider.fileExists( hookHandlerPath ) );
-      let customHookRead = provider.fileRead( hookHandlerPath );
-      test.identical( customHookRead,handlerCode );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) ) );
+      let customHookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) );
+      test.identical( customHookRead, handlerCode );
 
       test.will = 'original hook was copied to .was';
-      test.is( provider.fileExists( wasOriginalHookPath ) );
-      let wasHook = provider.fileRead( wasOriginalHookPath );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
+      let wasHook = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' );
       test.identical( wasHook, originalUserHookCode );
 
       return null;
@@ -14503,20 +14406,20 @@ function gitHooksManager( test )
 
     let shell = _.process.starter
     ({
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'repo' ),
       outputCollecting : 1,
       ready : con
     })
 
     con.then( () =>
     {
-      provider.fileWrite( handlerCodePath, handlerCode )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
-        handlerName : handlerName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
@@ -14526,42 +14429,42 @@ function gitHooksManager( test )
     con.then( () =>
     {
       let handlerName2 = handlerName + '2';
-      let hookHandlerPath2 = hookHandlerPath + '2';
-      let handlerCodePath2 = handlerCodePath + '2'
+      let hookHandlerPath2 = a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) + '2';
+      let handlerCodePath2 = a.abs( a.routinePath, hookName + '.source' ) + '2'
 
       let handlerCode2 =
       `#!/bin/sh
       echo "Custom handler2 executed."
       `
-      provider.fileWrite( handlerCodePath2, handlerCode2 )
+      a.fileProvider.fileWrite( handlerCodePath2, handlerCode2 )
 
       _.git.hookRegister
       ({
-        repoPath : localPath,
+        repoPath : a.abs( a.routinePath, 'repo' ),
         filePath : handlerCodePath2,
-        hookName : hookName,
+        hookName,
         handlerName : handlerName2,
         throwing : 1,
         rewriting : 0
       })
 
       test.will = 'hook runner was created';
-      test.is( provider.fileExists( originalHookPath ) );
-      let hookRead = provider.fileRead( originalHookPath );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
+      let hookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) );
       test.is( _.strHas( hookRead, specialComment ) )
 
       test.will = 'first hook handler exists'
-      test.is( provider.fileExists( hookHandlerPath ) );
-      var customHookRead = provider.fileRead( hookHandlerPath );
-      test.identical( customHookRead,handlerCode );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) ) );
+      var customHookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) );
+      test.identical( customHookRead, handlerCode );
 
       test.will = 'second hook handler exists'
-      test.is( provider.fileExists( hookHandlerPath2 ) );
-      var customHookRead = provider.fileRead( hookHandlerPath2 );
-      test.identical( customHookRead,handlerCode2 );
+      test.is( a.fileProvider.fileExists( hookHandlerPath2 ) );
+      var customHookRead = a.fileProvider.fileRead( hookHandlerPath2 );
+      test.identical( customHookRead, handlerCode2 );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -14592,29 +14495,29 @@ function gitHooksManager( test )
     exit 1
     `
     let handlerName2 = handlerName + '2';
-    let hookHandlerPath2 = hookHandlerPath + '2';
-    let handlerCodePath2 = handlerCodePath + '2'
+    let hookHandlerPath2 = a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) + '2';
+    let handlerCodePath2 = a.abs( a.routinePath, hookName + '.source' ) + '2'
 
     let con = begin();
 
     let shell = _.process.starter
     ({
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'repo' ),
       outputCollecting : 1,
       ready : con
     })
 
     con.then( () =>
     {
-      provider.fileWrite( handlerCodePath, handlerCode )
-      provider.fileWrite( handlerCodePath2, handlerCode2 )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
+      a.fileProvider.fileWrite( handlerCodePath2, handlerCode2 )
 
       _.git.hookRegister
       ({
-        repoPath : localPath,
+        repoPath : a.abs( a.routinePath, 'repo' ),
         filePath : handlerCodePath2,
-        hookName : hookName,
-        handlerName : handlerName,
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
@@ -14623,9 +14526,9 @@ function gitHooksManager( test )
 
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
         handlerName : handlerName2,
         throwing : 1,
         rewriting : 0
@@ -14634,22 +14537,22 @@ function gitHooksManager( test )
       //
 
       test.will = 'hook runner was created';
-      test.is( provider.fileExists( originalHookPath ) );
-      let hookRead = provider.fileRead( originalHookPath );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
+      let hookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) );
       test.is( _.strHas( hookRead, specialComment ) )
 
       test.will = 'first hook handler exists'
-      test.is( provider.fileExists( hookHandlerPath ) );
-      var customHookRead = provider.fileRead( hookHandlerPath );
-      test.identical( customHookRead,handlerCode2 );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) ) );
+      var customHookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) );
+      test.identical( customHookRead, handlerCode2 );
 
       test.will = 'second hook handler exists'
-      test.is( provider.fileExists( hookHandlerPath2 ) );
-      var customHookRead = provider.fileRead( hookHandlerPath2 );
-      test.identical( customHookRead,handlerCode );
+      test.is( a.fileProvider.fileExists( hookHandlerPath2 ) );
+      var customHookRead = a.fileProvider.fileRead( hookHandlerPath2 );
+      test.identical( customHookRead, handlerCode );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -14677,20 +14580,20 @@ function gitHooksManager( test )
 
     let shell = _.process.starter
     ({
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'repo' ),
       outputCollecting : 1,
       ready : con
     })
 
     con.then( () =>
     {
-      provider.fileWrite( handlerCodePath, handlerCode )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
-        handlerName : handlerName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
@@ -14699,37 +14602,37 @@ function gitHooksManager( test )
 
     con.then( () =>
     {
-      let hooksBefore = provider.dirRead( hooksPath );
-      let hookRunnerBefore =  provider.fileRead( originalHookPath );
+      let hooksBefore = a.fileProvider.dirRead( a.abs( a.routinePath, 'repo', './.git/hooks' ) );
+      let hookRunnerBefore =  a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) );
 
       test.shouldThrowErrorSync( () =>
       {
         _.git.hookRegister
         ({
-          repoPath : localPath,
-          filePath : handlerCodePath,
-          hookName : hookName,
-          handlerName : handlerName,
+          repoPath : a.abs( a.routinePath, 'repo' ),
+          filePath : a.abs( a.routinePath, hookName + '.source' ),
+          hookName,
+          handlerName,
           throwing : 1,
           rewriting : 0
         })
       })
 
-      let hooksAfter = provider.dirRead( hooksPath );
+      let hooksAfter = a.fileProvider.dirRead( a.abs( a.routinePath, 'repo', './.git/hooks' ) );
 
       test.identical( hooksAfter, hooksBefore );
 
       test.will = 'hook runner was not changed created';
-      let hookRunnerNow = provider.fileRead( originalHookPath );
+      let hookRunnerNow = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) );
       test.identical( hookRunnerNow, hookRunnerBefore );
 
       test.will = 'custom hook was not changed'
-      test.is( provider.fileExists( hookHandlerPath ) );
-      var customHookRead = provider.fileRead( hookHandlerPath );
-      test.identical( customHookRead,handlerCode );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) ) );
+      var customHookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) );
+      test.identical( customHookRead, handlerCode );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -14756,20 +14659,20 @@ function gitHooksManager( test )
 
     let shell = _.process.starter
     ({
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'repo' ),
       outputCollecting : 1,
       ready : con
     })
 
     con.then( () =>
     {
-      provider.fileWrite( handlerCodePath, handlerCode )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
-        handlerName : handlerName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
@@ -14779,20 +14682,20 @@ function gitHooksManager( test )
     con.then( () =>
     {
       let handlerName2 = handlerName + '2';
-      let hookHandlerPath2 = hookHandlerPath + '2';
-      let handlerCodePath2 = handlerCodePath + '2'
+      let hookHandlerPath2 = a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) + '2';
+      let handlerCodePath2 = a.abs( a.routinePath, hookName + '.source' ) + '2'
 
       let handlerCode2 =
       `#!/bin/sh
       echo "Custom handler2 executed."
       `
-      provider.fileWrite( handlerCodePath2, handlerCode2 )
+      a.fileProvider.fileWrite( handlerCodePath2, handlerCode2 )
 
       _.git.hookRegister
       ({
-        repoPath : localPath,
+        repoPath : a.abs( a.routinePath, 'repo' ),
         filePath : handlerCodePath2,
-        hookName : hookName,
+        hookName,
         handlerName : handlerName2,
         throwing : 1,
         rewriting : 0
@@ -14800,27 +14703,27 @@ function gitHooksManager( test )
 
       _.git.hookUnregister
       ({
-        repoPath : localPath,
+        repoPath : a.abs( a.routinePath, 'repo' ),
         handlerName : handlerName2,
         force : 0,
         throwing : 1
       })
 
       test.will = 'hook runner was created';
-      test.is( provider.fileExists( originalHookPath ) );
-      let hookRead = provider.fileRead( originalHookPath );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
+      let hookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) );
       test.is( _.strHas( hookRead, specialComment ) )
 
       test.will = 'first hook handler exists'
-      test.is( provider.fileExists( hookHandlerPath ) );
-      var customHookRead = provider.fileRead( hookHandlerPath );
-      test.identical( customHookRead,handlerCode );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) ) );
+      var customHookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) );
+      test.identical( customHookRead, handlerCode );
 
       test.will = 'second hook handler does not exist'
-      test.is( !provider.fileExists( hookHandlerPath2 ) );
+      test.is( !a.fileProvider.fileExists( hookHandlerPath2 ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -14841,7 +14744,7 @@ function gitHooksManager( test )
 
   /* */
 
-  return ready;
+  return a.ready;
 
   /* - */
 
@@ -14851,14 +14754,14 @@ function gitHooksManager( test )
 
     let shell = _.process.starter
     ({
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'repo' ),
       ready : con
     })
 
     con.then( () =>
     {
-      provider.filesDelete( localPath );
-      provider.dirMake( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
       let filesTree =
       {
         'proto' :
@@ -14867,7 +14770,7 @@ function gitHooksManager( test )
         }
       }
       let extract = new _.FileProvider.Extract({ filesTree })
-      extract.filesReflectTo( provider, localPath );
+      extract.filesReflectTo( context.provider, a.abs( a.routinePath, 'repo' ) );
       return null;
     })
 
@@ -14906,6 +14809,25 @@ function gitHooksManagerErrors( test )
   var specialComment = 'This script is generated by utility willbe';
 
   let ready = new _.Consequence().take( null )
+
+  // let context = this;
+  // let a = test.assetFor( 'basic' );
+  // let hookName = 'post-commit';
+  // let handlerName = hookName + '.custom';
+  // // let wasOriginalHookPath = a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was';
+  // let handlerCode =
+  // `#!/bin/sh
+  //   echo "Custom handler executed."
+  // `;
+  // var specialComment = 'This script is generated by utility willbe';
+  // !let provider = context.provider;
+  // let path = provider.path;
+  //! let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
+  //! let localPath = path.join( testPath, 'repo' )
+  //! let hooksPath = path.join( localPath, './.git/hooks' ) - > a.abs( a.routinePath, 'repo', './.git/hooks' )
+  // let originalHookPath = path.join( hooksPath, hookName ); --> a.abs( hooksPath, hookName )
+  // let hookHandlerPath = path.join( hooksPath, handlerName ); --> a.abs( hooksPath, handlerName )
+  // let handlerCodePath = path.join( testPath, hookName + '.source' ); -- > a.abs( a.routinePath, hookName + '.source' )
 
   /*
     - No git repository
