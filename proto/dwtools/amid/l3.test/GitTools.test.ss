@@ -299,46 +299,35 @@ function versionsRemoteRetrive( test )
 function versionsPull( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'clone' );
-  let repoPath = path.join( testPath, 'repo' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
 
-  let con = new _.Consequence().take( null );
+  a.shell.predefined.currentPath = a.abs( a.routinePath );
 
-  let shell = _.process.starter
+  a.shell2 = _.process.starter
   ({
-    currentPath : localPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready
   })
 
-  let shell2 = _.process.starter
-  ({
-    currentPath : repoPath,
-    ready : con
-  })
-
-  provider.dirMake( testPath );
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
 
   /* */
 
-  con.then( () =>
+  a.ready.then( () =>
   {
     test.case = 'not git repository';
-    return test.shouldThrowErrorAsync( _.git.versionsPull({ localPath }) );
+    return test.shouldThrowErrorAsync( _.git.versionsPull({ localPath : a.abs( a.routinePath, 'clone' ) }) );
   })
 
   .then( () =>
   {
     test.case = 'setup repo';
-    provider.filesDelete( repoPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
     return _.process.start
     ({
-      execPath : 'git clone ' + remotePath + ' ' + path.name( repoPath ),
-      currentPath : testPath,
+      execPath : 'git clone ' + remotePath + ' ' + a.path.name( a.abs( a.routinePath, 'repo' ) ),
+      currentPath : a.abs( a.routinePath ),
     })
   })
 
@@ -347,22 +336,22 @@ function versionsPull( test )
   .then( () =>
   {
     test.case = 'setup';
-    provider.filesDelete( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
     return _.process.start
     ({
-      execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-      currentPath : testPath,
+      execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+      currentPath : a.abs( a.routinePath ),
     })
   })
 
   /* */
 
-  con.then( () =>
+  a.ready.then( () =>
   {
     test.case = 'no changes';
-    return _.git.versionsPull({ localPath });
+    return _.git.versionsPull({ localPath : a.abs( a.routinePath, 'clone' ) });
   })
-  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
+  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
   .then( ( got ) =>
   {
     test.identical( got, [ 'master' ] );
@@ -373,7 +362,7 @@ function versionsPull( test )
       outputCollecting : 1,
       throwingExitCode : 0,
       mode : 'shell',
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'clone' ),
     })
   })
   .then( ( got ) =>
@@ -389,15 +378,15 @@ function versionsPull( test )
 
   /* */
 
-  con.then( () =>
+  a.ready.then( () =>
   {
     test.case = 'new branch on remote';
     return null;
   })
-  shell2( 'git checkout -b feature' )
-  shell( 'git fetch' )
-  .then( () => _.git.versionsPull({ localPath }) )
-  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
+  a.shell2( 'git checkout -b feature' )
+  a.shell( 'git fetch' )
+  .then( () => _.git.versionsPull({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
   .then( ( got ) =>
   {
     test.identical( got, [ 'feature', 'master' ] );
@@ -408,7 +397,7 @@ function versionsPull( test )
       outputCollecting : 1,
       throwingExitCode : 0,
       mode : 'shell',
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'clone' ),
     })
   })
   .then( ( got ) =>
@@ -424,18 +413,18 @@ function versionsPull( test )
 
   /* */
 
-  con.then( () =>
+  a.ready.then( () =>
   {
     test.case = 'new commits on remote';
     return null;
   })
-  shell2( 'git checkout master' )
-  shell2( 'git commit --allow-empty -m test1' )
-  shell2( 'git checkout feature' )
-  shell2( 'git commit --allow-empty -m test2' )
-  shell( 'git fetch' )
-  .then( () => _.git.versionsPull({ localPath }) )
-  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
+  a.shell2( 'git checkout master' )
+  a.shell2( 'git commit --allow-empty -m test1' )
+  a.shell2( 'git checkout feature' )
+  a.shell2( 'git commit --allow-empty -m test2' )
+  a.shell( 'git fetch' )
+  .then( () => _.git.versionsPull({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
   .then( ( got ) =>
   {
     test.identical( got, [ 'feature', 'master' ] );
@@ -446,7 +435,7 @@ function versionsPull( test )
       outputCollecting : 1,
       throwingExitCode : 0,
       mode : 'shell',
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'clone' ),
     })
   })
   .then( ( got ) =>
@@ -460,7 +449,173 @@ function versionsPull( test )
     return null;
   })
 
-  return con;
+  return a.ready;
+
+  // ----------PREVIOUS VERSION OF TEST ROUTINE -----------------------------------------------------------------------
+  // let context = this;
+  // let provider = context.provider;
+  // let path = provider.path;
+  // let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
+  // let localPath = path.join( testPath, 'clone' );
+  // let repoPath = path.join( testPath, 'repo' );
+  // let repoPathNative = path.nativize( repoPath );
+  // let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+
+  // let con = new _.Consequence().take( null );
+
+  // let shell = _.process.starter
+  // ({
+  //   currentPath : localPath,
+  //   ready : con
+  // })
+
+  // let shell2 = _.process.starter
+  // ({
+  //   currentPath : repoPath,
+  //   ready : con
+  // })
+
+  // provider.dirMake( testPath );
+
+  // /* */
+
+  // con.then( () =>
+  // {
+  //   test.case = 'not git repository';
+  //   return test.shouldThrowErrorAsync( _.git.versionsPull({ localPath }) );
+  // })
+
+  // .then( () =>
+  // {
+  //   test.case = 'setup repo';
+  //   provider.filesDelete( repoPath );
+  //   return _.process.start
+  //   ({
+  //     execPath : 'git clone ' + remotePath + ' ' + path.name( repoPath ),
+  //     currentPath : testPath,
+  //   })
+  // })
+
+  // /* */
+
+  // .then( () =>
+  // {
+  //   test.case = 'setup';
+  //   provider.filesDelete( localPath );
+  //   return _.process.start
+  //   ({
+  //     execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+  //     currentPath : testPath,
+  //   })
+  // })
+
+  // /* */
+
+  // con.then( () =>
+  // {
+  //   test.case = 'no changes';
+  //   return _.git.versionsPull({ localPath });
+  // })
+  // .then( () => _.git.versionsRemoteRetrive({ localPath }) )
+  // .then( ( got ) =>
+  // {
+  //   test.identical( got, [ 'master' ] );
+  //   let execPath = got.map(( branch ) => `git checkout ${branch} && git status` )
+  //   return _.process.start
+  //   ({
+  //     execPath : execPath,
+  //     outputCollecting : 1,
+  //     throwingExitCode : 0,
+  //     mode : 'shell',
+  //     currentPath : localPath,
+  //   })
+  // })
+  // .then( ( got ) =>
+  // {
+  //   test.identical( got.length, 1 );
+  //   _.each( got, ( result ) =>
+  //   {
+  //     test.identical( result.exitCode, 0 );
+  //     test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
+  //   })
+  //   return null;
+  // })
+
+  // /* */
+
+  // con.then( () =>
+  // {
+  //   test.case = 'new branch on remote';
+  //   return null;
+  // })
+  // shell2( 'git checkout -b feature' )
+  // shell( 'git fetch' )
+  // .then( () => _.git.versionsPull({ localPath }) )
+  // .then( () => _.git.versionsRemoteRetrive({ localPath }) )
+  // .then( ( got ) =>
+  // {
+  //   test.identical( got, [ 'feature', 'master' ] );
+  //   let execPath = got.map(( branch ) => `git checkout ${branch} && git status` )
+  //   return _.process.start
+  //   ({
+  //     execPath : execPath,
+  //     outputCollecting : 1,
+  //     throwingExitCode : 0,
+  //     mode : 'shell',
+  //     currentPath : localPath,
+  //   })
+  // })
+  // .then( ( got ) =>
+  // {
+  //   test.identical( got.length, 2 );
+  //   _.each( got, ( result ) =>
+  //   {
+  //     test.identical( result.exitCode, 0 );
+  //     test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
+  //   })
+  //   return null;
+  // })
+
+  // /* */
+
+  // con.then( () =>
+  // {
+  //   test.case = 'new commits on remote';
+  //   return null;
+  // })
+  // shell2( 'git checkout master' )
+  // shell2( 'git commit --allow-empty -m test1' )
+  // shell2( 'git checkout feature' )
+  // shell2( 'git commit --allow-empty -m test2' )
+  // shell( 'git fetch' )
+  // .then( () => _.git.versionsPull({ localPath }) )
+  // .then( () => _.git.versionsRemoteRetrive({ localPath }) )
+  // .then( ( got ) =>
+  // {
+  //   test.identical( got, [ 'feature', 'master' ] );
+  //   let execPath = got.map(( branch ) => `git checkout ${branch} && git status` )
+  //   return _.process.start
+  //   ({
+  //     execPath : execPath,
+  //     outputCollecting : 1,
+  //     throwingExitCode : 0,
+  //     mode : 'shell',
+  //     currentPath : localPath,
+  //   })
+  // })
+  // .then( ( got ) =>
+  // {
+  //   test.identical( got.length, 2 );
+  //   _.each( got, ( result ) =>
+  //   {
+  //     test.identical( result.exitCode, 0 );
+  //     test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
+  //   })
+  //   return null;
+  // })
+
+  // return con;
+  //-----------------------------------------------------------------------------------------------------------
 }
 
 function versionIsCommitHash( test )
@@ -4655,12 +4810,11 @@ function statusLocalExtended( test )
   let context = this;
   let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
-  //REVISIT LATER------------------------------------------------------------------------------------------------
-  let join = _.routineJoin( _.path, _.path.join );
-  let write = _.routineJoin( _.fileProvider, _.fileProvider.fileWrite );
-  let filesDelete = _.routineJoin( _.fileProvider, _.fileProvider.filesDelete );
-  let rename = _.routineJoin( _.fileProvider, _.fileProvider.fileRename );
-  //-------------------------------------------------------------------------------------------------------------
+  let join = _.routineJoin( a.path, a.path.join );
+  let write = _.routineJoin( a.fileProvider, a.fileProvider.fileWrite );
+  let filesDelete = _.routineJoin( a.fileProvider, a.fileProvider.filesDelete );
+  let rename = _.routineJoin( a.fileProvider, a.fileProvider.fileRename );
+
   a.shell2 = _.process.starter
   ({
     currentPath : a.abs( a.routinePath, 'repo' ),
@@ -14788,45 +14942,43 @@ gitHooksManager.timeOut = 30000;
 
 function gitHooksManagerErrors( test )
 {
-  let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'repo' )
-  let hooksPath = path.join( localPath, './.git/hooks' )
-
-  let hookName = 'post-commit';
-  let handlerName = hookName + '.custom';
-  let originalHookPath = path.join( hooksPath, hookName );
-  let hookHandlerPath = path.join( hooksPath, handlerName );
-  let wasOriginalHookPath = originalHookPath + '.was'
-
-  let handlerCodePath = path.join( testPath, hookName + '.source' );
-  let handlerCode =
-  `#!/bin/sh
-    echo "Custom handler executed."
-  `
-  var specialComment = 'This script is generated by utility willbe';
-
-  let ready = new _.Consequence().take( null )
-
   // let context = this;
-  // let a = test.assetFor( 'basic' );
-  // let hookName = 'post-commit';
-  // let handlerName = hookName + '.custom';
-  // // let wasOriginalHookPath = a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was';
+  // 1 let provider = context.provider;
+  // let path = provider.path;
+  //1 let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
+  // 1 let localPath = path.join( testPath, 'repo' )
+  // 1 hooksPath = path.join( localPath, './.git/hooks' )
+
+  // 1 let hookName = 'post-commit';
+  // 1 let handlerName = hookName + '.custom';
+  // 1 let originalHookPath = path.join( hooksPath, hookName );
+  // 1 let hookHandlerPath = path.join( hooksPath, handlerName );
+  //1  let wasOriginalHookPath = originalHookPath + '.was'
+
+  // let handlerCodePath = path.join( testPath, hookName + '.source' );
   // let handlerCode =
   // `#!/bin/sh
   //   echo "Custom handler executed."
-  // `;
+  // `
   // var specialComment = 'This script is generated by utility willbe';
-  // !let provider = context.provider;
+
+  // let ready = new _.Consequence().take( null )
+
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  let hookName = 'post-commit';
+  let handlerName = hookName + '.custom';
+  // let wasOriginalHookPath = a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was';
+  let handlerCode =
+  `#!/bin/sh
+  //   echo "Custom handler executed."
+  // `;
+  var specialComment = 'This script is generated by utility willbe';
+  // let provider = context.provider;a.fileProvider
   // let path = provider.path;
-  //! let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  //! let localPath = path.join( testPath, 'repo' )
   //! let hooksPath = path.join( localPath, './.git/hooks' ) - > a.abs( a.routinePath, 'repo', './.git/hooks' )
-  // let originalHookPath = path.join( hooksPath, hookName ); --> a.abs( hooksPath, hookName )
-  // let hookHandlerPath = path.join( hooksPath, handlerName ); --> a.abs( hooksPath, handlerName )
+  // let originalHookPath = path.join( hooksPath, hookName ); --> a.abs( a.routinePath, 'repo', './.git/hooks', hookName )
+  // let hookHandlerPath = path.join( hooksPath, handlerName ); --> a.abs( a.routinePath, 'repo', './.git/hooks', handlerName )
   // let handlerCodePath = path.join( testPath, hookName + '.source' ); -- > a.abs( a.routinePath, hookName + '.source' )
 
   /*
@@ -14838,21 +14990,22 @@ function gitHooksManagerErrors( test )
     - Rewriting of existing hook
   */
 
+  a.ready
   .then( () =>
   {
     test.case = 'No git repository';
 
-    provider.filesDelete( localPath );
-    provider.fileWrite( handlerCodePath, handlerCode )
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
 
     test.shouldThrowErrorSync( () =>
     {
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
-        handlerName : handlerName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
@@ -14865,15 +15018,15 @@ function gitHooksManagerErrors( test )
   {
     test.case = 'No source file';
 
-    provider.filesDelete( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
     test.shouldThrowErrorSync( () =>
     {
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
-        handlerName : handlerName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
@@ -14891,43 +15044,43 @@ function gitHooksManagerErrors( test )
 
     con.then( () =>
     {
-      let files = provider.dirRead( hooksPath );
-      let samples = files.filter( ( file ) => path.ext( file ) === 'sample' );
+      let files = a.fileProvider.dirRead( a.abs( a.routinePath, 'repo', './.git/hooks' ) );
+      let samples = files.filter( ( file ) => a.path.ext( file ) === 'sample' );
       test.will = 'only sample hooks are registered'
       test.identical( files.length, samples.length );
 
       test.will = 'original hook does not exist';
-      test.is( !provider.fileExists( originalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
-      provider.fileWrite( handlerCodePath, handlerCode )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
 
       test.shouldThrowErrorSync( () =>
       {
         _.git.hookRegister
         ({
-          repoPath : localPath,
-          filePath : handlerCodePath,
+          repoPath : a.abs( a.routinePath, 'repo' ),
+          filePath : a.abs( a.routinePath, hookName + '.source' ),
           hookName : 'some-random-hook',
-          handlerName : handlerName,
+          handlerName,
           throwing : 1,
           rewriting : 0
         })
       })
 
       test.will = 'hook runner was not created';
-      test.is( !provider.fileExists( originalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'hook handler was not created'
-      test.is( !provider.fileExists( hookHandlerPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) ) );
 
       test.will = 'copy of original hook was not created';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       test.will = 'hooks directory stays the same as before';
-      let filesNow = provider.dirRead( hooksPath );
+      let filesNow = a.fileProvider.dirRead( a.abs( a.routinePath, 'repo', './.git/hooks' ) );
       test.identical( filesNow, files );
 
       return null;
@@ -14945,25 +15098,25 @@ function gitHooksManagerErrors( test )
 
     con.then( () =>
     {
-      let files = provider.dirRead( hooksPath );
-      let samples = files.filter( ( file ) => path.ext( file ) === 'sample' );
+      let files = a.fileProvider.dirRead( a.abs( a.routinePath, 'repo', './.git/hooks' ) );
+      let samples = files.filter( ( file ) => a.path.ext( file ) === 'sample' );
       test.will = 'only sample hooks are registered'
       test.identical( files.length, samples.length );
 
       test.will = 'original hook does not exist';
-      test.is( !provider.fileExists( originalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
-      provider.fileWrite( handlerCodePath, handlerCode )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
 
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
-        handlerName : handlerName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
@@ -14972,9 +15125,9 @@ function gitHooksManagerErrors( test )
       {
         _.git.hookRegister
         ({
-          repoPath : localPath,
-          filePath : handlerCodePath,
-          hookName : hookName,
+          repoPath : a.abs( a.routinePath, 'repo' ),
+          filePath : a.abs( a.routinePath, hookName + '.source' ),
+          hookName,
           handlerName : hookName,
           throwing : 1,
           rewriting : 0
@@ -14982,17 +15135,17 @@ function gitHooksManagerErrors( test )
       })
 
       test.will = 'hook runner stays';
-      test.is( provider.fileExists( originalHookPath ) );
-      let hookRead = provider.fileRead( originalHookPath );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
+      let hookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) );
       test.is( _.strHas( hookRead, specialComment ) )
 
       test.will = 'first hook handler stays'
-      test.is( provider.fileExists( hookHandlerPath ) );
-      let customHookRead = provider.fileRead( hookHandlerPath );
-      test.identical( customHookRead,handlerCode );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) ) );
+      let customHookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) );
+      test.identical( customHookRead, handlerCode );
 
       test.will = 'copy of original hook was not created';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -15009,25 +15162,25 @@ function gitHooksManagerErrors( test )
 
     con.then( () =>
     {
-      let files = provider.dirRead( hooksPath );
-      let samples = files.filter( ( file ) => path.ext( file ) === 'sample' );
+      let files = a.fileProvider.dirRead( a.abs( a.routinePath, 'repo', './.git/hooks' ) );
+      let samples = files.filter( ( file ) => a.path.ext( file ) === 'sample' );
       test.will = 'only sample hooks are registered'
       test.identical( files.length, samples.length );
 
       test.will = 'original hook does not exist';
-      test.is( !provider.fileExists( originalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
-      provider.fileWrite( handlerCodePath, handlerCode )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
 
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
-        handlerName : handlerName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
@@ -15038,9 +15191,9 @@ function gitHooksManagerErrors( test )
       {
         _.git.hookRegister
         ({
-          repoPath : localPath,
-          filePath : handlerCodePath,
-          hookName : hookName,
+          repoPath : a.abs( a.routinePath, 'repo' ),
+          filePath : a.abs( a.routinePath, hookName + '.source' ),
+          hookName,
           handlerName : handlerName2,
           throwing : 1,
           rewriting : 0
@@ -15048,20 +15201,20 @@ function gitHooksManagerErrors( test )
       })
 
       test.will = 'hook runner stays';
-      test.is( provider.fileExists( originalHookPath ) );
-      let hookRead = provider.fileRead( originalHookPath );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
+      let hookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) );
       test.is( _.strHas( hookRead, specialComment ) )
 
       test.will = 'first hook handler stays'
-      test.is( provider.fileExists( hookHandlerPath ) );
-      let customHookRead = provider.fileRead( hookHandlerPath );
-      test.identical( customHookRead,handlerCode );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) ) );
+      let customHookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) );
+      test.identical( customHookRead, handlerCode );
 
       test.will = 'second hook handler does not exist'
-      test.is( !provider.fileExists( path.join( hooksPath, handlerName2 ) ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName2 ) ) );
 
       test.will = 'copy of original hook was not created';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -15078,25 +15231,25 @@ function gitHooksManagerErrors( test )
 
     con.then( () =>
     {
-      let files = provider.dirRead( hooksPath );
-      let samples = files.filter( ( file ) => path.ext( file ) === 'sample' );
+      let files = a.fileProvider.dirRead( a.abs( a.routinePath, 'repo', './.git/hooks' ) );
+      let samples = files.filter( ( file ) => a.path.ext( file ) === 'sample' );
       test.will = 'only sample hooks are registered'
       test.identical( files.length, samples.length );
 
       test.will = 'original hook does not exist';
-      test.is( !provider.fileExists( originalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
-      provider.fileWrite( handlerCodePath, handlerCode )
+      a.fileProvider.fileWrite( a.abs( a.routinePath, hookName + '.source' ), handlerCode )
 
       _.git.hookRegister
       ({
-        repoPath : localPath,
-        filePath : handlerCodePath,
-        hookName : hookName,
-        handlerName : handlerName,
+        repoPath : a.abs( a.routinePath, 'repo' ),
+        filePath : a.abs( a.routinePath, hookName + '.source' ),
+        hookName,
+        handlerName,
         throwing : 1,
         rewriting : 0
       })
@@ -15105,27 +15258,27 @@ function gitHooksManagerErrors( test )
       {
         _.git.hookRegister
         ({
-          repoPath : localPath,
-          filePath : handlerCodePath,
-          hookName : hookName,
-          handlerName : handlerName,
+          repoPath : a.abs( a.routinePath, 'repo' ),
+          filePath : a.abs( a.routinePath, hookName + '.source' ),
+          hookName,
+          handlerName,
           throwing : 1,
           rewriting : 0
         })
       })
 
       test.will = 'hook runner stays';
-      test.is( provider.fileExists( originalHookPath ) );
-      let hookRead = provider.fileRead( originalHookPath );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) ) );
+      let hookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) );
       test.is( _.strHas( hookRead, specialComment ) );
 
       test.will = 'first hook handler stays'
-      test.is( provider.fileExists( hookHandlerPath ) );
-      let customHookRead = provider.fileRead( hookHandlerPath );
-      test.identical( customHookRead,handlerCode );
+      test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) ) );
+      let customHookRead = a.fileProvider.fileRead( a.abs( a.routinePath, 'repo', './.git/hooks', handlerName ) );
+      test.identical( customHookRead, handlerCode );
 
       test.will = 'copy of original hook was not created';
-      test.is( !provider.fileExists( wasOriginalHookPath ) );
+      test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -15133,7 +15286,7 @@ function gitHooksManagerErrors( test )
     return con;
   })
 
-  return ready;
+  return a.ready;
 
   /* - */
 
@@ -15143,14 +15296,14 @@ function gitHooksManagerErrors( test )
 
     let shell = _.process.starter
     ({
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'repo' ),
       ready : con
     })
 
     con.then( () =>
     {
-      provider.filesDelete( localPath );
-      provider.dirMake( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
       let filesTree =
       {
         'proto' :
@@ -15159,7 +15312,7 @@ function gitHooksManagerErrors( test )
         }
       }
       let extract = new _.FileProvider.Extract({ filesTree })
-      extract.filesReflectTo( provider, localPath );
+      extract.filesReflectTo( context.provider, a.abs( a.routinePath, 'repo' ) );
       return null;
     })
 
@@ -15176,31 +15329,21 @@ function gitHooksManagerErrors( test )
 function hookTrivial( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
+  let a = test.assetFor( 'basic' );
 
-  provider.dirMake( testPath );
+  a.fileProvider.dirMake( a.abs( a.routinePath ) );
 
-  let con = new _.Consequence().take( null );
+  a.shell.predefined.throwingExitCode = 0;
+  a.shell.predefined.outputCollecting = 1;
 
-  let shell = _.process.starter
-  ({
-    currentPath : testPath,
-    throwingExitCode : 0,
-    outputCollecting : 1,
-    ready : con
-  })
-
-  shell( 'git init' )
-
+  a.shell( 'git init' )
   .then( () =>
   {
     let sourceCode = '#!/usr/bin/env node\n' +  'process.exit( 1 )';
-    let tempPath = _.process.tempOpen({ sourceCode : sourceCode });
+    let tempPath = _.process.tempOpen({ sourceCode });
     _.git.hookRegister
     ({
-      repoPath : testPath,
+      repoPath : a.abs( a.routinePath ),
       filePath : tempPath,
       handlerName : 'pre-commit.commitHandler',
       hookName : 'pre-commit',
@@ -15208,14 +15351,14 @@ function hookTrivial( test )
       rewriting : 0
     })
     _.process.tempClose({ filePath : tempPath });
-    test.is( provider.fileExists( path.join( testPath, './.git/hooks/pre-commit' ) ) );
-    test.is( provider.fileExists( path.join( testPath, './.git/hooks/pre-commit.commitHandler' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, './.git/hooks/pre-commit' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, './.git/hooks/pre-commit.commitHandler' ) ) );
 
     return null;
   })
 
-  shell( 'git commit --allow-empty -m test' )
-  shell( 'git log -n 1' )
+  a.shell( 'git commit --allow-empty -m test' )
+  a.shell( 'git log -n 1' )
 
   .then( ( got ) =>
   {
@@ -15226,25 +15369,25 @@ function hookTrivial( test )
 
   .then( () =>
   {
-    test.is( provider.fileExists( path.join( testPath, './.git/hooks/pre-commit' ) ) );
-    test.is( provider.fileExists( path.join( testPath, './.git/hooks/pre-commit.commitHandler' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs ( a.routinePath, './.git/hooks/pre-commit' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs ( a.routinePath, './.git/hooks/pre-commit.commitHandler' ) ) );
 
     _.git.hookUnregister
     ({
-      repoPath : testPath,
+      repoPath : a.abs( a.routinePath ),
       handlerName : 'pre-commit.commitHandler',
       force : 0,
       throwing : 1
     })
 
-    test.is( provider.fileExists( path.join( testPath, './.git/hooks/pre-commit' ) ) );
-    test.is( !provider.fileExists( path.join( testPath, './.git/hooks/pre-commit.commitHandler' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, './.git/hooks/pre-commit' ) ) );
+    test.is( !a.fileProvider.fileExists( a.abs( a.routinePath, './.git/hooks/pre-commit.commitHandler' ) ) );
 
     return null;
   })
 
-  shell( 'git commit --allow-empty -m test' )
-  shell( 'git log -n 1' )
+  a.shell( 'git commit --allow-empty -m test' )
+  a.shell( 'git log -n 1' )
 
   .then( ( got ) =>
   {
@@ -15253,7 +15396,7 @@ function hookTrivial( test )
     return got;
   })
 
-  return con;
+  return a.ready;
 
 }
 
@@ -15262,25 +15405,18 @@ function hookTrivial( test )
 function hookPreservingHardLinks( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'clone' );
-  let repoPath = path.join( testPath, 'repo' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
 
-  let con = new _.Consequence().take( null );
-
-  let shellClone = _.process.starter
+  a.shellClone = _.process.starter
   ({
-    currentPath : localPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'clone' ),
+    ready : a.ready
   })
 
-  let shellRepo = _.process.starter
+  a.shellRepo = _.process.starter
   ({
-    currentPath : repoPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready
   })
 
   let filesTree =
@@ -15306,116 +15442,116 @@ function hookPreservingHardLinks( test )
 
   .then( () =>
   {
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'a', 'b' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), 'dir', [ 'a', 'b' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), 'dir', [ 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), 'dir', [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'a', 'dir/a' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'b', 'dir/b' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'c', 'dir/c' ] ) ), false );
 
     return null;
   })
 
-  .then( () => _.git.hookPreservingHardLinksRegister( localPath ) );
+  .then( () => _.git.hookPreservingHardLinksRegister( a.abs( a.routinePath, 'clone' ) ) );
 
-  shellRepo( 'git commit --allow-empty -m test' )
-  shellClone( 'git pull' )
+  a.shellRepo( 'git commit --allow-empty -m test' )
+  a.shellClone( 'git pull' )
 
   .then( () =>
   {
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'a', 'b' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), 'dir', [ 'a', 'b' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), 'dir', [ 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), 'dir', [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), true );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), true );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'a', 'dir/a' ] ) ), true );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'b', 'dir/b' ] ) ), true );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'c', 'dir/c' ] ) ), false );
 
     debugger
 
     return null;
   })
 
-  .then( () => _.git.hookPreservingHardLinksUnregister( localPath ) )
+  .then( () => _.git.hookPreservingHardLinksUnregister( a.abs( a.routinePath, 'clone' ) ) )
 
   .then( () =>
   {
-    provider.fileWrite( path.join( repoPath, 'a' ), 'a1' )
-    provider.fileWrite( path.join( repoPath, 'b' ), 'b1' )
-    provider.fileWrite( path.join( repoPath, 'c' ), 'c1' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'a' ), 'a1' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'b' ), 'b1' )
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'c' ), 'c1' )
     return null;
   })
 
-  shellRepo( 'git add .' )
-  shellRepo( 'git commit --allow-empty -m test2' )
-  shellClone( 'git pull' )
+  a.shellRepo( 'git add .' )
+  a.shellRepo( 'git commit --allow-empty -m test2' )
+  a.shellClone( 'git pull' )
 
   .then( () =>
   {
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'c' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'a', 'b' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'b', 'c' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, 'dir', [ 'a', 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), 'dir', [ 'a', 'b' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), 'dir', [ 'b', 'c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), 'dir', [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'a', 'dir/a' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'b', 'dir/b' ] ) ), false );
-    test.identical( provider.areHardLinked( path.s.join( localPath, [ 'c', 'dir/c' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'a', 'dir/a' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'b', 'dir/b' ] ) ), false );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( a.routinePath, 'clone' ), [ 'c', 'dir/c' ] ) ), false );
 
     return null;
   })
 
-  return con;
+  return a.ready;
 
   /*  */
 
   function prepareRepo()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( testPath );
-      provider.dirMake( testPath )
-      provider.dirMake( repoPath )
+      a.fileProvider.filesDelete( a.abs( a.routinePath ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath ) )
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) )
 
-      extract.filesReflectTo( provider, repoPath );
+      extract.filesReflectTo( context.provider, a.abs( a.routinePath, 'repo' ) );
       return null;
     })
 
-    shellRepo( 'git init' )
-    shellRepo( 'git add .' )
-    shellRepo( 'git commit -m init' )
+    a.shellRepo( 'git init' )
+    a.shellRepo( 'git add .' )
+    a.shellRepo( 'git commit -m init' )
 
-    return con;
+    return a.ready;
   }
 
   //
 
   function prepareClone()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( localPath );
-      provider.dirMake( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'clone' ) );
 
       return _.process.start
       ({
-        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-        currentPath : testPath
+        execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+        currentPath : a.abs( a.routinePath )
       })
     })
 
-    return con;
+    return a.ready;
   }
 
 }
@@ -15425,32 +15561,21 @@ function hookPreservingHardLinks( test )
 function renormalize( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let repoPath = path.join( testPath, 'repo' );
-  let clonePath = path.join( testPath, 'clone' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
   let file1Data = 'abc\n';
   let file1DataCrlf = 'abc\r\n';
 
-  let con = new _.Consequence().take( null );
+  a.shell.predefined.currentPath = a.abs( a.routinePath, 'repo' );
 
-  let shell = _.process.starter
+  a.shell2 = _.process.starter
   ({
-    currentPath : repoPath,
-    ready : con
+    currentPath : a.abs( a.routinePath ),
+    ready : a.ready
   })
 
-  let shell2 = _.process.starter
+  a.shell3 = _.process.starter
   ({
-    currentPath : testPath,
-    ready : con
-  })
-
-  let shell3 = _.process.starter
-  ({
-    currentPath : clonePath,
+    currentPath : a.abs( a.routinePath, 'clone' ),
     sync : 1
   })
 
@@ -15458,16 +15583,16 @@ function renormalize( test )
   clone()
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
     return null;
@@ -15481,19 +15606,19 @@ function renormalize( test )
   {
     test.case = 'local uncommited change'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    provider.fileWrite( path.join( clonePath, 'file1' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'file1' ), 'data' );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, 'data' );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, true );
     test.identical( config.core.eol, undefined );
 
@@ -15508,19 +15633,19 @@ function renormalize( test )
   {
     test.case = 'local uncommited change, safe:0'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    provider.fileWrite( path.join( clonePath, 'file1' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'file1' ), 'data' );
 
-    return _.git.renormalize({ localPath : clonePath, safe : 0 });
+    return _.git.renormalize({ localPath : a.abs( a.routinePath, 'clone' ), safe : 0 });
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
 
@@ -15536,24 +15661,24 @@ function renormalize( test )
   {
     test.case = 'local uncommited file'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    provider.fileWrite( path.join( clonePath, 'file2' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'file2' ), 'data' );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    test.is( provider.fileExists( path.join( clonePath, 'file2' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', 'file2' ) ) );
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    let file2 = provider.fileRead( path.join( clonePath, 'file2' ) );
+    let file2 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file2' ) );
     test.identical( file2, 'data' );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, true );
 
     return null;
@@ -15567,24 +15692,24 @@ function renormalize( test )
   {
     test.case = 'local uncommited file'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    provider.fileWrite( path.join( clonePath, 'file2' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'file2' ), 'data' );
 
-    return _.git.renormalize({ localPath : clonePath, safe : 0 });
+    return _.git.renormalize({ localPath : a.abs( a.routinePath, 'clone' ), safe : 0 });
   })
   .then( () =>
   {
-    test.is( provider.fileExists( path.join( clonePath, 'file2' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', 'file2' ) ) );
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    let file2 = provider.fileRead( path.join( clonePath, 'file2' ) );
+    let file2 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file2' ) );
     test.identical( file2, 'data' );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
 
@@ -15599,27 +15724,27 @@ function renormalize( test )
   {
     test.case = 'local unpushed commit, safe'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    provider.fileWrite( path.join( clonePath, 'file1' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( a.routinePath, 'clone', 'file1' ), 'data' );
 
-    shell3( 'git commit -am change' );
+    a.shell3( 'git commit -am change' );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, 'data' );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, true );
     test.identical( config.core.eol, undefined );
 
     let status = _.git.statusLocal
     ({
-      localPath : clonePath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       detailing : 1,
       unpushed : 1,
@@ -15640,27 +15765,27 @@ function renormalize( test )
   {
     test.case = 'local unpushed commit, safe:0'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    shell3( 'git commit -m change --allow-empty' );
+    a.shell3( 'git commit -m change --allow-empty' );
 
-    return _.git.renormalize({ localPath : clonePath, safe : 0 });
+    return _.git.renormalize({ localPath : a.abs( a.routinePath, 'clone' ), safe : 0 });
   })
   .then( () =>
   {
-    shell3( 'git status' );
+    a.shell3( 'git status' );
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
     test.identical( config.core.eol, undefined );
 
     let status = _.git.statusLocal
     ({
-      localPath : clonePath,
+      localPath : a.abs( a.routinePath, 'clone' ),
       uncommitted : 1,
       detailing : 1,
       unpushed : 1,
@@ -15673,41 +15798,41 @@ function renormalize( test )
     return null;
   })
 
-  return con;
+  return a.ready;
 
   /* - */
 
   function prepare()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( testPath );
-      provider.dirMake( testPath )
-      provider.dirMake( repoPath )
+      a.fileProvider.filesDelete( a.abs( a.routinePath ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath ) )
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) )
 
-      provider.fileWrite( path.join( repoPath, 'file1' ), file1Data );
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file1' ), file1Data );
 
       return null;
     })
 
-    shell( 'git init' )
-    shell( 'git add -fA .' )
-    shell( 'git commit -m init' )
+    a.shell( 'git init' )
+    a.shell( 'git add -fA .' )
+    a.shell( 'git commit -m init' )
 
-    return con;
+    return a.ready;
   }
 
   function clone()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( clonePath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return null;
     })
 
-    shell2( 'git clone repo clone --config core.autocrlf=true' )
+    a.shell2( 'git clone repo clone --config core.autocrlf=true' )
 
-    return con;
+    return a.ready;
   }
 
 }
@@ -15719,28 +15844,15 @@ renormalize.timeOut = 30000;
 function renormalizeOriginHasAttributes( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let repoPath = path.join( testPath, 'repo' );
-  let clonePath = path.join( testPath, 'clone' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
   let file1Data = 'abc\n';
   let file1DataCrlf = 'abc\r\n';
   let eolConfig = globalGitEolGet();
 
-  let con = new _.Consequence().take( null );
-
-  let shell = _.process.starter
+  a.shell2 = _.process.starter
   ({
-    currentPath : repoPath,
-    ready : con
-  })
-
-  let shell2 = _.process.starter
-  ({
-    currentPath : testPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready
   })
 
   /* - */
@@ -15751,19 +15863,19 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = 'eol=lf in gitattributes'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
     return null;
@@ -15778,21 +15890,20 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = 'eol=crlf in gitattributes'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1DataCrlf );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
-
 
     return null;
   })
@@ -15806,21 +15917,20 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = 'gitattributes without eol'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
-
 
     return null;
   })
@@ -15833,21 +15943,20 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = 'gitattributes without eol, core.eol=lf'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
-
 
     return null;
   })
@@ -15860,21 +15969,20 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = 'gitattributes without eol, core.eol=crlf'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
-
 
     return null;
   })
@@ -15887,24 +15995,24 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = 'text in gitattributes'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
 
     if( eolConfig === 'lf' )
     test.identical( file1, file1Data );
     else
     test.identical( file1, file1DataCrlf );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
 
@@ -15920,19 +16028,19 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = 'text in gitattributes, core.eol=lf'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
 
@@ -15947,19 +16055,19 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = 'text in gitattributes, core.eol=crlf'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1DataCrlf );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
 
@@ -15975,23 +16083,23 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = 'eol=auto in gitattributes'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
 
     if( eolConfig === 'lf')
     test.identical( file1, file1Data );
     else
     test.identical( file1, file1DataCrlf );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
 
@@ -16006,19 +16114,19 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = 'eol=auto in gitattributes, core.eol=lf'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
 
@@ -16033,20 +16141,20 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = 'eol=auto in gitattributes, core.eol=crlf'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
 
     test.identical( file1, file1DataCrlf );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
 
@@ -16061,19 +16169,19 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = '-text in gitattributes'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
 
@@ -16088,19 +16196,19 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = '-text in gitattributes, core.eol=lf'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
 
@@ -16115,26 +16223,26 @@ function renormalizeOriginHasAttributes( test )
   {
     test.case = '-text in gitattributes, core.eol=crlf'
 
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    return _.git.renormalize( clonePath );
+    return _.git.renormalize( a.abs( a.routinePath, 'clone' ) );
   })
   .then( () =>
   {
-    let file1 = provider.fileRead( path.join( clonePath, 'file1' ) );
+    let file1 = a.fileProvider.fileRead( a.abs( a.routinePath, 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( provider.fileExists( path.join( clonePath, '.gitattributes') ) );
+    test.is( a.fileProvider.fileExists( a.abs( a.routinePath, 'clone', '.gitattributes') ) );
 
-    let config = _.git.configRead( clonePath );
+    let config = _.git.configRead( a.abs( a.routinePath, 'clone' ) );
     test.identical( config.core.autocrlf, false );
 
 
     return null;
   })
 
-  return con;
+  return a.ready;
 
   /* - */
 
@@ -16142,42 +16250,42 @@ function renormalizeOriginHasAttributes( test )
   {
     o = o || {};
 
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( testPath );
-      provider.dirMake( testPath )
-      provider.dirMake( repoPath )
+      a.fileProvider.filesDelete( a.abs( a.routinePath ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath ) )
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) )
 
-      provider.fileWrite( path.join( repoPath, 'file1' ), file1Data );
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', 'file1' ), file1Data );
 
       if( o.attributes )
-      provider.fileWrite( path.join( repoPath, '.gitattributes' ), o.attributes );
+      a.fileProvider.fileWrite( a.abs( a.routinePath, 'repo', '.gitattributes' ), o.attributes );
 
       return null;
     })
 
-    shell( 'git init' )
-    shell( 'git add -fA .' )
-    shell( 'git commit -m init' )
+    a.shell2( 'git init' )
+    a.shell2( 'git add -fA .' )
+    a.shell2( 'git commit -m init' )
 
-    return con;
+    return a.ready;
   }
 
   function clone( o )
   {
     o = o || {}
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( clonePath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return null;
     })
 
-    shell2( 'git clone repo clone --config core.autocrlf=true' )
+    a.shell( 'git clone repo clone --config core.autocrlf=true' )
 
     if( o.config )
-    shell2( 'git -C clone config ' + o.config )
+    a.shell( 'git -C clone config ' + o.config )
 
-    return con;
+    return a.ready;
   }
 
   function globalGitEolGet()
@@ -16207,19 +16315,19 @@ renormalizeOriginHasAttributes.timeOut = 60000;
 function renormalizeAudit( test )
 {
   let context = this;
+  let a = test.assetFor( 'basic' );
   let provider = context.provider;
   let path = provider.path;
   let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let repoPath = path.join( testPath, 'repo' );
-  let clonePath = path.join( testPath, 'clone' );
+  // let repoPath = path.join( testPath, 'repo' ); // a.abs( testPath, 'repo' )
+  // let clonePath = path.join( testPath, 'clone' ); // a.abs( testPath, 'clone' )
   let file1Data = 'abc\n';
-  let a = test.assetFor( false );
 
   let con = new _.Consequence().take( null );
 
   let shell = _.process.starter
   ({
-    currentPath : repoPath,
+    currentPath : a.abs( testPath, 'repo' ),
     ready : con
   })
 
@@ -16234,8 +16342,8 @@ function renormalizeAudit( test )
     routine : program,
     locals :
     {
-      GitToolsPath : path.nativize( path.resolve( __dirname, '../l3/git/entry/Include.s' ) ),
-      ClonePath : clonePath
+      GitToolsPath : a.path.nativize( a.path.resolve( __dirname, '../l3/git/entry/Include.s' ) ),
+      ClonePath : a.abs( testPath, 'clone' )
     }
   });
 
@@ -16269,12 +16377,12 @@ function renormalizeAudit( test )
     {
       provider.filesDelete( testPath );
       provider.dirMake( testPath )
-      provider.dirMake( repoPath )
+      provider.dirMake( a.abs( testPath, 'repo' ) )
 
-      provider.fileWrite( path.join( repoPath, 'file1' ), file1Data );
+      provider.fileWrite( a.abs( testPath, 'repo', 'file1' ), file1Data );
 
       if( o.attributes )
-      provider.fileWrite( path.join( repoPath, '.gitattributes' ), o.attributes );
+      provider.fileWrite( a.abs( testPath, 'repo', '.gitattributes' ), o.attributes );
 
       return null;
     })
@@ -16291,7 +16399,7 @@ function renormalizeAudit( test )
     o = o || {}
     con.then( () =>
     {
-      provider.filesDelete( clonePath );
+      provider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return null;
     })
 
