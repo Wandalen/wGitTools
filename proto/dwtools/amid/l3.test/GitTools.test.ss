@@ -8543,22 +8543,14 @@ function hasRemote( test )
   return a.ready;
 }
 
+//REVISIT-----------------------------------------------------------------------------------------------------------------------------------
 function isUpToDate( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = context.provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'wPathBasic' );
-
+  let a = test.assetFor( 'basic' );
   let con = new _.Consequence().take( null )
 
-  let shell = _.process.starter
-  ({
-    currentPath : testPath,
-    mode : 'spawn',
-  })
-
+  a.shell.predefined.mode = 'spawn';
 
   con
   .then( () =>
@@ -8566,16 +8558,16 @@ function isUpToDate( test )
     test.open( 'local master' );
     test.case = 'setup';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
-    provider.filesDelete( localPath );
-    provider.dirMake( localPath );
-    return shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ) )
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+    return a.shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ) )
   })
 
   .then( () =>
   {
     test.case = 'remote master';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
-    return _.git.isUpToDate({ localPath, remotePath })
+    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -8587,7 +8579,7 @@ function isUpToDate( test )
   {
     test.case = 'remote has different branch that does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!other';
-    var con = _.git.isUpToDate({ localPath, remotePath })
+    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     return test.shouldThrowErrorAsync( con )
   })
 
@@ -8595,7 +8587,7 @@ function isUpToDate( test )
   {
     test.case = 'remote has fixed version';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#c94e0130358ba54fc47237e15bac1ab18024c0a9';
-    return _.git.isUpToDate({ localPath, remotePath })
+    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8615,19 +8607,19 @@ function isUpToDate( test )
   {
     test.open( 'local detached' );
     test.case = 'setup';
-    provider.filesDelete( localPath );
-    provider.dirMake( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
     return null;
   })
 
-  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
-  shell({ execPath : 'git -C wPathBasic checkout c94e0130358ba54fc47237e15bac1ab18024c0a9', ready : con })
+  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : a })
+  a.shell({ execPath : 'git -C wPathBasic checkout c94e0130358ba54fc47237e15bac1ab18024c0a9', ready : a })
 
   .then( () =>
   {
     test.case = 'remote has same fixed version';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#c94e0130358ba54fc47237e15bac1ab18024c0a9';
-    return _.git.isUpToDate({ localPath, remotePath })
+    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -8639,7 +8631,7 @@ function isUpToDate( test )
   {
     test.case = 'remote has other fixed version';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#469a6497f616cf18639b2aa68957f4dab78b7965';
-    return _.git.isUpToDate({ localPath, remotePath })
+    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8651,7 +8643,7 @@ function isUpToDate( test )
   {
     test.case = 'remote has other branch that does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!other';
-    var con = _.git.isUpToDate({ localPath, remotePath })
+    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     return test.shouldThrowErrorAsync( con )
   })
 
@@ -8659,7 +8651,7 @@ function isUpToDate( test )
   {
     test.case = 'branch name as hash';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#other';
-    var con = _.git.isUpToDate({ localPath, remotePath })
+    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     return test.shouldThrowErrorAsync( con )
   })
 
@@ -8667,7 +8659,7 @@ function isUpToDate( test )
   {
     test.case = 'hash as tag';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!469a6497f616cf18639b2aa68957f4dab78b7965';
-    var con = _.git.isUpToDate({ localPath, remotePath })
+    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     return test.shouldThrowErrorAsync( con )
   })
 
@@ -8677,7 +8669,7 @@ function isUpToDate( test )
     {
       test.case = 'hash and tag';
       let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#469a6497f616cf18639b2aa68957f4dab78b7965!master';
-      test.shouldThrowErrorSync( () => _.git.isUpToDate({ localPath, remotePath }) )
+      test.shouldThrowErrorSync( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
       return null;
     })
   }
@@ -8693,12 +8685,12 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local is behind remote';
-    provider.filesDelete( localPath );
-    provider.dirMake( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
     return null;
   })
 
-  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
 
   .then( () =>
   {
@@ -8706,9 +8698,9 @@ function isUpToDate( test )
     return _.process.start
     ({
       execPath : 'git reset --hard HEAD~1',
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'wPathBasic' ),
     })
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8721,12 +8713,12 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local is ahead remote';
-    provider.filesDelete( localPath );
-    provider.dirMake( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
     return null;
   })
 
-  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
 
   .then( () =>
   {
@@ -8735,9 +8727,9 @@ function isUpToDate( test )
     return _.process.start
     ({
       execPath : 'git commit --allow-empty -m emptycommit',
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'wPathBasic' ),
     })
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -8750,12 +8742,12 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local and remote have new commit';
-    provider.filesDelete( localPath );
-    provider.dirMake( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
     return null;
   })
 
-  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
 
   .then( () =>
   {
@@ -8766,19 +8758,19 @@ function isUpToDate( test )
     _.process.start
     ({
       execPath : 'git reset --hard HEAD~1',
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'wPathBasic' ),
       ready
     })
 
     _.process.start
     ({
       execPath : 'git commit --allow-empty -m emptycommit',
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'wPathBasic' ),
       ready
     })
 
     ready
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8793,13 +8785,13 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local is detached and has local commit';
-    provider.filesDelete( localPath );
-    provider.dirMake( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
     return null;
   })
 
-  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
-  shell({ execPath : 'git -C wPathBasic checkout 05930d3a7964b253ea3bbfeca7eb86848f550e96', ready : con })
+  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+  a.shell({ execPath : 'git -C wPathBasic checkout 05930d3a7964b253ea3bbfeca7eb86848f550e96', ready : con })
 
   .then( () =>
   {
@@ -8807,9 +8799,9 @@ function isUpToDate( test )
     return _.process.start
     ({
       execPath : 'git commit --allow-empty -m emptycommit',
-      currentPath : localPath,
+      currentPath : a.abs( a.routinePath, 'wPathBasic' ),
     })
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8822,18 +8814,18 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local is on different branch than remote';
-    provider.filesDelete( localPath );
-    provider.dirMake( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
     return null;
   })
 
-  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
-  shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
+  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+  a.shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
 
   .then( () =>
   {
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/!master';
-    return _.git.isUpToDate({ localPath, remotePath })
+    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8846,18 +8838,18 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local is on different branch than remote';
-    provider.filesDelete( localPath );
-    provider.dirMake( localPath );
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
     return null;
   })
 
-  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
-  shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
+  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+  a.shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
 
   .then( () =>
   {
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/!newbranch';
-    return _.git.isUpToDate({ localPath, remotePath })
+    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -8875,18 +8867,10 @@ isUpToDate.timeOut = 60000;
 function isUpToDateExtended( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = context.provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'wTools' );
-
+  let a = test.assetFor( 'basic' );
   let con = new _.Consequence().take( null )
 
-  let shell = _.process.starter
-  ({
-    currentPath : testPath,
-    mode : 'spawn',
-  })
+  a.shell.predefined.mode = 'spawn';
 
   begin()
 
@@ -8896,7 +8880,7 @@ function isUpToDateExtended( test )
   {
     test.case = 'both on master, no changes';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!master';
-    return _.git.isUpToDate({ localPath, remotePath })
+    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -8910,8 +8894,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'both on master, local one commit behind';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!master';
-    return shell( 'git -C wTools reset --hard HEAD~1' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools reset --hard HEAD~1' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8929,7 +8913,7 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on master, remote on other branch that does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!other';
-    var con = _.git.isUpToDate({ localPath, remotePath })
+    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath })
     return test.shouldThrowErrorAsync( con )
   })
 
@@ -8939,8 +8923,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on newbranch, remote on master';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!master';
-    return shell( 'git -C wTools checkout -b newbranch' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools checkout -b newbranch' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8950,7 +8934,7 @@ function isUpToDateExtended( test )
     {
       if( err )
       test.exceptionReport({ err });
-      return shell({ execPath : 'git -C wTools checkout master', ready : null })
+      return a.shell({ execPath : 'git -C wTools checkout master', ready : null })
     })
   })
 
@@ -8960,7 +8944,7 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on master, remote on tag points to other commit';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!v0.8.505';
-    return _.git.isUpToDate({ localPath, remotePath })
+    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8974,8 +8958,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on same tag with remote';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!v0.8.505';
-    return shell( 'git -C wTools checkout v0.8.505' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -8989,8 +8973,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on different tag with remote';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!v0.8.505';
-    return shell( 'git -C wTools checkout v0.8.504' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools checkout v0.8.504' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -9004,8 +8988,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on same commit as tag on remote';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!v0.8.505';
-    return shell( 'git -C wTools checkout 8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools checkout 8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -9019,8 +9003,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on different commit as tag on remote';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!v0.8.505';
-    return shell( 'git -C wTools checkout 8b5d86906b761c464a10618fc06f13724ee654ab' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools checkout 8b5d86906b761c464a10618fc06f13724ee654ab' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -9034,8 +9018,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on tag, remote on master';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/!master';
-    return shell( 'git -C wTools checkout v0.8.504' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools checkout v0.8.504' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -9049,8 +9033,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on tag, remote on hash that local tag is pointing to';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3';
-    return shell( 'git -C wTools checkout v0.8.505' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -9064,8 +9048,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on tag, remote on different hash';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/#8b5d86906b761c464a10618fc06f13724ee654ab';
-    return shell( 'git -C wTools checkout v0.8.505' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -9083,8 +9067,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on master, remote is different';
     let remotePath = 'git+https:///github.com/Wandalen/wTools2.git/';
-    return shell( 'git -C wTools checkout master' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools checkout master' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -9096,8 +9080,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local on tag, remote is different';
     let remotePath = 'git+https:///github.com/Wandalen/wTools2.git/';
-    return shell( 'git -C wTools checkout v0.8.505' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools checkout v0.8.505' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -9109,8 +9093,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local detached, remote is different';
     let remotePath = 'git+https:///github.com/Wandalen/wTools2.git/';
-    return shell( 'git -C wTools checkout 8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools checkout 8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -9125,8 +9109,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local does not have gitconfig';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/';
-    return _.fileProvider.filesDelete({ filePath : _.path.join( localPath, '.git'), sync : 0 })
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.fileProvider.filesDelete({ filePath : a.abs( a.routinePath, 'wTools', '.git'), sync : 0 })
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -9141,8 +9125,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local does not have origin';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/';
-    return shell( 'git -C wTools remote remove origin' )
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.shell( 'git -C wTools remote remove origin' )
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -9156,8 +9140,8 @@ function isUpToDateExtended( test )
   {
     test.case = 'local does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wTools.git/';
-    return _.fileProvider.filesDelete({ filePath : localPath, sync : 0 })
-    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
+    return a.fileProvider.filesDelete({ filePath : a.abs( a.routinePath, 'wTools' ), sync : 0 })
+    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wTools' ), remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -9175,9 +9159,9 @@ function isUpToDateExtended( test )
   {
     con.then( () =>
     {
-      provider.filesDelete( localPath );
-      provider.dirMake( localPath );
-      return shell( 'git clone https://github.com/Wandalen/wTools.git ' + path.name( localPath ) )
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'wTools' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'wTools' ) );
+      return a.shell( 'git clone https://github.com/Wandalen/wTools.git ' + a.path.name( a.abs( a.routinePath, 'wTools' ) ) )
     })
 
     return con;
@@ -9191,33 +9175,25 @@ isUpToDateExtended.timeOut = 300000;
 function isUpToDateThrowing( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = context.provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'wPathBasic' );
-
+  let a = test.assetFor( 'basic' );
   let con = new _.Consequence().take( null )
 
-  let shell = _.process.starter
-  ({
-    currentPath : testPath,
-    mode : 'spawn',
-  })
+  a.shell.predefined.mode = 'spawn';
 
   con
   .then( () =>
   {
     test.case = 'setup';
-    provider.filesDelete( localPath );
-    provider.dirMake( localPath );
-    return shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ) )
+    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+    return a.shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ) )
   })
 
   .then( () =>
   {
     test.case = 'branch name as hash';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#master';
-    var con = _.git.isUpToDate({ localPath, remotePath })
+    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     return test.shouldThrowErrorAsync( con );
   })
 
@@ -9225,7 +9201,7 @@ function isUpToDateThrowing( test )
   {
     test.case = 'not existing branch name';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!master2';
-    var con = _.git.isUpToDate({ localPath, remotePath })
+    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     return test.shouldThrowErrorAsync( con );
   })
 
@@ -9233,7 +9209,7 @@ function isUpToDateThrowing( test )
   {
     test.case = 'branch name as tag';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!master';
-    var con = _.git.isUpToDate({ localPath, remotePath })
+    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     return test.mustNotThrowError( con );
   })
 
@@ -9241,7 +9217,7 @@ function isUpToDateThrowing( test )
   {
     test.case = 'no branch';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
-    var con = _.git.isUpToDate({ localPath, remotePath })
+    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
     return test.mustNotThrowError( con );
   })
 
@@ -9257,30 +9233,32 @@ isUpToDateThrowing.timeOut = 60000;
 
 function insideRepository( test )
 {
+  let a = test.assetFor( 'basic' );
+
   test.case = 'missing'
-  var insidePath = _.path.join( __dirname, 'someFile' );
+  var insidePath = a.abs( __dirname, 'someFile' );
   var got = _.git.insideRepository({ insidePath })
-  test.identical( got,true )
+  test.identical( got, true )
 
   test.case = 'terminal'
-  var insidePath = _.path.normalize( __filename );
+  var insidePath = a.abs( __filename );
   var got = _.git.insideRepository({ insidePath })
-  test.identical( got,true )
+  test.identical( got, true )
 
   test.case = 'testdir'
-  var insidePath = _.path.normalize( __dirname );
+  var insidePath = a.abs( __dirname );
   var got = _.git.insideRepository({ insidePath })
-  test.identical( got,true )
+  test.identical( got, true )
 
   test.case = 'root of repo'
-  var insidePath = _.path.join( __dirname, '../../../..' );
+  var insidePath = a.abs( __dirname, '../../../..' );
   var got = _.git.insideRepository({ insidePath })
-  test.identical( got,true )
+  test.identical( got, true )
 
   test.case = 'outside of repo'
-  var insidePath = _.path.join( __dirname, '../../../../..' );
+  var insidePath = a.abs( __dirname, '../../../../..' );
   var got = _.git.insideRepository({ insidePath })
-  test.identical( got,false )
+  test.identical( got, false )
 }
 
 //
@@ -9288,12 +9266,7 @@ function insideRepository( test )
 function isRepository( test )
 {
   let context = this;
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  let localPath = path.join( testPath, 'clone' );
-  let repoPath = path.join( testPath, 'repo' );
-  let repoPathNative = path.nativize( repoPath );
+  let a = test.assetFor( 'basic' );
 
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
   let remotePathGlobal = 'git+https:///github.com/Wandalen/wPathBasic.git#master';
@@ -9303,29 +9276,23 @@ function isRepository( test )
   let remotePathGlobalWithOut2 = 'git+https:///github.com/Wandalen/wTools.git/out/wTools#master';
   let remotePath3 = 'git+https:///github.com/Wandalen/wSomeModule.git/out/wSomeModule#master';
 
-  let con = new _.Consequence().take( null );
+  a.shell.predefined.currentPath = a.abs( a.routinePath, 'clone' );
 
-  let shell = _.process.starter
+  a.shell2 = _.process.starter
   ({
-    currentPath : localPath,
-    ready : con
+    currentPath : a.abs( a.routinePath, 'repo' ),
+    ready : a.ready
   })
 
-  let shell2 = _.process.starter
-  ({
-    currentPath : repoPath,
-    ready : con
-  })
-
-  provider.dirMake( testPath )
+  a.fileProvider.dirMake( a.abs( a.routinePath ) )
   prepareRepo()
 
   .then( () =>
   {
     test.case = 'not cloned, only remotePath'
-    var got = _.git.isRepository({ remotePath : repoPath });
+    var got = _.git.isRepository({ remotePath : a.abs( a.routinePath, 'repo' ) });
     test.identical( got, true );
-    var got = _.git.isRepository({ remotePath : remotePath });
+    var got = _.git.isRepository({ remotePath });
     test.identical( got, true );
     var got = _.git.isRepository({ remotePath : remotePathGlobal });
     test.identical( got, true );
@@ -9348,9 +9315,9 @@ function isRepository( test )
   .then( () =>
   {
     test.case = 'not cloned'
-    var got = _.git.isRepository({ localPath });
+    var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ) });
     test.identical( got, false );
-    var got = _.git.isRepository({ localPath, remotePath : repoPath });
+    var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), remotePath : a.abs( a.routinePath, 'repo' ) });
     test.identical( got, false );
     return null;
   })
@@ -9361,9 +9328,9 @@ function isRepository( test )
   // .then( () =>
   // {
   //   test.case = 'check after fresh clone'
-  //   var got = _.git.isRepository({ localPath });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ) });
   //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath, remotePath : repoPath });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), remotePath : a.abs( a.routinePath, 'repo' ) });
   //   test.identical( got, true );
   //   return null;
   // })
@@ -9372,9 +9339,9 @@ function isRepository( test )
   // .then( () =>
   // {
   //   test.case = 'cloned, other remote'
-  //   var got = _.git.isRepository({ localPath });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ) });
   //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath, remotePath : remotePath });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), remotePath : remotePath });
   //   test.identical( got, false );
   //   return null;
   // })
@@ -9383,9 +9350,9 @@ function isRepository( test )
   // .then( () =>
   // {
   //   test.case = 'cloned, provided remote is not a repo'
-  //   var got = _.git.isRepository({ localPath });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ) });
   //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath, remotePath : remotePath2 });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), remotePath : remotePath2 });
   //   test.identical( got, false );
   //   return null;
   // })
@@ -9394,9 +9361,9 @@ function isRepository( test )
   // .then( () =>
   // {
   //   test.case = 'cloned, provided global remote path to repo'
-  //   var got = _.git.isRepository({ localPath });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ) });
   //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath, remotePath : remotePathGlobal });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), remotePath : remotePathGlobal });
   //   test.identical( got, true );
   //   return null;
   // })
@@ -9405,9 +9372,9 @@ function isRepository( test )
   // .then( () =>
   // {
   //   test.case = 'cloned, provided wrong global remote path to repo'
-  //   var got = _.git.isRepository({ localPath });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ) });
   //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath, remotePath : remotePathGlobal2 });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), remotePath : remotePathGlobal2 });
   //   test.identical( got, false );
   //   return null;
   // })
@@ -9416,9 +9383,9 @@ function isRepository( test )
   // .then( () =>
   // {
   //   test.case = 'cloned, provided global remote path to repo with out file'
-  //   var got = _.git.isRepository({ localPath });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ) });
   //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath, remotePath : remotePathGlobalWithOut });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), remotePath : remotePathGlobalWithOut });
   //   test.identical( got, true );
   //   return null;
   // })
@@ -9427,9 +9394,9 @@ function isRepository( test )
   // .then( () =>
   // {
   //   test.case = 'cloned, provided global remote path to repo with out file'
-  //   var got = _.git.isRepository({ localPath });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ) });
   //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath, remotePath : remotePathGlobalWithOut2 });
+  //   var got = _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), remotePath : remotePathGlobalWithOut2 });
   //   test.identical( got, false );
   //   return null;
   // })
@@ -9440,7 +9407,7 @@ function isRepository( test )
   // .then( () =>
   // {
   //   test.case = 'cloned, provided local path to repo'
-  //   return _.git.isRepository({ localPath, sync : 0 })
+  //   return _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), sync : 0 })
   //   .then( ( got ) =>
   //   {
   //     test.identical( got, true );
@@ -9450,7 +9417,7 @@ function isRepository( test )
   // .then( () =>
   // {
   //   test.case = 'cloned, provided global local & remote paths to repo'
-  //   return _.git.isRepository({ localPath, sync : 0, remotePath : remotePathGlobal })
+  //   return _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), sync : 0, remotePath : remotePathGlobal })
   //   .then( ( got ) =>
   //   {
   //     test.identical( got, true );
@@ -9464,7 +9431,7 @@ function isRepository( test )
   // .then( () =>
   // {
   //   test.case = 'cloned, provided global remote path to repo with out file'
-  //   return _.git.isRepository({ localPath, sync : 0 })
+  //   return _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), sync : 0 })
   //   .then( ( got ) =>
   //   {
   //     test.identical( got, true );
@@ -9474,7 +9441,7 @@ function isRepository( test )
   // .then( () =>
   // {
   //   test.case = 'cloned, provided global remote path to repo with out file'
-  //   return _.git.isRepository({ localPath, sync : 0, remotePath : remotePathGlobalWithOut2 })
+  //   return _.git.isRepository({ localPath : a.abs( a.routinePath, 'clone' ), sync : 0, remotePath : remotePathGlobalWithOut2 })
   //   .then( ( got ) =>
   //   {
   //     test.identical( got, false );
@@ -9484,56 +9451,56 @@ function isRepository( test )
 
   /*  */
 
-  return con;
+  return a.ready;
 
   /* - */
 
   function prepareRepo()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
-      provider.filesDelete( repoPath );
-      provider.dirMake( repoPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
       return null;
     })
 
-    shell2( 'git init --bare' );
+    a.shell2( 'git init --bare' );
 
-    return con;
+    return a.ready;
   }
 
   /* */
 
   function begin()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
       test.case = 'clean clone';
-      provider.filesDelete( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return _.process.start
       ({
-        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
-        currentPath : testPath,
+        execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+        currentPath : a.abs( a.routinePath ),
       })
     })
 
-    return con;
+    return a.ready;
   }
 
   function begin2()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
       test.case = 'clean clone';
-      provider.filesDelete( localPath );
+      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
       return _.process.start
       ({
-        execPath : 'git clone ' + remotePath + ' ' + path.name( localPath ),
-        currentPath : testPath,
+        execPath : 'git clone ' + remotePath + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+        currentPath : a.abs( a.routinePath ),
       })
     })
 
-    return con;
+    return a.ready;
   }
 }
 
@@ -9586,7 +9553,7 @@ function status( test )
     })
     var expected =
     {
-       remoteBranches: null,
+      remoteBranches: null,
       remoteCommits: null,
       remoteTags: null,
 
