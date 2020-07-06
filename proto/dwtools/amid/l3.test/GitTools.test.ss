@@ -1,3 +1,4 @@
+/*eslint-disable*/
 ( function _GitTools_test_ss_( )
 {
 
@@ -197,36 +198,49 @@ function pathParse( test )
 
 function versionsRemoteRetrive( test )
 {
-  let context = this;
-  let a = test.assetFor( 'basic' );
+  // -------------ORIGINAL VERSION------------------------------------------
+
+let context = this;
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
 
-  a.shell.predefined.currentPath = a.abs( a.routinePath, 'clone' );
+  let con = new _.Consequence().take( null );
 
-  a.shell2 = _.process.starter
+  let shell = _.process.starter
   ({
-    currentPath : a.abs( a.routinePath, 'repo' ),
-    ready : a.ready
+    currentPath : localPath,
+    ready : con
   })
 
-  a.fileProvider.dirMake( a.abs( a.routinePath ) );
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
+
+  provider.dirMake( testPath );
 
   /* */
 
-  a.ready.then( () =>
+  con.then( () =>
   {
     test.case = 'not git repository';
-    return test.shouldThrowErrorAsync( _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) );
+    return test.shouldThrowErrorAsync( _.git.versionsRemoteRetrive({ localPath }) );
   })
 
   .then( () =>
   {
     test.case = 'setup repo';
-    a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+    provider.filesDelete( repoPath );
     return _.process.start
     ({
-      execPath : 'git clone ' + remotePath + ' ' + a.path.name( a.abs( a.routinePath, 'repo' ) ),
-      currentPath : a.abs( a.routinePath ),
+      execPath : 'git clone ' + remotePath + ' ' + path.name( repoPath ),
+      currentPath : testPath,
     })
   })
 
@@ -235,27 +249,27 @@ function versionsRemoteRetrive( test )
   .then( () =>
   {
     test.case = 'setup';
-    a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
+    provider.filesDelete( localPath );
     return _.process.start
     ({
-      execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
-      currentPath : a.abs( a.routinePath ),
+      execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+      currentPath : testPath,
     })
   })
 
   /* */
 
-  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
   .then( ( got ) =>
   {
-    test.identical( got, [ 'master' ] );
+    test.identical( got, [ 'master'] );
     return got;
   })
 
   /* */
 
-  a.shell2( 'git checkout -b feature' )
-  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  shell2( 'git checkout -b feature' )
+  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
   .then( ( got ) =>
   {
     test.case = 'remote has new branch, clone is outdated'
@@ -263,8 +277,8 @@ function versionsRemoteRetrive( test )
     return got;
   })
 
-  a.shell( 'git fetch' )
-  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  shell( 'git fetch' )
+  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
   .then( ( got ) =>
   {
     test.case = 'remote has new branch, clone is up-to-date'
@@ -272,9 +286,9 @@ function versionsRemoteRetrive( test )
     return got;
   })
 
-  a.shell2( 'git checkout master' )
-  a.shell2( 'git branch -d feature' )
-  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  shell2( 'git checkout master' )
+  shell2( 'git branch -d feature' )
+  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
   .then( ( got ) =>
   {
     test.case = 'remote removed new branch, clone is outdated'
@@ -282,8 +296,8 @@ function versionsRemoteRetrive( test )
     return got;
   })
 
-  a.shell( 'git fetch -p' )
-  .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  shell( 'git fetch -p' )
+  .then( () => _.git.versionsRemoteRetrive({ localPath }) )
   .then( ( got ) =>
   {
     test.case = 'remote removed new branch, clone is up-to-date'
@@ -291,7 +305,104 @@ function versionsRemoteRetrive( test )
     return got;
   })
 
-  return a.ready;
+  return con;
+
+  // -------------REFACTORED VERSION --NOT WORKING--------------------------
+  // let context = this;
+  // let a = test.assetFor( 'basic' );
+  // let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+
+  // a.shell.predefined.currentPath = a.abs( a.routinePath, 'clone' );
+
+  // a.shell2 = _.process.starter
+  // ({
+  //   currentPath : a.abs( a.routinePath, 'repo' ),
+  //   ready : a.ready
+  // })
+
+  // a.fileProvider.dirMake( a.abs( a.routinePath ) );
+
+  // /* */
+
+  // a.ready.then( () =>
+  // {
+  //   test.case = 'not git repository';
+  //   return test.shouldThrowErrorAsync( _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) );
+  // })
+
+  // .then( () =>
+  // {
+  //   test.case = 'setup repo';
+  //   a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+  //   return _.process.start
+  //   ({
+  //     execPath : 'git clone ' + remotePath + ' ' + a.path.name( a.abs( a.routinePath, 'repo' ) ),
+  //     currentPath : a.abs( a.routinePath ),
+  //   })
+  // })
+
+  // /* */
+
+  // .then( () =>
+  // {
+  //   test.case = 'setup';
+  //   a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
+  //   return _.process.start
+  //   ({
+  //     execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+  //     currentPath : a.abs( a.routinePath ),
+  //   })
+  // })
+
+  // /* */
+
+  // .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  // .then( ( got ) =>
+  // {
+  //   test.identical( got, [ 'master' ] );
+  //   return got;
+  // })
+
+  // /* */
+
+  // a.shell2( 'git checkout -b feature' )
+  // .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  // .then( ( got ) =>
+  // {
+  //   test.case = 'remote has new branch, clone is outdated'
+  //   test.identical( got, [ 'master' ] );
+  //   return got;
+  // })
+
+  // a.shell( 'git fetch' )
+  // .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  // .then( ( got ) =>
+  // {
+  //   test.case = 'remote has new branch, clone is up-to-date'
+  //   test.identical( got, [ 'feature', 'master' ] );
+  //   return got;
+  // })
+
+  // a.shell2( 'git checkout master' )
+  // a.shell2( 'git branch -d feature' )
+  // .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  // .then( ( got ) =>
+  // {
+  //   test.case = 'remote removed new branch, clone is outdated'
+  //   test.identical( got, [ 'feature', 'master' ] );
+  //   return got;
+  // })
+
+  // a.shell( 'git fetch -p' )
+  // .then( () => _.git.versionsRemoteRetrive({ localPath : a.abs( a.routinePath, 'clone' ) }) )
+  // .then( ( got ) =>
+  // {
+  //   test.case = 'remote removed new branch, clone is up-to-date'
+  //   test.identical( got, [ 'master' ] );
+  //   return got;
+  // })
+
+  // return a.ready;
 }
 
 //
@@ -8697,14 +8808,25 @@ function hasRemote( test )
   return a.ready;
 }
 
-//REVISIT-----------------------------------------------------------------------------------------------------------------------------------
+//
+
 function isUpToDate( test )
 {
+ //-------------------ORIGINAL VERSION------------------------------------------------
   let context = this;
-  let a = test.assetFor( 'basic' );
+  let provider = context.provider;
+  let path = context.provider.path;
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'wPathBasic' );
+
   let con = new _.Consequence().take( null )
 
-  a.shell.predefined.mode = 'spawn';
+  let shell = _.process.starter
+  ({
+    currentPath : testPath,
+    mode : 'spawn',
+  })
+
 
   con
   .then( () =>
@@ -8712,16 +8834,16 @@ function isUpToDate( test )
     test.open( 'local master' );
     test.case = 'setup';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
-    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
-    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
-    return a.shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ) )
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
+    return shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ) )
   })
 
   .then( () =>
   {
     test.case = 'remote master';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
-    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+    return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -8733,7 +8855,7 @@ function isUpToDate( test )
   {
     test.case = 'remote has different branch that does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!other';
-    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+    var con = _.git.isUpToDate({ localPath, remotePath })
     return test.shouldThrowErrorAsync( con )
   })
 
@@ -8741,7 +8863,7 @@ function isUpToDate( test )
   {
     test.case = 'remote has fixed version';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#c94e0130358ba54fc47237e15bac1ab18024c0a9';
-    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+    return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8761,19 +8883,19 @@ function isUpToDate( test )
   {
     test.open( 'local detached' );
     test.case = 'setup';
-    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
-    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
     return null;
   })
 
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : a })
-  a.shell({ execPath : 'git -C wPathBasic checkout c94e0130358ba54fc47237e15bac1ab18024c0a9', ready : a })
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  shell({ execPath : 'git -C wPathBasic checkout c94e0130358ba54fc47237e15bac1ab18024c0a9', ready : con })
 
   .then( () =>
   {
     test.case = 'remote has same fixed version';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#c94e0130358ba54fc47237e15bac1ab18024c0a9';
-    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+    return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -8785,7 +8907,7 @@ function isUpToDate( test )
   {
     test.case = 'remote has other fixed version';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#469a6497f616cf18639b2aa68957f4dab78b7965';
-    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+    return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8797,7 +8919,7 @@ function isUpToDate( test )
   {
     test.case = 'remote has other branch that does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!other';
-    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+    var con = _.git.isUpToDate({ localPath, remotePath })
     return test.shouldThrowErrorAsync( con )
   })
 
@@ -8805,7 +8927,7 @@ function isUpToDate( test )
   {
     test.case = 'branch name as hash';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#other';
-    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+    var con = _.git.isUpToDate({ localPath, remotePath })
     return test.shouldThrowErrorAsync( con )
   })
 
@@ -8813,7 +8935,7 @@ function isUpToDate( test )
   {
     test.case = 'hash as tag';
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!469a6497f616cf18639b2aa68957f4dab78b7965';
-    var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+    var con = _.git.isUpToDate({ localPath, remotePath })
     return test.shouldThrowErrorAsync( con )
   })
 
@@ -8823,7 +8945,7 @@ function isUpToDate( test )
     {
       test.case = 'hash and tag';
       let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#469a6497f616cf18639b2aa68957f4dab78b7965!master';
-      test.shouldThrowErrorSync( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
+      test.shouldThrowErrorSync( () => _.git.isUpToDate({ localPath, remotePath }) )
       return null;
     })
   }
@@ -8839,12 +8961,12 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local is behind remote';
-    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
-    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
     return null;
   })
 
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
 
   .then( () =>
   {
@@ -8852,9 +8974,9 @@ function isUpToDate( test )
     return _.process.start
     ({
       execPath : 'git reset --hard HEAD~1',
-      currentPath : a.abs( a.routinePath, 'wPathBasic' ),
+      currentPath : localPath,
     })
-    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8867,12 +8989,12 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local is ahead remote';
-    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
-    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
     return null;
   })
 
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
 
   .then( () =>
   {
@@ -8881,9 +9003,9 @@ function isUpToDate( test )
     return _.process.start
     ({
       execPath : 'git commit --allow-empty -m emptycommit',
-      currentPath : a.abs( a.routinePath, 'wPathBasic' ),
+      currentPath : localPath,
     })
-    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -8896,12 +9018,12 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local and remote have new commit';
-    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
-    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
     return null;
   })
 
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
 
   .then( () =>
   {
@@ -8912,19 +9034,19 @@ function isUpToDate( test )
     _.process.start
     ({
       execPath : 'git reset --hard HEAD~1',
-      currentPath : a.abs( a.routinePath, 'wPathBasic' ),
+      currentPath : localPath,
       ready
     })
 
     _.process.start
     ({
       execPath : 'git commit --allow-empty -m emptycommit',
-      currentPath : a.abs( a.routinePath, 'wPathBasic' ),
+      currentPath : localPath,
       ready
     })
 
     ready
-    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8939,13 +9061,13 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local is detached and has local commit';
-    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
-    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
     return null;
   })
 
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
-  a.shell({ execPath : 'git -C wPathBasic checkout 05930d3a7964b253ea3bbfeca7eb86848f550e96', ready : con })
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  shell({ execPath : 'git -C wPathBasic checkout 05930d3a7964b253ea3bbfeca7eb86848f550e96', ready : con })
 
   .then( () =>
   {
@@ -8953,9 +9075,9 @@ function isUpToDate( test )
     return _.process.start
     ({
       execPath : 'git commit --allow-empty -m emptycommit',
-      currentPath : a.abs( a.routinePath, 'wPathBasic' ),
+      currentPath : localPath,
     })
-    .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
+    .then( () => _.git.isUpToDate({ localPath, remotePath }) )
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8968,18 +9090,18 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local is on different branch than remote';
-    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
-    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
     return null;
   })
 
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
-  a.shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
 
   .then( () =>
   {
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/!master';
-    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+    return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -8992,18 +9114,18 @@ function isUpToDate( test )
   .then( () =>
   {
     test.case = 'local is on different branch than remote';
-    a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
-    a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+    provider.filesDelete( localPath );
+    provider.dirMake( localPath );
     return null;
   })
 
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
-  a.shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
+  shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + path.name( localPath ), ready : con })
+  shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
 
   .then( () =>
   {
     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/!newbranch';
-    return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+    return _.git.isUpToDate({ localPath, remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -9012,6 +9134,320 @@ function isUpToDate( test )
   })
 
   return con;
+
+  //-------------------REFACTORED VERSION-------------------------------------------------
+  // let context = this;
+  // let a = test.assetFor( 'basic' );
+  // let con = new _.Consequence().take( null )
+
+  // a.shell.predefined.mode = 'spawn';
+
+  // con
+  // .then( () =>
+  // {
+  //   test.open( 'local master' );
+  //   test.case = 'setup';
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+  //   a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   return a.shell( 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ) )
+  // })
+
+  // .then( () =>
+  // {
+  //   test.case = 'remote master';
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+  //   return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+  //   .then( ( got ) =>
+  //   {
+  //     test.identical( got, true );
+  //     return got;
+  //   })
+  // })
+
+  // .then( () =>
+  // {
+  //   test.case = 'remote has different branch that does not exist';
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!other';
+  //   var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+  //   return test.shouldThrowErrorAsync( con )
+  // })
+
+  // .then( () =>
+  // {
+  //   test.case = 'remote has fixed version';
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#c94e0130358ba54fc47237e15bac1ab18024c0a9';
+  //   return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+  //   .then( ( got ) =>
+  //   {
+  //     test.identical( got, false );
+  //     return got;
+  //   })
+  // })
+
+  // .then( () =>
+  // {
+  //   test.close( 'local master' );
+  //   return null;
+  // })
+
+  // /**/
+
+  // .then( () =>
+  // {
+  //   test.open( 'local detached' );
+  //   test.case = 'setup';
+  //   a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   return null;
+  // })
+
+  // a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : a })
+  // a.shell({ execPath : 'git -C wPathBasic checkout c94e0130358ba54fc47237e15bac1ab18024c0a9', ready : a })
+
+  // .then( () =>
+  // {
+  //   test.case = 'remote has same fixed version';
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#c94e0130358ba54fc47237e15bac1ab18024c0a9';
+  //   return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+  //   .then( ( got ) =>
+  //   {
+  //     test.identical( got, true );
+  //     return got;
+  //   })
+  // })
+
+  // .then( () =>
+  // {
+  //   test.case = 'remote has other fixed version';
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#469a6497f616cf18639b2aa68957f4dab78b7965';
+  //   return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+  //   .then( ( got ) =>
+  //   {
+  //     test.identical( got, false );
+  //     return got;
+  //   })
+  // })
+
+  // .then( () =>
+  // {
+  //   test.case = 'remote has other branch that does not exist';
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!other';
+  //   var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+  //   return test.shouldThrowErrorAsync( con )
+  // })
+
+  // .then( () =>
+  // {
+  //   test.case = 'branch name as hash';
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#other';
+  //   var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+  //   return test.shouldThrowErrorAsync( con )
+  // })
+
+  // .then( () =>
+  // {
+  //   test.case = 'hash as tag';
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git!469a6497f616cf18639b2aa68957f4dab78b7965';
+  //   var con = _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+  //   return test.shouldThrowErrorAsync( con )
+  // })
+
+  // if( Config.debug )
+  // {
+  //   con.then( () =>
+  //   {
+  //     test.case = 'hash and tag';
+  //     let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git#469a6497f616cf18639b2aa68957f4dab78b7965!master';
+  //     test.shouldThrowErrorSync( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
+  //     return null;
+  //   })
+  // }
+
+  // con.then( () =>
+  // {
+  //   test.close( 'local detached' );
+  //   return null;
+  // })
+
+  // /**/
+
+  // .then( () =>
+  // {
+  //   test.case = 'local is behind remote';
+  //   a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   return null;
+  // })
+
+  // a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+
+  // .then( () =>
+  // {
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+  //   return _.process.start
+  //   ({
+  //     execPath : 'git reset --hard HEAD~1',
+  //     currentPath : a.abs( a.routinePath, 'wPathBasic' ),
+  //   })
+  //   .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
+  //   .then( ( got ) =>
+  //   {
+  //     test.identical( got, false );
+  //     return got;
+  //   })
+  // })
+
+  // /* */
+
+  // .then( () =>
+  // {
+  //   test.case = 'local is ahead remote';
+  //   a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   return null;
+  // })
+
+  // a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+
+  // .then( () =>
+  // {
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+
+  //   return _.process.start
+  //   ({
+  //     execPath : 'git commit --allow-empty -m emptycommit',
+  //     currentPath : a.abs( a.routinePath, 'wPathBasic' ),
+  //   })
+  //   .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
+  //   .then( ( got ) =>
+  //   {
+  //     test.identical( got, true );
+  //     return got;
+  //   })
+  // })
+
+  // /*  */
+
+  // .then( () =>
+  // {
+  //   test.case = 'local and remote have new commit';
+  //   a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   return null;
+  // })
+
+  // a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+
+  // .then( () =>
+  // {
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+
+  //   let ready = new _.Consequence().take( null );
+
+  //   _.process.start
+  //   ({
+  //     execPath : 'git reset --hard HEAD~1',
+  //     currentPath : a.abs( a.routinePath, 'wPathBasic' ),
+  //     ready
+  //   })
+
+  //   _.process.start
+  //   ({
+  //     execPath : 'git commit --allow-empty -m emptycommit',
+  //     currentPath : a.abs( a.routinePath, 'wPathBasic' ),
+  //     ready
+  //   })
+
+  //   ready
+  //   .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
+  //   .then( ( got ) =>
+  //   {
+  //     test.identical( got, false );
+  //     return got;
+  //   })
+
+  //   return ready;
+  // })
+
+  // /* */
+
+  // .then( () =>
+  // {
+  //   test.case = 'local is detached and has local commit';
+  //   a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   return null;
+  // })
+
+  // a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+  // a.shell({ execPath : 'git -C wPathBasic checkout 05930d3a7964b253ea3bbfeca7eb86848f550e96', ready : con })
+
+  // .then( () =>
+  // {
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git';
+  //   return _.process.start
+  //   ({
+  //     execPath : 'git commit --allow-empty -m emptycommit',
+  //     currentPath : a.abs( a.routinePath, 'wPathBasic' ),
+  //   })
+  //   .then( () => _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath }) )
+  //   .then( ( got ) =>
+  //   {
+  //     test.identical( got, false );
+  //     return got;
+  //   })
+  // })
+
+  // /* */
+
+  // .then( () =>
+  // {
+  //   test.case = 'local is on different branch than remote';
+  //   a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   return null;
+  // })
+
+  // a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+  // a.shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
+
+  // .then( () =>
+  // {
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/!master';
+  //   return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+  //   .then( ( got ) =>
+  //   {
+  //     test.identical( got, false );
+  //     return got;
+  //   })
+  // })
+
+  // /* */
+
+  // .then( () =>
+  // {
+  //   test.case = 'local is on different branch than remote';
+  //   a.fileProvider.filesDelete( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   a.fileProvider.dirMake( a.abs( a.routinePath, 'wPathBasic' ) );
+  //   return null;
+  // })
+
+  // a.shell({ execPath : 'git clone https://github.com/Wandalen/wPathBasic.git ' + a.path.name( a.abs( a.routinePath, 'wPathBasic' ) ), ready : con })
+  // a.shell({ execPath : 'git -C wPathBasic checkout -b newbranch', ready : con })
+
+  // .then( () =>
+  // {
+  //   let remotePath = 'git+https:///github.com/Wandalen/wPathBasic.git/!newbranch';
+  //   return _.git.isUpToDate({ localPath : a.abs( a.routinePath, 'wPathBasic' ), remotePath })
+  //   .then( ( got ) =>
+  //   {
+  //     test.identical( got, true );
+  //     return got;
+  //   })
+  // })
+
+  // return con;
 }
 
 isUpToDate.timeOut = 60000;
@@ -10615,20 +11051,33 @@ status.timeOut = 30000;
 
 function statusFull( test )
 {
+  //-----------------------------------ORIGINAL VERSION-----------------------------------------------------------
   let context = this;
-  let a = test.assetFor( 'basic' );
+  let provider = context.provider;
+  let path = provider.path;
+  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
+  let localPath = path.join( testPath, 'clone' );
+  let repoPath = path.join( testPath, 'repo' );
+  let repoPathNative = path.nativize( repoPath );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  let filePath = path.join( localPath, 'newFile' );
+  let readmePath = path.join( localPath, 'README' );
 
-  a.shell.predefined.currentPath = a.abs( a.routinePath, 'clone' );
+  let con = new _.Consequence().take( null );
 
-  a.shell2 = _.process.starter
+  let shell = _.process.starter
   ({
-    currentPath : a.abs( a.routinePath, 'repo' ),
-    ready : a.ready
+    currentPath : localPath,
+    ready : con
   })
 
-  a.fileProvider.dirMake( a.abs( a.routinePath ) )
+  let shell2 = _.process.starter
+  ({
+    currentPath : repoPath,
+    ready : con
+  })
 
+  provider.dirMake( testPath )
   prepareRepo()
 
   begin()
@@ -10637,7 +11086,7 @@ function statusFull( test )
     debugger
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : 0,
       remote : 0,
@@ -10648,23 +11097,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       conflicts : null,
 
@@ -10673,18 +11122,18 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status : null,
+      status: null,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     debugger
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 1,
       unpushed : 0,
       remote : 0,
@@ -10695,23 +11144,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       conflicts : null,
 
@@ -10720,17 +11169,17 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status : null,
+      status: null,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 1,
       unpushed : null,
       remote : 0,
@@ -10741,24 +11190,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
-      unpushed : false,
-      unpushedBranches : false,
-      unpushedCommits : false,
-      unpushedTags : false,
+      unpushed: false,
+      unpushedBranches: false,
+      unpushedCommits: false,
+      unpushedTags: false,
 
       conflicts : null,
 
@@ -10767,17 +11216,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 1,
       unpushed : 0,
       uncommitted : null,
@@ -10788,24 +11237,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : false,
-      uncommittedAdded : false,
-      uncommittedChanged : false,
-      uncommittedCopied : false,
-      uncommittedDeleted : false,
-      uncommittedIgnored : null,
-      uncommittedRenamed : false,
-      uncommittedUntracked : false,
-      uncommittedUnstaged : false,
+      uncommitted: false,
+      uncommittedAdded: false,
+      uncommittedChanged: false,
+      uncommittedCopied: false,
+      uncommittedDeleted: false,
+      uncommittedIgnored: null,
+      uncommittedRenamed: false,
+      uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       prs : null,
 
@@ -10814,17 +11263,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 1,
       unpushed : null,
       uncommitted : null,
@@ -10835,24 +11284,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : false,
-      uncommittedAdded : false,
-      uncommittedChanged : false,
-      uncommittedCopied : false,
-      uncommittedDeleted : false,
-      uncommittedIgnored : null,
-      uncommittedRenamed : false,
-      uncommittedUntracked : false,
-      uncommittedUnstaged : false,
+      uncommitted: false,
+      uncommittedAdded: false,
+      uncommittedChanged: false,
+      uncommittedCopied: false,
+      uncommittedDeleted: false,
+      uncommittedIgnored: null,
+      uncommittedRenamed: false,
+      uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
-      unpushed : false,
-      unpushedBranches : false,
-      unpushedCommit : false,
-      unpushedTags : false,
+      unpushed: false,
+      unpushedBranches: false,
+      unpushedCommits: false,
+      unpushedTags: false,
 
       prs : null,
 
@@ -10861,17 +11310,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : null,
       uncommitted : null,
@@ -10882,24 +11331,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       prs : null,
 
@@ -10908,17 +11357,17 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status : null,
+      status: null,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : 1,
       uncommitted : null,
@@ -10929,24 +11378,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
-      unpushed : false,
-      unpushedBranches : false,
-      unpushedCommits : false,
-      unpushedTags : false,
+      unpushed: false,
+      unpushedBranches: false,
+      unpushedCommits: false,
+      unpushedTags: false,
 
       prs : null,
 
@@ -10955,17 +11404,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : null,
       uncommitted : 1,
@@ -10976,24 +11425,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : false,
-      uncommittedAdded : false,
-      uncommittedChanged : false,
-      uncommittedCopied : false,
-      uncommittedDeleted : false,
-      uncommittedIgnored : null,
-      uncommittedRenamed : false,
-      uncommittedUntracked : false,
-      uncommittedUnstaged : false,
+      uncommitted: false,
+      uncommittedAdded: false,
+      uncommittedChanged: false,
+      uncommittedCopied: false,
+      uncommittedDeleted: false,
+      uncommittedIgnored: null,
+      uncommittedRenamed: false,
+      uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       prs : null,
 
@@ -11002,17 +11451,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : 1,
       uncommitted : 1,
@@ -11023,24 +11472,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : false,
-      uncommittedAdded : false,
-      uncommittedChanged : false,
-      uncommittedCopied : false,
-      uncommittedDeleted : false,
-      uncommittedIgnored : null,
-      uncommittedRenamed : false,
-      uncommittedUntracked : false,
-      uncommittedUnstaged : false,
+      uncommitted: false,
+      uncommittedAdded: false,
+      uncommittedChanged: false,
+      uncommittedCopied: false,
+      uncommittedDeleted: false,
+      uncommittedIgnored: null,
+      uncommittedRenamed: false,
+      uncommittedUntracked: false,
+      uncommittedUnstaged: false,
 
-      unpushed : false,
-      unpushedBranches : false,
-      unpushedCommits : false,
-      unpushedTags : false,
+      unpushed: false,
+      unpushedBranches: false,
+      unpushedCommits: false,
+      unpushedTags: false,
 
       prs : null,
 
@@ -11049,17 +11498,17 @@ function statusFull( test )
       local : false,
       remote : null,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11070,24 +11519,24 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
 
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       prs : null,
 
@@ -11096,17 +11545,17 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status : null,
+      status: null,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11121,23 +11570,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       prs : null,
 
@@ -11146,17 +11595,17 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status : null,
+      status: null,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11171,23 +11620,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : false,
-      remoteCommits : false,
-      remoteTags : false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       prs : null,
 
@@ -11196,17 +11645,17 @@ function statusFull( test )
       local : null,
       remote : false,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11221,23 +11670,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : null,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: null,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       prs : null,
 
@@ -11246,17 +11695,17 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status : null,
+      status: null,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11271,23 +11720,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : false,
-      remoteCommits : null,
-      remoteTags : null,
+      remoteBranches: false,
+      remoteCommits: null,
+      remoteTags: null,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       prs : null,
 
@@ -11296,17 +11745,17 @@ function statusFull( test )
       local : null,
       remote : false,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11321,23 +11770,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : false,
-      remoteCommits : false,
-      remoteTags : null,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: null,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       prs : null,
 
@@ -11346,17 +11795,17 @@ function statusFull( test )
       local : null,
       remote : false,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11371,23 +11820,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : false,
-      remoteCommits : false,
-      remoteTags : false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       prs : null,
 
@@ -11396,17 +11845,17 @@ function statusFull( test )
       local : null,
       remote : false,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 0,
       unpushed : 0,
       uncommitted : 0,
@@ -11421,23 +11870,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : false,
-      remoteCommits : false,
-      remoteTags : false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
-      uncommitted : null,
-      uncommittedAdded : null,
-      uncommittedChanged : null,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : null,
-      uncommittedUntracked : null,
-      uncommittedUnstaged : null,
-      unpushed : null,
-      unpushedBranches : null,
-      unpushedCommits : null,
-      unpushedTags : null,
+      uncommitted: null,
+      uncommittedAdded: null,
+      uncommittedChanged: null,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: null,
+      uncommittedUntracked: null,
+      uncommittedUnstaged: null,
+      unpushed: null,
+      unpushedBranches: null,
+      unpushedCommits: null,
+      unpushedTags: null,
 
       prs : null,
 
@@ -11446,17 +11895,17 @@ function statusFull( test )
       local : null,
       remote : false,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 1,
       unpushed : null,
       uncommitted : null,
@@ -11470,23 +11919,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : false,
-      remoteCommits : false,
-      remoteTags : false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
-      uncommitted : false,
-      uncommittedAdded : false,
-      uncommittedChanged : false,
-      uncommittedCopied : false,
-      uncommittedDeleted : false,
-      uncommittedIgnored : null,
-      uncommittedRenamed : false,
-      uncommittedUntracked : false,
-      uncommittedUnstaged : false,
-      unpushed : false,
-      unpushedBranches : false,
-      unpushedCommits : false,
-      unpushedTags : false,
+      uncommitted: false,
+      uncommittedAdded: false,
+      uncommittedChanged: false,
+      uncommittedCopied: false,
+      uncommittedDeleted: false,
+      uncommittedIgnored: null,
+      uncommittedRenamed: false,
+      uncommittedUntracked: false,
+      uncommittedUnstaged: false,
+      unpushed: false,
+      unpushedBranches: false,
+      unpushedCommits: false,
+      unpushedTags: false,
 
       prs : null,
 
@@ -11495,17 +11944,17 @@ function statusFull( test )
       local : false,
       remote : false,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 1,
       unpushed : null,
       uncommitted : null,
@@ -11521,23 +11970,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : false,
-      remoteCommits : null,
-      remoteTags : false,
+      remoteBranches: false,
+      remoteCommits: null,
+      remoteTags: false,
 
-      uncommitted : false,
-      uncommittedAdded : false,
-      uncommittedChanged : false,
-      uncommittedCopied : null,
-      uncommittedDeleted : null,
-      uncommittedIgnored : null,
-      uncommittedRenamed : false,
-      uncommittedUntracked : false,
-      uncommittedUnstaged : false,
-      unpushed : false,
-      unpushedBranches : false,
-      unpushedCommits : false,
-      unpushedTags : false,
+      uncommitted: false,
+      uncommittedAdded: false,
+      uncommittedChanged: false,
+      uncommittedCopied: null,
+      uncommittedDeleted: null,
+      uncommittedIgnored: null,
+      uncommittedRenamed: false,
+      uncommittedUntracked: false,
+      uncommittedUnstaged: false,
+      unpushed: false,
+      unpushedBranches: false,
+      unpushedCommits: false,
+      unpushedTags: false,
 
       prs : null,
 
@@ -11546,17 +11995,17 @@ function statusFull( test )
       local : false,
       remote : false,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     //
 
     var status = _.git.statusFull
     ({
-      localPath : a.abs( a.routinePath, 'clone' ),
+      localPath : localPath,
       local : 1,
       unpushed : null,
       uncommitted : null,
@@ -11570,23 +12019,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches : false,
-      remoteCommits : false,
-      remoteTags : false,
+      remoteBranches: false,
+      remoteCommits: false,
+      remoteTags: false,
 
-      uncommitted : false,
-      uncommittedAdded : false,
-      uncommittedChanged : false,
-      uncommittedCopied : false,
-      uncommittedDeleted : false,
-      uncommittedIgnored : null,
-      uncommittedRenamed : false,
-      uncommittedUntracked : false,
-      uncommittedUnstaged : false,
-      unpushed : false,
-      unpushedBranches : false,
-      unpushedCommits : false,
-      unpushedTags : false,
+      uncommitted: false,
+      uncommittedAdded: false,
+      uncommittedChanged: false,
+      uncommittedCopied: false,
+      uncommittedDeleted: false,
+      uncommittedIgnored: null,
+      uncommittedRenamed: false,
+      uncommittedUntracked: false,
+      uncommittedUnstaged: false,
+      unpushed: false,
+      unpushedBranches: false,
+      unpushedCommits: false,
+      unpushedTags: false,
 
       prs : _.maybe,
 
@@ -11595,107 +12044,107 @@ function statusFull( test )
       local : false,
       remote : false,
 
-      status : false,
+      status: false,
 
       isRepository : true
     }
-    test.identical( status, expected );
+    test.identical( status,expected );
 
     return null;
   })
 
   /*  */
 
-  return a.ready;
+  return con;
 
   /* - */
 
   function prepareRepo()
   {
-    a.ready.then( () =>
+    con.then( () =>
     {
-      a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
-      a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
+      provider.filesDelete( repoPath );
+      provider.dirMake( repoPath );
       return null;
     })
 
-    a.shell2( 'git init --bare' );
+    shell2( 'git init --bare' );
 
-    return a.ready;
+    return con;
   }
 
   /* */
 
   function begin()
   {
-    a.ready.then( () =>
+    con.then( () =>
     {
       test.case = 'clean clone';
-      a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
+      provider.filesDelete( localPath );
       return _.process.start
       ({
-        execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
-        currentPath : a.abs( a.routinePath ),
+        execPath : 'git clone ' + repoPathNative + ' ' + path.name( localPath ),
+        currentPath : testPath,
       })
     })
 
-    return a.ready;
+    return con;
   }
 
   function repoNewCommit( message )
   {
     let shell = _.process.starter
     ({
-      currentPath : a.abs( a.routinePath ),
-      ready : a.ready
+      currentPath : testPath,
+      ready : con
     })
 
-    a.ready.then( () =>
+    con.then( () =>
     {
-      let secondRepoPath = a.abs( a.routinePath, 'secondary' );
-      a.fileProvider.filesDelete( secondRepoPath );
+      let secondRepoPath = path.join( testPath, 'secondary' );
+      provider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
+    shell( 'git clone ' + repoPathNative + ' secondary' )
     shell( 'git -C secondary commit --allow-empty -m ' + message )
     shell( 'git -C secondary push' )
 
-    return a.ready;
+    return con;
   }
 
   function repoNewCommitToBranch( message, branch )
   {
     let shell = _.process.starter
     ({
-      currentPath : a.abs( a.routinePath ),
-      ready : a.ready
+      currentPath : testPath,
+      ready : con
     })
 
     let create = true;
-    let secondRepoPath = a.abs( a.routinePath, 'secondary' );
+    let secondRepoPath = path.join( testPath, 'secondary' );
 
-    a.ready.then( () =>
+    con.then( () =>
     {
-      a.fileProvider.filesDelete( secondRepoPath );
+      provider.filesDelete( secondRepoPath );
       return null;
     })
 
-    shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
+    shell( 'git clone ' + repoPathNative + ' secondary' )
 
-    a.ready.then( () =>
+    con.then( () =>
     {
-      if( a.fileProvider.fileExists( a.abs( secondRepoPath, '.git/refs/head', branch ) ) )
+      if( provider.fileExists( path.join( secondRepoPath, '.git/refs/head', branch ) ) )
       create = false;
       return null;
     })
 
-    a.ready.then( () =>
+    con.then( () =>
     {
       let con2 = new _.Consequence().take( null );
       let shell2 = _.process.starter
       ({
-        currentPath : a.abs( a.routinePath ),
+        currentPath : testPath,
         ready : con2
       })
 
@@ -11714,8 +12163,1111 @@ function statusFull( test )
       return con2;
     })
 
-    return a.ready;
+    return con;
   }
+
+  // ----------------------------------REFACTORED VERSION---------------------------------------------------------
+  // let context = this;
+  // let a = test.assetFor( 'basic' );
+  // let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+
+  // a.shell.predefined.currentPath = a.abs( a.routinePath, 'clone' );
+
+  // a.shell2 = _.process.starter
+  // ({
+  //   currentPath : a.abs( a.routinePath, 'repo' ),
+  //   ready : a.ready
+  // })
+
+  // a.fileProvider.dirMake( a.abs( a.routinePath ) )
+
+  // prepareRepo()
+
+  // begin()
+  // .then( () =>
+  // {
+  //   debugger
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : 0,
+  //     remote : 0,
+  //     uncommitted : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     conflicts : null,
+
+  //     prs : null,
+
+  //     local : null,
+  //     remote : null,
+
+  //     status : null,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   debugger
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 1,
+  //     unpushed : 0,
+  //     remote : 0,
+  //     uncommitted : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     conflicts : null,
+
+  //     prs : null,
+
+  //     local : null,
+  //     remote : null,
+
+  //     status : null,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 1,
+  //     unpushed : null,
+  //     remote : 0,
+  //     uncommitted : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+
+  //     unpushed : false,
+  //     unpushedBranches : false,
+  //     unpushedCommits : false,
+  //     unpushedTags : false,
+
+  //     conflicts : null,
+
+  //     prs : null,
+
+  //     local : false,
+  //     remote : null,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 1,
+  //     unpushed : 0,
+  //     uncommitted : null,
+  //     remote : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : false,
+  //     uncommittedAdded : false,
+  //     uncommittedChanged : false,
+  //     uncommittedCopied : false,
+  //     uncommittedDeleted : false,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : false,
+  //     uncommittedUntracked : false,
+  //     uncommittedUnstaged : false,
+
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     prs : null,
+
+  //     conflicts : false,
+
+  //     local : false,
+  //     remote : null,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 1,
+  //     unpushed : null,
+  //     uncommitted : null,
+  //     remote : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : false,
+  //     uncommittedAdded : false,
+  //     uncommittedChanged : false,
+  //     uncommittedCopied : false,
+  //     uncommittedDeleted : false,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : false,
+  //     uncommittedUntracked : false,
+  //     uncommittedUnstaged : false,
+
+  //     unpushed : false,
+  //     unpushedBranches : false,
+  //     unpushedCommit : false,
+  //     unpushedTags : false,
+
+  //     prs : null,
+
+  //     conflicts : false,
+
+  //     local : false,
+  //     remote : null,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : null,
+  //     uncommitted : null,
+  //     remote : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     prs : null,
+
+  //     conflicts : null,
+
+  //     local : null,
+  //     remote : null,
+
+  //     status : null,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : 1,
+  //     uncommitted : null,
+  //     remote : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+
+  //     unpushed : false,
+  //     unpushedBranches : false,
+  //     unpushedCommits : false,
+  //     unpushedTags : false,
+
+  //     prs : null,
+
+  //     conflicts : null,
+
+  //     local : false,
+  //     remote : null,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : null,
+  //     uncommitted : 1,
+  //     remote : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : false,
+  //     uncommittedAdded : false,
+  //     uncommittedChanged : false,
+  //     uncommittedCopied : false,
+  //     uncommittedDeleted : false,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : false,
+  //     uncommittedUntracked : false,
+  //     uncommittedUnstaged : false,
+
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     prs : null,
+
+  //     conflicts : false,
+
+  //     local : false,
+  //     remote : null,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : 1,
+  //     uncommitted : 1,
+  //     remote : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : false,
+  //     uncommittedAdded : false,
+  //     uncommittedChanged : false,
+  //     uncommittedCopied : false,
+  //     uncommittedDeleted : false,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : false,
+  //     uncommittedUntracked : false,
+  //     uncommittedUnstaged : false,
+
+  //     unpushed : false,
+  //     unpushedBranches : false,
+  //     unpushedCommits : false,
+  //     unpushedTags : false,
+
+  //     prs : null,
+
+  //     conflicts : false,
+
+  //     local : false,
+  //     remote : null,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : 0,
+  //     uncommitted : 0,
+  //     remote : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     prs : null,
+
+  //     conflicts : null,
+
+  //     local : null,
+  //     remote : null,
+
+  //     status : null,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : 0,
+  //     uncommitted : 0,
+  //     remote : 1,
+  //     remoteBranches : 0,
+  //     remoteTags : 0,
+  //     remoteCommits : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     prs : null,
+
+  //     conflicts : null,
+
+  //     local : null,
+  //     remote : null,
+
+  //     status : null,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : 0,
+  //     uncommitted : 0,
+  //     remote : 1,
+  //     remoteBranches : null,
+  //     remoteTags : null,
+  //     remoteCommits : null,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : false,
+  //     remoteCommits : false,
+  //     remoteTags : false,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     prs : null,
+
+  //     conflicts : null,
+
+  //     local : null,
+  //     remote : false,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : 0,
+  //     uncommitted : 0,
+  //     remote : 0,
+  //     remoteBranches : null,
+  //     remoteTags : null,
+  //     remoteCommits : null,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : null,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     prs : null,
+
+  //     conflicts : null,
+
+  //     local : null,
+  //     remote : null,
+
+  //     status : null,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : 0,
+  //     uncommitted : 0,
+  //     remote : 0,
+  //     remoteBranches : 1,
+  //     remoteTags : null,
+  //     remoteCommits : null,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : false,
+  //     remoteCommits : null,
+  //     remoteTags : null,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     prs : null,
+
+  //     conflicts : null,
+
+  //     local : null,
+  //     remote : false,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : 0,
+  //     uncommitted : 0,
+  //     remote : 0,
+  //     remoteBranches : 1,
+  //     remoteTags : null,
+  //     remoteCommits : 1,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : false,
+  //     remoteCommits : false,
+  //     remoteTags : null,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     prs : null,
+
+  //     conflicts : null,
+
+  //     local : null,
+  //     remote : false,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : 0,
+  //     uncommitted : 0,
+  //     remote : 0,
+  //     remoteBranches : 1,
+  //     remoteTags : 1,
+  //     remoteCommits : 1,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : false,
+  //     remoteCommits : false,
+  //     remoteTags : false,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     prs : null,
+
+  //     conflicts : null,
+
+  //     local : null,
+  //     remote : false,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 0,
+  //     unpushed : 0,
+  //     uncommitted : 0,
+  //     remote : 1,
+  //     remoteBranches : 1,
+  //     remoteTags : 1,
+  //     remoteCommits : 1,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : false,
+  //     remoteCommits : false,
+  //     remoteTags : false,
+
+  //     uncommitted : null,
+  //     uncommittedAdded : null,
+  //     uncommittedChanged : null,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : null,
+  //     uncommittedUntracked : null,
+  //     uncommittedUnstaged : null,
+  //     unpushed : null,
+  //     unpushedBranches : null,
+  //     unpushedCommits : null,
+  //     unpushedTags : null,
+
+  //     prs : null,
+
+  //     conflicts : null,
+
+  //     local : null,
+  //     remote : false,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 1,
+  //     unpushed : null,
+  //     uncommitted : null,
+  //     remote : 1,
+  //     remoteBranches : null,
+  //     remoteTags : null,
+  //     remoteCommits : null,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : false,
+  //     remoteCommits : false,
+  //     remoteTags : false,
+
+  //     uncommitted : false,
+  //     uncommittedAdded : false,
+  //     uncommittedChanged : false,
+  //     uncommittedCopied : false,
+  //     uncommittedDeleted : false,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : false,
+  //     uncommittedUntracked : false,
+  //     uncommittedUnstaged : false,
+  //     unpushed : false,
+  //     unpushedBranches : false,
+  //     unpushedCommits : false,
+  //     unpushedTags : false,
+
+  //     prs : null,
+
+  //     conflicts : false,
+
+  //     local : false,
+  //     remote : false,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 1,
+  //     unpushed : null,
+  //     uncommitted : null,
+  //     uncommittedCopied : 0,
+  //     uncommittedDeleted : 0,
+  //     remote : 1,
+  //     remoteBranches : null,
+  //     remoteTags : null,
+  //     remoteCommits : 0,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 0
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : false,
+  //     remoteCommits : null,
+  //     remoteTags : false,
+
+  //     uncommitted : false,
+  //     uncommittedAdded : false,
+  //     uncommittedChanged : false,
+  //     uncommittedCopied : null,
+  //     uncommittedDeleted : null,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : false,
+  //     uncommittedUntracked : false,
+  //     uncommittedUnstaged : false,
+  //     unpushed : false,
+  //     unpushedBranches : false,
+  //     unpushedCommits : false,
+  //     unpushedTags : false,
+
+  //     prs : null,
+
+  //     conflicts : false,
+
+  //     local : false,
+  //     remote : false,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   //
+
+  //   var status = _.git.statusFull
+  //   ({
+  //     localPath : a.abs( a.routinePath, 'clone' ),
+  //     local : 1,
+  //     unpushed : null,
+  //     uncommitted : null,
+  //     remote : 1,
+  //     remoteBranches : null,
+  //     remoteTags : null,
+  //     remoteCommits : null,
+  //     detailing : 1,
+  //     explaining : 1,
+  //     prs : 1
+  //   })
+  //   var expected =
+  //   {
+  //     remoteBranches : false,
+  //     remoteCommits : false,
+  //     remoteTags : false,
+
+  //     uncommitted : false,
+  //     uncommittedAdded : false,
+  //     uncommittedChanged : false,
+  //     uncommittedCopied : false,
+  //     uncommittedDeleted : false,
+  //     uncommittedIgnored : null,
+  //     uncommittedRenamed : false,
+  //     uncommittedUntracked : false,
+  //     uncommittedUnstaged : false,
+  //     unpushed : false,
+  //     unpushedBranches : false,
+  //     unpushedCommits : false,
+  //     unpushedTags : false,
+
+  //     prs : _.maybe,
+
+  //     conflicts : false,
+
+  //     local : false,
+  //     remote : false,
+
+  //     status : false,
+
+  //     isRepository : true
+  //   }
+  //   test.identical( status, expected );
+
+  //   return null;
+  // })
+
+  // /*  */
+
+  // return a.ready;
+
+  // /* - */
+
+  // function prepareRepo()
+  // {
+  //   a.ready.then( () =>
+  //   {
+  //     a.fileProvider.filesDelete( a.abs( a.routinePath, 'repo' ) );
+  //     a.fileProvider.dirMake( a.abs( a.routinePath, 'repo' ) );
+  //     return null;
+  //   })
+
+  //   a.shell2( 'git init --bare' );
+
+  //   return a.ready;
+  // }
+
+  // /* */
+
+  // function begin()
+  // {
+  //   a.ready.then( () =>
+  //   {
+  //     test.case = 'clean clone';
+  //     a.fileProvider.filesDelete( a.abs( a.routinePath, 'clone' ) );
+  //     return _.process.start
+  //     ({
+  //       execPath : 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' ' + a.path.name( a.abs( a.routinePath, 'clone' ) ),
+  //       currentPath : a.abs( a.routinePath ),
+  //     })
+  //   })
+
+  //   return a.ready;
+  // }
+
+  // function repoNewCommit( message )
+  // {
+  //   let shell = _.process.starter
+  //   ({
+  //     currentPath : a.abs( a.routinePath ),
+  //     ready : a.ready
+  //   })
+
+  //   a.ready.then( () =>
+  //   {
+  //     let secondRepoPath = a.abs( a.routinePath, 'secondary' );
+  //     a.fileProvider.filesDelete( secondRepoPath );
+  //     return null;
+  //   })
+
+  //   shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
+  //   shell( 'git -C secondary commit --allow-empty -m ' + message )
+  //   shell( 'git -C secondary push' )
+
+  //   return a.ready;
+  // }
+
+  // function repoNewCommitToBranch( message, branch )
+  // {
+  //   let shell = _.process.starter
+  //   ({
+  //     currentPath : a.abs( a.routinePath ),
+  //     ready : a.ready
+  //   })
+
+  //   let create = true;
+  //   let secondRepoPath = a.abs( a.routinePath, 'secondary' );
+
+  //   a.ready.then( () =>
+  //   {
+  //     a.fileProvider.filesDelete( secondRepoPath );
+  //     return null;
+  //   })
+
+  //   shell( 'git clone ' + a.path.nativize( a.abs( a.routinePath, 'repo' ) ) + ' secondary' )
+
+  //   a.ready.then( () =>
+  //   {
+  //     if( a.fileProvider.fileExists( a.abs( secondRepoPath, '.git/refs/head', branch ) ) )
+  //     create = false;
+  //     return null;
+  //   })
+
+  //   a.ready.then( () =>
+  //   {
+  //     let con2 = new _.Consequence().take( null );
+  //     let shell2 = _.process.starter
+  //     ({
+  //       currentPath : a.abs( a.routinePath ),
+  //       ready : con2
+  //     })
+
+  //     if( create )
+  //     shell2( 'git -C secondary checkout -b ' + branch )
+  //     else
+  //     shell2( 'git -C secondary checkout ' + branch )
+
+  //     shell2( 'git -C secondary commit --allow-empty -m ' + message )
+
+  //     if( create )
+  //     shell2( 'git -C secondary push --set-upstream origin ' + branch )
+  //     else
+  //     shell2( 'git -C secondary push' )
+
+  //     return con2;
+  //   })
+
+  //   return a.ready;
+  // }
 
 }
 
