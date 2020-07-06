@@ -25,7 +25,7 @@ function onSuiteBegin( test )
   let context = this;
   context.provider = _.fileProvider;
   let path = context.provider.path;
-  context.suiteTempPath = context.provider.path.pathDirTempOpen( path.join( __dirname, '../..'), 'GitTools' );
+  context.suiteTempPath = context.provider.path.tempOpen( path.join( __dirname, '../..'  ),'GitTools' );
   context.suiteTempPath = context.provider.pathResolveLinkFull({ filePath : context.suiteTempPath, resolvingSoftLink : 1 });
   context.suiteTempPath = context.suiteTempPath.absolutePath;
 
@@ -36,7 +36,7 @@ function onSuiteEnd( test )
   let context = this;
   let path = context.provider.path;
   _.assert( _.strHas( context.suiteTempPath, 'GitTools' ), context.suiteTempPath );
-  path.pathDirTempClose( context.suiteTempPath );
+  path.tempClose( context.suiteTempPath );
 }
 
 // --
