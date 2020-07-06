@@ -1,4 +1,3 @@
-/*eslint-disable*/
 ( function _GitTools_test_ss_( )
 {
 
@@ -307,7 +306,7 @@ let context = this;
 
   return con;
 
-  // -------------REFACTORED VERSION --NOT WORKING--------------------------
+  // -------------REFACTORED VERSION ----------------------------------------
   // let context = this;
   // let a = test.assetFor( 'basic' );
   // let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
