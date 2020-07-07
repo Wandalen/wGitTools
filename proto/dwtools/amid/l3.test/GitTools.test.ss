@@ -1,4 +1,4 @@
-( function _GitTools_test_ss_( )
+( function _GitTools_test_ss_()
 {
 
 'use strict';
@@ -25,7 +25,7 @@ function onSuiteBegin( test )
   let context = this;
   context.provider = _.fileProvider;
   let path = context.provider.path;
-  context.suiteTempPath = context.provider.path.tempOpen( path.join( __dirname, '../..'  ),'GitTools' );
+  context.suiteTempPath = context.provider.path.tempOpen( path.join( __dirname, '../..' ), 'GitTools' );
   context.suiteTempPath = context.provider.pathResolveLinkFull({ filePath : context.suiteTempPath, resolvingSoftLink : 1 });
   context.suiteTempPath = context.suiteTempPath.absolutePath;
 
@@ -198,8 +198,7 @@ function pathParse( test )
 function versionsRemoteRetrive( test )
 {
   // -------------ORIGINAL VERSION------------------------------------------
-
-let context = this;
+  let context = this;
   let provider = context.provider;
   let path = provider.path;
   let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
@@ -261,7 +260,7 @@ let context = this;
   .then( () => _.git.versionsRemoteRetrive({ localPath }) )
   .then( ( got ) =>
   {
-    test.identical( got, [ 'master'] );
+    test.identical( got, [ 'master' ] );
     return got;
   })
 
@@ -8811,7 +8810,7 @@ function hasRemote( test )
 
 function isUpToDate( test )
 {
- //-------------------ORIGINAL VERSION------------------------------------------------
+  //-------------------ORIGINAL VERSION------------------------------------------------
   let context = this;
   let provider = context.provider;
   let path = context.provider.path;
@@ -11085,7 +11084,7 @@ function statusFull( test )
     debugger
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath,
       local : 0,
       unpushed : 0,
       remote : 0,
@@ -11096,23 +11095,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : null,
 
@@ -11121,7 +11120,7 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status: null,
+      status : null,
 
       isRepository : true
     }
@@ -11132,7 +11131,7 @@ function statusFull( test )
     debugger
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath,
       local : 1,
       unpushed : 0,
       remote : 0,
@@ -11143,23 +11142,23 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
-      unpushed: null,
-      unpushedBranches: null,
-      unpushedCommits: null,
-      unpushedTags: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
+      unpushed : null,
+      unpushedBranches : null,
+      unpushedCommits : null,
+      unpushedTags : null,
 
       conflicts : null,
 
@@ -11168,7 +11167,7 @@ function statusFull( test )
       local : null,
       remote : null,
 
-      status: null,
+      status : null,
 
       isRepository : true
     }
@@ -11178,7 +11177,7 @@ function statusFull( test )
 
     var status = _.git.statusFull
     ({
-      localPath : localPath,
+      localPath,
       local : 1,
       unpushed : null,
       remote : 0,
@@ -11189,19 +11188,19 @@ function statusFull( test )
     })
     var expected =
     {
-      remoteBranches: null,
-      remoteCommits: null,
-      remoteTags: null,
+      remoteBranches : null,
+      remoteCommits : null,
+      remoteTags : null,
 
-      uncommitted: null,
-      uncommittedAdded: null,
-      uncommittedChanged: null,
-      uncommittedCopied: null,
-      uncommittedDeleted: null,
-      uncommittedIgnored: null,
-      uncommittedRenamed: null,
-      uncommittedUntracked: null,
-      uncommittedUnstaged: null,
+      uncommitted : null,
+      uncommittedAdded : null,
+      uncommittedChanged : null,
+      uncommittedCopied : null,
+      uncommittedDeleted : null,
+      uncommittedIgnored : null,
+      uncommittedRenamed : null,
+      uncommittedUntracked : null,
+      uncommittedUnstaged : null,
 
       unpushed: false,
       unpushedBranches: false,
