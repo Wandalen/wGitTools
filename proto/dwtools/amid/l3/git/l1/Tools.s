@@ -2698,7 +2698,7 @@ function hookRegister( o )
     if( process.platform != 'win32' )
     _.process.start
     ({
-      execPath : 'chmod ug+x ".git/hooks/*"',
+      execPath : 'chmod ug+x .git/hooks/*',
       currentPath : o.repoPath,
       sync : 1,
       inputMirroring : 0,
