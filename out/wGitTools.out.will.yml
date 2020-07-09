@@ -113,7 +113,7 @@ module:
       entry.proto.no.tests:
         criterion:
           tests: no.tests
-        path: ../proto/dwtools/amid/l3/git/entry/Include.s
+        path: ../proto/wtools/amid/l3/git/entry/Include.s
       entry.proto.only.tests:
         criterion:
           tests: only.tests
@@ -123,13 +123,13 @@ module:
           debug: debug
           raw: raw
           content: prime
-        path: '{path::out.*=1}/source/dwtools/amid/l3/git/entry/Include.s'
+        path: '{path::out.*=1}/source/wtools/amid/l3/git/entry/Include.s'
       entry.out.raw.debug.release:
         criterion:
           debug: release
           raw: raw
           content: prime
-        path: '{path::out.*=1}/source/dwtools/amid/l3/git/entry/Include.s'
+        path: '{path::out.*=1}/source/wtools/amid/l3/git/entry/Include.s'
       entry.out.compiled.debug.debug:
         criterion:
           debug: debug
@@ -156,22 +156,22 @@ module:
         path:
           - ../proto
           - ../proto/Integration.test.s
-          - ../proto/dwtools
-          - ../proto/dwtools/Tools.s
-          - ../proto/dwtools/abase
-          - ../proto/dwtools/amid
-          - ../proto/dwtools/amid/l3
-          - ../proto/dwtools/amid/l3/git
-          - ../proto/dwtools/amid/l3/git/entry
-          - ../proto/dwtools/amid/l3/git/entry/Include.s
-          - ../proto/dwtools/amid/l3/git/include
-          - ../proto/dwtools/amid/l3/git/include/Base.s
-          - ../proto/dwtools/amid/l3/git/include/Mid.s
-          - ../proto/dwtools/amid/l3/git/l1
-          - ../proto/dwtools/amid/l3/git/l1/Tools.s
-          - ../proto/dwtools/amid/l3.test
-          - ../proto/dwtools/amid/l3.test/GitTools.test.ss
-          - ../proto/dwtools/atop
+          - ../proto/wtools
+          - ../proto/wtools/Tools.s
+          - ../proto/wtools/abase
+          - ../proto/wtools/amid
+          - ../proto/wtools/amid/l3
+          - ../proto/wtools/amid/l3/git
+          - ../proto/wtools/amid/l3/git/entry
+          - ../proto/wtools/amid/l3/git/entry/Include.s
+          - ../proto/wtools/amid/l3/git/include
+          - ../proto/wtools/amid/l3/git/include/Base.s
+          - ../proto/wtools/amid/l3/git/include/Mid.s
+          - ../proto/wtools/amid/l3/git/l1
+          - ../proto/wtools/amid/l3/git/l1/Tools.s
+          - ../proto/wtools/amid/l3.test
+          - ../proto/wtools/amid/l3.test/GitTools.test.ss
+          - ../proto/wtools/atop
     submodule:
       wTools:
         path: 'npm:///wTools'
@@ -930,7 +930,7 @@ module:
       entry.proto.no.tests:
         criterion:
           tests: no.tests
-        path: proto/dwtools/amid/l3/git/entry/Include.s
+        path: proto/wtools/amid/l3/git/entry/Include.s
       entry.proto.only.tests:
         criterion:
           tests: only.tests
@@ -940,13 +940,13 @@ module:
           debug: debug
           raw: raw
           content: prime
-        path: '{path::out.*=1}/source/dwtools/amid/l3/git/entry/Include.s'
+        path: '{path::out.*=1}/source/wtools/amid/l3/git/entry/Include.s'
       entry.out.raw.debug.release:
         criterion:
           debug: release
           raw: raw
           content: prime
-        path: '{path::out.*=1}/source/dwtools/amid/l3/git/entry/Include.s'
+        path: '{path::out.*=1}/source/wtools/amid/l3/git/entry/Include.s'
       entry.out.compiled.debug.debug:
         criterion:
           debug: debug
