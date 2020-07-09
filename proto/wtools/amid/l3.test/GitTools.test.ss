@@ -304,6 +304,8 @@ function versionsRemoteRetrive( test )
   return con;
 }
 
+versionsRemoteRetrive.routineTimeOut = 30000;
+
 //
 
 function versionsPull( test )
@@ -472,6 +474,8 @@ function versionsPull( test )
 
   return con;
 }
+
+versionsPull.routineTimeOut = 30000;
 
 function versionIsCommitHash( test )
 {
@@ -5890,7 +5894,7 @@ function statusRemoteTags( test )
   }
 }
 
-statusRemoteTags.timeOut = 30000;
+statusRemoteTags.timeOut = 120000;
 
 //
 
@@ -7652,7 +7656,7 @@ function hasLocalChanges( test )
 
 }
 
-hasLocalChanges.timeOut = 30000;
+hasLocalChanges.timeOut = 60000;
 
 //
 
@@ -8767,6 +8771,8 @@ function hasRemote( test )
 
   return con;
 }
+
+hasRemote.routineTimeOut = 30000;
 
 function isUpToDate( test )
 {
