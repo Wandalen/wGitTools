@@ -2,15 +2,12 @@ format: outwillfile-2.0
 root:
   - wGitTools.out
 consistency:
-  wGitTools.out.will.yml: &ref_0
-    hash: c897332e07b6be2b66c09806571fece3
-    size: 39065
-  ../.ex.will.yml: &ref_1
+  ../.ex.will.yml: &ref_0
     hash: 8e53a21cb6f6052c646fabec57476ae0
     size: 1710
-  ../.im.will.yml: &ref_2
-    hash: b0da1ac99d1771cebc797041caed0533
-    size: 5358
+  ../.im.will.yml: &ref_1
+    hash: 5a25c4e3e582b7d478043b12bf388b61
+    size: 5355
 module:
   wGitTools.out:
     about:
@@ -19,19 +16,19 @@ module:
       description: Collection of tools to use git programmatically.
       enabled: 1
       version: 0.4.0
-      interpreters:
+      interpreters: &ref_2
         - njs >= 10.0.0
         - chrome >= 60.0.0
         - firefox >= 60.0.0
-      keywords:
+      keywords: &ref_3
         - wTools
         - graph
       license: MIT
       author: Kostiantyn Wandalen <wanalen@01.school>
-      contributors:
+      contributors: &ref_4
         - Kostiantyn Wandalen <wanalen@01.school>
       npm.name: wgittools
-      npm.scripts:
+      npm.scripts: &ref_5
         test: wtest .run proto/**
         docgen: wdocgen .build proto
     path:
@@ -626,7 +623,7 @@ module:
           debug: release
       reflect.proto.debug.raw:
         opts:
-          filePath: 'reflector::reflect.proto*'
+          filePath: 'reflector::reflect.proto.debug.raw'
         criterion:
           tests: no.tests
           debug: debug
@@ -636,7 +633,7 @@ module:
           - files.reflect
       reflect.proto.release.raw:
         opts:
-          filePath: 'reflector::reflect.proto*'
+          filePath: 'reflector::reflect.proto.release.raw'
         criterion:
           tests: no.tests
           debug: release
@@ -646,7 +643,7 @@ module:
           - files.reflect
       reflect.proto.debug.compiled:
         opts:
-          filePath: 'reflector::reflect.proto*'
+          filePath: 'reflector::reflect.proto.debug.compiled'
         criterion:
           tests: no.tests
           debug: debug
@@ -656,7 +653,7 @@ module:
           - files.reflect
       reflect.proto.release.compiled:
         opts:
-          filePath: 'reflector::reflect.proto*'
+          filePath: 'reflector::reflect.proto.release.compiled'
         criterion:
           tests: no.tests
           debug: release
@@ -667,7 +664,7 @@ module:
       transpile.proto.raw:
         opts:
           entry: 'path::entry.proto.no.tests'
-          filePath: 'reflector::transpile.proto.raw*'
+          filePath: 'reflector::transpile.proto.raw'
         criterion:
           raw: raw
           debug: release
@@ -677,7 +674,7 @@ module:
       transpile.proto.no.tests.compiled.debug:
         opts:
           entry: 'path::entry.proto.*=1'
-          filePath: 'reflector::transpile.proto.no.tests.compiled*'
+          filePath: 'reflector::transpile.proto.no.tests.compiled.debug'
         criterion:
           tests: no.tests
           raw: compiled
@@ -688,7 +685,7 @@ module:
       transpile.proto.no.tests.compiled.release:
         opts:
           entry: 'path::entry.proto.*=1'
-          filePath: 'reflector::transpile.proto.no.tests.compiled*'
+          filePath: 'reflector::transpile.proto.no.tests.compiled.release'
         criterion:
           tests: no.tests
           raw: compiled
@@ -700,7 +697,7 @@ module:
         opts:
           entry: 'path::entry.proto.*=1'
           external.before: '{path::out.*=1}/Main.s'
-          filePath: 'reflector::transpile.proto.only.tests.compiled*'
+          filePath: 'reflector::transpile.proto.only.tests.compiled.debug'
         criterion:
           tests: only.tests
           raw: compiled
@@ -712,7 +709,7 @@ module:
         opts:
           entry: 'path::entry.proto.*=1'
           external.before: '{path::out.*=1}/Main.s'
-          filePath: 'reflector::transpile.proto.only.tests.compiled*'
+          filePath: 'reflector::transpile.proto.only.tests.compiled.release'
         criterion:
           tests: only.tests
           raw: compiled
@@ -720,24 +717,6 @@ module:
           content: prime
         inherit:
           - files.transpile
-      exported.proto.export:
-        opts:
-          filePath: 'reflector::exported.proto.export*'
-        criterion:
-          generated: 1
-          content: proto
-          export: 1
-        inherit:
-          - files.reflect
-      exported.files.proto.export:
-        opts:
-          filePath: 'reflector::exported.files.proto.export*'
-        criterion:
-          generated: 1
-          content: proto
-          export: 1
-        inherit:
-          - files.reflect
     build:
       proto.export:
         steps:
@@ -826,9 +805,8 @@ module:
           content: proto
           export: 1
     consistency:
-      wGitTools.out.will.yml: *ref_0
-      ../.ex.will.yml: *ref_1
-      ../.im.will.yml: *ref_2
+      ../.ex.will.yml: *ref_0
+      ../.im.will.yml: *ref_1
   ../:
     about:
       name: wGitTools
@@ -836,21 +814,13 @@ module:
       description: Collection of tools to use git programmatically.
       enabled: 1
       version: 0.4.0
-      interpreters:
-        - njs >= 10.0.0
-        - chrome >= 60.0.0
-        - firefox >= 60.0.0
-      keywords:
-        - wTools
-        - graph
+      interpreters: *ref_2
+      keywords: *ref_3
       license: MIT
       author: Kostiantyn Wandalen <wanalen@01.school>
-      contributors:
-        - Kostiantyn Wandalen <wanalen@01.school>
+      contributors: *ref_4
       npm.name: wgittools
-      npm.scripts:
-        test: wtest .run proto/**
-        docgen: wdocgen .build proto
+      npm.scripts: *ref_5
     path:
       module.willfiles:
         criterion:
@@ -1535,6 +1505,5 @@ module:
         hash: 8e53a21cb6f6052c646fabec57476ae0
         size: 1710
       ../.im.will.yml:
-        hash: b0da1ac99d1771cebc797041caed0533
-        size: 5358
-      wGitTools.out.will.yml: *ref_0
+        hash: 5a25c4e3e582b7d478043b12bf388b61
+        size: 5355
