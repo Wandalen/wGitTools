@@ -25,10 +25,9 @@ function onSuiteBegin( test )
   context.provider = _.fileProvider;
   let path = context.provider.path;
   context.suiteTempPath = context.provider.path.tempOpen( path.join( __dirname, '../..'  ),'GitTools' );
-  context.suiteTempPath = context.provider.pathResolveLinkFull({ filePath : context.suiteTempPath, resolvingSoftLink : 1 });
-  context.suiteTempPath = context.suiteTempPath.absolutePath;
-
 }
+
+//
 
 function onSuiteEnd( test )
 {
