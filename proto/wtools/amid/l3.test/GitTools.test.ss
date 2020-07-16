@@ -13,7 +13,7 @@ if( typeof module !== 'undefined' )
 
 //
 
-var _ = _global_.wTools;
+let _ = _global_.wTools;
 
 // --
 // context
@@ -16647,7 +16647,7 @@ function renormalizeAudit( test )
 
   function program()
   {
-    var _ = require( GitToolsPath );
+    let _ = require( GitToolsPath );
     _.git.renormalize({ localPath : ClonePath, audit : 1 });
   }
 }
@@ -16739,7 +16739,7 @@ var Proto =
 
 //
 
-var Self = new wTestSuite( Proto )/* .inherit( Parent ); */
+let Self = new wTestSuite( Proto )/* .inherit( Parent ); */
 if( typeof module !== 'undefined' && !module.parent )
 wTester.test( Self.name );
 

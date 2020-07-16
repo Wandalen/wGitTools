@@ -2816,11 +2816,11 @@ function hookPreservingHardLinksRegister( repoPath )
     {
       try
       {
-        var _ = require( "${ _.strEscape( toolsPath) }" );
+        let _ = require( "${ _.strEscape( toolsPath) }" );
       }
       catch( err )
       {
-        var _ = require( 'wTools' );
+        let _ = require( 'wTools' );
       }
       _.include( 'wFilesArchive' );
     }
