@@ -2693,12 +2693,12 @@ function hookRegister( o )
     provider.fileWrite( handlerPath, sourceCode );
   }
 
-  function setPermissions()
+  function setPermissions() /* qqq : use _.fileProvider.* routine */
   {
     if( process.platform != 'win32' )
     _.process.start
     ({
-      execPath : 'chmod ug+x ".git/hooks/*"',
+      execPath : 'chmod ug+x .git/hooks/*',
       currentPath : o.repoPath,
       sync : 1,
       inputMirroring : 0,
@@ -2778,7 +2778,7 @@ function hookPreservingHardLinksRegister( repoPath )
   _.assert( arguments.length === 1 );
   _.assert( _.strDefined( repoPath ) );
 
-  let toolsPath = path.resolve( __dirname, '../../../../../dwtools/Tools.s' );
+  let toolsPath = path.resolve( __dirname, '../../../../../wtools/Tools.s' );
   _.sure( provider.fileExists( toolsPath ) );
   toolsPath = path.nativize( toolsPath );
 
@@ -2816,11 +2816,11 @@ function hookPreservingHardLinksRegister( repoPath )
     {
       try
       {
-        var _ = require( "${ _.strEscape( toolsPath) }" );
+        let _ = require( "${ _.strEscape( toolsPath) }" );
       }
       catch( err )
       {
-        var _ = require( 'wTools' );
+        let _ = require( 'wTools' );
       }
       _.include( 'wFilesArchive' );
     }
@@ -3715,8 +3715,8 @@ function configSave( filePath, config )
     'git <command> [<revision>...] -- [<file>...]'
 
  = Beautified calls stack
-    at detailingHandle (/pro/builder/proto/dwtools/amid/l3/git/l1/Tools.s:3556:15)
-    at wConsequence.handleOutput (/pro/builder/proto/dwtools/amid/l3/git/l1/Tools.s:3505:5)
+    at detailingHandle (/pro/builder/proto/wtools/amid/l3/git/l1/Tools.s:3556:15)
+    at wConsequence.handleOutput (/pro/builder/proto/wtools/amid/l3/git/l1/Tools.s:3505:5)
 
 */
 

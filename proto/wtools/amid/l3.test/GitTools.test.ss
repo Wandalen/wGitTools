@@ -5,7 +5,7 @@
 
 if( typeof module !== 'undefined' )
 {
-  let _ = require( '../../../dwtools/Tools.s' );
+  let _ = require( '../../../wtools/Tools.s' );
 
   _.include( 'wTesting' );
 
@@ -14,7 +14,7 @@ if( typeof module !== 'undefined' )
 
 //
 
-var _ = _global_.wTools;
+let _ = _global_.wTools;
 
 // --
 // context
@@ -25,11 +25,10 @@ function onSuiteBegin( test )
   let context = this;
   context.provider = _.fileProvider;
   let path = context.provider.path;
-  context.suiteTempPath = context.provider.path.tempOpen( path.join( __dirname, '../..' ), 'GitTools' );
-  context.suiteTempPath = context.provider.pathResolveLinkFull({ filePath : context.suiteTempPath, resolvingSoftLink : 1 });
-  context.suiteTempPath = context.suiteTempPath.absolutePath;
-
+  context.suiteTempPath = context.provider.path.tempOpen( path.join( __dirname, '../..'  ),'GitTools' );
 }
+
+//
 
 function onSuiteEnd( test )
 {
@@ -297,6 +296,8 @@ function versionsRemoteRetrive( test )
   return a.ready;
 }
 
+versionsRemoteRetrive.routineTimeOut = 30000;
+
 //
 
 function versionsPull( test )
@@ -453,6 +454,8 @@ function versionsPull( test )
 
   return a.ready;
 }
+
+versionsPull.routineTimeOut = 30000;
 
 function versionIsCommitHash( test )
 {
@@ -5738,7 +5741,7 @@ function statusRemoteTags( test )
   }
 }
 
-statusRemoteTags.timeOut = 30000;
+statusRemoteTags.timeOut = 120000;
 
 //
 
@@ -7459,7 +7462,7 @@ function hasLocalChanges( test )
 
 }
 
-hasLocalChanges.timeOut = 30000;
+hasLocalChanges.timeOut = 60000;
 
 //
 
@@ -8518,7 +8521,7 @@ function hasRemote( test )
   return a.ready;
 }
 
-//
+hasRemote.routineTimeOut = 30000;
 
 function isUpToDate( test )
 {
@@ -16192,7 +16195,7 @@ function renormalizeAudit( test )
 
   function program()
   {
-    var _ = require( GitToolsPath );
+    let _ = require( GitToolsPath );
     _.git.renormalize({ localPath : ClonePath, audit : 1 });
   }
 }
@@ -16284,7 +16287,7 @@ var Proto =
 
 //
 
-var Self = new wTestSuite( Proto )/* .inherit( Parent ); */
+let Self = new wTestSuite( Proto )/* .inherit( Parent ); */
 if( typeof module !== 'undefined' && !module.parent )
 wTester.test( Self.name );
 
