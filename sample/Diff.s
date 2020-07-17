@@ -6,7 +6,7 @@ var got =  _.git.diff
 ({ 
   localPath : _.path.join( __dirname, '..' ),
   state1 : 'working',
-  state2 : 'tag::0.3.36',
+  state2 : 'tag::v0.3.162',
   attachOriginalDiffOutput : 0,
   detailing : 1,
   explaining : 1
