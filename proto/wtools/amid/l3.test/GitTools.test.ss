@@ -15106,6 +15106,8 @@ function gitHooksManagerErrors( test )
   }
 }
 
+gitHooksManagerErrors.timeOut = 30000;
+
 //
 
 function hookTrivial( test )
@@ -15337,6 +15339,8 @@ function hookPreservingHardLinks( test )
   }
 
 }
+
+hookPreservingHardLinks.timeOut = 30000;
 
 //
 
