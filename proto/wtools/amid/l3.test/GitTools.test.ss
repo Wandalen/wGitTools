@@ -3372,7 +3372,7 @@ function statusLocal( test )
 
 }
 
-statusLocal.timeOut = 60000;
+statusLocal.timeOut = 120000;
 
 //
 
@@ -4959,7 +4959,7 @@ function statusLocalExtended( test )
   }
 }
 
-statusLocalExtended.timeOut = 30000;
+statusLocalExtended.timeOut = 60000;
 
 //
 
@@ -5581,7 +5581,7 @@ function statusRemote( test )
 
 }
 
-statusRemote.timeOut = 30000;
+statusRemote.timeOut = 60000;
 
 //
 
@@ -6834,7 +6834,7 @@ function statusRemoteVersionOption( test )
 
 }
 
-statusRemoteVersionOption.timeOut = 30000;
+statusRemoteVersionOption.timeOut = 60000;
 
 //
 
@@ -7462,7 +7462,7 @@ function hasLocalChanges( test )
 
 }
 
-hasLocalChanges.timeOut = 60000;
+hasLocalChanges.timeOut = 120000;
 
 //
 
@@ -8354,7 +8354,7 @@ function hasChanges( test )
 
 }
 
-hasChanges.timeOut = 60000;
+hasChanges.timeOut = 120000;
 
 //
 
@@ -8840,7 +8840,7 @@ function isUpToDate( test )
   return con;
 }
 
-isUpToDate.timeOut = 60000;
+isUpToDate.timeOut = 120000;
 
 //
 
@@ -11964,7 +11964,7 @@ function statusEveryCheck( test )
 
 }
 
-statusEveryCheck.timeOut = 30000;
+statusEveryCheck.timeOut = 60000;
 
 //
 
