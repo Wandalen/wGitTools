@@ -1,5 +1,5 @@
 
-require( 'wgittools' );
+require( '..' );
 let _ = wTools;
 
 var got =  _.git.diff
