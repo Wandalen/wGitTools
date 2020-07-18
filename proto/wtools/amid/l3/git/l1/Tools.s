@@ -3840,7 +3840,7 @@ function diff( o )
     {
       'A' : 'addedFiles',
       'C' : 'copiedFiles',
-      'C' : 'copiedFiles',
+      'C' : 'copiedFiles', /* qqq : ? */
       'D' : 'deletedFiles',
       'M' : 'modifiedFiles',
       'R' : 'renamedFiles',

@@ -23,9 +23,9 @@
     "wFiles" : "",
     "wfilesarchive" : "",
     "wprocess" : "",
-    "ini" : "",
-    "octonode" : "0.9.5"
+    "ini" : "=1.3.5",
+    "octonode" : "=0.9.5"
   },
-  "devDependencies" : { "wTesting" : "" },
+  "devDependencies" : { "wTesting" : "", "wgittools" : "file:." },
   "keywords" : [ "wTools" ]
 }
