@@ -4082,7 +4082,7 @@ var KnownHooks =
 // declare
 // --
 
-let Extend =
+let Extension =
 {
 
   protocols : [ 'git' ],
@@ -4170,7 +4170,7 @@ let Extend =
 
 }
 
-_.mapExtend( Self, Extend );
+_.mapExtend( Self, Extension );
 
 //
 
