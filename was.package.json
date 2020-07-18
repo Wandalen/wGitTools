@@ -4,7 +4,7 @@
   "description" : "Collection of tools to use git programmatically.",
   "author" : "Kostiantyn Wandalen <wanalen@01.school>",
   "license" : "MIT",
-  "main" : "proto/wtools/amid/l3/git/entry/Include.s",
+  "main" : "proto/wtools/amid/l3/git/entry/GitTools.ss",
   "files" : [ "proto/wtools/amid/l3/git", "proto/wtools/Tools.s", "out" ],
   "scripts" : { "test" : "wtest .run 'proto/**' rapidity:-1", "docgen" : "wdocgen proto" },
   "repository" :

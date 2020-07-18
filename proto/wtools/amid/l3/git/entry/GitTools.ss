@@ -1,4 +1,4 @@
-( function _Include_s_( ) {
+( function _GitTools_ss_( ) {
 
 'use strict';
 
@@ -9,7 +9,7 @@
 
 if( typeof module !== 'undefined' )
 {
-  let _ = require( '../include/Mid.s' );
+  let _ = require( '../include/Mid.ss' );
   module[ 'exports' ] = _global_.wTools;
 }
 

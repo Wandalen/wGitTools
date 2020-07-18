@@ -8,8 +8,8 @@ if( typeof module !== 'undefined' )
 {
   let _ = require( '../../../../../wtools/Tools.s' );
 
-  require( './Base.s' );
-  require( '../l1/Tools.s' );
+  require( './Basic.ss' );
+  require( '../l1/Namespace.ss' );
 
   module[ 'exports' ] = _global_.wTools;
 }

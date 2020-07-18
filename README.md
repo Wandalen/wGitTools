@@ -3,13 +3,16 @@
 
 Collection of tools to use git programmatically.
 
-## Try out
+## Try out from the repository
 ```
+git clone https://github.com/Wandalen/wGitTools
+cd wGitTools
 npm install
 node sample/Sample.s
 ```
 
-## To add
+## To add to your project
 ```
 npm add 'wgittools@alpha'
 ```
+

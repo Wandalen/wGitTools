@@ -1,11 +1,10 @@
-( function _Tools_s_( ) {
+( function _Namespace_ss_( ) {
 
 'use strict';
 
 let _ = _global_.wTools;
 let Self = _.git = _.git || Object.create( null );
 let Ini = null;
-
 
 // --
 // path
