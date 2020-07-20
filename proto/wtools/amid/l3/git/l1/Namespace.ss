@@ -3749,6 +3749,9 @@ function diff( o )
     ready
   });
 
+  if( o.fetchTags )
+  start( `git fetch --tags` )
+
   let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
 
   if( state1 === 'working' )
@@ -3871,6 +3874,7 @@ diff.defaults =
   detailing : 1,
   explaining : 1,
   attachOriginalDiffOutput : 0,
+  fetchTags : 0,
   sync : 1
 }
 
