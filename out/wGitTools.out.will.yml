@@ -1537,6 +1537,4 @@ module:
       ../.im.will.yml:
         hash: 7b8d6d544a2825435b52a5bf64bdb1b5
         size: 5359
-      wGitTools.out.will.yml:
-        hash: c03d27d94e5083a42c36c15d2d366ef3
-        size: 39251
+      wGitTools.out.will.yml: *ref_0
