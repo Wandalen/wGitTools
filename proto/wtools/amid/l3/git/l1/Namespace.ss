@@ -2619,6 +2619,123 @@ repositoryVersionToTag.defaults =
 
 //
 
+function exists( o )
+{
+  let self = this;
+
+  _.routineOptions( exists, o );
+  _.assert( arguments.length === 1 );
+  _.assert( _.strDefined( o.local ) || _.strDefined( o.remote ) );
+
+  let status = Object.create( null );
+  let ready = new _.Consequence().take( null );
+
+  if( o.local )
+  {
+    ready.then( checkLocal )
+    ready.then( ( got ) =>
+    {
+      status.local = got;
+      return null;
+    })
+  }
+
+  if( o.remote )
+  {
+    ready.then( checkRemote )
+    ready.then( ( got ) =>
+    {
+      status.remote = got;
+      return null;
+    })
+  }
+
+  ready.then( () => status );
+
+  ready.catch( ( err ) =>
+  {
+    _.errAttend( err );
+    throw _.err( 'Failed to obtain tags and heads from remote repository.\n', err );
+  })
+
+  if( o.sync )
+  return ready.sync();
+
+  return ready;
+
+  /* - */
+
+  function checkLocal()
+  {
+    let local = parse( o.local );
+    if( !local )
+    throw _.err( `Failed to determine kind of {o.local}. Expects "!tag" or "#version", but got:${o.local}`);
+
+    if( local.tag )
+    return self.repositoryHasTag
+    ({
+      localPath : o.localPath,
+      local : 1,
+      remote : 0,
+      tag : local.tag,
+      sync : o.sync
+    })
+
+    return self.repositoryHasVersion
+    ({
+      localPath : o.localPath,
+      version : local.version,
+      sync : o.sync
+    })
+  }
+
+  /* - */
+
+  function checkRemote()
+  {
+    let remote = parse( o.remote );
+    if( !remote )
+    throw _.err( `Failed to determine kind of {o.remote}. Expects "!tag" or "#version", but got:${o.remote}`);
+
+    if( remote.tag )
+    return self.repositoryHasTag
+    ({
+      localPath : o.localPath,
+      remotePath : o.remotePath,
+      local : 0,
+      remote : 1,
+      tag : remote.tag,
+      sync : o.sync
+    })
+
+    /* qqq3: Find how to check if remote has commit */
+    _.assert( 0, 'Case remote:#version is not implemented' );
+
+    return true;
+  }
+
+  /* - */
+
+  function parse( src )
+  {
+    if( _.strBegins( src, '!' ) )
+    return { tag : _.strRemoveBegin( src, '!' ) };
+    else if( _.strBegins( src, '#' ) )
+    return { version : _.strRemoveBegin( src, '#' ) };
+  }
+}
+
+exists.defaults =
+{
+  localPath : null,
+  remotePath : null,
+  local : null,
+  remote : null,
+  sync : 1
+}
+
+//
+
 function tagMake( o )
 {
   let ready;
@@ -4269,8 +4386,9 @@ let Extension =
 
   repositoryHasTag,
   repositoryHasVersion,
-  repositoryTagToVersion,
-  repositoryVersionToTag,
+  repositoryTagToVersion,/* qqq : cover */
+  repositoryVersionToTag,/* qqq : cover */
+  exists,
   tagMake, /* qqq : cover */
 
   // hook
