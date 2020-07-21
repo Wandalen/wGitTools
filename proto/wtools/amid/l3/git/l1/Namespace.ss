@@ -2459,7 +2459,7 @@ function repositoryHasVersion( o )
     if( !_.git.versionIsCommitHash( _.mapOnly( o, _.git.versionIsCommitHash.defaults )) )
     throw _.err( `Provided version: ${_.strQuote( o.version ) } is not a commit hash.` )
 
-    return true;
+    return null;
   })
 
   if( o.local )
@@ -2467,12 +2467,6 @@ function repositoryHasVersion( o )
 
   if( o.remote )
   ready.then( checkRemote );
-
-  ready.catch( ( err ) =>
-  {
-    _.errAttend( err );
-    throw _.err( `Failed to check if repository at: ${_.strQuote( o.localPath )} has version: ${_.strQuote( o.version )}.\n`, err );
-  })
 
   if( o.sync )
   {
@@ -2498,18 +2492,20 @@ function repositoryHasVersion( o )
     if( result )
     return result;
 
-    let con = start({ execPath : `git fetch -v -n --dry-run`, throwingExitCode : 1 })
+    let ready = _.Consequence().take( null );
 
-    con.then( ( got ) =>
+    start({ execPath : `git fetch -v -n --dry-run`, throwingExitCode : 1, ready })
+
+    ready.then( ( got ) =>
     {
-      if( !_.strHas( got.output, 'up to date' ) )
+      if( _.strHas( got.output, /.+\.\..+/  ) )
       throw _.err( `Local repository at ${o.localPath} is not up-to-date with remote. Please run "git fetch" and try again.` )
       return true;
     })
 
-    con.then( () => start({ execPath : `git branch -r --contains ${o.version}` }) )
+    start({ execPath : `git branch -r --contains ${o.version}`, ready })
 
-    con.then( ( got ) =>
+    ready.then( ( got ) =>
     {
       if( got.exitCode !== 0 )
       return false;
@@ -2517,7 +2513,7 @@ function repositoryHasVersion( o )
       return lines.length >= 1;
     })
 
-    return con;
+    return ready;
   }
 }
 
@@ -2680,8 +2676,7 @@ function exists( o )
 
   ready.catch( ( err ) =>
   {
-    _.errAttend( err );
-    throw _.err( 'Failed to obtain tags and heads from remote repository.\n', err );
+    throw _.err( 'Failed to obtain tags and heads from remote repository. Reason:\n', err );
   })
 
   if( o.sync )
@@ -4386,12 +4381,13 @@ function renormalize( o )
 
   ready.catch( ( err ) =>
   {
-    _.errAttend( err );
+    if( !o.throwing )
+    {
+      _.errAttend( err );
+      return null;
+    }
 
-    if( o.throwing )
     throw _.err( `Failed to renormalize repository at: ${o.localPath}\nReason:`, err );
-
-    return null;
   })
 
   if( o.sync )
