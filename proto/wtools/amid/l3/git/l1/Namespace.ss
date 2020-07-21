@@ -3969,6 +3969,8 @@ function configSave( filePath, config )
 
 function diff( o )
 {
+  let self = this;
+
   o = _.routineOptions( diff, o );
 
   _.assert( arguments.length === 1 );
@@ -3980,9 +3982,9 @@ function diff( o )
   o.state1 = 'version::HEAD';
 
   let ready = new _.Consequence().take( null );
+  let result = Object.create( null );
   let state1 = stateParse( o.state1, true );
   let state2 = stateParse( o.state2 ); /* qqq : ! */
-  let result = Object.create( null );
 
   let start = _.process.starter
   ({
@@ -4000,18 +4002,9 @@ function diff( o )
   if( o.fetchTags )
   start( `git fetch --tags` )
 
-  let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
-
-  if( state1 === 'working' )
-  start( `git diff ${diffMode} --exit-code ${state2}` )
-  else if( state1 === 'staging' )
-  start( `git diff --staged ${diffMode} --exit-code ${state2}` )
-  else if( state1 === 'committed' )
-  start( `git diff ${diffMode} --exit-code HEAD ${state2}` )
-  else
-  start( `git diff ${diffMode} --exit-code ${state1} ${state2}` )
-
-  ready.then( handleOutput );
+  ready.then( checkStates );
+  ready.then( runDiff );
+  ready.then( handleResult );
 
   if( o.sync )
   {
@@ -4025,11 +4018,18 @@ function diff( o )
 
   function stateParse( state, allowSpecial )
   {
-    let statesBegin = [ 'version::', 'tag::' ];
+    let statesBegin = [ '#', '!' ];
     let statesSpecial = [ 'working', 'staging', 'committed' ];
 
+    let result = { original : state, value : state };
+
     if( _.strBegins( state, statesBegin ) )
-    return _.strRemoveBegin( state, statesBegin );
+    {
+      result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
+      result.isTag = _.strBegins( state, statesBegin[ 1 ] )
+      result.value = _.strRemoveBegin( state, statesBegin );
+      return result;
+    }
 
     if( !allowSpecial )
     throw _.err( `Expects state in one of formats:${statesBegin}, but got:${state}` );
@@ -4037,7 +4037,89 @@ function diff( o )
     if( !_.longHas( statesSpecial, state ) )
     throw _.err( `Expects one of special states: ${statesSpecial}, but got:${state}` );
 
-    return state;
+    result.isSpecial = true;
+
+    return result;
+  }
+
+  /* - */
+
+  function checkStates()
+  {
+    let ready = _.Consequence().take( null )
+    ready.then( () => checkState( state1 ) )
+    ready.then( () => checkState( state2 ) )
+    ready.then( () =>
+    {
+      if( !state1.exists )
+      if( o.throwingDoesNotExist )
+      throw _.err( `State ${state1.original} doesn't exist in repository at ${o.localPath}` );
+
+      if( !state2.exists )
+      if( o.throwingDoesNotExist )
+      throw _.err( `State ${state2.original} doesn't exist in repository at ${o.localPath}` );
+
+      return null;
+    })
+    return ready;
+  }
+
+  /* - */
+
+  function checkState( state )
+  {
+    state.exists = true;
+
+    if( state.isSpecial )
+    return null;
+
+    let con = _.Consequence().take( null )
+
+    con.then( () =>
+    {
+      return self.exists
+      ({
+        localPath : o.localPath,
+        local : state.original,
+        remote : 0,
+        sync : o.sync
+      })
+    })
+    .then( ( got ) =>
+    {
+      state.exists = got;
+      return null;
+    })
+
+    if( o.sync )
+    return con.sync();
+
+    return con;
+  }
+
+  /* - */
+
+  function runDiff()
+  {
+    if( !state1.exists || !state2.exists )
+    return null;
+
+    let ready = new _.Consequence().take( null );
+
+    let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
+
+    if( state1.value === 'working' )
+    start({ execPath : `git diff ${diffMode} --exit-code ${state2.value}`, ready })
+    else if( state1.value === 'staging' )
+    start({ execPath : `git diff --staged ${diffMode} --exit-code ${state2.value}`, ready })
+    else if( state1.value === 'committed' )
+    start({ execPath : `git diff ${diffMode} --exit-code HEAD ${state2.value}`, ready })
+    else
+    start({ execPath : `git diff ${diffMode} --exit-code ${state1.value} ${state2.value}`, ready })
+
+    ready.then( handleOutput );
+
+    return ready;
   }
 
   /*  */
@@ -4112,6 +4194,17 @@ function diff( o )
       result[ pName ] = true;
     }
   }
+
+  /* - */
+
+  function handleResult()
+  {
+    result.state1 = state1;
+    result.state2 = state2;
+    if( !state1.exists || !state2.exists )
+    result.status = _.maybe;
+    return result;
+  }
 }
 
 diff.defaults =
@@ -4122,6 +4215,7 @@ diff.defaults =
   detailing : 1,
   explaining : 1,
   attachOriginalDiffOutput : 0,
+  throwingDoesNotExist : 0,
   fetchTags : 0,
   sync : 1
 }
