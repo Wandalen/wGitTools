@@ -4166,7 +4166,7 @@ let Extension =
   diff,
   reset,
   /* qqq : implement routine _.git.profileConfigure */
-  renormalize
+  renormalize,
 
 }
 
