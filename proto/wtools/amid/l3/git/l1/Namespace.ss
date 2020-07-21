@@ -2456,14 +2456,17 @@ function repositoryHasVersion( o )
     if( !self.isRepository({ localPath : o.localPath }) )
     throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
 
-    if( !_.git.versionIsCommitHash( o ) )
+    if( !_.git.versionIsCommitHash( _.mapOnly( o, _.git.versionIsCommitHash.defaults )) )
     throw _.err( `Provided version: ${_.strQuote( o.version ) } is not a commit hash.` )
 
-    let con = start({ execPath : `git cat-file -t ${o.version}` })
-    con.then( got => got.exitCode === 0 );
+    return true;
+  })
 
-    return con;
-  });
+  if( o.local )
+  ready.then( checkLocal );
+
+  if( o.remote )
+  ready.then( checkRemote );
 
   ready.catch( ( err ) =>
   {
@@ -2478,12 +2481,52 @@ function repositoryHasVersion( o )
   }
 
   return ready;
+
+  /* - */
+
+  function checkLocal()
+  {
+    let con = start({ execPath : `git cat-file -t ${o.version}` })
+    con.then( got => got.exitCode === 0 );
+    return con;
+  }
+
+  /* - */
+
+  function checkRemote( result )
+  {
+    if( result )
+    return result;
+
+    let con = start({ execPath : `git fetch -v -n --dry-run`, throwingExitCode : 1 })
+
+    con.then( ( got ) =>
+    {
+      if( !_.strHas( got.output, 'up to date' ) )
+      throw _.err( `Local repository at ${o.localPath} is not up-to-date with remote. Please run "git fetch" and try again.` )
+      return true;
+    })
+
+    con.then( () => start({ execPath : `git branch -r --contains ${o.version}` }) )
+
+    con.then( ( got ) =>
+    {
+      if( got.exitCode !== 0 )
+      return false;
+      let lines =  _.strSplitNonPreserving({ src : got.output, delimeter : /\s+/, stripping : 1 });
+      return lines.length >= 1;
+    })
+
+    return con;
+  }
 }
 
 repositoryHasVersion.defaults =
 {
   localPath : null,
   version : null,
+  local : 1,
+  remote : 0,
   sync : 1
 }
 
@@ -2627,30 +2670,13 @@ function exists( o )
   _.assert( arguments.length === 1 );
   _.assert( _.strDefined( o.local ) || _.strDefined( o.remote ) );
 
-  let status = Object.create( null );
   let ready = new _.Consequence().take( null );
 
   if( o.local )
-  {
-    ready.then( checkLocal )
-    ready.then( ( got ) =>
-    {
-      status.local = got;
-      return null;
-    })
-  }
+  ready.then( checkLocal )
 
   if( o.remote )
-  {
-    ready.then( checkRemote )
-    ready.then( ( got ) =>
-    {
-      status.remote = got;
-      return null;
-    })
-  }
-
-  ready.then( () => status );
+  ready.then( checkRemote )
 
   ready.catch( ( err ) =>
   {
@@ -2691,8 +2717,11 @@ function exists( o )
 
   /* - */
 
-  function checkRemote()
+  function checkRemote( result )
   {
+    if( result )
+    return result;
+
     let remote = parse( o.remote );
     if( !remote )
     throw _.err( `Failed to determine kind of {o.remote}. Expects "!tag" or "#version", but got:${o.remote}`);
@@ -2705,6 +2734,15 @@ function exists( o )
       local : 0,
       remote : 1,
       tag : remote.tag,
+      sync : o.sync
+    })
+
+    return self.repositoryHasVersion
+    ({
+      localPath : o.localPath,
+      local : 0,
+      remote : 1,
+      version : remote.version,
       sync : o.sync
     })
 
@@ -4021,12 +4059,15 @@ function diff( o )
     let statesBegin = [ '#', '!' ];
     let statesSpecial = [ 'working', 'staging', 'committed' ];
 
-    let result = { original : state, value : state };
+    let result =
+    {
+      original : state,
+      value : state,
+      isSpecial : false
+    };
 
     if( _.strBegins( state, statesBegin ) )
     {
-      result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
-      result.isTag = _.strBegins( state, statesBegin[ 1 ] )
       result.value = _.strRemoveBegin( state, statesBegin );
       return result;
     }
