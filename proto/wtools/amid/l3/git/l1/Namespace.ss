@@ -4051,7 +4051,7 @@ function diff( o )
 
   function stateParse( state, allowSpecial )
   {
-    let statesBegin = [ '#', '!' ];
+    let statesBegin = [ 'version::', 'tag::' ];
     let statesSpecial = [ 'working', 'staging', 'committed' ];
 
     let result =
@@ -4113,22 +4113,13 @@ function diff( o )
 
     con.then( () =>
     {
-      return self.exists
-      ({
-        localPath : o.localPath,
-        local : state.original,
-        remote : 0,
-        sync : o.sync
-      })
+      return start({ execPath : `git rev-parse ${state.value}`, ready : null })
     })
     .then( ( got ) =>
     {
-      state.exists = got;
+      state.exists = got.exitCode === 0;
       return null;
     })
-
-    if( o.sync )
-    return con.sync();
 
     return con;
   }

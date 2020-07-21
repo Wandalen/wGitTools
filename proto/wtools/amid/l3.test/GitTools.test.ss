@@ -12428,7 +12428,7 @@ function diff( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12450,7 +12450,7 @@ function diff( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12472,7 +12472,7 @@ function diff( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12494,7 +12494,7 @@ function diff( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -12554,7 +12554,7 @@ renamedFiles:
       status
 
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12576,7 +12576,7 @@ renamedFiles:
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12598,7 +12598,7 @@ renamedFiles:
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12620,7 +12620,7 @@ renamedFiles:
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -12698,7 +12698,7 @@ addedFiles:
       unmergedFiles : '',
       status
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12720,7 +12720,7 @@ addedFiles:
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12742,7 +12742,7 @@ addedFiles:
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12764,7 +12764,7 @@ addedFiles:
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -12793,7 +12793,7 @@ addedFiles:
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12815,7 +12815,7 @@ addedFiles:
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12837,7 +12837,7 @@ addedFiles:
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12859,7 +12859,7 @@ addedFiles:
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -12936,7 +12936,7 @@ function diffSpecial( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12958,7 +12958,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -12981,7 +12981,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13003,7 +13003,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -13055,7 +13055,7 @@ function diffSpecial( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13077,7 +13077,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13100,7 +13100,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13122,7 +13122,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -13166,7 +13166,7 @@ function diffSpecial( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13188,7 +13188,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13211,7 +13211,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13233,7 +13233,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -13278,7 +13278,7 @@ function diffSpecial( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13300,7 +13300,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13323,7 +13323,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13345,7 +13345,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -13398,7 +13398,7 @@ function diffSpecial( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13420,7 +13420,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13443,7 +13443,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13465,7 +13465,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -13511,7 +13511,7 @@ function diffSpecial( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13533,7 +13533,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13556,7 +13556,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13578,7 +13578,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -13623,7 +13623,7 @@ function diffSpecial( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13645,7 +13645,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13668,7 +13668,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13690,7 +13690,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -13729,7 +13729,7 @@ function diffSpecial( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13751,7 +13751,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13774,7 +13774,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13796,7 +13796,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -13837,7 +13837,7 @@ function diffSpecial( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13859,7 +13859,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13882,7 +13882,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13904,7 +13904,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -13946,7 +13946,7 @@ function diffSpecial( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13968,7 +13968,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -13990,7 +13990,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -14012,7 +14012,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
@@ -14058,7 +14058,7 @@ function diffSpecial( test )
       typechangedFiles : '',
       unmergedFiles : '',
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -14080,7 +14080,7 @@ function diffSpecial( test )
       typechangedFiles : false,
       unmergedFiles : false,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -14103,7 +14103,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     var got = _.git.diff
     ({
@@ -14125,7 +14125,7 @@ function diffSpecial( test )
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
     }
-    test.identical( got, expected )
+    test.contains( got, expected )
 
     return null;
   })
