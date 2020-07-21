@@ -2393,7 +2393,7 @@ function repositoryHasTag( o )
   function checkRemote( result )
   {
     if( result )
-    return true;
+    return result;
 
     let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
     return start( `git ls-remote --tags --refs --heads ${remotePath}` )
@@ -2410,7 +2410,7 @@ function repositoryHasTag( o )
 
     for( let i = 0, l = refs.length; i < l; i++ )
     if( refs[ i ][ 1 ] === possibleTag || refs[ i ][ 1 ] === possibleHead )
-    return true;
+    return o.returnVersion ? refs[ i ][ 0 ] : true;
 
     return false;
   }
@@ -2423,6 +2423,7 @@ repositoryHasTag.defaults =
   tag : null,
   local : 1,
   remote : 1,
+  returnVersion : 0,
   sync : 1
 }
 
@@ -2483,6 +2484,136 @@ repositoryHasVersion.defaults =
 {
   localPath : null,
   version : null,
+  sync : 1
+}
+
+//
+
+function repositoryTagToVersion( o )
+{
+  let self = this;
+  _.routineOptions( repositoryTagToVersion, o );
+  _.assert( arguments.length === 1 );
+  let o2 = _.mapExtend( null, o, { returnVersion : 1 });
+  return self.repositoryHasTag( o2 );
+}
+
+repositoryTagToVersion.defaults =
+{
+  localPath : null,
+  remotePath : null,
+  tag : null,
+  local : 1,
+  remote : 1,
+  sync : 1
+}
+
+//
+
+function repositoryVersionToTag( o )
+{
+  let self = this;
+
+  _.assert( arguments.length === 1 );
+  _.routineOptions( repositoryVersionToTag, o );
+  _.assert( _.strDefined( o.localPath ) );
+  _.assert( _.strDefined( o.version ) );
+  _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
+  _.assert( o.local || o.remote );
+
+  let ready = new _.Consequence().take( null );
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    inputMirroring : 0,
+    outputPiping : 0,
+  });
+
+  ready.then( () =>
+  {
+    if( !self.isRepository({ localPath : o.localPath }) )
+    throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
+    return null;
+  })
+
+  if( o.local )
+  ready.then( checkLocal );
+
+  if( o.remote )
+  ready.then( checkRemote );
+
+  ready.catch( ( err ) =>
+  {
+    _.errAttend( err );
+    throw _.err( 'Failed to obtain tags and heads from remote repository.\n', err );
+  })
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /*  */
+
+  function checkLocal()
+  {
+    return start( `git show-ref --heads --tags` )
+    .then( hasTag )
+  }
+
+  function checkRemote( result )
+  {
+    if( result )
+    return result;
+
+    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
+    return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    .then( hasTag )
+  }
+
+  function hasTag( got )
+  {
+    let headsPrefix = 'refs/heads/';
+    let tagsPrefix = 'refs/tags/';
+
+    let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' })
+    refs = refs.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/, stripping : 1 }) );
+
+    let result = [];
+
+    for( let i = 0, l = refs.length; i < l; i++ )
+    if( _.strBegins( refs[ i ][ 0 ], o.version ) )
+    {
+      let tag = refs[ i ][ 1 ];
+      if( _.strBegins( tag, headsPrefix ) )
+      tag = _.strRemoveBegin( tag, headsPrefix )
+      else if( _.strBegins( tag, tagsPrefix ) )
+      tag = _.strRemoveBegin( tag, tagsPrefix )
+      result.push( tag );
+    }
+
+    if( result.length === 1 )
+    return result[ 0 ];
+
+    return result;
+  }
+}
+
+repositoryVersionToTag.defaults =
+{
+  localPath : null,
+  remotePath : null,
+  version : null,
+  local : 1,
+  remote : 1,
   sync : 1
 }
 
@@ -4138,6 +4269,8 @@ let Extension =
 
   repositoryHasTag,
   repositoryHasVersion,
+  repositoryTagToVersion,
+  repositoryVersionToTag,
   tagMake, /* qqq : cover */
 
   // hook
