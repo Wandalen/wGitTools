@@ -2393,7 +2393,7 @@ function repositoryHasTag( o )
   function checkRemote( result )
   {
     if( result )
-    return true;
+    return result;
 
     let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
     return start( `git ls-remote --tags --refs --heads ${remotePath}` )
@@ -2410,7 +2410,7 @@ function repositoryHasTag( o )
 
     for( let i = 0, l = refs.length; i < l; i++ )
     if( refs[ i ][ 1 ] === possibleTag || refs[ i ][ 1 ] === possibleHead )
-    return true;
+    return o.returnVersion ? refs[ i ][ 0 ] : true;
 
     return false;
   }
@@ -2423,6 +2423,7 @@ repositoryHasTag.defaults =
   tag : null,
   local : 1,
   remote : 1,
+  returnVersion : 0,
   sync : 1
 }
 
@@ -2455,19 +2456,140 @@ function repositoryHasVersion( o )
     if( !self.isRepository({ localPath : o.localPath }) )
     throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
 
-    if( !_.git.versionIsCommitHash( o ) )
+    if( !_.git.versionIsCommitHash( _.mapOnly( o, _.git.versionIsCommitHash.defaults )) )
     throw _.err( `Provided version: ${_.strQuote( o.version ) } is not a commit hash.` )
 
+    return null;
+  })
+
+  if( o.local )
+  ready.then( checkLocal );
+
+  if( o.remote )
+  ready.then( checkRemote );
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /* - */
+
+  function checkLocal()
+  {
     let con = start({ execPath : `git cat-file -t ${o.version}` })
     con.then( got => got.exitCode === 0 );
-
     return con;
+  }
+
+  /* - */
+
+  function checkRemote( result )
+  {
+    if( result )
+    return result;
+
+    let ready = _.Consequence().take( null );
+
+    start({ execPath : `git fetch -v -n --dry-run`, throwingExitCode : 1, ready })
+
+    ready.then( ( got ) =>
+    {
+      if( _.strHas( got.output, /.+\.\..+/  ) )
+      throw _.err( `Local repository at ${o.localPath} is not up-to-date with remote. Please run "git fetch" and try again.` )
+      return true;
+    })
+
+    start({ execPath : `git branch -r --contains ${o.version}`, ready })
+
+    ready.then( ( got ) =>
+    {
+      if( got.exitCode !== 0 )
+      return false;
+      let lines =  _.strSplitNonPreserving({ src : got.output, delimeter : /\s+/, stripping : 1 });
+      return lines.length >= 1;
+    })
+
+    return ready;
+  }
+}
+
+repositoryHasVersion.defaults =
+{
+  localPath : null,
+  version : null,
+  local : 1,
+  remote : 0,
+  sync : 1
+}
+
+//
+
+function repositoryTagToVersion( o )
+{
+  let self = this;
+  _.routineOptions( repositoryTagToVersion, o );
+  _.assert( arguments.length === 1 );
+  let o2 = _.mapExtend( null, o, { returnVersion : 1 });
+  return self.repositoryHasTag( o2 );
+}
+
+repositoryTagToVersion.defaults =
+{
+  localPath : null,
+  remotePath : null,
+  tag : null,
+  local : 1,
+  remote : 1,
+  sync : 1
+}
+
+//
+
+function repositoryVersionToTag( o )
+{
+  let self = this;
+
+  _.assert( arguments.length === 1 );
+  _.routineOptions( repositoryVersionToTag, o );
+  _.assert( _.strDefined( o.localPath ) );
+  _.assert( _.strDefined( o.version ) );
+  _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
+  _.assert( o.local || o.remote );
+
+  let ready = new _.Consequence().take( null );
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'spawn',
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    inputMirroring : 0,
+    outputPiping : 0,
   });
+
+  ready.then( () =>
+  {
+    if( !self.isRepository({ localPath : o.localPath }) )
+    throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
+    return null;
+  })
+
+  if( o.local )
+  ready.then( checkLocal );
+
+  if( o.remote )
+  ready.then( checkRemote );
 
   ready.catch( ( err ) =>
   {
     _.errAttend( err );
-    throw _.err( `Failed to check if repository at: ${_.strQuote( o.localPath )} has version: ${_.strQuote( o.version )}.\n`, err );
+    throw _.err( 'Failed to obtain tags and heads from remote repository.\n', err );
   })
 
   if( o.sync )
@@ -2477,12 +2599,173 @@ function repositoryHasVersion( o )
   }
 
   return ready;
+
+  /*  */
+
+  function checkLocal()
+  {
+    return start( `git show-ref --heads --tags` )
+    .then( hasTag )
+  }
+
+  function checkRemote( result )
+  {
+    if( result )
+    return result;
+
+    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
+    return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    .then( hasTag )
+  }
+
+  function hasTag( got )
+  {
+    let headsPrefix = 'refs/heads/';
+    let tagsPrefix = 'refs/tags/';
+
+    let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' })
+    refs = refs.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/, stripping : 1 }) );
+
+    let result = [];
+
+    for( let i = 0, l = refs.length; i < l; i++ )
+    if( _.strBegins( refs[ i ][ 0 ], o.version ) )
+    {
+      let tag = refs[ i ][ 1 ];
+      if( _.strBegins( tag, headsPrefix ) )
+      tag = _.strRemoveBegin( tag, headsPrefix )
+      else if( _.strBegins( tag, tagsPrefix ) )
+      tag = _.strRemoveBegin( tag, tagsPrefix )
+      result.push( tag );
+    }
+
+    if( result.length === 1 )
+    return result[ 0 ];
+
+    return result;
+  }
 }
 
-repositoryHasVersion.defaults =
+repositoryVersionToTag.defaults =
 {
   localPath : null,
+  remotePath : null,
   version : null,
+  local : 1,
+  remote : 1,
+  sync : 1
+}
+
+//
+
+function exists( o )
+{
+  let self = this;
+
+  _.routineOptions( exists, o );
+  _.assert( arguments.length === 1 );
+  _.assert( _.strDefined( o.local ) || _.strDefined( o.remote ) );
+
+  let ready = new _.Consequence().take( null );
+
+  if( o.local )
+  ready.then( checkLocal )
+
+  if( o.remote )
+  ready.then( checkRemote )
+
+  ready.catch( ( err ) =>
+  {
+    throw _.err( 'Failed to obtain tags and heads from remote repository. Reason:\n', err );
+  })
+
+  if( o.sync )
+  return ready.sync();
+
+  return ready;
+
+  /* - */
+
+  function checkLocal()
+  {
+    let local = parse( o.local );
+    if( !local )
+    throw _.err( `Failed to determine kind of {o.local}. Expects "!tag" or "#version", but got:${o.local}`);
+
+    if( local.tag )
+    return self.repositoryHasTag
+    ({
+      localPath : o.localPath,
+      local : 1,
+      remote : 0,
+      tag : local.tag,
+      sync : o.sync
+    })
+
+    return self.repositoryHasVersion
+    ({
+      localPath : o.localPath,
+      version : local.version,
+      sync : o.sync
+    })
+  }
+
+  /* - */
+
+  function checkRemote( result )
+  {
+    if( result )
+    return result;
+
+    let remote = parse( o.remote );
+    if( !remote )
+    throw _.err( `Failed to determine kind of {o.remote}. Expects "!tag" or "#version", but got:${o.remote}`);
+
+    if( remote.tag )
+    return self.repositoryHasTag
+    ({
+      localPath : o.localPath,
+      remotePath : o.remotePath,
+      local : 0,
+      remote : 1,
+      returnVersion : o.returnVersion,
+      tag : remote.tag,
+      sync : o.sync
+    })
+
+    return self.repositoryHasVersion
+    ({
+      localPath : o.localPath,
+      local : 0,
+      remote : 1,
+      version : remote.version,
+      sync : o.sync
+    })
+
+    /* qqq3: Find how to check if remote has commit */
+    _.assert( 0, 'Case remote:#version is not implemented' );
+
+    return true;
+  }
+
+  /* - */
+
+  function parse( src )
+  {
+    if( _.strBegins( src, '!' ) )
+    return { tag : _.strRemoveBegin( src, '!' ) };
+    else if( _.strBegins( src, '#' ) )
+    return { version : _.strRemoveBegin( src, '#' ) };
+  }
+}
+
+exists.defaults =
+{
+  localPath : null,
+  remotePath : null,
+  local : null,
+  remote : null,
+  returnVersion : 0,
   sync : 1
 }
 
@@ -3721,6 +4004,8 @@ function configSave( filePath, config )
 
 function diff( o )
 {
+  let self = this;
+
   o = _.routineOptions( diff, o );
 
   _.assert( arguments.length === 1 );
@@ -3729,12 +4014,12 @@ function diff( o )
   _.assert( _.strDefined( o.localPath ) );
 
   if( o.state1 === null ) /* qqq : discuss */
-  o.state1 = 'version::HEAD';
+  o.state1 = 'HEAD';
 
   let ready = new _.Consequence().take( null );
+  let result = Object.create( null );
   let state1 = stateParse( o.state1, true );
   let state2 = stateParse( o.state2 ); /* qqq : ! */
-  let result = Object.create( null );
 
   let start = _.process.starter
   ({
@@ -3749,18 +4034,12 @@ function diff( o )
     ready
   });
 
-  let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
+  if( o.fetchTags )
+  start( `git fetch --tags` )
 
-  if( state1 === 'working' )
-  start( `git diff ${diffMode} --exit-code ${state2}` )
-  else if( state1 === 'staging' )
-  start( `git diff --staged ${diffMode} --exit-code ${state2}` )
-  else if( state1 === 'committed' )
-  start( `git diff ${diffMode} --exit-code HEAD ${state2}` )
-  else
-  start( `git diff ${diffMode} --exit-code ${state1} ${state2}` )
-
-  ready.then( handleOutput );
+  ready.then( checkStates );
+  ready.then( runDiff );
+  ready.then( handleResult );
 
   if( o.sync )
   {
@@ -3774,11 +4053,47 @@ function diff( o )
 
   function stateParse( state, allowSpecial )
   {
-    let statesBegin = [ 'version::', 'tag::' ];
+    let statesBegin = [ '#', '!' ];
     let statesSpecial = [ 'working', 'staging', 'committed' ];
 
+    let result =
+    {
+      original : state,
+      value : state,
+      isSpecial : false
+    };
+
+    if( _.strBegins( state, 'HEAD' ) )
+    {
+      result.isSpecial = true;
+      return result;
+    }
+
     if( _.strBegins( state, statesBegin ) )
-    return _.strRemoveBegin( state, statesBegin );
+    {
+      result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
+      result.isTag = _.strBegins( state, statesBegin[ 1 ] );
+      result.value = _.strRemoveBegin( state, statesBegin );
+
+      if( !result.isTag )
+      return result;
+
+      if( _.strEnds( result.value, '/' ) )
+      {
+        result.isTag = false;
+        result.value = _.strRemoveEnd( result.value, '/' );
+      }
+      else if( _.strHas( result.value, '/' ) )
+      {
+        result.isRemoteTag = true;
+        let r = _.strIsolateLeftOrNone( result.value, '/' );
+        _.sure( _.strDefined( r[ 0 ] ) && _.strDefined( r[ 2 ] ), `Failed to parse state: ${result.original}, expects remote tag in format: "!remote/tag".` );
+        result.remotePath = `:///${r[ 0 ]}`;
+        result.remote = `!${r[ 2 ]}`;
+      }
+
+      return result;
+    }
 
     if( !allowSpecial )
     throw _.err( `Expects state in one of formats:${statesBegin}, but got:${state}` );
@@ -3786,7 +4101,115 @@ function diff( o )
     if( !_.longHas( statesSpecial, state ) )
     throw _.err( `Expects one of special states: ${statesSpecial}, but got:${state}` );
 
-    return state;
+    result.isSpecial = true;
+
+    return result;
+  }
+
+  /* - */
+
+  function checkStates()
+  {
+    let ready = _.Consequence().take( null )
+    ready.then( () => checkState( state1 ) )
+    ready.then( () => checkState( state2 ) )
+    ready.then( () =>
+    {
+      if( !state1.exists )
+      if( o.throwingDoesNotExist )
+      throw _.err( `State ${state1.original} doesn't exist in repository at ${o.localPath}` );
+
+      if( !state2.exists )
+      if( o.throwingDoesNotExist )
+      throw _.err( `State ${state2.original} doesn't exist in repository at ${o.localPath}` );
+
+      return null;
+    })
+    return ready;
+  }
+
+  /* - */
+
+  function checkState( state )
+  {
+    state.exists = true;
+
+    if( state.isSpecial )
+    return null;
+
+    let con = _.Consequence().take( null )
+
+    if( state.isVersion || state.isTag )
+    {
+      let o2 =
+      {
+        localPath : o.localPath,
+        remotePath : null,
+        local : 0,
+        remote : 0,
+        sync : o.sync,
+      }
+
+      if( state.isRemoteTag )
+      {
+        o2.remotePath = state.remotePath;
+        o2.remote = state.remote;
+        o2.returnVersion = true;
+      }
+      else
+      {
+        o2.local = state.original;
+      }
+
+      con.then( () => self.exists( o2 ) );
+    }
+    else
+    {
+      start({ execPath : `git rev-parse ${state.value}`, ready : con })
+    }
+
+    con.then( ( got ) =>
+    {
+      if( _.boolIs( got ) )
+      state.exists = got;
+      else if( _.objectIs( got ) )
+      state.exists = got.exitCode === 0;
+      else
+      {
+        _.assert( _.strDefined( got ) );
+        state.value = got;
+        state.exists = true;
+      }
+
+      return null;
+    })
+
+    return con;
+  }
+
+  /* - */
+
+  function runDiff()
+  {
+    if( !state1.exists || !state2.exists )
+    return null;
+
+    let ready = new _.Consequence().take( null );
+
+    let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
+
+    if( state1.value === 'working' )
+    start({ execPath : `git diff ${diffMode} --exit-code ${state2.value}`, ready })
+    else if( state1.value === 'staging' )
+    start({ execPath : `git diff --staged ${diffMode} --exit-code ${state2.value}`, ready })
+    else if( state1.value === 'committed' )
+    start({ execPath : `git diff ${diffMode} --exit-code HEAD ${state2.value}`, ready })
+    else
+    start({ execPath : `git diff ${diffMode} --exit-code ${state1.value} ${state2.value}`, ready })
+
+    ready.then( handleOutput );
+
+    return ready;
   }
 
   /*  */
@@ -3861,6 +4284,17 @@ function diff( o )
       result[ pName ] = true;
     }
   }
+
+  /* - */
+
+  function handleResult()
+  {
+    result.state1 = state1;
+    result.state2 = state2;
+    if( !state1.exists || !state2.exists )
+    result.status = _.maybe;
+    return result;
+  }
 }
 
 diff.defaults =
@@ -3871,6 +4305,8 @@ diff.defaults =
   detailing : 1,
   explaining : 1,
   attachOriginalDiffOutput : 0,
+  throwingDoesNotExist : 0,
+  fetchTags : 0,
   sync : 1
 }
 
@@ -3999,12 +4435,13 @@ function renormalize( o )
 
   ready.catch( ( err ) =>
   {
-    _.errAttend( err );
+    if( !o.throwing )
+    {
+      _.errAttend( err );
+      return null;
+    }
 
-    if( o.throwing )
     throw _.err( `Failed to renormalize repository at: ${o.localPath}\nReason:`, err );
-
-    return null;
   })
 
   if( o.sync )
@@ -4134,6 +4571,9 @@ let Extension =
 
   repositoryHasTag,
   repositoryHasVersion,
+  repositoryTagToVersion,/* qqq : cover */
+  repositoryVersionToTag,/* qqq : cover */
+  exists,
   tagMake, /* qqq : cover */
 
   // hook
