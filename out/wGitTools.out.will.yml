@@ -2,15 +2,12 @@ format: outwillfile-2.0
 root:
   - wGitTools.out
 consistency:
-  wGitTools.out.will.yml: &ref_0
-    hash: c03d27d94e5083a42c36c15d2d366ef3
-    size: 39251
-  ../.ex.will.yml: &ref_1
+  ../.ex.will.yml: &ref_0
     hash: 8e53a21cb6f6052c646fabec57476ae0
     size: 1710
-  ../.im.will.yml: &ref_2
-    hash: 7b8d6d544a2825435b52a5bf64bdb1b5
-    size: 5359
+  ../.im.will.yml: &ref_1
+    hash: 9df7ca7ddb420f0fd5fd9e4a86f4b68e
+    size: 5479
 module:
   wGitTools.out:
     about:
@@ -19,19 +16,19 @@ module:
       description: Collection of tools to use git programmatically.
       enabled: 1
       version: 0.4.0
-      interpreters:
+      interpreters: &ref_2
         - njs >= 10.0.0
         - chrome >= 60.0.0
         - firefox >= 60.0.0
-      keywords:
+      keywords: &ref_3
         - wTools
         - graph
       license: MIT
       author: Kostiantyn Wandalen <wanalen@01.school>
-      contributors:
+      contributors: &ref_4
         - Kostiantyn Wandalen <wanalen@01.school>
       npm.name: wgittools
-      npm.scripts:
+      npm.scripts: &ref_5
         test: wtest .run proto/**
         docgen: wdocgen .build proto
     path:
@@ -194,11 +191,11 @@ module:
         autoExporting: 0
         enabled: 0
       ini:
-        path: 'npm:///ini'
+        path: 'npm:///ini#1.3.5'
         autoExporting: 0
         enabled: 0
       octonode:
-        path: 'npm:///octonode'
+        path: 'npm:///octonode#0.9.5'
         autoExporting: 0
         enabled: 0
       wgittools:
@@ -209,6 +206,12 @@ module:
           development: 1
       wTesting:
         path: 'npm:///wTesting'
+        autoExporting: 0
+        enabled: 0
+        criterion:
+          development: 1
+      eslint:
+        path: 'npm:///eslint#7.1.0'
         autoExporting: 0
         enabled: 0
         criterion:
@@ -720,24 +723,6 @@ module:
           content: prime
         inherit:
           - files.transpile
-      exported.proto.export:
-        opts:
-          filePath: 'reflector::exported.proto.export'
-        criterion:
-          generated: 1
-          content: proto
-          export: 1
-        inherit:
-          - files.reflect
-      exported.files.proto.export:
-        opts:
-          filePath: 'reflector::exported.files.proto.export'
-        criterion:
-          generated: 1
-          content: proto
-          export: 1
-        inherit:
-          - files.reflect
     build:
       proto.export:
         steps:
@@ -826,9 +811,8 @@ module:
           content: proto
           export: 1
     consistency:
-      wGitTools.out.will.yml: *ref_0
-      ../.ex.will.yml: *ref_1
-      ../.im.will.yml: *ref_2
+      ../.ex.will.yml: *ref_0
+      ../.im.will.yml: *ref_1
   ../:
     about:
       name: wGitTools
@@ -836,21 +820,13 @@ module:
       description: Collection of tools to use git programmatically.
       enabled: 1
       version: 0.4.0
-      interpreters:
-        - njs >= 10.0.0
-        - chrome >= 60.0.0
-        - firefox >= 60.0.0
-      keywords:
-        - wTools
-        - graph
+      interpreters: *ref_2
+      keywords: *ref_3
       license: MIT
       author: Kostiantyn Wandalen <wanalen@01.school>
-      contributors:
-        - Kostiantyn Wandalen <wanalen@01.school>
+      contributors: *ref_4
       npm.name: wgittools
-      npm.scripts:
-        test: wtest .run proto/**
-        docgen: wdocgen .build proto
+      npm.scripts: *ref_5
     path:
       module.willfiles:
         criterion:
@@ -981,11 +957,11 @@ module:
         autoExporting: 0
         enabled: 0
       ini:
-        path: 'npm:///ini'
+        path: 'npm:///ini#1.3.5'
         autoExporting: 0
         enabled: 0
       octonode:
-        path: 'npm:///octonode'
+        path: 'npm:///octonode#0.9.5'
         autoExporting: 0
         enabled: 0
       wgittools:
@@ -996,6 +972,12 @@ module:
           development: 1
       wTesting:
         path: 'npm:///wTesting'
+        autoExporting: 0
+        enabled: 0
+        criterion:
+          development: 1
+      eslint:
+        path: 'npm:///eslint#7.1.0'
         autoExporting: 0
         enabled: 0
         criterion:
@@ -1535,6 +1517,5 @@ module:
         hash: 8e53a21cb6f6052c646fabec57476ae0
         size: 1710
       ../.im.will.yml:
-        hash: 7b8d6d544a2825435b52a5bf64bdb1b5
-        size: 5359
-      wGitTools.out.will.yml: *ref_0
+        hash: 9df7ca7ddb420f0fd5fd9e4a86f4b68e
+        size: 5479
