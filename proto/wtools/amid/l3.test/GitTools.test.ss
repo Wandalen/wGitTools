@@ -12410,8 +12410,8 @@ function diff( test )
     test.case = 'compare two identical states of repo'
     var got = _.git.diff
     ({
-      state1 : 'version::HEAD',
-      state2 : `version::${latestCommit}`,
+      state1 : 'HEAD',
+      state2 : `#${latestCommit}`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 1,
       explaining : 1,
@@ -12432,8 +12432,8 @@ function diff( test )
 
     var got = _.git.diff
     ({
-      state1 : 'version::HEAD',
-      state2 : `version::${latestCommit}`,
+      state1 : 'HEAD',
+      state2 : `#${latestCommit}`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 1,
       explaining : 0,
@@ -12454,8 +12454,8 @@ function diff( test )
 
     var got = _.git.diff
     ({
-      state1 : 'version::HEAD',
-      state2 : `version::${latestCommit}`,
+      state1 : 'HEAD',
+      state2 : `#${latestCommit}`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 0,
       explaining : 1,
@@ -12476,8 +12476,8 @@ function diff( test )
 
     var got = _.git.diff
     ({
-      state1 : 'version::HEAD',
-      state2 : `version::${latestCommit}`,
+      state1 : 'HEAD',
+      state2 : `#${latestCommit}`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 0,
       explaining : 0,
@@ -12535,8 +12535,8 @@ renamedFiles:
     test.case = 'compare two commits'
     var got = _.git.diff
     ({
-      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 1,
       explaining : 1,
@@ -12558,8 +12558,8 @@ renamedFiles:
 
     var got = _.git.diff
     ({
-      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 1,
       explaining : 0,
@@ -12580,8 +12580,8 @@ renamedFiles:
 
     var got = _.git.diff
     ({
-      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 0,
       explaining : 1,
@@ -12602,8 +12602,8 @@ renamedFiles:
 
     var got = _.git.diff
     ({
-      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 0,
       explaining : 0,
@@ -12680,8 +12680,8 @@ addedFiles:
     test.case = 'compare commit and tag'
     var got = _.git.diff
     ({
-      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `tag::v0.7.4`,
+      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `!v0.7.4`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 1,
       explaining : 1,
@@ -12702,8 +12702,8 @@ addedFiles:
 
     var got = _.git.diff
     ({
-      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `tag::v0.7.4`,
+      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `!v0.7.4`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 1,
       explaining : 0,
@@ -12724,8 +12724,8 @@ addedFiles:
 
     var got = _.git.diff
     ({
-      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `tag::v0.7.4`,
+      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `!v0.7.4`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 0,
       explaining : 1,
@@ -12746,8 +12746,8 @@ addedFiles:
 
     var got = _.git.diff
     ({
-      state1 : 'version::0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `tag::v0.7.4`,
+      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
+      state2 : `!v0.7.4`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 0,
       explaining : 0,
@@ -12775,8 +12775,8 @@ addedFiles:
     test.case = 'compare two identical commits'
     var got = _.git.diff
     ({
-      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
       localPath : a.abs( 'wPathBasic' ),
       detailing : 1,
       explaining : 1,
@@ -12797,8 +12797,8 @@ addedFiles:
 
     var got = _.git.diff
     ({
-      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : `version::db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
+      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
       localPath : a.abs( 'wPathBasic' ),
       detailing : 1,
       explaining : 0,
@@ -12819,8 +12819,8 @@ addedFiles:
 
     var got = _.git.diff
     ({
-      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
       localPath : a.abs( 'wPathBasic' ),
       detailing : 0,
       explaining : 1,
@@ -12841,8 +12841,8 @@ addedFiles:
 
     var got = _.git.diff
     ({
-      state1 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : 'version::db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
+      state2 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
       localPath : a.abs( 'wPathBasic' ),
       detailing : 0,
       explaining : 0,
@@ -12919,7 +12919,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `version::HEAD`,
+      state2 : `HEAD`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -12941,7 +12941,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `version::HEAD`,
+      state2 : `HEAD`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -12963,7 +12963,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `version::HEAD`,
+      state2 : `HEAD`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -12986,7 +12986,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `version::HEAD`,
+      state2 : `HEAD`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -13038,7 +13038,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `version::${prevCommit}`,
+      state2 : `#${prevCommit}`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -13060,7 +13060,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `version::${prevCommit}`,
+      state2 : `#${prevCommit}`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -13082,7 +13082,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `version::${prevCommit}`,
+      state2 : `#${prevCommit}`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -13105,7 +13105,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `version::${prevCommit}`,
+      state2 : `#${prevCommit}`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -13149,7 +13149,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -13171,7 +13171,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -13193,7 +13193,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -13216,7 +13216,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -13261,7 +13261,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `version::HEAD`,
+      state2 : `HEAD`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -13283,7 +13283,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `version::HEAD`,
+      state2 : `HEAD`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -13305,7 +13305,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `version::HEAD`,
+      state2 : `HEAD`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -13328,7 +13328,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `version::HEAD`,
+      state2 : `HEAD`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -13381,7 +13381,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `version::${prevCommit}`,
+      state2 : `#${prevCommit}`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -13403,7 +13403,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `version::HEAD`,
+      state2 : `HEAD`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -13425,7 +13425,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `version::HEAD`,
+      state2 : `HEAD`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -13448,7 +13448,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `version::HEAD`,
+      state2 : `HEAD`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -13494,7 +13494,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -13516,7 +13516,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -13538,7 +13538,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -13561,7 +13561,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -13606,7 +13606,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::HEAD^`,
+      state2 : `HEAD^`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -13628,7 +13628,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::HEAD^`,
+      state2 : `HEAD^`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -13650,7 +13650,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::HEAD^`,
+      state2 : `HEAD^`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -13673,7 +13673,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::HEAD^`,
+      state2 : `HEAD^`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -13712,7 +13712,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::origin`,
+      state2 : `!origin/`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -13734,7 +13734,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::origin`,
+      state2 : `!origin/`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -13756,7 +13756,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::origin`,
+      state2 : `!origin/`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -13779,7 +13779,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::origin`,
+      state2 : `!origin/`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -13820,7 +13820,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::${remoteHEAD}`,
+      state2 : `#${remoteHEAD}`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -13842,7 +13842,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::${remoteHEAD}`,
+      state2 : `#${remoteHEAD}`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -13864,7 +13864,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::${remoteHEAD}`,
+      state2 : `#${remoteHEAD}`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -13887,7 +13887,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::${remoteHEAD}`,
+      state2 : `#${remoteHEAD}`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -13929,7 +13929,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::${remoteHEAD}`,
+      state2 : `#${remoteHEAD}`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -13951,7 +13951,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::${remoteHEAD}`,
+      state2 : `#${remoteHEAD}`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -13973,7 +13973,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::${remoteHEAD}`,
+      state2 : `#${remoteHEAD}`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -13995,7 +13995,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `version::${remoteHEAD}`,
+      state2 : `#${remoteHEAD}`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -14041,7 +14041,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -14063,7 +14063,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -14085,7 +14085,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -14108,7 +14108,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'committed',
-      state2 : `tag::init`,
+      state2 : `!init`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
