@@ -2728,6 +2728,7 @@ function exists( o )
       remotePath : o.remotePath,
       local : 0,
       remote : 1,
+      returnVersion : o.returnVersion,
       tag : remote.tag,
       sync : o.sync
     })
@@ -2764,6 +2765,7 @@ exists.defaults =
   remotePath : null,
   local : null,
   remote : null,
+  returnVersion : 0,
   sync : 1
 }
 
@@ -4012,7 +4014,7 @@ function diff( o )
   _.assert( _.strDefined( o.localPath ) );
 
   if( o.state1 === null ) /* qqq : discuss */
-  o.state1 = 'version::HEAD';
+  o.state1 = 'HEAD';
 
   let ready = new _.Consequence().take( null );
   let result = Object.create( null );
@@ -4051,7 +4053,7 @@ function diff( o )
 
   function stateParse( state, allowSpecial )
   {
-    let statesBegin = [ 'version::', 'tag::' ];
+    let statesBegin = [ '#', '!' ];
     let statesSpecial = [ 'working', 'staging', 'committed' ];
 
     let result =
@@ -4061,9 +4063,35 @@ function diff( o )
       isSpecial : false
     };
 
+    if( _.strBegins( state, 'HEAD' ) )
+    {
+      result.isSpecial = true;
+      return result;
+    }
+
     if( _.strBegins( state, statesBegin ) )
     {
+      result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
+      result.isTag = _.strBegins( state, statesBegin[ 1 ] );
       result.value = _.strRemoveBegin( state, statesBegin );
+
+      if( !result.isTag )
+      return result;
+
+      if( _.strEnds( result.value, '/' ) )
+      {
+        result.isTag = false;
+        result.value = _.strRemoveEnd( result.value, '/' );
+      }
+      else if( _.strHas( result.value, '/' ) )
+      {
+        result.isRemoteTag = true;
+        let r = _.strIsolateLeftOrNone( result.value, '/' );
+        _.sure( _.strDefined( r[ 0 ] ) && _.strDefined( r[ 2 ] ), `Failed to parse state: ${result.original}, expects remote tag in format: "!remote/tag".` );
+        result.remotePath = `:///${r[ 0 ]}`;
+        result.remote = `!${r[ 2 ]}`;
+      }
+
       return result;
     }
 
@@ -4111,13 +4139,48 @@ function diff( o )
 
     let con = _.Consequence().take( null )
 
-    con.then( () =>
+    if( state.isVersion || state.isTag )
     {
-      return start({ execPath : `git rev-parse ${state.value}`, ready : null })
-    })
-    .then( ( got ) =>
+      let o2 =
+      {
+        localPath : o.localPath,
+        remotePath : null,
+        local : 0,
+        remote : 0,
+        sync : o.sync,
+      }
+
+      if( state.isRemoteTag )
+      {
+        o2.remotePath = state.remotePath;
+        o2.remote = state.remote;
+        o2.returnVersion = true;
+      }
+      else
+      {
+        o2.local = state.original;
+      }
+
+      con.then( () => self.exists( o2 ) );
+    }
+    else
     {
+      start({ execPath : `git rev-parse ${state.value}`, ready : con })
+    }
+
+    con.then( ( got ) =>
+    {
+      if( _.boolIs( got ) )
+      state.exists = got;
+      else if( _.objectIs( got ) )
       state.exists = got.exitCode === 0;
+      else
+      {
+        _.assert( _.strDefined( got ) );
+        state.value = got;
+        state.exists = true;
+      }
+
       return null;
     })
 
