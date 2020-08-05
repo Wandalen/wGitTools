@@ -12005,6 +12005,74 @@ function repositoryInit( test )
 
 //
 
+function prOpen( test )
+{
+  if( !Config.debug )
+  {
+    test.is( true );
+    return;
+  }
+
+  test.case = 'wrong git service';
+  test.shouldThrowErrorSync( () =>
+  {
+    _.git.prOpen
+    ({
+      throwing : 1,
+      sync : 1,
+      token : 'token',
+      remotePath : 'https://gitlab.com/user/NewRepo',
+      title : 'master',
+      body : null,
+      srcBranch : 'doc',
+      dstBranch : 'master',
+    });
+  })
+
+  test.case = 'wrong token';
+  test.shouldThrowErrorSync( () =>
+  {
+    _.git.prOpen
+    ({
+      throwing : 1,
+      sync : 1,
+      token : 'token',
+      remotePath : 'https://github.com/user/NewRepo',
+      title : 'master',
+      body : null,
+      srcBranch : 'doc',
+      dstBranch : 'master',
+    });
+  })
+
+  test.case = 'without fields title, srcBranch';
+  test.shouldThrowErrorSync( () =>
+  {
+    _.git.prOpen
+    ({
+      sync : 1,
+      token : 'token',
+      remotePath : 'https://github.com/user/NewRepo',
+      dstBranch : 'master',
+    });
+  })
+
+  test.case = 'without token';
+  test.shouldThrowErrorSync( () =>
+  {
+    _.git.prOpen
+    ({
+      remotePath : 'https://github.com/user/NewRepo',
+      title : 'master',
+      body : null,
+      srcBranch : 'doc',
+      dstBranch : 'master',
+    });
+  })
+}
+
+//
+
 function repositoryHasTag( test )
 {
   let context = this;
@@ -16269,6 +16337,7 @@ var Proto =
     statusEveryCheck,
 
     repositoryInit,
+    prOpen,
     repositoryHasTag,
     repositoryHasVersion,
 
