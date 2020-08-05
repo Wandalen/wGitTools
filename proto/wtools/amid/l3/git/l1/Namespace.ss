@@ -3721,6 +3721,101 @@ prsGet.defaults =
 
 //
 
+function prOpen( o )
+{
+  let prResponse = null;
+  let ready = new _.Consequence().take( null );
+
+  if( _.strIs( o ) )
+  o = { remotePath : o }
+  o = _.routineOptions( prOpen, o );
+
+  if( !o.token && o.throwing )
+  throw _.errBrief( 'Cannot autorize user without user token.' )
+
+  let parsed = this.objectsParse( o.remotePath );
+
+  ready
+  .then( () =>
+  {
+    if( parsed.service === 'github.com' )
+    return prOpenOnGithub();
+    if( o.throwing )
+    throw _.err( 'Unknown service' );
+    return null;
+  })
+  .finally( ( err, pr ) =>
+  {
+    if( !err && !pr && o.throwing )
+    err = _.err( 'Failed' );
+    if( err )
+    if( !o.throwing )
+    {
+      _.errAttend( err );
+      return null;
+    }
+    else
+    {
+      throw _.err( err, '\nFailed to open pull request' );
+    }
+    return pr;
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /* */
+
+  function prOpenOnGithub()
+  {
+    let ready = new _.Consequence().take( null );
+    ready
+    .then( () =>
+    {
+      let github = require( 'octonode' );
+      let client = github.client( o.token );
+      let repo = client.repo( `${parsed.user}/${parsed.repo}` );
+      let o2 =
+      {
+        title : o.title,
+        body : o.body,
+        head : o.srcBranch,
+        base : o.dstBranch,
+      };
+      repo.pr( o2, onRequest );
+      return prResponse;
+    });
+    return ready;
+  }
+
+  function onRequest( err, body, headers )
+  {
+    if( err )
+    throw _.err( err );
+    prResponse = body;
+  }
+
+}
+
+prOpen.defaults =
+{
+  throwing : 1,
+  sync : 1,
+  token : null,
+  remotePath : null,
+  title : null,
+  body : null,
+  srcBranch : null,
+  dstBranch : null,
+};
+
+//
+
 function repositoryClone( o )
 {
   let localProvider = _.fileProvider;
@@ -4594,6 +4689,7 @@ let Extension =
   repositoryInit,
   repositoryDelete, /* qqq : cover */
   prsGet,
+  prOpen,
   repositoryClone,
   repositoryCheckout,
   repositoryStash,
