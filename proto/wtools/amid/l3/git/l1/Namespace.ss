@@ -3723,7 +3723,6 @@ prsGet.defaults =
 
 function prOpen( o )
 {
-  let prResponse = null;
   let ready = new _.Consequence().take( null );
 
   if( _.strIs( o ) )
@@ -3746,8 +3745,6 @@ function prOpen( o )
   })
   .finally( ( err, pr ) =>
   {
-    if( !err && !pr && o.throwing )
-    err = _.err( 'Failed' );
     if( err )
     if( !o.throwing )
     {
@@ -3788,7 +3785,7 @@ function prOpen( o )
         base : o.dstBranch,
       };
       repo.pr( o2, onRequest );
-      return prResponse;
+      return null;
     });
     return ready;
   }
@@ -3796,9 +3793,14 @@ function prOpen( o )
   function onRequest( err, body, headers )
   {
     if( err )
-    throw _.err( err );
-    prResponse = body;
+    {
+      err = _.err( `Error code : ${ err.statusCode }. ${ err.message }` ); /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
+      _.errAttend( err );
+      logger.error( err );
+    }
+    logger.log( body );
   }
+
 
 }
 
