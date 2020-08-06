@@ -3797,7 +3797,7 @@ function prOpen( o )
         if( o.verbosity >= 3 )
         logger.log( args[ 1 ] );
         else if( o.verbosity )
-        logger.log( `Succefully created PR "${ o.title }" in ${ o.remotePath }.` )
+        logger.log( `Succefully created pull request "${ o.title }" in ${ o.remotePath }.` )
 
         return args[ 1 ];
       });
