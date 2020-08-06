@@ -12029,33 +12029,33 @@ function prOpen( test )
     });
   })
 
-  // test.case = 'wrong token';
-  // test.shouldThrowErrorAsync( () =>
-  // {
-  //   _.git.prOpen
-  //   ({
-  //     throwing : 1,
-  //     sync : 1,
-  //     token : 'token',
-  //     remotePath : 'https://github.com/user/NewRepo',
-  //     title : 'master',
-  //     body : null,
-  //     srcBranch : 'doc',
-  //     dstBranch : 'master',
-  //   });
-  // })
-  //
-  // test.case = 'without fields title, srcBranch';
-  // test.shouldThrowErrorAsync( () =>
-  // {
-  //   _.git.prOpen
-  //   ({
-  //     sync : 1,
-  //     token : 'token',
-  //     remotePath : 'https://github.com/user/NewRepo',
-  //     dstBranch : 'master',
-  //   });
-  // })
+  test.case = 'wrong token';
+  test.shouldThrowErrorSync( () =>
+  {
+    _.git.prOpen
+    ({
+      throwing : 1,
+      sync : 1,
+      token : 'token',
+      remotePath : 'https://github.com/user/NewRepo',
+      title : 'master',
+      body : null,
+      srcBranch : 'doc',
+      dstBranch : 'master',
+    });
+  })
+
+  test.case = 'without fields title, srcBranch';
+  test.shouldThrowErrorSync( () =>
+  {
+    _.git.prOpen
+    ({
+      sync : 1,
+      token : 'token',
+      remotePath : 'https://github.com/user/NewRepo',
+      dstBranch : 'master',
+    });
+  })
 
   test.case = 'without token';
   test.shouldThrowErrorSync( () =>

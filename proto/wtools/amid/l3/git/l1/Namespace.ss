@@ -3724,6 +3724,7 @@ prsGet.defaults =
 function prOpen( o )
 {
   let ready = new _.Consequence().take( null );
+  let ready2 = new _.Consequence();
 
   if( _.strIs( o ) )
   o = { remotePath : o }
@@ -3785,22 +3786,25 @@ function prOpen( o )
         base : o.dstBranch,
       };
       repo.pr( o2, onRequest );
-      return null;
+
+      /* */
+
+      return ready2
+      .then( ( args ) =>
+      {
+        if( args[ 0 ] )
+        throw _.err( `Error code : ${ args[ 0 ].statusCode }. ${ args[ 0 ].message }` ); /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
+        logger.log( args[ 1 ] );
+        return args[ 1 ];
+      });
     });
     return ready;
   }
 
   function onRequest( err, body, headers )
   {
-    if( err )
-    {
-      err = _.err( `Error code : ${ err.statusCode }. ${ err.message }` ); /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
-      _.errAttend( err );
-      logger.error( err );
-    }
-    logger.log( body );
+    return _.time.begin( 0, () => ready2.take( arguments ) );
   }
-
 
 }
 
