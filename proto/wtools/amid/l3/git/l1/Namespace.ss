@@ -3794,7 +3794,11 @@ function prOpen( o )
       {
         if( args[ 0 ] )
         throw _.err( `Error code : ${ args[ 0 ].statusCode }. ${ args[ 0 ].message }` ); /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
+        if( o.verbosity >= 3 )
         logger.log( args[ 1 ] );
+        else if( o.verbosity )
+        logger.log( `Succefully created PR "${ o.title }" in ${ o.remotePath }.` )
+
         return args[ 1 ];
       });
     });
@@ -3812,6 +3816,7 @@ prOpen.defaults =
 {
   throwing : 1,
   sync : 1,
+  verbosity : 2,
   token : null,
   remotePath : null,
   title : null,
