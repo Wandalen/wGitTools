@@ -870,6 +870,10 @@ function isRepository( o )
   {
     let ready = _.Consequence.Try( () =>
     {
+      let parsed = _.git.objectsParse( o.remotePath );
+      if( parsed.service === 'github.com' )
+      remoteParsed = `git@github.com:${ parsed.user }/${ parsed.repo }`;
+
       return _.process.start
       ({
         execPath : 'git ls-remote ' + remoteParsed,
