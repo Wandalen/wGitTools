@@ -12218,7 +12218,7 @@ function prOpen( test )
   return a.ready;
 }
 
-prOpen.timeOut = 30000;
+prOpen.timeOut = 60000;
 
 //
 
