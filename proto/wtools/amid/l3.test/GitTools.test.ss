@@ -12011,6 +12011,16 @@ function prOpen( test )
   let a = test.assetFor( 'basic' );
   a.reflect();
 
+  a.ready.Try( () =>
+  {
+    return repositoryDelete( 'https://github.com/bot-w/New' );
+  })
+  .catch( ( err ) =>
+  {
+    _.errAttend( err );
+    return null;
+  })
+
   a.ready.then( () =>
   {
     return _.git.repositoryInit
@@ -12028,8 +12038,7 @@ function prOpen( test )
 
   /* - */
 
-  a.shell( `git config credential.username 'bot-w'` );
-  a.shell( `git config credential.helper '!f(){ test "$1" = get && echo "password=${ process.env.WTOOLS_BOT_TOKEN }"; }; f'` );
+  a.shell( `git config credential.helper '!f(){ echo "username=bot-w" && echo "password=${ process.env.WTOOLS_BOT_TOKEN }"; }; f'` );
   a.shell( 'git add --all' );
   a.shell( 'git commit -m first' );
   a.shell( 'git push -u origin master' );
@@ -12204,18 +12213,29 @@ function prOpen( test )
 
   a.ready.finally( ( err, arg ) =>
   {
+    repositoryDelete( 'https://github.com/bot-w/New' );
+
+    if( err )
+    throw _.err( err );
+    return null;
+  })
+
+  return a.ready;
+
+  /* */
+
+  function repositoryDelete( remotePath )
+  {
     return _.git.repositoryDelete
     ({
-      remotePath : 'https://github.com/bot-w/New',
+      remotePath,
       throwing : 1,
       sync : 1,
       verbosity : 1,
       dry : 0,
       token : process.env.WTOOLS_BOT_TOKEN,
     })
-  })
-
-  return a.ready;
+  }
 }
 
 prOpen.timeOut = 60000;
