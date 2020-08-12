@@ -25,7 +25,8 @@ function onSuiteBegin( test )
   let context = this;
   context.provider = _.fileProvider;
   let path = context.provider.path;
-  context.suiteTempPath = context.provider.path.tempOpen( path.join( __dirname, '../..'  ),'GitTools' );
+  context.suiteTempPath = context.provider.path.tempOpen( path.join( __dirname, '../..'  ), 'GitTools' );
+  context.assetsOriginalPath = _.path.join( __dirname, '_asset' );
 }
 
 //
@@ -12007,69 +12008,217 @@ function repositoryInit( test )
 
 function prOpen( test )
 {
-  if( !Config.debug )
+  let a = test.assetFor( 'basic' );
+  a.reflect();
+
+  a.ready.then( () =>
   {
     test.is( true );
-    return;
-  }
-
-  test.case = 'wrong git service';
-  test.shouldThrowErrorSync( () =>
-  {
-    _.git.prOpen
+    return _.git.repositoryInit
     ({
+      remotePath : 'https://github.com/wtools-bot/New',
+      localPath : a.routinePath,
       throwing : 1,
       sync : 1,
-      token : 'token',
-      remotePath : 'https://gitlab.com/user/NewRepo',
-      title : 'master',
-      body : null,
-      srcBranch : 'doc',
+      verbosity : 0,
+      dry : 0,
+      description : 'Test',
+      token : process.env.WTOOLS_BOT_TOKEN,
+    })
+  })
+
+  /* - */
+
+  a.shell( `git remote set-url origin https://oauth2:${ process.env.WTOOLS_BOT_TOKEN }@github.com/wtools-bot/New.git` );
+  a.shell( 'git add --all' );
+  a.shell( 'git commit -m first' );
+  a.shell( 'git push -u origin master' );
+  a.shell( 'git checkout -b new' );
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
+    return null;
+  });
+  a.shell( 'git commit -am second' );
+  a.shell( 'git push -u origin new' );
+
+  a.ready.then( () =>
+  {
+    return _.git.prOpen
+    ({
+      token : process.env.WTOOLS_BOT_TOKEN,
+      remotePath : 'https://github.com/wtools-bot/New',
+      title : 'new',
+      srcBranch : 'new',
       dstBranch : 'master',
     });
   })
-
-  test.case = 'wrong token';
-  test.shouldThrowErrorSync( () =>
+  a.ready.then( ( op ) =>
   {
-    _.git.prOpen
+    test.case = 'opened pr only title';
+    test.identical( op.changed_files, 1 );
+    test.identical( op.state, 'open' );
+    test.identical( op.title, 'new' );
+    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New\/pull\/\d/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.shell( 'git checkout master' );
+  a.shell( 'git checkout -b new2' );
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
+    return null;
+  });
+  a.shell( 'git commit -am second' );
+  a.shell( 'git push -u origin new2' );
+
+  a.ready.then( () =>
+  {
+    return _.git.prOpen
     ({
+      token : process.env.WTOOLS_BOT_TOKEN,
+      remotePath : 'https://github.com/wtools-bot/New',
+      title : 'new2',
+      body : 'Some description',
+      srcBranch : 'new2',
+      dstBranch : 'master',
+    });
+  })
+  a.ready.then( ( op ) =>
+  {
+    test.case = 'opened pr with body';
+    test.identical( op.body, 'Some description' );
+    test.identical( op.changed_files, 1 );
+    test.identical( op.state, 'open' );
+    test.identical( op.title, 'new2' );
+    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New\/pull\/\d/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.shell( 'git checkout master' );
+  a.shell( 'git checkout -b new3' );
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
+    return null;
+  });
+  a.shell( 'git commit -am second' );
+  a.shell( 'git push -u origin new3' );
+
+  a.ready.then( () =>
+  {
+    return _.git.prOpen
+    ({
+      token : process.env.WTOOLS_BOT_TOKEN,
+      remotePath : 'https://github.com/wtools-bot/New',
+      title : 'new3',
+      srcBranch : 'wtools-bot:new3',
+      dstBranch : 'master',
+      sync : 0,
+    });
+  })
+  a.ready.then( ( op ) =>
+  {
+    test.case = 'opened pr, sync : 0, srcBranch has user name';
+    test.identical( op.changed_files, 1 );
+    test.identical( op.state, 'open' );
+    test.identical( op.title, 'new3' );
+    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New\/pull\/\d/ ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  a.ready.finally( () =>
+  {
+    return _.git.repositoryDelete
+    ({
+      remotePath : 'https://github.com/wtools-bot/New',
       throwing : 1,
       sync : 1,
-      token : 'token',
-      remotePath : 'https://github.com/user/NewRepo',
-      title : 'master',
-      body : null,
-      srcBranch : 'doc',
-      dstBranch : 'master',
-    });
+      verbosity : 1,
+      dry : 0,
+      token : process.env.WTOOLS_BOT_TOKEN,
+    })
   })
 
-  test.case = 'without fields title, srcBranch';
-  test.shouldThrowErrorSync( () =>
-  {
-    _.git.prOpen
-    ({
-      sync : 1,
-      token : 'token',
-      remotePath : 'https://github.com/user/NewRepo',
-      dstBranch : 'master',
-    });
-  })
+  /* - */
 
-  test.case = 'without token';
-  test.shouldThrowErrorSync( () =>
+  a.ready.then( () =>
   {
-    _.git.prOpen
-    ({
-      remotePath : 'https://github.com/user/NewRepo',
-      title : 'master',
-      body : null,
-      srcBranch : 'doc',
-      dstBranch : 'master',
-    });
-  })
+
+    if( !Config.debug )
+    return null;
+
+    test.case = 'wrong git service';
+    test.shouldThrowErrorSync( () =>
+    {
+      _.git.prOpen
+      ({
+        throwing : 1,
+        sync : 1,
+        token : 'token',
+        remotePath : 'https://gitlab.com/user/NewRepo',
+        title : 'master',
+        body : null,
+        srcBranch : 'doc',
+        dstBranch : 'master',
+      });
+    })
+
+    test.case = 'wrong token';
+    test.shouldThrowErrorSync( () =>
+    {
+      _.git.prOpen
+      ({
+        throwing : 1,
+        sync : 1,
+        token : 'token',
+        remotePath : 'https://github.com/user/NewRepo',
+        title : 'master',
+        body : null,
+        srcBranch : 'doc',
+        dstBranch : 'master',
+      });
+    })
+
+    test.case = 'without fields title, srcBranch';
+    test.shouldThrowErrorSync( () =>
+    {
+      _.git.prOpen
+      ({
+        sync : 1,
+        token : 'token',
+        remotePath : 'https://github.com/user/NewRepo',
+        dstBranch : 'master',
+      });
+    })
+
+    test.case = 'without token';
+    test.shouldThrowErrorSync( () =>
+    {
+      _.git.prOpen
+      ({
+        remotePath : 'https://github.com/user/NewRepo',
+        title : 'master',
+        body : null,
+        srcBranch : 'doc',
+        dstBranch : 'master',
+      });
+    })
+
+    return null
+  });
+
+  return a.ready;
 }
+
+prOpen.timeOut = 30000;
 
 //
 
