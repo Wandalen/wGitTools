@@ -12012,7 +12012,7 @@ function prOpen( test )
   a.shell = _.process.starter
   ({
     currentPath : a.abs( '.' ),
-    outputCollecting : 0,
+    outputCollecting : 1,
     outputGraying : 0,
     throwingExitCode : 0,
     ready : a.ready,
@@ -12038,7 +12038,14 @@ function prOpen( test )
 
   /* - */
 
-  a.shell( `git remote set-url origin https://oauth2:${ process.env.WTOOLS_BOT_TOKEN }@github.com/wtools-bot/New.git` );
+  a.ready.then( () =>
+  {
+    debugger;
+    return null
+  } );
+
+  a.shell( 'git config credential.username="wtools-bot"' );
+  a.shell( `git config credential.helper="!f(){ test \"$1\" = get && echo \"password=${ process.env.WTOOLS_BOT_TOKEN }\"; }; f"` );
   a.shell( 'git add --all' );
   a.shell( 'git commit -m first' );
   a.shell( 'git push -u origin master' );
