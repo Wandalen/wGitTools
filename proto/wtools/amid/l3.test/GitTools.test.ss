@@ -12009,15 +12009,6 @@ function repositoryInit( test )
 function prOpen( test )
 {
   let a = test.assetFor( 'basic' );
-  a.shell = _.process.starter
-  ({
-    currentPath : a.abs( '.' ),
-    outputCollecting : 1,
-    outputGraying : 0,
-    throwingExitCode : 0,
-    ready : a.ready,
-    mode : 'shell',
-  })
   a.reflect();
 
   a.ready.then( () =>
