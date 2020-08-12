@@ -12035,8 +12035,8 @@ function prOpen( test )
     return null
   } );
 
-  a.shell( 'git config credential.username="wtools-bot"' );
-  a.shell( `git config credential.helper="!f(){ test \"$1\" = get && echo \"password=${ process.env.WTOOLS_BOT_TOKEN }\"; }; f"` );
+  a.shell( 'git config credential.username "wtools-bot"' );
+  a.shell( `git config credential.helper "!f(){ test \"$1\" = get && echo \"password=${ process.env.WTOOLS_BOT_TOKEN }\"; }; f"` );
   a.shell( 'git add --all' );
   a.shell( 'git commit -m first' );
   a.shell( 'git push -u origin master' );
