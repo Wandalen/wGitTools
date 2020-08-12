@@ -30,6 +30,8 @@ jobs :
     - run : git config --global core.autocrlf input
     - run : git config --global user.email "testing@testing.com"
     - run : git config --global user.name "Testing"
+    - env :
+      WTOOLS_BOT_TOKEN : ${{ secrets.WTOOLS_BOT_TOKEN }}
     - uses : actions/checkout@v2
     - name : ${{ matrix.node-version }}
       uses : actions/setup-node@v1
