@@ -12009,6 +12009,15 @@ function repositoryInit( test )
 function prOpen( test )
 {
   let a = test.assetFor( 'basic' );
+  a.shell = _.process.starter
+  ({
+    currentPath : a.abs( '.' ),
+    outputCollecting : 0,
+    outputGraying : 0,
+    throwingExitCode : 0,
+    ready : a.ready,
+    mode : 'shell',
+  })
   a.reflect();
 
   a.ready.then( () =>
@@ -12134,21 +12143,6 @@ function prOpen( test )
 
   /* - */
 
-  a.ready.finally( () =>
-  {
-    return _.git.repositoryDelete
-    ({
-      remotePath : 'https://github.com/wtools-bot/New',
-      throwing : 1,
-      sync : 1,
-      verbosity : 1,
-      dry : 0,
-      token : process.env.WTOOLS_BOT_TOKEN,
-    })
-  })
-
-  /* - */
-
   a.ready.then( () =>
   {
 
@@ -12219,12 +12213,15 @@ function prOpen( test )
 
   a.ready.finally( ( err, arg ) =>
   {
-    if( err )
-    {
-      _.errAttend( err );
-      throw _.errBrief( err );
-    }
-    return arg;
+    return _.git.repositoryDelete
+    ({
+      remotePath : 'https://github.com/wtools-bot/New',
+      throwing : 1,
+      sync : 1,
+      verbosity : 1,
+      dry : 0,
+      token : process.env.WTOOLS_BOT_TOKEN,
+    })
   })
 
   return a.ready;
