@@ -13,7 +13,7 @@ let Ini = null;
 function objectsParse( remotePath )
 {
   let result = Object.create( null );
-  let gitHubRegexp = /\:\/\/\/github\.com\/([a-zA-Z-_]+)\/([a-zA-Z-_]+)(\.git)?/;
+  let gitHubRegexp = /\:\/\/\/github\.com\/([a-zA-Z0-9-_]+)\/([a-zA-Z0-9-_]+)(\.git)?/;
   // let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
   /* Dmytro : this regexp does not search dashes, maybe needs additional symbols */
 
