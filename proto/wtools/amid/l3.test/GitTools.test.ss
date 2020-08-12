@@ -12215,6 +12215,18 @@ function prOpen( test )
     return null
   });
 
+  /* */
+
+  a.ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    {
+      _.errAttend( err );
+      throw _.errBrief( err );
+    }
+    return arg;
+  })
+
   return a.ready;
 }
 
