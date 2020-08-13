@@ -14,7 +14,7 @@ let Ini = null;
 function objectsParse( remotePath )
 {
   let result = Object.create( null );
-  let gitHubRegexp = /\:\/\/\/github\.com\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)(\.git)?/;
+  let gitHubRegexp = /\:\/\/\/github\.com\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/;
   // let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
   /* Dmytro : this regexp does not search dashes, maybe needs additional symbols */
 
@@ -25,7 +25,7 @@ function objectsParse( remotePath )
   {
     result.service = 'github.com';
     result.user = match[ 1 ];
-    result.repo = match[ 2 ];
+    result.repo = _.strRemoveEnd( match[ 2 ], '.git' );
   }
 
   return result;
