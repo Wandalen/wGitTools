@@ -12114,7 +12114,10 @@ function prOpenRemote( test )
 
   /* - */
 
-  a.shell( `git config credential.helper '!f(){ echo "username=bot-w" && echo "password=${ process.env.WTOOLS_BOT_TOKEN }"; }; f'` );
+  a.shell
+  (
+    `git config credential.helper '!f(){ echo "username=bot-w" && echo "password=${ process.env.WTOOLS_BOT_TOKEN }"; }; f'`
+  );
   a.shell( 'git add --all' );
   a.shell( 'git commit -m first' );
   a.shell( 'git push -u origin master' );

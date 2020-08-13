@@ -1,4 +1,5 @@
-( function _Namespace_ss_( ) {
+( function _Namespace_ss_()
+{
 
 'use strict';
 
@@ -620,7 +621,7 @@ function versionsPull( o )
     ({
       mode : 'shell',
       currentPath : o.localPath,
-      ready : ready
+      ready,
     });
     _.each( versions, ( version ) => start( `git checkout ${version} && git pull` ) );
 
@@ -661,14 +662,14 @@ function isUpToDate( o )
   let start = _.process.starter
   ({
     verbosity : o.verbosity - 1,
-    ready : ready,
     currentPath : o.localPath,
+    ready,
   });
 
   let shell = _.process.starter
   ({
     verbosity : o.verbosity - 1,
-    ready : ready,
+    ready,
     currentPath : o.localPath,
     throwingExitCode : 0,
     outputCollecting : 1,
@@ -1191,9 +1192,9 @@ function sureHasOrigin( o )
   _.sure
   (
     _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( parsed.remoteVcsPath, '/' ) ),
-    () => 'GIT repository at directory ' + _.strQuote( o.localPath ) + '\n' +
-    'Has origin ' + _.strQuote( srcCurrentPath ) + '\n' +
-    'Should have ' + _.strQuote( parsed.remoteVcsPath )
+    () => 'GIT repository at directory ' + _.strQuote( o.localPath ) + '\n'
+    + 'Has origin ' + _.strQuote( srcCurrentPath ) + '\n'
+    + 'Should have ' + _.strQuote( parsed.remoteVcsPath )
   );
 
   return config;
@@ -1260,14 +1261,14 @@ function statusLocal_pre( routine, args )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( args.length === 1 );
 
-  if( o.uncommitted != null )
+  if( o.uncommitted !== null )
   _.each( routine.uncommittedGroup, ( k ) =>
   {
     if( o[ k ] === null )
     o[ k ] = o.uncommitted;
   })
 
-  if( o.unpushed != null )
+  if( o.unpushed !== null )
   _.each( routine.unpushedGroup, ( k ) =>
   {
     if( o[ k ] === null )
@@ -1300,10 +1301,10 @@ function statusLocal_body( o )
 
   let result = resultPrepare();
 
-  let optimizingCheck =  o.uncommittedUntracked && o.uncommittedAdded   &&
-                         o.uncommittedChanged   && o.uncommittedDeleted &&
-                         o.uncommittedRenamed   && o.uncommittedCopied  &&
-                         !o.detailing;
+  let optimizingCheck = o.uncommittedUntracked  && o.uncommittedAdded
+                        && o.uncommittedChanged && o.uncommittedDeleted
+                        && o.uncommittedRenamed && o.uncommittedCopied
+                        && !o.detailing;
 
   let ready = new _.Consequence().take( null );
 
@@ -1643,8 +1644,8 @@ function statusLocal_body( o )
       execPath : 'git for-each-ref',
       args :
       [
-       'refs/heads',
-       `--format={ "branch" : "%(refname:short)", "upstream" : "%(upstream)" }`
+        'refs/heads',
+        `--format={ "branch" : "%(refname:short)", "upstream" : "%(upstream)" }`
       ]
     };
 
@@ -1797,7 +1798,7 @@ function statusRemote_body( o )
     inputMirroring : 0,
     stdio : [ 'pipe', 'pipe', 'ignore' ],
     verbosity : o.verbosity - 1,
-    ready : ready
+    ready,
   });
 
   let result =
@@ -1816,7 +1817,7 @@ function statusRemote_body( o )
 
   ready.take( null );
 
-  let remotes,tags,heads,output;
+  let remotes, tags, heads, output;
   let status = [];
   let version = o.version;
 
@@ -1879,7 +1880,7 @@ function statusRemote_body( o )
   function parse( arg )
   {
     remotes = _.strSplitNonPreserving({ src : arg.output, delimeter : '\n' });
-    remotes = remotes.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/ }) );
+    remotes = remotes.map( ( src ) => _.strSplitNonPreserving({ src, delimeter : /\s+/ }) );
     remotes = remotes.slice( 1 );
 
     //remote heads
@@ -2408,7 +2409,7 @@ function repositoryHasTag( o )
     let possibleHead = `refs/heads/${o.tag}`;
 
     let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' })
-    refs = refs.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/, stripping : 1 }) );
+    refs = refs.map( ( src ) => _.strSplitNonPreserving({ src, delimeter : /\s+/, stripping : 1 }) );
 
     for( let i = 0, l = refs.length; i < l; i++ )
     if( refs[ i ][ 1 ] === possibleTag || refs[ i ][ 1 ] === possibleHead )
@@ -2483,7 +2484,7 @@ function repositoryHasVersion( o )
   function checkLocal()
   {
     let con = start({ execPath : `git cat-file -t ${o.version}` })
-    con.then( got => got.exitCode === 0 );
+    con.then( ( got ) => got.exitCode === 0 );
     return con;
   }
 
@@ -2626,7 +2627,7 @@ function repositoryVersionToTag( o )
     let tagsPrefix = 'refs/tags/';
 
     let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' })
-    refs = refs.map( ( src ) => _.strSplitNonPreserving({ src : src, delimeter : /\s+/, stripping : 1 }) );
+    refs = refs.map( ( src ) => _.strSplitNonPreserving({ src, delimeter : /\s+/, stripping : 1 }) );
 
     let result = [];
 
@@ -2923,7 +2924,7 @@ function hookRegister( o )
 
       let originalHandlerPathDst = originalHandlerPath + '.was';
       if( provider.fileExists( originalHandlerPathDst ) )
-      throw _.err( 'Can\'t rename original git hook file:',originalHandlerPath, '. Path :', originalHandlerPathDst, 'already exists.'  );
+      throw _.err( 'Can\'t rename original git hook file:', originalHandlerPath, '. Path :', originalHandlerPathDst, 'already exists.'  );
       provider.fileRename( originalHandlerPathDst, originalHandlerPath );
     }
 
@@ -2979,7 +2980,7 @@ function hookRegister( o )
 
   function setPermissions() /* qqq : use _.fileProvider.* routine */
   {
-    if( process.platform != 'win32' )
+    if( process.platform !== 'win32' )
     _.process.start
     ({
       execPath : 'chmod ug+x .git/hooks/*',
@@ -3067,12 +3068,12 @@ function hookPreservingHardLinksRegister( repoPath )
   toolsPath = path.nativize( toolsPath );
 
   let sourceCode = '#!/usr/bin/env node\n' +  restoreHardLinksCode();
-  let tempPath = _.process.tempOpen({ sourceCode : sourceCode });
+  let tempPath = _.process.tempOpen({ sourceCode });
   try
   {
     _.git.hookRegister
     ({
-      repoPath : repoPath,
+      repoPath,
       filePath : tempPath,
       handlerName : 'post-merge.restoreHardLinks',
       hookName : 'post-merge',
@@ -3135,7 +3136,7 @@ function hookPreservingHardLinksUnregister( repoPath )
 
   return _.git.hookUnregister
   ({
-    repoPath : repoPath,
+    repoPath,
     handlerName : 'post-merge.restoreHardLinks',
     force : 0,
     throwing : 1
@@ -3182,7 +3183,7 @@ function ignoreAdd( o )
   result = _.arrayAppendedArrayOnce( gitconfig, records );
 
   let data = gitconfig.join( '\n' );
-  provider.fileWrite({ filePath : gitignorePath, data : data, writeMode : 'append' });
+  provider.fileWrite({ filePath : gitignorePath, data, writeMode : 'append' });
 
   return result;
 }
@@ -3228,7 +3229,7 @@ function ignoreRemove( o )
   result = _.arrayRemovedArrayOnce( gitconfig, records );
 
   let data = gitconfig.join( '\n' );
-  provider.fileWrite({ filePath : gitignorePath, data : data, writeMode : 'rewrite' });
+  provider.fileWrite({ filePath : gitignorePath, data, writeMode : 'rewrite' });
 
   return result;
 }
@@ -3809,7 +3810,7 @@ function prOpen( o )
 
   function onRequest( err, body, headers )
   {
-    return _.time.begin( 0, () => ready2.take( arguments ) );
+    return _.time.begin( 0, () => ready2.take([ err, body ]) );
   }
 
 }
@@ -4195,7 +4196,11 @@ function diff( o )
       {
         result.isRemoteTag = true;
         let r = _.strIsolateLeftOrNone( result.value, '/' );
-        _.sure( _.strDefined( r[ 0 ] ) && _.strDefined( r[ 2 ] ), `Failed to parse state: ${result.original}, expects remote tag in format: "!remote/tag".` );
+        _.sure
+        (
+          _.strDefined( r[ 0 ] ) && _.strDefined( r[ 2 ] ),
+          `Failed to parse state: ${result.original}, expects remote tag in format: "!remote/tag".`
+        );
         result.remotePath = `:///${r[ 0 ]}`;
         result.remote = `!${r[ 2 ]}`;
       }
@@ -4369,7 +4374,7 @@ function diff( o )
     let statusToPropertyMap =
     {
       'A' : 'addedFiles',
-      'C' : 'copiedFiles',
+      // 'C' : 'copiedFiles',
       'C' : 'copiedFiles', /* qqq : ? */
       'D' : 'deletedFiles',
       'M' : 'modifiedFiles',
@@ -4569,9 +4574,9 @@ function renormalize( o )
     return;
     let attributes = localProvider.fileRead( attributesPath );
     attributes = _.strSplitNonPreserving( attributes, '\n' );
-    attributes = attributes.map( e => _.strSplitNonPreserving( e, /\s+/ ) );
+    attributes = attributes.map( ( e ) => _.strSplitNonPreserving( e, /\s+/ ) );
 
-    attributes = attributes.filter( e =>
+    attributes = attributes.filter( ( e ) =>
     {
       if( _.longHasAny( e, [ 'text', 'text=auto' ] ) )
       if( !_.longHasAny( e, [ 'eol=crlf', 'eol=lf' ] ) )
@@ -4679,8 +4684,8 @@ let Extension =
 
   repositoryHasTag,
   repositoryHasVersion,
-  repositoryTagToVersion,/* qqq : cover */
-  repositoryVersionToTag,/* qqq : cover */
+  repositoryTagToVersion, /* qqq : cover */
+  repositoryVersionToTag, /* qqq : cover */
   exists,
   tagMake, /* qqq : cover */
 

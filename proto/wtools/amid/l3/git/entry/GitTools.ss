@@ -1,4 +1,5 @@
-( function _GitTools_ss_( ) {
+( function _GitTools_ss_()
+{
 
 'use strict';
 
