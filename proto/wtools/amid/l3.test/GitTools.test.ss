@@ -12008,8 +12008,84 @@ function repositoryInit( test )
 
 function prOpen( test )
 {
+  if( !Config.debug )
+  {
+    test.is( true );
+    return;
+  }
+
+  test.case = 'wrong git service';
+  test.shouldThrowErrorSync( () =>
+  {
+    _.git.prOpen
+    ({
+      throwing : 1,
+      sync : 1,
+      token : 'token',
+      remotePath : 'https://gitlab.com/user/NewRepo',
+      title : 'master',
+      body : null,
+      srcBranch : 'doc',
+      dstBranch : 'master',
+    });
+  })
+
+  test.case = 'wrong token';
+  test.shouldThrowErrorSync( () =>
+  {
+    _.git.prOpen
+    ({
+      throwing : 1,
+      sync : 1,
+      token : 'token',
+      remotePath : 'https://github.com/user/NewRepo',
+      title : 'master',
+      body : null,
+      srcBranch : 'doc',
+      dstBranch : 'master',
+    });
+  })
+
+  test.case = 'without fields title, srcBranch';
+  test.shouldThrowErrorSync( () =>
+  {
+    _.git.prOpen
+    ({
+      sync : 1,
+      token : 'token',
+      remotePath : 'https://github.com/user/NewRepo',
+      dstBranch : 'master',
+    });
+  })
+
+  test.case = 'without token';
+  test.shouldThrowErrorSync( () =>
+  {
+    _.git.prOpen
+    ({
+      remotePath : 'https://github.com/user/NewRepo',
+      title : 'master',
+      body : null,
+      srcBranch : 'doc',
+      dstBranch : 'master',
+    });
+  })
+}
+
+//
+
+function prOpenRemote( test )
+{
   let a = test.assetFor( 'basic' );
   a.reflect();
+
+  if( process.platform !== 'linux' )
+  {
+    test.is( true );
+    return;
+  }
+
+  /* */
 
   a.ready.Try( () =>
   {
@@ -12141,74 +12217,6 @@ function prOpen( test )
     return null;
   });
 
-  /* - */
-
-  a.ready.then( () =>
-  {
-
-    if( !Config.debug )
-    return null;
-
-    test.case = 'wrong git service';
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.prOpen
-      ({
-        throwing : 1,
-        sync : 1,
-        token : 'token',
-        remotePath : 'https://gitlab.com/user/NewRepo',
-        title : 'master',
-        body : null,
-        srcBranch : 'doc',
-        dstBranch : 'master',
-      });
-    })
-
-    test.case = 'wrong token';
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.prOpen
-      ({
-        throwing : 1,
-        sync : 1,
-        token : 'token',
-        remotePath : 'https://github.com/user/NewRepo',
-        title : 'master',
-        body : null,
-        srcBranch : 'doc',
-        dstBranch : 'master',
-      });
-    })
-
-    test.case = 'without fields title, srcBranch';
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.prOpen
-      ({
-        sync : 1,
-        token : 'token',
-        remotePath : 'https://github.com/user/NewRepo',
-        dstBranch : 'master',
-      });
-    })
-
-    test.case = 'without token';
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.prOpen
-      ({
-        remotePath : 'https://github.com/user/NewRepo',
-        title : 'master',
-        body : null,
-        srcBranch : 'doc',
-        dstBranch : 'master',
-      });
-    })
-
-    return null
-  });
-
   /* */
 
   a.ready.finally( ( err, arg ) =>
@@ -12238,7 +12246,7 @@ function prOpen( test )
   }
 }
 
-prOpen.timeOut = 60000;
+prOpenRemote.timeOut = 60000;
 
 //
 
@@ -16507,6 +16515,7 @@ var Proto =
 
     repositoryInit,
     prOpen,
+    prOpenRemote,
     repositoryHasTag,
     repositoryHasVersion,
 
