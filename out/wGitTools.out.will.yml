@@ -171,6 +171,9 @@ module:
           - ../proto/wtools/amid/l3/git/l1/Namespace.ss
           - ../proto/wtools/amid/l3.test
           - ../proto/wtools/amid/l3.test/GitTools.test.ss
+          - ../proto/wtools/amid/l3.test/_asset
+          - ../proto/wtools/amid/l3.test/_asset/basic
+          - ../proto/wtools/amid/l3.test/_asset/basic/File.txt
           - ../proto/wtools/atop
     submodule:
       wTools:
