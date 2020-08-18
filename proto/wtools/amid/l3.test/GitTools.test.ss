@@ -12089,7 +12089,7 @@ function prOpenRemote( test )
 
   a.ready.Try( () =>
   {
-    return repositoryDelete( 'https://github.com/bot-w/New' );
+    return repositoryDelete( 'https://github.com/wtools-bot/New' );
   })
   .catch( ( err ) =>
   {
@@ -12101,7 +12101,7 @@ function prOpenRemote( test )
   {
     return _.git.repositoryInit
     ({
-      remotePath : 'https://github.com/bot-w/New',
+      remotePath : 'https://github.com/wtools-bot/New',
       localPath : a.routinePath,
       throwing : 1,
       sync : 1,
@@ -12116,7 +12116,7 @@ function prOpenRemote( test )
 
   a.shell
   (
-    `git config credential.helper '!f(){ echo "username=bot-w" && echo "password=${ process.env.WTOOLS_BOT_TOKEN }"; }; f'`
+    `git config credential.helper '!f(){ echo "username=wtools-bot" && echo "password=${ process.env.WTOOLS_BOT_TOKEN }"; }; f'`
   );
   a.shell( 'git add --all' );
   a.shell( 'git commit -m first' );
@@ -12135,7 +12135,7 @@ function prOpenRemote( test )
     return _.git.prOpen
     ({
       token : process.env.WTOOLS_BOT_TOKEN,
-      remotePath : 'https://github.com/bot-w/New',
+      remotePath : 'https://github.com/wtools-bot/New',
       title : 'new',
       srcBranch : 'new',
       dstBranch : 'master',
@@ -12147,7 +12147,7 @@ function prOpenRemote( test )
     test.identical( op.changed_files, 1 );
     test.identical( op.state, 'open' );
     test.identical( op.title, 'new' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/bot-w\/New\/pull\/\d/ ), 1 );
+    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New\/pull\/\d/ ), 1 );
     return null;
   });
 
@@ -12168,7 +12168,7 @@ function prOpenRemote( test )
     return _.git.prOpen
     ({
       token : process.env.WTOOLS_BOT_TOKEN,
-      remotePath : 'https://github.com/bot-w/New',
+      remotePath : 'https://github.com/wtools-bot/New',
       title : 'new2',
       body : 'Some description',
       srcBranch : 'new2',
@@ -12182,7 +12182,7 @@ function prOpenRemote( test )
     test.identical( op.changed_files, 1 );
     test.identical( op.state, 'open' );
     test.identical( op.title, 'new2' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/bot-w\/New\/pull\/\d/ ), 1 );
+    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New\/pull\/\d/ ), 1 );
     return null;
   });
 
@@ -12203,9 +12203,9 @@ function prOpenRemote( test )
     return _.git.prOpen
     ({
       token : process.env.WTOOLS_BOT_TOKEN,
-      remotePath : 'https://github.com/bot-w/New',
+      remotePath : 'https://github.com/wtools-bot/New',
       title : 'new3',
-      srcBranch : 'bot-w:new3',
+      srcBranch : 'wtools-bot:new3',
       dstBranch : 'master',
       sync : 0,
     });
@@ -12216,7 +12216,7 @@ function prOpenRemote( test )
     test.identical( op.changed_files, 1 );
     test.identical( op.state, 'open' );
     test.identical( op.title, 'new3' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/bot-w\/New\/pull\/\d/ ), 1 );
+    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New\/pull\/\d/ ), 1 );
     return null;
   });
 
@@ -12224,7 +12224,7 @@ function prOpenRemote( test )
 
   a.ready.finally( ( err, arg ) =>
   {
-    repositoryDelete( 'https://github.com/bot-w/New' );
+    repositoryDelete( 'https://github.com/wtools-bot/New' );
 
     if( err )
     throw _.err( err );
