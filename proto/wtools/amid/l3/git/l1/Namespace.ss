@@ -1250,7 +1250,7 @@ sureHasOrigin.defaults =
  * @module Tools/mid/GitTools
  */
 
-function statusLocal_pre( routine, args )
+function statusLocal_head( routine, args )
 {
   let o = args[ 0 ];
 
@@ -1749,7 +1749,7 @@ defaults.conflicts = null;
 defaults.detailing = 0;
 defaults.explaining = 0;
 
-let statusLocal = _.routineFromPreAndBody( statusLocal_pre, statusLocal_body );
+let statusLocal = _.routineUnite( statusLocal_head, statusLocal_body );
 
 //
 
@@ -1759,7 +1759,7 @@ let statusLocal = _.routineFromPreAndBody( statusLocal_pre, statusLocal_body );
   if branch is not listed in `git branch` but exists in output of reflog, then branch was deleted
 */
 
-function statusRemote_pre( routine, args )
+function statusRemote_head( routine, args )
 {
   let o = args[ 0 ];
 
@@ -2030,11 +2030,11 @@ defaults.sync = 1;
 
 //
 
-let statusRemote = _.routineFromPreAndBody( statusRemote_pre, statusRemote_body );
+let statusRemote = _.routineUnite( statusRemote_head, statusRemote_body );
 
 //
 
-function status_pre( routine, args )
+function status_head( routine, args )
 {
   let o = args[ 0 ];
 
@@ -2137,7 +2137,7 @@ defaults.local = 1;
 defaults.detailing = 0;
 defaults.explaining = 0;
 
-let status = _.routineFromPreAndBody( status_pre, status_body );
+let status = _.routineUnite( status_head, status_body );
 
 //
 
@@ -2942,7 +2942,7 @@ function hookRegister( o )
 
       #${specialComment}
       #Based on
-      #https://github.com/henrik/dotfiles/blob/master/git_template/hooks/pre-commit
+      #https://github.com/henrik/dotfiles/blob/master/git_template/hooks/head-commit
 
       hook_dir=$(dirname $0)
       hook_name=$(basename $0)
@@ -4610,21 +4610,21 @@ renormalize.defaults =
 var KnownHooks =
 [
   'applypatch-msg',
-  'pre-applypatch',
+  'head-applypatch',
   'post-applypatch',
-  'pre-commit',
+  'head-commit',
   'prepare-commit-msg',
   'commit-msg',
   'post-commit',
-  'pre-rebase',
+  'head-rebase',
   'post-checkout',
   'post-merge',
-  'pre-push',
-  'pre-receive',
+  'head-push',
+  'head-receive',
   'update',
   'post-receive',
   'post-update',
-  'pre-auto-gc',
+  'head-auto-gc',
   'post-rewrite',
 ]
 

@@ -15377,14 +15377,14 @@ function hookTrivial( test )
     ({
       repoPath : a.abs( '.' ),
       filePath : tempPath,
-      handlerName : 'pre-commit.commitHandler',
-      hookName : 'pre-commit',
+      handlerName : 'head-commit.commitHandler',
+      hookName : 'head-commit',
       throwing : 1,
       rewriting : 0
     })
     _.process.tempClose({ filePath : tempPath });
-    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit' ) ) );
-    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit.commitHandler' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/head-commit' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/head-commit.commitHandler' ) ) );
 
     return null;
   })
@@ -15401,19 +15401,19 @@ function hookTrivial( test )
 
   .then( () =>
   {
-    test.is( a.fileProvider.fileExists( a.abs ( './.git/hooks/pre-commit' ) ) );
-    test.is( a.fileProvider.fileExists( a.abs ( './.git/hooks/pre-commit.commitHandler' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs ( './.git/hooks/head-commit' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs ( './.git/hooks/head-commit.commitHandler' ) ) );
 
     _.git.hookUnregister
     ({
       repoPath : a.abs( '.' ),
-      handlerName : 'pre-commit.commitHandler',
+      handlerName : 'head-commit.commitHandler',
       force : 0,
       throwing : 1
     })
 
-    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit' ) ) );
-    test.is( !a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit.commitHandler' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/head-commit' ) ) );
+    test.is( !a.fileProvider.fileExists( a.abs( './.git/hooks/head-commit.commitHandler' ) ) );
 
     return null;
   })
