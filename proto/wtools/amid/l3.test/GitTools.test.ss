@@ -16533,7 +16533,7 @@ var Proto =
 
     renormalize,
     renormalizeOriginHasAttributes,
-    renormalizeAudit
+    renormalizeAudit,
 
   },
 

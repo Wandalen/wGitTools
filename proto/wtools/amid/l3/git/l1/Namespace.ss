@@ -4095,6 +4095,34 @@ function configSave( filePath, config )
 
 //
 
+function configReset() /* qqq : implement */
+{
+
+/*
+
+git config --global user.email "wandalen.me@gmail.com"
+git config --global user.name "wandalen"
+git config --global core.autocrlf false
+git config --global core.ignorecase false
+git config --global core.fileMode false
+
+git config --global url."https://wandalen@github.com".insteadOf "https://github.com"
+git config --global url."https://wandalen@bitbucket.org".insteadOf "https://bitbucket.org"
+
+git config --global credential.helper store
+
+*/
+
+}
+
+configReset.defaults =
+{
+  global : 1,
+  preset : 'recommended', /*[ recommended, standard ]*/
+}
+
+//
+
 /* qqq : implement routine to find out does exist version/tag */
 /* qqq : implement routine to convert one kind of version/tag to one another */
 
@@ -4717,6 +4745,7 @@ let Extension =
 
   configRead,
   configSave,
+  configReset,
   diff,
   reset,
   /* qqq : implement routine _.git.profileConfigure */
