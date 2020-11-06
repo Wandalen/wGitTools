@@ -4745,10 +4745,9 @@ let Extension =
 
   configRead,
   configSave,
-  configReset,
+  configReset,   /* qqq : implement routine _.git.configReset() */
   diff,
   reset,
-  /* qqq : implement routine _.git.profileConfigure */
   renormalize,
 
 }
