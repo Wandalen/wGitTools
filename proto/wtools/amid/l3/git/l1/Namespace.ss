@@ -4117,7 +4117,7 @@ git config --global credential.helper store
 
 configReset.defaults =
 {
-  global : 1,
+  global : 0,
   preset : 'recommended', /*[ recommended, standard ]*/
 }
 
