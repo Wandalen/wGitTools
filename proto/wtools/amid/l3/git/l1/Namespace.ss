@@ -4481,6 +4481,9 @@ function reset( o )
   if( o.removingUntracked )
   start( `git clean -df` );
 
+  /* qqq : should be "git clean -dffx", but not by default */
+  /* qqq : cover each option */
+
   if( o.sync )
   {
     ready.deasync();
@@ -4492,7 +4495,11 @@ function reset( o )
 reset.defaults =
 {
   localPath : null,
+  preset : null, /*[ null, 'all' ]*/ /* qqq : implement and cover option */
   removingUntracked : 1,
+  removingIgnored : 0, /* qqq : implement and cover option */
+  removingSubrepositories : 0, /* qqq : implement and cover option. option -ffx of git command clean */
+  dry : 0, /* qqq : implement and cover option */
   sync : 1,
 }
 
@@ -4746,8 +4753,8 @@ let Extension =
   configRead,
   configSave,
   configReset,   /* qqq : implement routine _.git.configReset() */
-  diff,
   reset,
+  diff,
   renormalize,
 
 }
