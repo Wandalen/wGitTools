@@ -371,8 +371,8 @@ function versionsPull( test )
   })
   .then( ( got ) =>
   {
-    test.identical( got.length, 1 );
-    _.each( got, ( result ) =>
+    test.identical( got.runs.length, 1 );
+    _.each( got.runs, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
       test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
@@ -406,8 +406,8 @@ function versionsPull( test )
   })
   .then( ( got ) =>
   {
-    test.identical( got.length, 2 );
-    _.each( got, ( result ) =>
+    test.identical( got.runs.length, 2 );
+    _.each( got.runs, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
       test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
@@ -444,8 +444,8 @@ function versionsPull( test )
   })
   .then( ( got ) =>
   {
-    test.identical( got.length, 2 );
-    _.each( got, ( result ) =>
+    test.identical( got.runs.length, 2 );
+    _.each( got.runs, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
       test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
@@ -7755,6 +7755,7 @@ function hasChanges( test )
   })
 
   a.fileProvider.dirMake( a.abs( '.' ) )
+  // a.fileProvider.dirMake( a.abs( 'clone' ) )
 
   prepareRepo()
 
@@ -16118,14 +16119,14 @@ function hookTrivial( test )
     ({
       repoPath : a.abs( '.' ),
       filePath : tempPath,
-      handlerName : 'head-commit.commitHandler',
-      hookName : 'head-commit',
+      handlerName : 'pre-commit.commitHandler',
+      hookName : 'pre-commit',
       throwing : 1,
       rewriting : 0
     })
     _.process.tempClose({ filePath : tempPath });
-    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/head-commit' ) ) );
-    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/head-commit.commitHandler' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit.commitHandler' ) ) );
 
     return null;
   })
@@ -16142,19 +16143,19 @@ function hookTrivial( test )
 
   .then( () =>
   {
-    test.is( a.fileProvider.fileExists( a.abs ( './.git/hooks/head-commit' ) ) );
-    test.is( a.fileProvider.fileExists( a.abs ( './.git/hooks/head-commit.commitHandler' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs ( './.git/hooks/pre-commit' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs ( './.git/hooks/pre-commit.commitHandler' ) ) );
 
     _.git.hookUnregister
     ({
       repoPath : a.abs( '.' ),
-      handlerName : 'head-commit.commitHandler',
+      handlerName : 'pre-commit.commitHandler',
       force : 0,
       throwing : 1
     })
 
-    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/head-commit' ) ) );
-    test.is( !a.fileProvider.fileExists( a.abs( './.git/hooks/head-commit.commitHandler' ) ) );
+    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit' ) ) );
+    test.is( !a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit.commitHandler' ) ) );
 
     return null;
   })

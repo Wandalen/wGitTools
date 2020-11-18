@@ -875,7 +875,7 @@ function isRepository( o )
       ({
         execPath : 'git ls-remote ' + remoteParsed,
         throwingExitCode : 0,
-        outputPiping : 1,
+        outputPiping : 0,
         stdio : 'ignore',
         sync : o.sync,
         deasync : 0,
@@ -2079,13 +2079,17 @@ function status_body( o )
   o3.sync = 0;
   remoteReady = self.statusRemote.call( this, o3 );
 
-  let ready = _.Consequence.AndKeep( localReady, remoteReady )
+  let ready = _.Consequence.And( localReady, remoteReady )
   .finally( ( err, arg ) =>
   {
     if( err )
     debugger;
     if( err )
-    throw _.err( err );
+    {
+      let errors = _.arrayAppendArrayOnce( localReady.errorsGet().slice(), remoteReady.errorsGet() );
+      _.each( errors, ( err ) => _.errAttend( err ) )
+      throw _.err.apply( _, errors );
+    }
 
     let result = _.mapExtend( null, arg[ 0 ] || {}, arg[ 1 ] || {} );
 
@@ -2942,7 +2946,7 @@ function hookRegister( o )
 
       #${specialComment}
       #Based on
-      #https://github.com/henrik/dotfiles/blob/master/git_template/hooks/head-commit
+      #https://github.com/henrik/dotfiles/blob/master/git_template/hooks/pre-commit
 
       hook_dir=$(dirname $0)
       hook_name=$(basename $0)
@@ -4687,7 +4691,7 @@ var KnownHooks =
   'applypatch-msg',
   'head-applypatch',
   'post-applypatch',
-  'head-commit',
+  'pre-commit',
   'prepare-commit-msg',
   'commit-msg',
   'post-commit',
