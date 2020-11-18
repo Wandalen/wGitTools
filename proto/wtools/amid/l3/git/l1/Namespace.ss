@@ -4358,8 +4358,6 @@ function diff( o )
       ready
     }
 
-    op.inputMirroring = 1;
-
     formArgs( state1 )
     formArgs( state2 )
 
