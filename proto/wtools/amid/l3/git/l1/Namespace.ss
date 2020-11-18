@@ -4155,7 +4155,7 @@ function diff( o )
 
   let ready = new _.Consequence().take( null );
   let result = Object.create( null );
-  let state1 = stateParse( o.state1, true );
+  let state1 = stateParse( o.state1 );
   let state2 = stateParse( o.state2 ); /* qqq : ! */
 
   let start = _.process.starter
@@ -4188,7 +4188,7 @@ function diff( o )
 
   /* - */
 
-  function stateParse( state, allowSpecial )
+  function stateParse( state )
   {
     let statesBegin = [ '#', '!' ];
     let statesSpecial = [ 'working', 'staging', 'committed' ];
@@ -4236,11 +4236,11 @@ function diff( o )
       return result;
     }
 
-    if( !allowSpecial )
-    throw _.err( `Expects state in one of formats:${statesBegin}, but got:${state}` );
+    // if( !allowSpecial )
+    // throw _.err( `Expects state in one of formats:${statesBegin}, but got: ${state}` );
 
     if( !_.longHas( statesSpecial, state ) )
-    throw _.err( `Expects one of special states: ${statesSpecial}, but got:${state}` );
+    throw _.err( `Expects one of special states: ${statesSpecial}, but got: ${state}` );
 
     result.isSpecial = true;
 
@@ -4335,10 +4335,56 @@ function diff( o )
     if( !state1.exists || !state2.exists )
     return null;
 
+    if( state1.isSpecial && state2.isSpecial )
+    if( state1.value === state2.value )
+    {
+      result.status = o.explaining ? '' : false;
+      return null;
+    }
+
     let ready = new _.Consequence().take( null );
 
     let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
 
+    let op =
+    {
+      execPath : 'git',
+      args :
+      [
+        'diff',
+        diffMode,
+        '--exit-code'
+      ],
+      ready
+    }
+
+    op.inputMirroring = 1;
+
+    formArgs( state1 )
+    formArgs( state2 )
+
+    start( op )
+
+    ready.then( handleOutput );
+
+    return ready;
+
+    /* */
+
+    function formArgs( state )
+    {
+      if( !state.isSpecial )
+      op.args.push( state.value );
+      else if( state.value === 'staging' )
+      op.args.push( '--staged' )
+      else if( state.value === 'committed' )
+      op.args.push( 'HEAD' )
+      else if( _.strBegins( state.value, 'HEAD' ) )
+      op.args.push( state.value );
+    }
+
+
+    /*
     if( state1.value === 'working' )
     start({ execPath : `git diff ${diffMode} --exit-code ${state2.value}`, ready })
     else if( state1.value === 'staging' )
@@ -4346,11 +4392,7 @@ function diff( o )
     else if( state1.value === 'committed' )
     start({ execPath : `git diff ${diffMode} --exit-code HEAD ${state2.value}`, ready })
     else
-    start({ execPath : `git diff ${diffMode} --exit-code ${state1.value} ${state2.value}`, ready })
-
-    ready.then( handleOutput );
-
-    return ready;
+    start({ execPath : `git diff ${diffMode} --exit-code ${state1.value} ${state2.value}`, ready }) */
   }
 
   /*  */
