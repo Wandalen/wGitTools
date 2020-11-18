@@ -15134,28 +15134,6 @@ function diffSameStates( test )
     return a.ready;
   }
 
-  function initBare()
-  {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'bare' ) ))
-    a.ready.then( () => { a.fileProvider.dirMake( a.abs( 'bare' ) ); return null })
-    a.shell2( `git init --bare` )
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'repo' ) ))
-    a.ready.then( () => { a.fileProvider.dirMake( a.abs( 'repo' ) ); return null })
-    a.shell( `git clone ../bare .` )
-    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( 'repo', 'file'), 'data' ); return null })
-    a.shell( `git add file` )
-    a.shell( `git commit -m init` )
-    a.shell( `git push` )
-    return a.ready;
-  }
-
-  function cloneBare()
-  {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'repo' ) ))
-    a.ready.then( () => { a.fileProvider.dirMake( a.abs( 'repo' ) ); return null })
-    a.shell( `git clone ../bare .` )
-    return a.ready;
-  }
 }
 
 diffSameStates.timeOut = 60000;
