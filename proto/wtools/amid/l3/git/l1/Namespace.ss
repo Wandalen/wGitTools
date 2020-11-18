@@ -4156,7 +4156,7 @@ function diff( o )
   let ready = new _.Consequence().take( null );
   let result = Object.create( null );
   let state1 = stateParse( o.state1 );
-  let state2 = stateParse( o.state2 ); /* qqq : ! */
+  let state2 = stateParse( o.state2 ); /* qqq : ! aaa: special tags now work in both states */
 
   let start = _.process.starter
   ({
