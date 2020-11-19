@@ -12112,6 +12112,15 @@ function prOpenRemote( test )
       token : process.env.WTOOLS_BOT_TOKEN,
     })
   })
+  a.ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( err );
+    if( !arg )
+    throw _.err( 'Not initialized' );
+
+    return arg;
+  })
 
   /* - */
 
