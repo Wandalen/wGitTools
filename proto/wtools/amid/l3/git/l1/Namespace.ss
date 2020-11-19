@@ -4188,7 +4188,7 @@ function diff( o )
 
   /* - */
 
-  function stateParse( state, allowSpecial )
+  function stateParse( state, allowingSpecial )
   {
     let statesBegin = [ '#', '!' ];
     let statesSpecial = [ 'working', 'staging', 'committed' ];
@@ -4236,11 +4236,17 @@ function diff( o )
       return result;
     }
 
-    if( !allowSpecial )
-    throw _.err( `Expects state in one of formats:${statesBegin}, but got:${state}` );
+    if( !allowingSpecial )
+    {
+      debugger;
+      throw _.err( `Expects state in one of formats:${statesBegin}, but got:${state}` );
+    }
 
     if( !_.longHas( statesSpecial, state ) )
-    throw _.err( `Expects one of special states: ${statesSpecial}, but got:${state}` );
+    {
+      debugger;
+      throw _.err( `Expects one of special states: ${statesSpecial}, but got:${state}` );
+    }
 
     result.isSpecial = true;
 
