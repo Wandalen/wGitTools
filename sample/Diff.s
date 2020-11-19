@@ -6,8 +6,8 @@ var got =  _.git.diff
 ({
   localPath : _.path.join( __dirname, '..' ),
   state1 : 'working',
-  state2 : '!v0.3.36',
-  attachOriginalDiffOutput : 0,
+  state2 : 'HEAD~1',
+  generatingPatch : 0,
   detailing : 1,
   explaining : 1,
   fetchTags : 1

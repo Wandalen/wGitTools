@@ -4381,7 +4381,7 @@ function diff( o )
       op.args.push( '--patch' )
 
       if( _.numberIs( o.linesOfContext ) )
-      o.args.push( `--unified=${o.linesOfContext}` )
+      op.args.push( `--unified=${o.linesOfContext}` )
 
       if( o.coloredPatch )
       op.args.push( '--color=always' )
