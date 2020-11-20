@@ -4153,6 +4153,7 @@ function diff( o )
   _.assert( _.strDefined( o.state1 ) || o.state1 === null );
   _.assert( _.strDefined( o.state2 ) );
   _.assert( _.strDefined( o.localPath ) );
+  _.assert( o.linesOfContext === null ||  _.numberIs( o.linesOfContext ) );
 
   if( o.state1 === null ) /* qqq : discuss */
   o.state1 = 'HEAD';
@@ -4351,22 +4352,13 @@ function diff( o )
 
     let ready = new _.Consequence().take( null );
 
-    let diffMode = o.detailing ? '--raw' : /* '--compact-summary' */'--stat';
-
     let op =
     {
       execPath : 'git',
-      args :
-      [
-        'diff',
-        diffMode,
-        '--exit-code'
-      ],
       ready
     }
 
-    formArgs( state1 )
-    formArgs( state2 )
+    diffArgsForm();
 
     start( op )
 
@@ -4376,7 +4368,33 @@ function diff( o )
 
     /* */
 
-    function formArgs( state )
+    function diffArgsForm()
+    {
+      op.args = [ 'diff', '--exit-code' ]
+
+      if( o.detailing )
+      op.args.push( '--raw' )
+      else
+      op.args.push( '--stat' )
+
+      if( o.generatingPatch )
+      op.args.push( '--patch' )
+
+      if( _.numberIs( o.linesOfContext ) )
+      op.args.push( `--unified=${o.linesOfContext}` )
+
+      if( o.coloredPatch )
+      op.args.push( '--color=always' )
+      else
+      op.args.push( '--color=never' )
+
+      argsForStateForm( state1 );
+      argsForStateForm( state2 );
+    }
+
+    /* */
+
+    function argsForStateForm( state )
     {
       if( !state.isSpecial )
       op.args.push( state.value );
@@ -4387,7 +4405,6 @@ function diff( o )
       else if( _.strBegins( state.value, 'HEAD' ) )
       op.args.push( state.value );
     }
-
 
     /*
     if( state1.value === 'working' )
@@ -4431,8 +4448,8 @@ function diff( o )
       }
     }
 
-    if( o.attachOriginalDiffOutput )
-    result.output = got.output;
+    if( o.generatingPatch )
+    result.patch = got.output;
 
     if( o.explaining && !o.detailing )
     status = got.output;
@@ -4457,8 +4474,17 @@ function diff( o )
       'T' : 'typechangedFiles',
       'U' : 'unmergedFiles',
     }
-    let lines = _.strSplitNonPreserving({ src : got.output, delimeter : '\n', stripping : 1 });
-    for( var i = 0; i < lines.length; i++ )
+    let lines = _.strSplitNonPreserving
+    ({
+      src : got.output,
+      delimeter : '\n',
+      stripping : 1,
+      preservingEmpty: 1
+    });
+    let endOfRawOutput = _.longLeftIndex( lines, '' );
+    endOfRawOutput = endOfRawOutput >= 0 ? endOfRawOutput : lines.length;
+
+    for( let i = 0; i < endOfRawOutput; i++ )
     {
       lines[ i ] = _.strSplitNonPreserving({ src : lines[ i ], delimeter : /\s+/, stripping : 1 })
       let type = lines[ i ][ 4 ].charAt( 0 );
@@ -4492,8 +4518,10 @@ diff.defaults =
   localPath : null,
   detailing : 1,
   explaining : 1,
-  attachOriginalDiffOutput : 0,
+  generatingPatch : 0, // https://git-scm.com/docs/git-diff.html#Documentation/git-diff.txt---patch
   throwingDoesNotExist : 0,
+  linesOfContext : null, // https://git-scm.com/docs/git-diff.html#Documentation/git-diff.txt---unifiedltngt
+  coloredPatch : 0, // https://git-scm.com/docs/git-diff.html#Documentation/git-diff.txt---colorltwhengt
   fetchTags : 0,
   sync : 1
 }
