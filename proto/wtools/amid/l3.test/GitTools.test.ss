@@ -12078,6 +12078,7 @@ function prOpen( test )
 function prOpenRemote( test )
 {
   let a = test.assetFor( 'basic' );
+  let repository = `https://github.com/wtools-bot/New-${ _.idWithDateAndTime() }`;
   a.reflect();
 
   if( process.platform !== 'linux' )
@@ -12090,7 +12091,7 @@ function prOpenRemote( test )
 
   a.ready.Try( () =>
   {
-    return repositoryDelete( 'https://github.com/wtools-bot/New' );
+    return repositoryDelete( repository );
   })
   .catch( ( err ) =>
   {
@@ -12102,7 +12103,7 @@ function prOpenRemote( test )
   {
     return _.git.repositoryInit
     ({
-      remotePath : 'https://github.com/wtools-bot/New',
+      remotePath : repository,
       localPath : a.routinePath,
       throwing : 1,
       sync : 1,
@@ -12136,7 +12137,7 @@ function prOpenRemote( test )
     return _.git.prOpen
     ({
       token : process.env.WTOOLS_BOT_TOKEN,
-      remotePath : 'https://github.com/wtools-bot/New',
+      remotePath : repository,
       title : 'new',
       srcBranch : 'new',
       dstBranch : 'master',
@@ -12148,7 +12149,7 @@ function prOpenRemote( test )
     test.identical( op.changed_files, 1 );
     test.identical( op.state, 'open' );
     test.identical( op.title, 'new' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New\/pull\/\d/ ), 1 );
+    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New-.*\/pull\/\d/ ), 1 );
     return null;
   });
 
@@ -12169,7 +12170,7 @@ function prOpenRemote( test )
     return _.git.prOpen
     ({
       token : process.env.WTOOLS_BOT_TOKEN,
-      remotePath : 'https://github.com/wtools-bot/New',
+      remotePath : repository,
       title : 'new2',
       body : 'Some description',
       srcBranch : 'new2',
@@ -12183,7 +12184,7 @@ function prOpenRemote( test )
     test.identical( op.changed_files, 1 );
     test.identical( op.state, 'open' );
     test.identical( op.title, 'new2' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New\/pull\/\d/ ), 1 );
+    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New-.*\/pull\/\d/ ), 1 );
     return null;
   });
 
@@ -12204,7 +12205,7 @@ function prOpenRemote( test )
     return _.git.prOpen
     ({
       token : process.env.WTOOLS_BOT_TOKEN,
-      remotePath : 'https://github.com/wtools-bot/New',
+      remotePath : repository,
       title : 'new3',
       srcBranch : 'wtools-bot:new3',
       dstBranch : 'master',
@@ -12217,7 +12218,7 @@ function prOpenRemote( test )
     test.identical( op.changed_files, 1 );
     test.identical( op.state, 'open' );
     test.identical( op.title, 'new3' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New\/pull\/\d/ ), 1 );
+    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New-.*\/pull\/\d/ ), 1 );
     return null;
   });
 
@@ -12225,10 +12226,10 @@ function prOpenRemote( test )
 
   a.ready.finally( ( err, arg ) =>
   {
-    repositoryDelete( 'https://github.com/wtools-bot/New' );
+    repositoryDelete( repository );
 
     if( err )
-    throw _.err( err );
+    throw _.err( err, 'Repository should be deleted manually' );
     return null;
   })
 
