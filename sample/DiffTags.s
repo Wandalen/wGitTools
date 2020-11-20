@@ -9,7 +9,7 @@ var got =  _.git.diff
   localPath : _.path.join( __dirname, '..' ),
   state1 : '!0.3.48',
   state2 : '!origin/v0.3.36',
-  attachOriginalDiffOutput : 0,
+  generatingPatch : 0,
   detailing : 1,
   explaining : 1,
   fetchTags : 1
