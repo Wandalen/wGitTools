@@ -375,7 +375,7 @@ function versionsPull( test )
     _.each( got.runs, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
-      test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
+      test.true( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
     })
     return null;
   })
@@ -410,7 +410,7 @@ function versionsPull( test )
     _.each( got.runs, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
-      test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
+      test.true( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
     })
     return null;
   })
@@ -448,7 +448,7 @@ function versionsPull( test )
     _.each( got.runs, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
-      test.is( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
+      test.true( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
     })
     return null;
   })
@@ -1435,9 +1435,9 @@ function statusLocal( test )
     }
     test.contains( got, expected )
     debugger
-    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
     ({
@@ -1526,9 +1526,9 @@ function statusLocal( test )
     }
     test.contains( got, expected )
     debugger
-    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
     ({
@@ -1711,9 +1711,9 @@ function statusLocal( test )
     }
     test.contains( got, expected )
     debugger
-    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
     ({
@@ -2330,9 +2330,9 @@ function statusLocal( test )
     }
     test.contains( got, expected )
     debugger
-    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
     ({
@@ -2680,9 +2680,9 @@ function statusLocal( test )
     }
     test.contains( got, expected )
     debugger
-    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
-    test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
+    test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
 
     var got = _.git.statusLocal
     ({
@@ -3211,10 +3211,10 @@ function statusLocal( test )
     }
     test.contains( got, expected )
 
-    test.is( _.strHas( got.status, /List of uncommited changes in files:\n.*\!\! file/ ) )
-    test.is( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
-    test.is( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
-    test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.true( _.strHas( got.status, /List of uncommited changes in files:\n.*\!\! file/ ) )
+    test.true( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.true( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
 
     var got = _.git.statusLocal
     ({
@@ -4197,7 +4197,7 @@ function statusLocalEmptyWithOrigin( test )
       })
       .then( ( got ) =>
       {
-        test.is( _.strHas( got.output, a.path.nativize( a.abs( 'repo' ) ) ) );
+        test.true( _.strHas( got.output, a.path.nativize( a.abs( 'repo' ) ) ) );
         return null;
       })
     })
@@ -4508,9 +4508,9 @@ function statusLocalExplainingTrivial( test )
     }
     test.contains( got, expected )
 
-    test.is( _.strHas( got.unpushed, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
-    test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
-    test.is( _.strHas( got.status, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.true( _.strHas( got.unpushed, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.true( _.strHas( got.status, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
 
     return null;
   })
@@ -4552,24 +4552,24 @@ function statusLocalExplainingTrivial( test )
       'uncommittedIgnored' : null,
     }
 
-    test.is( _.strHas( got.uncommitted, 'List of uncommited changes in files:' ) )
-    test.is( _.strHas( got.uncommitted, /.+ ?? newFile/ ) )
+    test.true( _.strHas( got.uncommitted, 'List of uncommited changes in files:' ) )
+    test.true( _.strHas( got.uncommitted, /.+ ?? newFile/ ) )
 
-    test.is( _.strHas( got.unpushed, 'List of branches with unpushed commits:' ) )
-    test.is( _.strHas( got.unpushed, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
-    test.is( _.strHas( got.unpushed, 'List of unpushed:' ) )
-    test.is( _.strHas( got.unpushed, /\[new tag\] .* sometag -> sometag/ ) )
-    test.is( _.strHas( got.unpushed, /\[new branch\] .* somebranch -> \?/ ) )
+    test.true( _.strHas( got.unpushed, 'List of branches with unpushed commits:' ) )
+    test.true( _.strHas( got.unpushed, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.true( _.strHas( got.unpushed, 'List of unpushed:' ) )
+    test.true( _.strHas( got.unpushed, /\[new tag\] .* sometag -> sometag/ ) )
+    test.true( _.strHas( got.unpushed, /\[new branch\] .* somebranch -> \?/ ) )
 
-    test.is( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
-    test.is( _.strHas( got.unpushedTags, /\[new tag\] .* sometag -> sometag/ ) )
-    test.is( _.strHas( got.unpushedBranches, /\[new branch\] .* somebranch -> \?/ ) )
+    test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.true( _.strHas( got.unpushedTags, /\[new tag\] .* sometag -> sometag/ ) )
+    test.true( _.strHas( got.unpushedBranches, /\[new branch\] .* somebranch -> \?/ ) )
 
-    test.is( _.strHas( got.status, 'List of uncommited changes in files:' ) )
-    test.is( _.strHas( got.status, /.+ ?? newFile/ ) )
-    test.is( _.strHas( got.status, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
-    test.is( _.strHas( got.status, /\[new tag\] .* sometag -> sometag/ ) )
-    test.is( _.strHas( got.status, /\[new branch\] .* somebranch -> \?/ ) )
+    test.true( _.strHas( got.status, 'List of uncommited changes in files:' ) )
+    test.true( _.strHas( got.status, /.+ ?? newFile/ ) )
+    test.true( _.strHas( got.status, /\* master .* \[origin\/master: ahead 1\] no desc/ ) )
+    test.true( _.strHas( got.status, /\[new tag\] .* sometag -> sometag/ ) )
+    test.true( _.strHas( got.status, /\[new branch\] .* somebranch -> \?/ ) )
 
     test.contains( got, expected )
     return null;
@@ -6984,7 +6984,7 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'new staged file'
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', 'newFile' ) ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', 'newFile' ) ) );
     var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
     var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
@@ -7798,7 +7798,7 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'new staged file'
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', 'newFile' ) ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', 'newFile' ) ) );
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
@@ -11641,7 +11641,7 @@ function statusEveryCheck( test )
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.is(  !!status.status.match( line ) )
+      test.true(  !!status.status.match( line ) )
     })
 
     test.identical( status.conflicts, false );
@@ -11684,7 +11684,7 @@ function statusEveryCheck( test )
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.is(  !!status.status.match( line ) )
+      test.true(  !!status.status.match( line ) )
     })
 
     return null;
@@ -11746,7 +11746,7 @@ function statusEveryCheck( test )
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.is(  !!status.status.match( line ) )
+      test.true(  !!status.status.match( line ) )
     })
 
     return null;
@@ -11974,7 +11974,7 @@ function repositoryInit( test )
 {
   if( !Config.debug )
   {
-    test.is( true );
+    test.true( true );
     return;
   }
 
@@ -12011,7 +12011,7 @@ function prOpen( test )
 {
   if( !Config.debug )
   {
-    test.is( true );
+    test.true( true );
     return;
   }
 
@@ -12082,7 +12082,7 @@ function prOpenRemote( test )
 
   if( process.platform !== 'linux' )
   {
-    test.is( true );
+    test.true( true );
     return;
   }
 
@@ -15208,10 +15208,10 @@ function gitHooksManager( test )
       test.identical( files.length, samples.length );
 
       test.will = 'original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       a.fileProvider.fileWrite( a.abs( hookName + '.source' ), handlerCode )
 
@@ -15226,17 +15226,17 @@ function gitHooksManager( test )
       })
 
       test.will = 'hook runner was created';
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
       let hookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', hookName ) );
-      test.is( _.strHas( hookRead, specialComment ) )
+      test.true( _.strHas( hookRead, specialComment ) )
 
       test.will = 'hook handler was created'
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
       let customHookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', handlerName ) );
       test.identical( customHookRead, handlerCode );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -15246,7 +15246,7 @@ function gitHooksManager( test )
     con.then( ( got ) =>
     {
       test.will = 'custom handler was executed after git commit';
-      test.is( _.strHas( got.output, 'Custom handler executed' ) );
+      test.true( _.strHas( got.output, 'Custom handler executed' ) );
       return null;
     })
 
@@ -15281,10 +15281,10 @@ function gitHooksManager( test )
       a.fileProvider.fileWrite( a.abs( 'repo', './.git/hooks', hookName ), originalUserHookCode );
 
       test.will = 'users hook exists';
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       a.fileProvider.fileWrite( a.abs( hookName + '.source' ), handlerCode )
 
@@ -15299,17 +15299,17 @@ function gitHooksManager( test )
       })
 
       test.will = 'hook runner was created';
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
       let hookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', hookName ) );
-      test.is( _.strHas( hookRead, specialComment ) )
+      test.true( _.strHas( hookRead, specialComment ) )
 
       test.will = 'hook handler was created'
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
       let customHookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', handlerName ) );
       test.identical( customHookRead, handlerCode );
 
       test.will = 'original hook was copied to .was';
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
       let wasHook = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', hookName ) + '.was' );
       test.identical( wasHook, originalUserHookCode );
 
@@ -15321,9 +15321,9 @@ function gitHooksManager( test )
     con.then( ( got ) =>
     {
       test.will = 'original handler was executed after git commit';
-      test.is( _.strHas( got.output, 'Original user hook' ) );
+      test.true( _.strHas( got.output, 'Original user hook' ) );
       test.will = 'custom handler was executed after git commit';
-      test.is( _.strHas( got.output, 'Custom handler executed' ) );
+      test.true( _.strHas( got.output, 'Custom handler executed' ) );
       return null;
     })
 
@@ -15382,22 +15382,22 @@ function gitHooksManager( test )
       })
 
       test.will = 'hook runner was created';
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
       let hookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', hookName ) );
-      test.is( _.strHas( hookRead, specialComment ) )
+      test.true( _.strHas( hookRead, specialComment ) )
 
       test.will = 'first hook handler exists'
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
       var customHookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', handlerName ) );
       test.identical( customHookRead, handlerCode );
 
       test.will = 'second hook handler exists'
-      test.is( a.fileProvider.fileExists( hookHandlerPath2 ) );
+      test.true( a.fileProvider.fileExists( hookHandlerPath2 ) );
       var customHookRead = a.fileProvider.fileRead( hookHandlerPath2 );
       test.identical( customHookRead, handlerCode2 );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -15407,9 +15407,9 @@ function gitHooksManager( test )
     con.then( ( got ) =>
     {
       test.will = 'custom handler1 was executed after git commit';
-      test.is( _.strHas( got.output, 'Custom handler executed' ) );
+      test.true( _.strHas( got.output, 'Custom handler executed' ) );
       test.will = 'custom handler2 was executed after git commit';
-      test.is( _.strHas( got.output, 'Custom handler2 executed' ) );
+      test.true( _.strHas( got.output, 'Custom handler2 executed' ) );
       return null;
     })
 
@@ -15470,22 +15470,22 @@ function gitHooksManager( test )
       //
 
       test.will = 'hook runner was created';
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
       let hookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', hookName ) );
-      test.is( _.strHas( hookRead, specialComment ) )
+      test.true( _.strHas( hookRead, specialComment ) )
 
       test.will = 'first hook handler exists'
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
       var customHookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', handlerName ) );
       test.identical( customHookRead, handlerCode2 );
 
       test.will = 'second hook handler exists'
-      test.is( a.fileProvider.fileExists( hookHandlerPath2 ) );
+      test.true( a.fileProvider.fileExists( hookHandlerPath2 ) );
       var customHookRead = a.fileProvider.fileRead( hookHandlerPath2 );
       test.identical( customHookRead, handlerCode );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -15495,9 +15495,9 @@ function gitHooksManager( test )
     con.then( ( got ) =>
     {
       test.will = 'custom handler was executed after git commit';
-      test.is( _.strHas( got.output, 'Bad exit code handler executed' ) );
+      test.true( _.strHas( got.output, 'Bad exit code handler executed' ) );
       test.will = 'custom handler2 was not executed after git commit';
-      test.is( !_.strHas( got.output, 'Custom handler executed' ) );
+      test.true( !_.strHas( got.output, 'Custom handler executed' ) );
       return null;
     })
 
@@ -15560,12 +15560,12 @@ function gitHooksManager( test )
       test.identical( hookRunnerNow, hookRunnerBefore );
 
       test.will = 'custom hook was not changed'
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
       var customHookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', handlerName ) );
       test.identical( customHookRead, handlerCode );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -15643,20 +15643,20 @@ function gitHooksManager( test )
       })
 
       test.will = 'hook runner was created';
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
       let hookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', hookName ) );
-      test.is( _.strHas( hookRead, specialComment ) )
+      test.true( _.strHas( hookRead, specialComment ) )
 
       test.will = 'first hook handler exists'
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
       var customHookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', handlerName ) );
       test.identical( customHookRead, handlerCode );
 
       test.will = 'second hook handler does not exist'
-      test.is( !a.fileProvider.fileExists( hookHandlerPath2 ) );
+      test.true( !a.fileProvider.fileExists( hookHandlerPath2 ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -15666,9 +15666,9 @@ function gitHooksManager( test )
     con.then( ( got ) =>
     {
       test.will = 'custom handler1 was executed after git commit';
-      test.is( _.strHas( got.output, 'Custom handler executed' ) );
+      test.true( _.strHas( got.output, 'Custom handler executed' ) );
       test.will = 'custom handler2 should not be executed after git commit';
-      test.is( !_.strHas( got.output, 'Custom handler2 executed' ) );
+      test.true( !_.strHas( got.output, 'Custom handler2 executed' ) );
       return null;
     })
 
@@ -15800,10 +15800,10 @@ function gitHooksManagerErrors( test )
       test.identical( files.length, samples.length );
 
       test.will = 'original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       a.fileProvider.fileWrite( a.abs( hookName + '.source' ), handlerCode )
 
@@ -15821,13 +15821,13 @@ function gitHooksManagerErrors( test )
       })
 
       test.will = 'hook runner was not created';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'hook handler was not created'
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
 
       test.will = 'copy of original hook was not created';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       test.will = 'hooks directory stays the same as before';
       let filesNow = a.fileProvider.dirRead( a.abs( 'repo', './.git/hooks' ) );
@@ -15854,10 +15854,10 @@ function gitHooksManagerErrors( test )
       test.identical( files.length, samples.length );
 
       test.will = 'original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       a.fileProvider.fileWrite( a.abs( hookName + '.source' ), handlerCode )
 
@@ -15885,17 +15885,17 @@ function gitHooksManagerErrors( test )
       })
 
       test.will = 'hook runner stays';
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
       let hookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', hookName ) );
-      test.is( _.strHas( hookRead, specialComment ) )
+      test.true( _.strHas( hookRead, specialComment ) )
 
       test.will = 'first hook handler stays'
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
       let customHookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', handlerName ) );
       test.identical( customHookRead, handlerCode );
 
       test.will = 'copy of original hook was not created';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -15918,10 +15918,10 @@ function gitHooksManagerErrors( test )
       test.identical( files.length, samples.length );
 
       test.will = 'original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       a.fileProvider.fileWrite( a.abs( hookName + '.source' ), handlerCode )
 
@@ -15951,20 +15951,20 @@ function gitHooksManagerErrors( test )
       })
 
       test.will = 'hook runner stays';
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
       let hookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', hookName ) );
-      test.is( _.strHas( hookRead, specialComment ) )
+      test.true( _.strHas( hookRead, specialComment ) )
 
       test.will = 'first hook handler stays'
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
       let customHookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', handlerName ) );
       test.identical( customHookRead, handlerCode );
 
       test.will = 'second hook handler does not exist'
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName2 ) ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName2 ) ) );
 
       test.will = 'copy of original hook was not created';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -15987,10 +15987,10 @@ function gitHooksManagerErrors( test )
       test.identical( files.length, samples.length );
 
       test.will = 'original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
 
       test.will = 'copy of original hook does not exist';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       a.fileProvider.fileWrite( a.abs( hookName + '.source' ), handlerCode )
 
@@ -16018,17 +16018,17 @@ function gitHooksManagerErrors( test )
       })
 
       test.will = 'hook runner stays';
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
       let hookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', hookName ) );
-      test.is( _.strHas( hookRead, specialComment ) );
+      test.true( _.strHas( hookRead, specialComment ) );
 
       test.will = 'first hook handler stays'
-      test.is( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
+      test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', handlerName ) ) );
       let customHookRead = a.fileProvider.fileRead( a.abs( 'repo', './.git/hooks', handlerName ) );
       test.identical( customHookRead, handlerCode );
 
       test.will = 'copy of original hook was not created';
-      test.is( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
+      test.true( !a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) + '.was' ) );
 
       return null;
     })
@@ -16103,8 +16103,8 @@ function hookTrivial( test )
       rewriting : 0
     })
     _.process.tempClose({ filePath : tempPath });
-    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit' ) ) );
-    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit.commitHandler' ) ) );
+    test.true( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit' ) ) );
+    test.true( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit.commitHandler' ) ) );
 
     return null;
   })
@@ -16115,14 +16115,14 @@ function hookTrivial( test )
   .then( ( got ) =>
   {
     test.notIdentical( got.exitCode, 0 );
-    test.is( _.strHas( got.output, `your current branch 'master' does not have any commits yet` ) );
+    test.true( _.strHas( got.output, `your current branch 'master' does not have any commits yet` ) );
     return got;
   })
 
   .then( () =>
   {
-    test.is( a.fileProvider.fileExists( a.abs ( './.git/hooks/pre-commit' ) ) );
-    test.is( a.fileProvider.fileExists( a.abs ( './.git/hooks/pre-commit.commitHandler' ) ) );
+    test.true( a.fileProvider.fileExists( a.abs ( './.git/hooks/pre-commit' ) ) );
+    test.true( a.fileProvider.fileExists( a.abs ( './.git/hooks/pre-commit.commitHandler' ) ) );
 
     _.git.hookUnregister
     ({
@@ -16132,8 +16132,8 @@ function hookTrivial( test )
       throwing : 1
     })
 
-    test.is( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit' ) ) );
-    test.is( !a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit.commitHandler' ) ) );
+    test.true( a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit' ) ) );
+    test.true( !a.fileProvider.fileExists( a.abs( './.git/hooks/pre-commit.commitHandler' ) ) );
 
     return null;
   })
@@ -16144,7 +16144,7 @@ function hookTrivial( test )
   .then( ( got ) =>
   {
     test.identical( got.exitCode, 0 );
-    test.is( _.strHas( got.output, `test` ) );
+    test.true( _.strHas( got.output, `test` ) );
     return got;
   })
 
@@ -16424,7 +16424,7 @@ function renormalize( test )
   })
   .then( () =>
   {
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', 'file2' ) ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', 'file2' ) ) );
 
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.notIdentical( file1, file1Data );
@@ -16455,7 +16455,7 @@ function renormalize( test )
   })
   .then( () =>
   {
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', 'file2' ) ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', 'file2' ) ) );
 
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1Data );
@@ -16627,7 +16627,7 @@ function renormalizeOriginHasAttributes( test )
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16654,7 +16654,7 @@ function renormalizeOriginHasAttributes( test )
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1DataCrlf );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16681,7 +16681,7 @@ function renormalizeOriginHasAttributes( test )
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16707,7 +16707,7 @@ function renormalizeOriginHasAttributes( test )
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16733,7 +16733,7 @@ function renormalizeOriginHasAttributes( test )
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16764,7 +16764,7 @@ function renormalizeOriginHasAttributes( test )
     else
     test.identical( file1, file1DataCrlf );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16792,7 +16792,7 @@ function renormalizeOriginHasAttributes( test )
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16819,7 +16819,7 @@ function renormalizeOriginHasAttributes( test )
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1DataCrlf );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16851,7 +16851,7 @@ function renormalizeOriginHasAttributes( test )
     else
     test.identical( file1, file1DataCrlf );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16878,7 +16878,7 @@ function renormalizeOriginHasAttributes( test )
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16906,7 +16906,7 @@ function renormalizeOriginHasAttributes( test )
 
     test.identical( file1, file1DataCrlf );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16933,7 +16933,7 @@ function renormalizeOriginHasAttributes( test )
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16960,7 +16960,7 @@ function renormalizeOriginHasAttributes( test )
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -16987,7 +16987,7 @@ function renormalizeOriginHasAttributes( test )
     let file1 = a.fileProvider.fileRead( a.abs( 'clone', 'file1' ) );
     test.identical( file1, file1Data );
 
-    test.is( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
+    test.true( a.fileProvider.fileExists( a.abs( 'clone', '.gitattributes') ) );
 
     let config = _.git.configRead( a.abs( 'clone' ) );
     test.identical( config.core.autocrlf, false );
@@ -17113,7 +17113,7 @@ function renormalizeAudit( test )
     .then( ( op ) =>
     {
       test.identical( op.exitCode, 0 );
-      test.is( _.strHas( op.output, 'contains lines that can affect the result of EOL normalization'  ) );
+      test.true( _.strHas( op.output, 'contains lines that can affect the result of EOL normalization'  ) );
 
       return null;
     });
