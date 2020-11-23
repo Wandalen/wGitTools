@@ -4102,20 +4102,20 @@ function configSave( filePath, config )
 function configReset() /* qqq : implement */
 {
 
-/*
+  /*
 
-git config --global user.email "wandalen.me@gmail.com"
-git config --global user.name "wandalen"
-git config --global core.autocrlf false
-git config --global core.ignorecase false
-git config --global core.fileMode false
+  git config --global user.email "wandalen.me@gmail.com"
+  git config --global user.name "wandalen"
+  git config --global core.autocrlf false
+  git config --global core.ignorecase false
+  git config --global core.fileMode false
 
-git config --global url."https://wandalen@github.com".insteadOf "https://github.com"
-git config --global url."https://wandalen@bitbucket.org".insteadOf "https://bitbucket.org"
+  git config --global url."https://wandalen@github.com".insteadOf "https://github.com"
+  git config --global url."https://wandalen@bitbucket.org".insteadOf "https://bitbucket.org"
 
-git config --global credential.helper store
+  git config --global credential.helper store
 
-*/
+  */
 
 }
 
@@ -4479,7 +4479,7 @@ function diff( o )
       src : got.output,
       delimeter : '\n',
       stripping : 1,
-      preservingEmpty: 1
+      preservingEmpty : 1,
     });
     let endOfRawOutput = _.longLeftIndex( lines, '' );
     endOfRawOutput = endOfRawOutput >= 0 ? endOfRawOutput : lines.length;
