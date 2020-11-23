@@ -11966,7 +11966,7 @@ function statusEveryCheck( test )
 
 }
 
-statusEveryCheck.timeOut = 60000;
+statusEveryCheck.timeOut = 100000;
 
 //
 
