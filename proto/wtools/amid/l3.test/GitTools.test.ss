@@ -16313,6 +16313,278 @@ hookPreservingHardLinks.timeOut = 30000;
 
 //
 
+function restore( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.shell.predefined.outputCollecting = 1;
+  a.shell.predefined.currentPath = a.abs( 'repo' )
+
+  a.fileProvider.dirMake( a.abs( '.' ) )
+
+  /*  */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  })
+  a.shell( 'git add file' );
+
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.case = 'restore to HEAD, default options';
+    var got = _.git.restore
+    ({
+      localPath : a.abs( 'repo' ),
+    });
+    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `data`;
+    test.identical( read, exp );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  })
+  a.shell( 'git add file' );
+
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' )
+  .then( () =>
+  {
+    test.case = 'restore to HEAD~, changed option --source';
+    var got = _.git.restore
+    ({
+      source : 'HEAD~',
+      localPath : a.abs( 'repo' ),
+    });
+    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `data`;
+    test.identical( read, exp );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  })
+  a.shell( 'git add file' );
+
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' )
+  .then( () =>
+  {
+    test.case = 'restore to HEAD~, changed option --conflict';
+    var got = _.git.restore
+    ({
+      source : 'HEAD~',
+      conflict : 'diff3',
+      localPath : a.abs( 'repo' ),
+    });
+    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `data`;
+    test.identical( read, exp );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  })
+  a.shell( 'git add file' );
+
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' )
+  .then( () =>
+  {
+    test.case = 'restore to HEAD~, changed option --conflict';
+    var got = _.git.restore
+    ({
+      source : 'HEAD~',
+      staged : 0,
+      localPath : a.abs( 'repo' ),
+    });
+    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `data`;
+    test.identical( read, exp );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  })
+  a.shell( 'git add file' );
+
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' )
+  .then( () =>
+  {
+    test.case = 'restore to HEAD~, changed option --workTree and --staged - combination';
+    var got = _.git.restore
+    ({
+      source : 'HEAD~',
+      workTree : 0,
+      staged : 0,
+      localPath : a.abs( 'repo' ),
+    });
+    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `data`;
+    test.identical( read, exp );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  })
+  a.shell( 'git add file' );
+
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' )
+  .then( () =>
+  {
+    test.case = 'restore to HEAD~, changed option --workTree but not --staged, throwing : 0 - should not change';
+    var got = _.git.restore
+    ({
+      source : 'HEAD~',
+      workTree : 0,
+      localPath : a.abs( 'repo' ),
+      throwing : 0,
+    });
+    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `modified`;
+    test.identical( read, exp );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  })
+  a.shell( 'git add file' );
+
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' )
+  .then( () =>
+  {
+    test.case = 'restore to HEAD~, changed option --workTree but not --staged - should throw error';
+    test.shouldThrowErrorSync( () =>
+    {
+      _.git.restore
+      ({
+        source : 'HEAD~',
+        workTree : 0,
+        localPath : a.abs( 'repo' ),
+      });
+    });
+
+    test.case = 'restore to HEAD~, changed option --workTree but not --staged - should throw error';
+    test.shouldThrowErrorAsync( () =>
+    {
+      return _.git.restore
+      ({
+        source : 'HEAD~',
+        workTree : 0,
+        localPath : a.abs( 'repo' ),
+        sync : 0,
+      });
+    });
+
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'repo' ) ));
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( 'repo' ) );
+      return null
+    });
+    a.shell( `git init` );
+    return a.ready;
+  }
+
+}
+
+//
+
 function renormalize( test )
 {
   let context = this;
@@ -17252,6 +17524,8 @@ var Proto =
 
     hookTrivial,
     hookPreservingHardLinks,
+
+    restore,
 
     renormalize,
     renormalizeOriginHasAttributes,
