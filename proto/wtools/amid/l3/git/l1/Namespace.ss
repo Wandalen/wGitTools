@@ -4580,6 +4580,83 @@ reset.defaults =
 
 //
 
+function restore( o )
+{
+  let ready = new _.Consequence().take( null );
+
+  _.assert( arguments.length === 1 );
+
+  _.routineOptions( restore, o );
+  _.assert( _.strDefined( o.localPath ) );
+  _.assert( o.source === null || _.strDefined( o.source ) );
+  _.assert( o.conflict === 'merge' || o.conflict === 'diff3' );
+
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'shell',
+    currentPath : o.localPath,
+    throwingExitCode : o.throwing,
+    inputMirroring : 0,
+    outputPiping : 0,
+    ready
+  });
+
+  o.source = o.source ? `--source ${ o.source }` : '--source HEAD';
+  o.workTree = o.workTree ? '--worktree' : '';
+  o.staged = o.staged ? '--staged' : '';
+  o.overlay = o.overlay ? '--overlay' : '--no-overlay';
+  o.quiet = o.quiet ? '--quiet' : '--no-quiet';
+  o.conflict = `--conflict=${ o.conflict }`;
+  if( o.fromFile )
+  {
+    _.assert( _.path.is( o.fromFile ), 'Expects path to file with pathspecs.' );
+    _.assert( !o.pathspec, 'Expects single type of pathspecs.' );
+    o.fromFile = `--pathspec-from-file=${ o.fromFile }`;
+  }
+  else
+  {
+    o.pathspec = o.pathspec ? o.pathspec : ':/';
+  }
+
+  let command = `git restore ${ o.source } ${ o.workTree } ${ o.staged } ${ o.overlay } ${ o.quiet } ${ o.conflict }`;
+  if( o.fromFile )
+  command += ` ${ o.fromFile }`;
+  else
+  command += ` -- ${ o.pathspec }`;
+
+  debugger;
+  start( command );
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+  return ready;
+}
+
+restore.defaults =
+{
+  workTree : 1,
+  staged : 1,
+  source : null,
+  quiet : 0,
+  overlay : 0,
+  conflict : 'merge',
+  fromFile : null,
+  pathspec : null,
+
+  localPath : null,
+  dry : 0,
+  throwing : 1,
+  sync : 1,
+}
+
+//
+
 function renormalize( o )
 {
   let localProvider = _.fileProvider;
@@ -4828,7 +4905,9 @@ let Extension =
   configRead,
   configSave,
   configReset,   /* qqq : implement routine _.git.configReset() */
+
   reset,
+  restore,
   diff,
   renormalize,
 
