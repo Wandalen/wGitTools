@@ -4268,10 +4268,10 @@ function diff( o )
       return null;
 
       if( !state1.exists )
-      throw _.err( `State {-o.state1-}: ${state1.original} doesn't exist in repository at ${o.localPath}` );
+      throw _.err( `State::${state1.original} {-o.state1-} doesn't exist in repository at ${o.localPath}` );
 
       if( !state2.exists )
-      throw _.err( `State {-o.state2-}: ${state2.original} doesn't exist in repository at ${o.localPath}` );
+      throw _.err( `State::${state2.original} {-o.state2-} doesn't exist in repository at ${o.localPath}` );
 
       return null;
     })
