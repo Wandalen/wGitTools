@@ -4130,7 +4130,7 @@ configReset.defaults =
 /* qqq : implement routine to find out does exist version/tag */
 /* qqq : implement routine to convert one kind of version/tag to one another */
 
-/* qqq :
+/* qqq : aaa:fixed
 
  = Message of error#1
     Unexpected change type: "u", filePath: "revision" fatal: ambiguous argument 'alhpa': unknown revision or path not in the working tree.
@@ -4268,13 +4268,14 @@ function diff( o )
     ready.then( () => checkState( state2 ) )
     ready.then( () =>
     {
+      if( !o.throwingDoesNotExist )
+      return null;
+
       if( !state1.exists )
-      if( o.throwingDoesNotExist )
-      throw _.err( `State ${state1.original} doesn't exist in repository at ${o.localPath}` );
+      throw _.err( `State::${state1.original} {-o.state1-} doesn't exist in repository at ${o.localPath}` );
 
       if( !state2.exists )
-      if( o.throwingDoesNotExist )
-      throw _.err( `State ${state2.original} doesn't exist in repository at ${o.localPath}` );
+      throw _.err( `State::${state2.original} {-o.state2-} doesn't exist in repository at ${o.localPath}` );
 
       return null;
     })
