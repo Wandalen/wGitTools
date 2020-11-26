@@ -4197,6 +4197,10 @@ function diff( o )
   {
     let statesBegin = [ '#', '!' ];
     let statesSpecial = [ 'working', 'staging', 'committed' ];
+    /*
+    https://neurathsboat.blog/post/git-intro/
+    https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F
+    */
 
     let result =
     {
@@ -4573,7 +4577,7 @@ reset.defaults =
   preset : null, /*[ null, 'all' ]*/ /* qqq : implement and cover option */
   removingUntracked : 1,
   removingIgnored : 0, /* qqq : implement and cover option */
-  removingSubrepositories : 0, /* qqq : implement and cover option. option -ffx of git command clean */
+  removingSubrepositories : 1, /* qqq : implement and cover option. option -ffx of git command clean */
   dry : 0, /* qqq : implement and cover option */
   sync : 1,
 }
@@ -4827,7 +4831,7 @@ let Extension =
 
   configRead,
   configSave,
-  configReset,   /* qqq : implement routine _.git.configReset() */
+  configReset, /* qqq : implement routine _.git.configReset() */
   reset,
   diff,
   renormalize,
