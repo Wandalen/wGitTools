@@ -4130,7 +4130,7 @@ configReset.defaults =
 /* qqq : implement routine to find out does exist version/tag */
 /* qqq : implement routine to convert one kind of version/tag to one another */
 
-/* qqq :
+/* qqq : aaa:fixed
 
  = Message of error#1
     Unexpected change type: "u", filePath: "revision" fatal: ambiguous argument 'alhpa': unknown revision or path not in the working tree.
