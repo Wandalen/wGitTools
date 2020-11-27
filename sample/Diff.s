@@ -28,7 +28,7 @@ ready.then( () =>
 {
   var got =  _.git.diff
   ({
-    localPath : _.path.join( __dirname, '..' ),
+    localPath : _.path.join( _.path.current(), 'wModuleForTesting1' ),
     state1 : 'working',
     state2 : 'HEAD~1',
     generatingPatch : 0,
@@ -47,7 +47,5 @@ ready.then( () =>
 {
   provider.filesDelete( _.path.join( _.path.current(), 'wModuleForTesting1' ) );
   return null;
-})
-
-
+});
 
