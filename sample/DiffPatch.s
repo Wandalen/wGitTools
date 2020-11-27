@@ -1,5 +1,5 @@
 
-require( '..' );
+require( 'wgittools' );
 let _ = wTools;
 _.include( 'wFiles' );
 _.include( 'wProcess' );
