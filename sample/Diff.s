@@ -37,7 +37,7 @@ ready.then( () =>
     fetchTags : 1
   });
 
-  console.log( _.toStr( got.status ) )
+  console.log( _.toStr( got.status ) );
   return null;
 });
 

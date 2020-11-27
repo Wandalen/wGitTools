@@ -38,8 +38,8 @@ ready.then( () =>
     explaining : 1
   });
 
-  console.log( `Status:${_.toStr( got.status )}` )
-  console.log( `Patch:${_.toStr( got.patch )}` )
+  console.log( `Status:${_.toStr( got.status )}` );
+  console.log( `Patch:${_.toStr( got.patch )}` );
   return null;
 });
 
