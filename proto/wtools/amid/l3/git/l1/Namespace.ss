@@ -4130,7 +4130,7 @@ configReset.defaults =
 /* qqq : implement routine to find out does exist version/tag */
 /* qqq : implement routine to convert one kind of version/tag to one another */
 
-/* qqq :
+/* qqq : aaa:fixed
 
  = Message of error#1
     Unexpected change type: "u", filePath: "revision" fatal: ambiguous argument 'alhpa': unknown revision or path not in the working tree.
@@ -4197,6 +4197,10 @@ function diff( o )
   {
     let statesBegin = [ '#', '!' ];
     let statesSpecial = [ 'working', 'staging', 'committed' ];
+    /*
+    https://neurathsboat.blog/post/git-intro/
+    https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F
+    */
 
     let result =
     {
@@ -4264,13 +4268,14 @@ function diff( o )
     ready.then( () => checkState( state2 ) )
     ready.then( () =>
     {
+      if( !o.throwingDoesNotExist )
+      return null;
+
       if( !state1.exists )
-      if( o.throwingDoesNotExist )
-      throw _.err( `State ${state1.original} doesn't exist in repository at ${o.localPath}` );
+      throw _.err( `State::${state1.original} {-o.state1-} doesn't exist in repository at ${o.localPath}` );
 
       if( !state2.exists )
-      if( o.throwingDoesNotExist )
-      throw _.err( `State ${state2.original} doesn't exist in repository at ${o.localPath}` );
+      throw _.err( `State::${state2.original} {-o.state2-} doesn't exist in repository at ${o.localPath}` );
 
       return null;
     })
@@ -4573,7 +4578,7 @@ reset.defaults =
   preset : null, /*[ null, 'all' ]*/ /* qqq : implement and cover option */
   removingUntracked : 1,
   removingIgnored : 0, /* qqq : implement and cover option */
-  removingSubrepositories : 0, /* qqq : implement and cover option. option -ffx of git command clean */
+  removingSubrepositories : 1, /* qqq : implement and cover option. option -ffx of git command clean */
   dry : 0, /* qqq : implement and cover option */
   sync : 1,
 }
@@ -4904,7 +4909,7 @@ let Extension =
 
   configRead,
   configSave,
-  configReset,   /* qqq : implement routine _.git.configReset() */
+  configReset, /* qqq : implement routine _.git.configReset() */
 
   reset,
   restore,
