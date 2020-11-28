@@ -1,5 +1,5 @@
 
-require( '..' );
+require( 'wgittools' );
 let _ = wTools;
 
 /* Generates diff patch with colors and minimal amount of context*/
