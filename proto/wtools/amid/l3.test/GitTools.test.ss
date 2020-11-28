@@ -371,8 +371,10 @@ function versionsPull( test )
   })
   .then( ( got ) =>
   {
-    test.identical( got.runs.length, 1 );
-    _.each( got.runs, ( result ) =>
+    // test.identical( got.runs.length, 1 );
+    // _.each( got.runs, ( result ) =>
+    test.identical( got.sessions.length, 1 );
+    _.each( got.sessions, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
       test.true( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
@@ -406,8 +408,10 @@ function versionsPull( test )
   })
   .then( ( got ) =>
   {
-    test.identical( got.runs.length, 2 );
-    _.each( got.runs, ( result ) =>
+    // test.identical( got.runs.length, 2 );
+    // _.each( got.runs, ( result ) =>
+    test.identical( got.sessions.length, 2 );
+    _.each( got.sessions, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
       test.true( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
@@ -444,8 +448,10 @@ function versionsPull( test )
   })
   .then( ( got ) =>
   {
-    test.identical( got.runs.length, 2 );
-    _.each( got.runs, ( result ) =>
+    // test.identical( got.runs.length, 2 );
+    // _.each( got.runs, ( result ) =>
+    test.identical( got.sessions.length, 2 );
+    _.each( got.sessions, ( result ) =>
     {
       test.identical( result.exitCode, 0 );
       test.true( _.strHasAny( result.output, [ 'is up to date', 'is up-to-date' ] ) );
