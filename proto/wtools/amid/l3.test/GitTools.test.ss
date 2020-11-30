@@ -7743,7 +7743,7 @@ function hasRemoteChanges( test )
 
 }
 
-hasRemoteChanges.timeOut = 30000;
+hasRemoteChanges.timeOut = 60000;
 
 //
 
