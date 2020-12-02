@@ -1,5 +1,5 @@
 
-require( '..' );
+require( 'wgittools' );
 let _ = wTools;
 
 /* Diff local tag 0.3.48 with tag v0.3.36 on remote "origin" */
