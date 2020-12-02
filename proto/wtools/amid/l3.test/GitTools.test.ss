@@ -16319,7 +16319,7 @@ hookPreservingHardLinks.timeOut = 30000;
 
 //
 
-function restore( test )
+function reset( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
@@ -16346,12 +16346,12 @@ function restore( test )
 
   a.ready.then( () =>
   {
-    test.case = 'restore to HEAD, default options';
-    var got = _.git.restore
+    test.case = 'reset to HEAD, default options';
+    var got = _.git.reset
     ({
       localPath : a.abs( 'repo' ),
     });
-    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
     var exp = `data`;
     test.identical( read, exp );
 
@@ -16374,150 +16374,15 @@ function restore( test )
     return null;
   });
 
-  a.shell( 'git commit -am second' )
-  .then( () =>
+  a.ready.then( () =>
   {
-    test.case = 'restore to HEAD~, changed option --source';
-    var got = _.git.restore
+    test.case = 'state - working, should not reset';
+    var got = _.git.reset
     ({
-      source : 'HEAD~',
+      state : 'working',
       localPath : a.abs( 'repo' ),
     });
-    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
-    var exp = `data`;
-    test.identical( read, exp );
-
-    return null;
-  });
-
-  /* */
-
-  begin().then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
-    return null;
-  })
-  a.shell( 'git add file' );
-
-  a.shell( 'git commit -m init' )
-  .then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
-    return null;
-  });
-
-  a.shell( 'git commit -am second' )
-  .then( () =>
-  {
-    test.case = 'restore to HEAD~, changed option --conflict';
-    var got = _.git.restore
-    ({
-      source : 'HEAD~',
-      conflict : 'diff3',
-      localPath : a.abs( 'repo' ),
-    });
-    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
-    var exp = `data`;
-    test.identical( read, exp );
-
-    return null;
-  });
-
-  /* */
-
-  begin().then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
-    return null;
-  })
-  a.shell( 'git add file' );
-
-  a.shell( 'git commit -m init' )
-  .then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
-    return null;
-  });
-
-  a.shell( 'git commit -am second' )
-  .then( () =>
-  {
-    test.case = 'restore to HEAD~, changed option --conflict';
-    var got = _.git.restore
-    ({
-      source : 'HEAD~',
-      staged : 0,
-      localPath : a.abs( 'repo' ),
-    });
-    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
-    var exp = `data`;
-    test.identical( read, exp );
-
-    return null;
-  });
-
-  /* */
-
-  begin().then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
-    return null;
-  })
-  a.shell( 'git add file' );
-
-  a.shell( 'git commit -m init' )
-  .then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
-    return null;
-  });
-
-  a.shell( 'git commit -am second' )
-  .then( () =>
-  {
-    test.case = 'restore to HEAD~, changed option --workTree and --staged - combination';
-    var got = _.git.restore
-    ({
-      source : 'HEAD~',
-      workTree : 0,
-      staged : 0,
-      localPath : a.abs( 'repo' ),
-    });
-    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
-    var exp = `data`;
-    test.identical( read, exp );
-
-    return null;
-  });
-
-  /* */
-
-  begin().then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
-    return null;
-  })
-  a.shell( 'git add file' );
-
-  a.shell( 'git commit -m init' )
-  .then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
-    return null;
-  });
-
-  a.shell( 'git commit -am second' )
-  .then( () =>
-  {
-    test.case = 'restore to HEAD~, changed option --workTree but not --staged, throwing : 0 - should not change';
-    var got = _.git.restore
-    ({
-      source : 'HEAD~',
-      workTree : 0,
-      localPath : a.abs( 'repo' ),
-      throwing : 0,
-    });
-    let read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
     var exp = `modified`;
     test.identical( read, exp );
 
@@ -16537,34 +16402,172 @@ function restore( test )
   .then( () =>
   {
     a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file2' ), 'modified' );
     return null;
   });
 
-  a.shell( 'git commit -am second' )
+  a.ready.then( () =>
+  {
+    test.case = 'state - staged, should not reset';
+    var got = _.git.reset
+    ({
+      state : 'staging',
+      localPath : a.abs( 'repo' ),
+    });
+    var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `modified`;
+    test.identical( read, exp );
+    let files = a.find( a.abs( 'repo' ) );
+    test.identical( files, [ '.', './file' ] );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  })
+  a.shell( 'git add file' );
+
+  a.shell( 'git commit -m init' )
   .then( () =>
   {
-    test.case = 'restore to HEAD~, changed option --workTree but not --staged - should throw error';
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.restore
-      ({
-        source : 'HEAD~',
-        workTree : 0,
-        localPath : a.abs( 'repo' ),
-      });
-    });
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    return null;
+  });
 
-    test.case = 'restore to HEAD~, changed option --workTree but not --staged - should throw error';
-    test.shouldThrowErrorAsync( () =>
-    {
-      return _.git.restore
-      ({
-        source : 'HEAD~',
-        workTree : 0,
-        localPath : a.abs( 'repo' ),
-        sync : 0,
-      });
+  a.ready.then( () =>
+  {
+    test.case = 'state - committed, should reset';
+    var got = _.git.reset
+    ({
+      state : 'committed',
+      localPath : a.abs( 'repo' ),
     });
+    var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `data`;
+    test.identical( read, exp );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  })
+  a.shell( 'git add file' );
+
+  a.shell( 'git commit -m init' );
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    return null;
+  });
+  a.shell( 'git commit -am second' );
+
+  a.ready.then( () =>
+  {
+    test.case = 'state - commit with Git syntax, should reset';
+    var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `modified`;
+    test.identical( read, exp );
+
+    var got = _.git.reset
+    ({
+      state : '#HEAD~',
+      localPath : a.abs( 'repo' ),
+    });
+    var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `data`;
+    test.identical( read, exp );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  })
+  a.shell( 'git add file' );
+
+  a.shell( 'git commit -m init' );
+  let latestCommit;
+  a.ready.then( () =>
+  {
+    latestCommit = a.fileProvider.fileRead( a.abs( 'repo/.git/refs/heads/master' ) );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    return null;
+  });
+  a.shell( 'git commit -am second' );
+
+  a.ready.then( () =>
+  {
+    test.case = 'state - hash, should reset';
+    var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `modified`;
+    test.identical( read, exp );
+
+    var got = _.git.reset
+    ({
+      state : `#${ latestCommit }`,
+      localPath : a.abs( 'repo' ),
+    });
+    var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `data`;
+    test.identical( read, exp );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  })
+  a.shell( 'git add file' );
+
+  a.shell( 'git commit -m init' );
+  a.ready.then( () =>
+  {
+    _.git.tagMake
+    ({
+      localPath : a.abs( 'repo' ),
+      sync : 1,
+      tag : 'v.0.0.0',
+      description : 'v.0.0.0',
+    });
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'modified' );
+    return null;
+  });
+  a.shell( 'git commit -am second' );
+
+  a.ready.then( () =>
+  {
+    test.case = 'state - tag, should reset';
+    var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `modified`;
+    test.identical( read, exp );
+
+    debugger;
+    var got = _.git.reset
+    ({
+      state : '!v.0.0.0',
+      localPath : a.abs( 'repo' ),
+    });
+    var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
+    var exp = `data`;
+    test.identical( read, exp );
 
     return null;
   });
@@ -16581,7 +16584,7 @@ function restore( test )
     a.ready.then( () =>
     {
       a.fileProvider.dirMake( a.abs( 'repo' ) );
-      return null
+      return null;
     });
     a.shell( `git init` );
     return a.ready;
@@ -17531,7 +17534,7 @@ var Proto =
     hookTrivial,
     hookPreservingHardLinks,
 
-    restore,
+    reset,
 
     renormalize,
     renormalizeOriginHasAttributes,
