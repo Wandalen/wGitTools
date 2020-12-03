@@ -237,7 +237,9 @@ function remotePathFromLocal( o )
   if( _.strIs( arguments[ 0 ] ) )
   o = { localPath : arguments[ 0 ] }
   o = _.routineOptions( remotePathFromLocal, o );
+  debugger;
   let config = _.git.configRead( o.localPath );
+  debugger;
 
   if( !config )
   {
@@ -1773,7 +1775,8 @@ function statusRemote_head( routine, args )
   _.assert( _.strDefined( o.version ) || o.version === _.all || o.version === null, 'Expects {-o.version-} to be: null/str/_.all, but got:', o.version );
 
   for( let k in o  )
-  if( o[ k ] === null && k !== 'version' )//qqq Vova: should we just use something else for version instead of null?
+  if( o[ k ] === null && k !== 'version' )
+  //qqq Vova: should we just use something else for version instead of null?
   o[ k ] = true;
 
   return o;
