@@ -3379,7 +3379,7 @@ function statusLocal( test )
 
 }
 
-statusLocal.timeOut = 120000;
+statusLocal.timeOut = 240000;
 
 //
 
@@ -17344,7 +17344,7 @@ function renormalizeOriginHasAttributes( test )
 
 }
 
-renormalizeOriginHasAttributes.timeOut = 60000;
+renormalizeOriginHasAttributes.timeOut = 120000;
 
 //
 
