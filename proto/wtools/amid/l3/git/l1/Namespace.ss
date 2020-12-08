@@ -4542,7 +4542,8 @@ function reset( o )
 
   _.assert( arguments.length === 1 );
   _.routineOptions( reset, arguments );
-  _.assert( _.strDefined( o.state ) );
+  _.assert( _.strDefined( o.state1 ) );
+  _.assert( _.strDefined( o.state2 ) );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.longHas( [ null, 'all' ], o.preset ) );
 
@@ -4581,18 +4582,19 @@ function reset( o )
 
   /* */
 
-  let state = self._stateParse( o.state );
+  let state1 = self._stateParse( o.state1 );
+  let state2 = self._stateParse( o.state2 );
 
-  if( state.value === 'working' )
+  if( state2.value === 'working' || state2.value === 'staged' )
   return;
 
-  if( state.isTag )
-  debugger;
+  if( state1.isVersion || state1.isTag )
+  start( `git checkout ${ state1.value }` );
 
-  if( state.value === 'committed' )
+  if( state2.value === 'committed' )
   start( `git reset --hard` );
-  else if( state.isVersion || state.isTag )
-  start( `git reset --hard ${ state.value }` );
+  else if( state2.isVersion || state2.isTag )
+  start( `git reset --hard ${ state2.value }` );
 
   if( o.removingUntracked )
   {
@@ -4618,7 +4620,8 @@ function reset( o )
 
 reset.defaults =
 {
-  state : 'committed', /* 'working', 'staged', 'committed' some commit or tag */
+  state1 : 'working', /* 'working', 'staged', 'committed' some commit or tag */
+  state2 : 'committed', /* 'working', 'staged', 'committed' some commit or tag */
   localPath : null,
   preset : null, /*[ null, 'all' ]*/ /* qqq : implement and cover option */
   removingUntracked : 1,
