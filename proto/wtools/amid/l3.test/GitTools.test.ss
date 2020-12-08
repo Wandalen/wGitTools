@@ -17153,6 +17153,140 @@ function resetWithOptionRemovingUntracked( test )
 
 //
 
+function resetWithOptionRemovingSubrepositories( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.shell.predefined.outputCollecting = 1;
+  a.shell.predefined.currentPath = a.abs( 'repo' );
+  a.fileProvider.dirMake( a.abs( '.' ) );
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  });
+
+  a.shell( 'git add file' );
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/sub', 'file' ), 'file2' );
+    return null;
+  });
+  a.shell({ currentPath : a.abs( 'repo/sub' ), execPath : 'git init' });
+
+  a.ready.then( () =>
+  {
+    test.case = 'removingSubrepositories - 1, removingUntracked - 0, should not delete subrepository';
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './file', './sub/file' ] );
+
+    var got = _.git.reset
+    ({
+      localPath : a.abs( 'repo' ),
+      removingUntracked : 0,
+      removingSubrepositories : 1,
+    });
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './file', './sub/file' ] );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  });
+
+  a.shell( 'git add file' );
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/sub', 'file' ), 'file2' );
+    return null;
+  });
+  a.shell({ currentPath : a.abs( 'repo/sub' ), execPath : 'git init' });
+
+  a.ready.then( () =>
+  {
+    test.case = 'removingSubrepositories - 0, removingUntracked - 1, should not delete subrepository';
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './file', './sub/file' ] );
+
+    var got = _.git.reset
+    ({
+      localPath : a.abs( 'repo' ),
+      removingUntracked : 1,
+      removingSubrepositories : 0,
+    });
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './file', './sub/file' ] );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  });
+
+  a.shell( 'git add file' );
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/sub', 'file' ), 'file2' );
+    return null;
+  });
+  a.shell({ currentPath : a.abs( 'repo/sub' ), execPath : 'git init' });
+
+  a.ready.then( () =>
+  {
+    test.case = 'removingSubrepositories - 1, removingUntracked - 1, should delete subrepository';
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './file', './sub/file' ] );
+
+    var got = _.git.reset
+    ({
+      localPath : a.abs( 'repo' ),
+      removingUntracked : 1,
+      removingSubrepositories : 1,
+    });
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './file' ] );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'repo' ) ));
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( 'repo' ) );
+      return null;
+    });
+    a.shell( `git init` );
+    return a.ready;
+  }
+}
+
+//
+
 function resetWithOptionRemovingIgnored( test )
 {
   let context = this;
@@ -18250,6 +18384,7 @@ var Proto =
 
     reset,
     resetWithOptionRemovingUntracked,
+    resetWithOptionRemovingSubrepositories,
     resetWithOptionRemovingIgnored,
 
     renormalize,
