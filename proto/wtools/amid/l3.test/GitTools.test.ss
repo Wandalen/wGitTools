@@ -17153,6 +17153,161 @@ function resetWithOptionRemovingUntracked( test )
 
 //
 
+function resetWithOptionRemovingIgnored( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.shell.predefined.outputCollecting = 1;
+  a.shell.predefined.currentPath = a.abs( 'repo' );
+  a.fileProvider.dirMake( a.abs( '.' ) );
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  });
+
+  a.shell( 'git add file' );
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', '.gitignore' ), 'file2' );
+    return null;
+  });
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m gitignore' );
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file2' ), 'file2' );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.case = 'removingIgnored - 1, removingUntracked - 0, should not delete untraked file';
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './.gitignore', './file', './file2' ] );
+
+    var got = _.git.reset
+    ({
+      localPath : a.abs( 'repo' ),
+      removingUntracked : 0,
+      removingIgnored : 1,
+    });
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './.gitignore', './file', './file2' ] );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  });
+
+  a.shell( 'git add file' );
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', '.gitignore' ), 'file2' );
+    return null;
+  });
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m gitignore' );
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file2' ), 'file2' );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.case = 'removingIgnored - 0, removingUntracked - 1, should not delete untraked file';
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './.gitignore', './file', './file2' ] );
+
+    var got = _.git.reset
+    ({
+      localPath : a.abs( 'repo' ),
+      removingUntracked : 1,
+      removingIgnored : 0,
+    });
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './.gitignore', './file', './file2' ] );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    return null;
+  });
+
+  a.shell( 'git add file' );
+  a.shell( 'git commit -m init' )
+  .then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', '.gitignore' ), 'file2' );
+    return null;
+  });
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m gitignore' );
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file2' ), 'file2' );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.case = 'removingIgnored - 1, removingUntracked - 1, should delete untraked file';
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './.gitignore', './file', './file2' ] );
+
+    var got = _.git.reset
+    ({
+      localPath : a.abs( 'repo' ),
+      removingUntracked : 1,
+      removingIgnored : 1,
+    });
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './.gitignore', './file' ] );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'repo' ) ));
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( 'repo' ) );
+      return null;
+    });
+    a.shell( `git init` );
+    return a.ready;
+  }
+}
+
+//
+
 function renormalize( test )
 {
   let context = this;
@@ -18095,6 +18250,7 @@ var Proto =
 
     reset,
     resetWithOptionRemovingUntracked,
+    resetWithOptionRemovingIgnored,
 
     renormalize,
     renormalizeOriginHasAttributes,
