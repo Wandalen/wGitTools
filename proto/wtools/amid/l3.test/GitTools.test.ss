@@ -15029,6 +15029,7 @@ function diffSpecial( test )
 
 diffSpecial.timeOut = 60000;
 
+//
 
 function diffSameStates( test )
 {
@@ -15144,6 +15145,85 @@ function diffSameStates( test )
 }
 
 diffSameStates.timeOut = 60000;
+
+//
+
+function pull( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.shell.predefined.outputCollecting = 1;
+  a.shell.predefined.currentPath = a.abs( 'repo' );
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.dirMake( a.abs( 'main' ) );
+    return null;
+  });
+
+  _.process.start
+  ({
+    currentPath : a.abs( 'main' ),
+    execPath : 'git init --bare',
+    ready : a.ready,
+  });
+
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git remote add origin ../main' );
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+  a.shell( 'git push -u origin master' );
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'clone/file2.txt' ), 'file2.txt' );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git push' });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'pull changes';
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt' ] );
+
+    _.git.pull
+    ({
+      localPath : a.abs( 'repo' ),
+    });
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt', './file2.txt' ] );
+
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'repo' ) ))
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( 'repo' ) ); return null })
+    a.shell( `git init` )
+    return a.ready;
+  }
+}
 
 //
 
@@ -17252,6 +17332,8 @@ var Proto =
     diff,
     diffSpecial,
     diffSameStates,
+
+    pull,
 
     gitHooksManager,
     gitHooksManagerErrors,
