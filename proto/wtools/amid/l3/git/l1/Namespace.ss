@@ -4536,6 +4536,92 @@ diff.defaults =
 
 //
 
+function pull( o )
+{
+  let ready = new _.Consequence().take( null );
+
+  _.routineOptions( pull, arguments );
+  _.assert( arguments.length === 1 );
+  _.assert( _.strDefined( o.localPath ) );
+
+  if( o.dry )
+  return;
+
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'shell',
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    inputMirroring : 0,
+    outputPiping : 0,
+    ready,
+  });
+
+  start( `git pull` );
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+  return ready;
+}
+
+pull.defaults =
+{
+  localPath : null,
+  dry : 0,
+  sync : 1,
+};
+
+//
+
+function push( o )
+{
+  let ready = new _.Consequence().take( null );
+
+  _.routineOptions( push, arguments );
+  _.assert( arguments.length === 1 );
+  _.assert( _.strDefined( o.localPath ) );
+
+  if( o.dry )
+  return;
+
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'shell',
+    currentPath : o.localPath,
+    throwingExitCode : 0,
+    inputMirroring : 0,
+    outputPiping : 0,
+    ready,
+  });
+
+  start( `git push -u origin master` );
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+  return ready;
+}
+
+push.defaults =
+{
+  localPath : null,
+  dry : 0,
+  sync : 1,
+};
+
+//
+
 function reset( o )
 {
   let ready = new _.Consequence().take( null );
@@ -4836,8 +4922,10 @@ let Extension =
   configRead,
   configSave,
   configReset, /* qqq : implement routine _.git.configReset() */
-  reset,
   diff,
+  pull,
+  push,
+  reset,
   renormalize,
 
 }
