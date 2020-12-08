@@ -1,0 +1,45 @@
+
+require( 'wgittools' );
+let _ = wTools;
+
+let ready = _.take( null );
+let provider = _.FileProvider.HardDrive();
+
+ready.then( () =>
+{
+  return _.git.repositoryClone
+  ({
+    remotePath : 'https://github.com/bot-w/repo',
+    localPath : _.path.join( __dirname, 'repo' ),
+  });
+});
+
+ready.then( () =>
+{
+  provider.fileWrite( _.path.join( __dirname, 'repo/file.txt' ), 'new data' );
+
+  return _.process.start
+  ({
+    currentPath : _.path.join( __dirname, 'repo' ),
+    execPath : 'git commit -am some',
+  });
+});
+
+ready.then( () =>
+{
+  return _.git.push
+  ({
+    localPath : _.path.join( __dirname, 'repo' ),
+  });
+});
+
+ready.finally( ( err, op ) =>
+{
+  if( err )
+  _.errAttend( err );
+  provider.filesDelete( _.path.join( __dirname, 'repo' ) );
+  return null;
+});
+
+return ready;
+
