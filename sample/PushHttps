@@ -7,9 +7,11 @@ let provider = _.FileProvider.HardDrive();
 
 ready.then( () =>
 {
+  console.log( 'Clonign of remote repository::' );
+
   return _.git.repositoryClone
   ({
-    remotePath : 'https://github.com/bot-w/repo',
+    remotePath : 'https://github.com/dmvict/test.git',
     localPath : _.path.join( __dirname, 'repo' ),
   });
 });
@@ -27,6 +29,8 @@ ready.then( () =>
 
 ready.then( () =>
 {
+  console.log( 'Clonign of remote repository::' );
+
   return _.git.push
   ({
     localPath : _.path.join( __dirname, 'repo' ),
@@ -38,6 +42,8 @@ ready.finally( ( err, op ) =>
   if( err )
   _.errAttend( err );
   provider.filesDelete( _.path.join( __dirname, 'repo' ) );
+
+  console.log( 'Succefully finished.' );
   return null;
 });
 
