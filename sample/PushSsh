@@ -27,7 +27,7 @@ ready.then( () =>
 
 ready.then( () =>
 {
-  provider.fileWrite( _.path.join( __dirname, 'repo/file.txt' ), 'new data' );
+  provider.fileAppend( _.path.join( __dirname, 'repo/file.txt' ), 'new data' );
 
   return _.process.start
   ({
@@ -38,7 +38,6 @@ ready.then( () =>
 
 ready.then( () =>
 {
-  debugger;
   return _.git.push
   ({
     localPath : _.path.join( __dirname, 'repo' ),
