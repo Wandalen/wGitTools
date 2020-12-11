@@ -7,17 +7,6 @@ let provider = _.FileProvider.HardDrive();
 
 ready.then( () =>
 {
-  console.log( 'Clonign of remote repository::' );
-
-  return _.git.repositoryClone
-  ({
-    remotePath : 'https://github.com/dmvict/test.git',
-    localPath : _.path.join( __dirname, 'repo' ),
-  });
-});
-
-ready.then( () =>
-{
   return _.process.start
   ({
     currentPath : _.path.join( __dirname, 'repo' ),
@@ -27,18 +16,9 @@ ready.then( () =>
 
 ready.then( () =>
 {
-  provider.fileAppend( _.path.join( __dirname, 'repo/file.txt' ), 'new data' );
+  console.log( 'Pulling ::' );
 
-  return _.process.start
-  ({
-    currentPath : _.path.join( __dirname, 'repo' ),
-    execPath : 'git commit -am some',
-  });
-});
-
-ready.then( () =>
-{
-  return _.git.push
+  return _.git.pull
   ({
     localPath : _.path.join( __dirname, 'repo' ),
   });
