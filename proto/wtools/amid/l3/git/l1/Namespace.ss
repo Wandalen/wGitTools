@@ -312,7 +312,7 @@ function versionLocalChange( o )
   _.routineOptions( versionLocalChange, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let localVersion = _.git.versionLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
+  let localVersion = _.git.tagLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
 
   if( !localVersion )
   return false;
@@ -355,12 +355,12 @@ defaults.verbosity = 0;
  * @param {Object} o Options map.
  * @param {String} o.localPath Path to git repository on hard drive.
  * @param {Number} o.verbosity=0 Level of verbosity.
- * @function versionLocalRetrive
+ * @function tagLocalRetrive
  * @namespace wTools.git
  * @module Tools/mid/GitTools
  */
 
-function versionLocalRetrive( o )
+function tagLocalRetrive( o )
 {
   let localProvider = _.fileProvider;
   let path = localProvider.path;
@@ -368,7 +368,7 @@ function versionLocalRetrive( o )
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( versionLocalRetrive, o );
+  _.routineOptions( tagLocalRetrive, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
@@ -407,7 +407,7 @@ function versionLocalRetrive( o )
   return currentVersion;
 }
 
-var defaults = versionLocalRetrive.defaults = Object.create( null );
+var defaults = tagLocalRetrive.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.detailing = 0;
@@ -718,7 +718,7 @@ function isUpToDate( o )
     let result = false;
     let detachedRegexp = /* /HEAD detached at (\w+)/ */ /HEAD detached at (.+)/;
     let detachedParsed = detachedRegexp.exec( got.output );
-    // let versionLocal = _.git.versionLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
+    // let versionLocal = _.git.tagLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
 
     // if( detachedParsed )
     // {
@@ -4857,7 +4857,7 @@ let Extension =
   // version
 
   versionLocalChange,
-  versionLocalRetrive,
+  tagLocalRetrive,
   versionRemoteLatestRetrive,
   versionRemoteCurrentRetrive,
   versionIsCommitHash,
