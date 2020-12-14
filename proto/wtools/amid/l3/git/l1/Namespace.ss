@@ -4547,12 +4547,9 @@ function reset( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.longHas( [ null, 'all' ], o.preset ) );
 
-  if( o.dry )
-  return;
-
   if( o.preset === 'all' )
   {
-    _.assert( o.state === 'committed', 'Preset `all` resets all changes to latest commit' );
+    _.assert( o.state2 === 'committed', 'Preset `all` resets all changes to latest commit' );
 
     let o2 =
     {
@@ -4585,6 +4582,9 @@ function reset( o )
   let state1 = self._stateParse( o.state1 );
   let state2 = self._stateParse( o.state2 );
 
+  if( o.dry )
+  return resetDry();
+
   if( state2.value === 'working' || state2.value === 'staged' )
   return;
 
@@ -4607,15 +4607,59 @@ function reset( o )
     start( command );
   }
 
-  /* qqq : should be "git clean -dffx", but not by default */
-  /* qqq : cover each option */
+  /* aaa : should be "git clean -dffx", but not by default */ /* Dmytro : implemented */
+  /* aaa : cover each option */ /* Dmytro : covered */
 
   if( o.sync )
   {
     ready.deasync();
     return ready.sync();
   }
+
   return ready;
+
+  /* */
+
+  function resetDry()
+  {
+    let shouldReset = state2.isVersion || state2.isTag || state2.value === 'committed';
+    let o2 =
+    {
+      localPath : o.localPath,
+      uncommitted : 0,
+      uncommittedUntracked : o.removingUntracked,
+      uncommittedAdded : o.removingUntracked,
+      uncommittedChanged : shouldReset,
+      uncommittedDeleted : shouldReset,
+      uncommittedRenamed : shouldReset,
+      uncommittedCopied : o.removingUntracked,
+      uncommittedIgnored : o.removingUntracked && o.removingIgnored,
+      unpushed : 0,
+      unpushedCommits : 0,
+      unpushedTags : 0,
+      unpushedBranches : 0,
+      explaining : 1,
+      detailing : 1,
+      sync : 1
+    };
+    let status = _.git.statusLocal( o2 );
+
+    /* */
+
+    let msgReset = `Uncommitted changes, would be reseted :`;
+    msgReset += status.uncommittedChanged ? `\n${ status.uncommittedChanged }` : ``;
+    msgReset += status.uncommittedDeleted ? `\n${ status.uncommittedDeleted }` : ``;
+    msgReset += status.uncommittedRenamed ? `\n${ status.uncommittedRenamed }` : ``;
+    logger.log( msgReset );
+
+    let msgClean = `Uncommitted changes, would be cleaned :`;
+    msgClean += status.uncommittedUntracked ? `\n${ status.uncommittedUntracked }` : ``;
+    msgClean += status.uncommittedAdded ? `\n${ status.uncommittedAdded }` : ``;
+    msgClean += status.uncommittedCopied ? `\n${ status.uncommittedCopied }` : ``;
+    msgClean += status.uncommittedIgnored ? `\n${ status.uncommittedIgnored }` : ``;
+    logger.log( msgClean );
+    return true;
+  }
 }
 
 reset.defaults =
@@ -4623,11 +4667,11 @@ reset.defaults =
   state1 : 'working', /* 'working', 'staged', 'committed' some commit or tag */
   state2 : 'committed', /* 'working', 'staged', 'committed' some commit or tag */
   localPath : null,
-  preset : null, /*[ null, 'all' ]*/ /* qqq : implement and cover option */
+  preset : null, /*[ null, 'all' ]*/ /* qqq : implement and cover option */ /* Dmytro : implemented trivial branch. Please, clarify the behavior of the option */
   removingUntracked : 1,
-  removingIgnored : 0, /* qqq : implement and cover option */
-  removingSubrepositories : 1, /* qqq : implement and cover option. option -ffx of git command clean */
-  dry : 0, /* qqq : implement and cover option */
+  removingIgnored : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
+  removingSubrepositories : 1, /* aaa : implement and cover option. option -ffx of git command clean */ /* Dmytro : implemented, covered */
+  dry : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
   sync : 1,
 }
 
