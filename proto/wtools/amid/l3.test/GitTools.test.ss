@@ -195,6 +195,334 @@ function pathParse( test )
   test.shouldThrowErrorSync( () => _.git.pathParse( remotePath ) );
 }
 
+//
+
+function tagLocalChange( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'not a repository';
+    a.fileProvider.dirMake( a.abs( '.' ) );
+    a.fileProvider.fileWrite( a.abs( 'file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalChange
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'master',
+    });
+
+    test.identical( got, false );
+    return null;
+  });
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.open( 'without local changes' );
+    return null;
+  });
+
+  begin().then( () =>
+  {
+    test.case = 'repository, no branches excluding master, switch to master';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalChange
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'master',
+    });
+
+    test.identical( got, true );
+    return null;
+  });
+  a.shell( 'git branch' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, '* master' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'repository, several branches, switch to second branch';
+    return null;
+  });
+
+  a.shell( 'git branch second' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalChange
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'second',
+    });
+
+    test.identical( got, true );
+    return null;
+  });
+  a.shell( 'git branch' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, 'master' ), 1 );
+    test.identical( _.strCount( op.output, '* second' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'repository, several branches, switch to second branch and switch back to master';
+    return null;
+  });
+
+  a.shell( 'git branch second' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalChange
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'second',
+    });
+
+    test.identical( got, true );
+    return null;
+  });
+  a.shell( 'git branch' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, 'master' ), 1 );
+    test.identical( _.strCount( op.output, '* second' ), 1 );
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalChange
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'master',
+    });
+
+    test.identical( got, true );
+    return null;
+  });
+  a.shell( 'git branch' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, '* master' ), 1 );
+    test.identical( _.strCount( op.output, 'second' ), 1 );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.close( 'without local changes' );
+    return null;
+  });
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.open( 'with local changes' );
+    return null;
+  });
+
+  begin().then( () =>
+  {
+    test.case = 'repository, several branches, switch to second branch';
+    a.fileProvider.fileAppend( a.abs( 'file.txt' ), 'new data' );
+    return null;
+  });
+
+  a.shell( 'git branch second' );
+  a.shell( 'git status' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, 'On branch master' ), 1 );
+    test.identical( _.strCount( op.output, 'Changes not staged for commit:' ), 1 );
+    test.identical( _.strCount( op.output, 'modified:   file.txt' ), 1 );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalChange
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'second',
+    });
+
+    test.identical( got, true );
+    return null;
+  });
+  a.shell( 'git branch' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, 'master' ), 1 );
+    test.identical( _.strCount( op.output, '* second' ), 1 );
+    return null;
+  });
+
+  a.shell( 'git status' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, 'On branch second' ), 1 );
+    test.identical( _.strCount( op.output, 'Changes not staged for commit:' ), 1 );
+    test.identical( _.strCount( op.output, 'modified:   file.txt' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'repository, several branches, switch to second branch and switch back';
+    a.fileProvider.fileAppend( a.abs( 'file.txt' ), 'new data' );
+    return null;
+  });
+
+  a.shell( 'git branch second' );
+  a.shell( 'git status' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, 'On branch master' ), 1 );
+    test.identical( _.strCount( op.output, 'Changes not staged for commit:' ), 1 );
+    test.identical( _.strCount( op.output, 'modified:   file.txt' ), 1 );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalChange
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'second',
+    });
+
+    test.identical( got, true );
+    return null;
+  });
+  a.shell( 'git branch' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, 'master' ), 1 );
+    test.identical( _.strCount( op.output, '* second' ), 1 );
+    return null;
+  });
+
+  a.shell( 'git status' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, 'On branch second' ), 1 );
+    test.identical( _.strCount( op.output, 'Changes not staged for commit:' ), 1 );
+    test.identical( _.strCount( op.output, 'modified:   file.txt' ), 1 );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalChange
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'master',
+    });
+
+    test.identical( got, true );
+    return null;
+  });
+  a.shell( 'git branch' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, '* master' ), 1 );
+    test.identical( _.strCount( op.output, 'second' ), 1 );
+    return null;
+  });
+  a.shell( 'git status' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, 'On branch master' ), 1 );
+    test.identical( _.strCount( op.output, 'Changes not staged for commit:' ), 1 );
+    test.identical( _.strCount( op.output, 'modified:   file.txt' ), 1 );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.close( 'with local changes' );
+    return null;
+  })
+
+  /* - */
+
+  if( Config.debug )
+  {
+    begin().then( () =>
+    {
+      test.case = 'empty repository, no branches excluding master, switch to not existed branch';
+      return null;
+    });
+
+    a.ready.then( () =>
+    {
+      test.shouldThrowErrorSync( () =>
+      {
+        return _.git.tagLocalChange
+        ({
+          localPath : a.abs( '.' ),
+          tag : 'not_existed',
+        });
+      });
+      return null;
+    });
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ) );
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( '.' ) );
+      return null;
+    });
+    a.shell( `git init` );
+    a.ready.then( () =>
+    {
+      a.fileProvider.fileWrite( a.abs( 'file.txt' ), 'file.txt' );
+      return null;
+    });
+    a.shell( 'git add .' );
+    a.shell( 'git commit -m init' );
+    return a.ready;
+  }
+}
+
+//
+
 function versionsRemoteRetrive( test )
 {
   let context = this;
@@ -17388,6 +17716,8 @@ var Proto =
   tests :
   {
     pathParse, /* qqq : check tests */
+
+    tagLocalChange,
 
     versionsRemoteRetrive,
     versionsPull,

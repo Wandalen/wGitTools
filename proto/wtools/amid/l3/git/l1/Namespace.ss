@@ -307,17 +307,21 @@ defaults.insidePath = null;
 function tagLocalChange( o )
 {
   if( !_.mapIs( o ) )
-  o = { localPath : o }
+  o = { localPath : o };
 
   _.routineOptions( tagLocalChange, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let localTag = _.git.tagLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
+  let localTag = _.git.tagLocalRetrive
+  ({
+    localPath : o.localPath,
+    verbosity : o.verbosity
+  });
 
   if( !localTag )
   return false;
 
-  if( localTag === o.version )
+  if( localTag === o.tag )
   return true;
 
   let start = _.process.starter
@@ -326,26 +330,26 @@ function tagLocalChange( o )
     sync : 1,
     deasync : 0,
     outputCollecting : 1,
-    currentPath : o.localPath
+    currentPath : o.localPath,
   });
 
   let result = start( 'git status' );
   let localChanges = _.strHas( result.output, 'Changes to be committed' );
 
   if( localChanges )
-  start( 'git stash' )
+  start( 'git stash' );
 
-  start( 'git checkout ' + o.version );
+  start( 'git checkout ' + o.tag );
 
   if( localChanges )
-  start( 'git pop' )
+  start( 'git pop' );
 
   return true;
 }
 
 var defaults = tagLocalChange.defaults = Object.create( null );
 defaults.localPath = null;
-defaults.version = null
+defaults.tag = null
 defaults.verbosity = 0;
 
 //
@@ -2792,7 +2796,7 @@ function tagMake( o )
     sync : 0,
     deasync : 0,
     outputCollecting : 1,
-    mode : 'spawn',
+    mode : 'shell',
     currentPath : o.localPath,
     throwingExitCode : 1,
     inputMirroring : 0,
@@ -2813,7 +2817,6 @@ function tagMake( o )
 
     ready.then( ( has ) =>
     {
-      debugger;
       if( has )
       return start( `git tag -d ${o.tag}` );
       return has;
