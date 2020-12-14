@@ -17442,6 +17442,358 @@ function resetWithOptionRemovingIgnored( test )
 
 //
 
+function resetWithOptionDry( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  let programPath;
+
+  a.shell.predefined.outputCollecting = 1;
+  a.shell.predefined.currentPath = a.abs( 'repo' );
+  a.fileProvider.dirMake( a.abs( '.' ) );
+
+  let programShell = _.process.starter
+  ({
+    currentPath : a.abs( '.' ),
+    mode : 'shell',
+    throwingExitCode : 1,
+    outputCollecting : 1,
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file1' ), 'data' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    test.case = 'repository is not changed, nothing to reset';
+    let o =
+    {
+      localPath : a.abs( 'repo' ),
+      removingUntracked : 1,
+      removingIgnored : 1,
+      dry : 1,
+    };
+    programPath = programMake({ o });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + programPath )
+    .then( ( op ) =>
+    {
+      test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
+      test.identical( _.strCount( op.output, 'file' ), 0 );
+      test.identical( _.strCount( op.output, 'file1' ), 0 );
+      test.identical( _.strCount( op.output, 'Uncommitted changes, would be cleaned :' ), 1 );
+
+      var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+      test.identical( got, [ './file', './file1' ] );
+      return null;
+    })
+    .then( () =>
+    {
+      return a.fileProvider.filesDelete( programPath );
+    });
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file1' ), 'data' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    let o =
+    {
+      localPath : a.abs( 'repo' ),
+      removingUntracked : 0,
+      removingIgnored : 1,
+      dry : 1,
+    };
+    programPath = programMake({ o });
+
+    a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
+    a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file2' ), 'file2' );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file3' ), 'file3' );
+    return null;
+  });
+
+  a.shell( 'git add file2' );
+
+  a.ready.then( () =>
+  {
+    test.case = 'repository changed, without untraked';
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './file', './file2', './file3' ] );
+    return null
+  });
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + programPath )
+    .then( ( op ) =>
+    {
+      test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
+      test.identical( _.strCount( op.output, 'M file' ), 1 );
+      test.identical( _.strCount( op.output, 'D file1' ), 1 );
+      test.identical( _.strCount( op.output, 'Uncommitted changes, would be cleaned :' ), 1 );
+
+      var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+      test.identical( got, [ './file', './file2', './file3' ] );
+      return null;
+    })
+    .then( () =>
+    {
+      return a.fileProvider.filesDelete( programPath );
+    });
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file1' ), 'data' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    let o =
+    {
+      localPath : a.abs( 'repo' ),
+      removingUntracked : 1,
+      removingIgnored : 1,
+      dry : 1,
+    };
+    programPath = programMake({ o });
+
+    a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
+    a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file2' ), 'file2' );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file3' ), 'file3' );
+    return null;
+  });
+
+  a.shell( 'git add file2' );
+
+  a.ready.then( () =>
+  {
+    test.case = 'repository changed, with untraked';
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './file', './file2', './file3' ] );
+    return null
+  });
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + programPath )
+    .then( ( op ) =>
+    {
+      test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
+      test.identical( _.strCount( op.output, 'M file' ), 1 );
+      test.identical( _.strCount( op.output, 'D file1' ), 1 );
+      test.identical( _.strCount( op.output, 'Uncommitted changes, would be cleaned :' ), 1 );
+      test.identical( _.strCount( op.output, '?? file3' ), 1 );
+      test.identical( _.strCount( op.output, 'A  file2' ), 1 );
+
+      var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+      test.identical( got, [ './file', './file2', './file3' ] );
+      return null;
+    })
+    .then( () =>
+    {
+      return a.fileProvider.filesDelete( programPath );
+    });
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file1' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( 'repo', '.gitignore' ), 'file3' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    let o =
+    {
+      localPath : a.abs( 'repo' ),
+      removingUntracked : 1,
+      removingIgnored : 0,
+      dry : 1,
+    };
+    programPath = programMake({ o });
+
+    a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
+    a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file2' ), 'file2' );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file3' ), 'file3' );
+    return null;
+  });
+
+  a.shell( 'git add file2' );
+
+  a.ready.then( () =>
+  {
+    test.case = 'repository changed, with untraked and without ignored';
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './.gitignore', './file', './file2', './file3' ] );
+    return null
+  });
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + programPath )
+    .then( ( op ) =>
+    {
+      test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
+      test.identical( _.strCount( op.output, 'M file' ), 1 );
+      test.identical( _.strCount( op.output, 'D file1' ), 1 );
+      test.identical( _.strCount( op.output, 'Uncommitted changes, would be cleaned :' ), 1 );
+      test.identical( _.strCount( op.output, '!! file3' ), 0 );
+      test.identical( _.strCount( op.output, 'A  file2' ), 1 );
+
+      var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+      test.identical( got, [ './.gitignore', './file', './file2', './file3' ] );
+      return null;
+    })
+    .then( () =>
+    {
+      return a.fileProvider.filesDelete( programPath );
+    });
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file1' ), 'data' );
+    a.fileProvider.fileWrite( a.abs( 'repo', '.gitignore' ), 'file3' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    let o =
+    {
+      localPath : a.abs( 'repo' ),
+      removingUntracked : 1,
+      removingIgnored : 1,
+      dry : 1,
+    };
+    programPath = programMake({ o });
+
+    a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
+    a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file2' ), 'file2' );
+    a.fileProvider.fileWrite( a.abs( 'repo', 'file3' ), 'file3' );
+    return null;
+  });
+
+  a.shell( 'git add file2' );
+
+  a.ready.then( () =>
+  {
+    test.case = 'repository changed, with untraked and with ignored';
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ './.gitignore', './file', './file2', './file3' ] );
+    return null
+  });
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + programPath )
+    .then( ( op ) =>
+    {
+      test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
+      test.identical( _.strCount( op.output, 'M file' ), 1 );
+      test.identical( _.strCount( op.output, 'D file1' ), 1 );
+      test.identical( _.strCount( op.output, 'Uncommitted changes, would be cleaned :' ), 1 );
+      test.identical( _.strCount( op.output, '!! file3' ), 1 );
+      test.identical( _.strCount( op.output, 'A  file2' ), 1 );
+
+      var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+      test.identical( got, [ './.gitignore', './file', './file2', './file3' ] );
+      return null;
+    })
+    .then( () =>
+    {
+      return a.fileProvider.filesDelete( programPath );
+    });
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'repo' ) ));
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( 'repo' ) );
+      return null;
+    });
+    a.shell( `git init` );
+    return a.ready;
+  }
+
+  /* */
+
+  function programMake( locals )
+  {
+    locals = _.mapSupplement( { toolsPath : _.module.resolve( 'wTools' ) }, locals );
+    return a.program({ routine : testApp, locals });
+  }
+
+  /* */
+
+  function testApp()
+  {
+    let _ = require( toolsPath );
+    _.include( 'wGitTools' )
+    _.git.reset( o );
+  }
+}
+
+resetWithOptionDry.timeOut = 15000;
+
+//
+
 function renormalize( test )
 {
   let context = this;
@@ -18386,6 +18738,7 @@ var Proto =
     resetWithOptionRemovingUntracked,
     resetWithOptionRemovingSubrepositories,
     resetWithOptionRemovingIgnored,
+    resetWithOptionDry,
 
     renormalize,
     renormalizeOriginHasAttributes,
