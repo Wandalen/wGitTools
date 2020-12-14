@@ -304,20 +304,20 @@ defaults.insidePath = null;
 // version
 // --
 
-function versionLocalChange( o )
+function tagLocalChange( o )
 {
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( versionLocalChange, o );
+  _.routineOptions( tagLocalChange, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let localVersion = _.git.tagLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
+  let localTag = _.git.tagLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
 
-  if( !localVersion )
+  if( !localTag )
   return false;
 
-  if( localVersion === o.version )
+  if( localTag === o.version )
   return true;
 
   let start = _.process.starter
@@ -343,7 +343,7 @@ function versionLocalChange( o )
   return true;
 }
 
-var defaults = versionLocalChange.defaults = Object.create( null );
+var defaults = tagLocalChange.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.version = null
 defaults.verbosity = 0;
@@ -380,19 +380,19 @@ function tagLocalRetrive( o )
   if( !localProvider.fileExists( gitPath ) )
   return '';
 
-  let currentVersion = localProvider.fileRead( path.join( gitPath, 'HEAD' ) );
+  let currentTag = localProvider.fileRead( path.join( gitPath, 'HEAD' ) );
   let r = /^ref: refs\/heads\/(.+)\s*$/;
 
-  let found = r.exec( currentVersion );
+  let found = r.exec( currentTag );
   if( found )
-  currentVersion = found[ 1 ];
+  currentTag = found[ 1 ];
 
-  currentVersion = currentVersion.trim() || null;
+  currentTag = currentTag.trim() || null;
 
   if( o.detailing )
   {
     let result = Object.create( null );
-    result.version = currentVersion;
+    result.version = currentTag;
     result.isHash = false;
     result.isBranch = false;
 
@@ -404,7 +404,7 @@ function tagLocalRetrive( o )
     return result;
   }
 
-  return currentVersion;
+  return currentTag;
 }
 
 var defaults = tagLocalRetrive.defaults = Object.create( null );
@@ -4856,7 +4856,7 @@ let Extension =
 
   // version
 
-  versionLocalChange,
+  tagLocalChange,
   tagLocalRetrive,
   versionRemoteLatestRetrive,
   versionRemoteCurrentRetrive,
