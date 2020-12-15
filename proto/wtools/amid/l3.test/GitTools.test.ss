@@ -8871,6 +8871,262 @@ function hasLocalChangesSpecial( test )
 
 //
 
+function repositoryVersionToTagWithOnlyLocal( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'version - hash of commit';
+    _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      sync : 1,
+      tag : 'v0.0.0',
+      description : 'v0.0.0',
+    });
+    return null;
+  });
+
+  var initialCommitHash;
+  a.ready.then( () =>
+  {
+    initialCommitHash = a.fileProvider.fileRead( a.abs( '.git/refs/heads/master' ) );
+    initialCommitHash = initialCommitHash.trim();
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'file.txt' ), 'new data' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : initialCommitHash,
+      local : 1,
+      remote : 0,
+    });
+
+    test.identical( got, 'v0.0.0' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'version - hash of tag';
+    _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      sync : 1,
+      tag : 'v0.0.0',
+      description : 'v0.0.0',
+    });
+    return null;
+  });
+
+  var initialCommitHash;
+  a.shell( 'git show-ref -s' )
+  .then( ( op ) =>
+  {
+    let splits =  _.strSplitNonPreserving({ src : op.output, delimeter : '\n' });
+    initialCommitHash = splits[ splits.length - 1 ].trim();
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'file.txt' ), 'new data' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : initialCommitHash,
+      local : 1,
+      remote : 0,
+    });
+
+    test.identical( got, 'v0.0.0' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'version - last commit in branch, no tags except branch name';
+    a.fileProvider.fileAppend( a.abs( 'file.txt' ), 'new data' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' );
+
+  var commitHash;
+  a.ready.then( () =>
+  {
+    commitHash = a.fileProvider.fileRead( a.abs( '.git/refs/heads/master' ) );
+    commitHash = commitHash.trim();
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : commitHash,
+      local : 1,
+      remote : 0,
+    });
+
+    test.identical( got, 'master' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'version - last commit in branch, branch name and tag';
+    _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      sync : 1,
+      tag : 'v0.0.0',
+      description : 'v0.0.0',
+    });
+    return null;
+  });
+
+  var initialCommitHash;
+  a.ready.then( () =>
+  {
+    initialCommitHash = a.fileProvider.fileRead( a.abs( '.git/refs/heads/master' ) );
+    initialCommitHash = initialCommitHash.trim();
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : initialCommitHash,
+      local : 1,
+      remote : 0,
+    });
+
+    test.identical( got, [ 'master', 'v0.0.0' ] );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    if( !Config.debug )
+    return;
+
+    test.case = 'without arguments';
+    test.shouldThrowErrorSync( () => _.git.repositoryVersionToTag() );
+
+    test.case = 'extra arguments';
+    test.shouldThrowErrorSync( () =>
+    {
+      let o = { localPath : a.abs( '.' ), local : 1, version : 'noMatterWhatHashIs' };
+      return _.git.repositoryVersionToTag( o, o );
+    });
+
+    test.case = 'extra option in options map o';
+    test.shouldThrowErrorSync( () =>
+    {
+      let o = { localPath : a.abs( '.' ), local : 1, version : 'noMatterWhatHashIs', unknown : 1 };
+      return _.git.repositoryVersionToTag( o );
+    });
+
+    test.case = 'wrong type of o.localPath';
+    test.shouldThrowErrorSync( () =>
+    {
+      let o = { localPath : 1, local : 1, version : 'noMatterWhatHashIs' };
+      return _.git.repositoryVersionToTag( o );
+    });
+
+    test.case = 'o.localPath is not a repository';
+    test.shouldThrowErrorSync( () =>
+    {
+      let o = { localPath : a.abs( '..' ), local : 1, version : 'noMatterWhatHashIs' };
+      return _.git.repositoryVersionToTag( o );
+    });
+
+    test.case = 'wrong type of o.version';
+    test.shouldThrowErrorSync( () =>
+    {
+      let o = { localPath : a.abs( '.' ), local : 1, version : 1 };
+      return _.git.repositoryVersionToTag( o );
+    });
+
+    test.case = 'wrong type of o.remotePath';
+    test.shouldThrowErrorSync( () =>
+    {
+      let o = { localPath : a.abs( '.' ), remote : 1, version : 'noMatterWhatHashIs', remotePath : 1 };
+      return _.git.repositoryVersionToTag( o );
+    });
+
+    test.case = 'o.local and o.remote is false';
+    test.shouldThrowErrorSync( () =>
+    {
+      let o = { localPath : a.abs( '.' ), local : 0, remote : 0, version : 'noMatterWhatHashIs' };
+      return _.git.repositoryVersionToTag( o );
+    });
+
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ) );
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( '.' ) );
+      return null;
+    });
+    a.shell( `git init` );
+    a.ready.then( () =>
+    {
+      a.fileProvider.fileWrite( a.abs( 'file.txt' ), 'file.txt' );
+      return null;
+    });
+    a.shell( 'git add .' );
+    a.shell( 'git commit -m init' );
+    return a.ready;
+  }
+}
+
+repositoryVersionToTagWithOnlyLocal.timeOut = 15000;
+
+//
+
 function hasFiles( test )
 {
   let context = this;
@@ -17855,6 +18111,8 @@ var Proto =
     hasRemoteChanges,
     hasChanges,
     hasLocalChangesSpecial,
+
+    repositoryVersionToTagWithOnlyLocal,
 
     hasFiles,
     hasRemote,
