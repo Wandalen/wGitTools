@@ -8871,7 +8871,7 @@ function hasLocalChangesSpecial( test )
 
 //
 
-function repositoryVersionToTagWithOnlyLocal( test )
+function repositoryVersionToTagWithOptionLocal( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
@@ -9037,6 +9037,8 @@ function repositoryVersionToTagWithOnlyLocal( test )
     return null;
   });
 
+  /* */
+
   a.ready.then( () =>
   {
     if( !Config.debug )
@@ -9123,7 +9125,111 @@ function repositoryVersionToTagWithOnlyLocal( test )
   }
 }
 
-repositoryVersionToTagWithOnlyLocal.timeOut = 15000;
+repositoryVersionToTagWithOptionLocal.timeOut = 15000;
+
+//
+
+function repositoryVersionToTagWithOptionRemote( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'version - hash of commit';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : 'b6e306fd904c4aee13e104f4132ca70bb4f97fa6',
+      local : 0,
+      remote : 1,
+    });
+
+    test.identical( got, 'v0.0.99' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'version - hash of tag';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : 'd6f04471d8e33c5019343a791a635c205b500764',
+      local : 0,
+      remote : 1,
+    });
+
+    test.identical( got, 'v0.0.99' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'version - last commit in branch';
+    return null;
+  });
+
+  var commitHash;
+  a.ready.then( () =>
+  {
+    commitHash = a.fileProvider.fileRead( a.abs( '.git/refs/heads/master' ) );
+    commitHash = commitHash.trim();
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : commitHash,
+      local : 0,
+      remote : 1,
+    });
+    got = _.arrayAs( got );
+
+    test.true( _.longHas( got, 'master' ) );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( a.abs( '.' ) );
+      return null;
+    });
+
+    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git ./' );
+    return a.ready;
+  }
+}
+
+repositoryVersionToTagWithOptionRemote.timeOut = 15000;
 
 //
 
@@ -18112,7 +18218,8 @@ var Proto =
     hasChanges,
     hasLocalChangesSpecial,
 
-    repositoryVersionToTagWithOnlyLocal,
+    repositoryVersionToTagWithOptionLocal,
+    repositoryVersionToTagWithOptionRemote,
 
     hasFiles,
     hasRemote,
