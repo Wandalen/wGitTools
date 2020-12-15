@@ -405,10 +405,39 @@ defaults.verbosity = 0;
 //
 
 /**
- * @summary Returns hash of latest commit from git repository located at `o.localPath`.
- * @param {Object} o Options map.
- * @param {String} o.localPath Path to git repository on hard drive.
- * @param {Number} o.verbosity=0 Level of verbosity.
+ * Routine tagLocalRetrive() returns tag of label HEAD ( current commit ) from git repository located at `o.localPath`.
+ *
+ * @example
+ * // if script is run in git repository on branch 'master'
+ * let tag = _.git.tagLocalRetrive
+ * ({
+ *   localPath : _.path.current(),
+ *   detailing : 0,
+ * });
+ * console.log( tag );
+ * // log : 'master'
+ *
+ * @example
+ * // if script is run in git repository on branch 'master'
+ * let tag = _.git.tagLocalRetrive
+ * ({
+ *   localPath : _.path.current(),
+ *   detailing : 1,
+ * });
+ * console.log( tag );
+ * // log :
+ * // {
+ * //   tag : 'master',
+ * //   isTag : false,
+ * //   isBranch : true,
+ * // }
+ *
+ * @param { Object } o - Options map.
+ * @param { String } o.localPath - Path to git repository on hard drive.
+ * @param { Number } o.verbosity - Level of verbosity. Default is 0.
+ * @param { BoolLike } o.detailing - If {-o.detailing-} is true, result is map with tag description.
+ * @returns { String|Map|Boolean } - Returns name of the tag or false if {-o.localPath-} is not a git repository.
+ * If {-o.detailing-} is true, routine returns map with tag description.
  * @function tagLocalRetrive
  * @namespace wTools.git
  * @module Tools/mid/GitTools
