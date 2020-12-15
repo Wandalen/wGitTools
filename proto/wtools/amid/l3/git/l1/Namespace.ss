@@ -318,7 +318,7 @@ function tagLocalChange( o )
     verbosity : o.verbosity
   });
 
-  if( !localTag )
+  if( localTag === false )
   return false;
 
   if( localTag === o.tag )
@@ -427,12 +427,12 @@ function tagLocalRetrive( o )
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
   if( !_.git.isRepository({ localPath : o.localPath, verbosity : o.verbosity }) )
-  return '';
+  return false;
 
   let gitPath = path.join( o.localPath, '.git' );
 
   if( !localProvider.fileExists( gitPath ) )
-  return '';
+  return false;
 
   let currentTag = localProvider.fileRead( path.join( gitPath, 'HEAD' ) );
   let r = /^ref: refs\/heads\/(.+)\s*$/;
@@ -449,8 +449,9 @@ function tagLocalRetrive( o )
     });
 
     if( !tag.length )
-    return '';
-    currentTag = tag[ 0 ];
+    currentTag = '';
+    else
+    currentTag = _.strIs( tag ) ? tag : tag[ 0 ];
   }
   else
   {
@@ -461,7 +462,7 @@ function tagLocalRetrive( o )
   {
     let result = Object.create( null );
     result.tag = currentTag;
-    result.isTag = !found;
+    result.isTag = !found && !!currentTag;
     result.isBranch = !!found;
 
     return result;
