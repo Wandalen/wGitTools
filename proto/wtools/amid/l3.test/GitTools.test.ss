@@ -469,7 +469,122 @@ function tagLocalChange( test )
   {
     test.close( 'with local changes' );
     return null;
-  })
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'repository, no branches excluding master, switch to initial commit using tag';
+    _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      sync : 1,
+      tag : 'v0.0.0',
+      description : 'v0.0.0',
+    });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'file.txt' ), 'new data' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalChange
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v0.0.0',
+    });
+
+    test.identical( got, true );
+    return null;
+  });
+  a.shell( 'git branch' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, '(HEAD detached at v0.0.0)' ), 1 );
+    test.identical( _.strCount( op.output, 'master' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'repository, no branches excluding master, switch to initial commit using tag and switch back';
+    _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      sync : 1,
+      tag : 'v0.0.0',
+      description : 'v0.0.0',
+    });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'file.txt' ), 'new data' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' );
+
+  a.ready.then( () =>
+  {
+    _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      sync : 1,
+      tag : 'v0.0.1',
+      description : 'v0.0.1',
+    });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalChange
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v0.0.0',
+    });
+
+    test.identical( got, true );
+    return null;
+  });
+  a.shell( 'git branch' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, '(HEAD detached at v0.0.0)' ), 1 );
+    test.identical( _.strCount( op.output, 'master' ), 1 );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalChange
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v0.0.1',
+    });
+
+    test.identical( got, true );
+    return null;
+  });
+  a.shell( 'git branch' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, '(HEAD detached at v0.0.1)' ), 1 );
+    test.identical( _.strCount( op.output, 'master' ), 1 );
+    return null;
+  });
 
   /* - */
 
