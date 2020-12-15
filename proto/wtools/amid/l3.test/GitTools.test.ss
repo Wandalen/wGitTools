@@ -9209,6 +9209,85 @@ function repositoryVersionToTagWithOptionRemote( test )
     return null;
   });
 
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'version - hash of commit, define remote path';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : 'b6e306fd904c4aee13e104f4132ca70bb4f97fa6',
+      local : 0,
+      remote : 1,
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+    });
+
+    test.identical( got, 'v0.0.99' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'version - hash of tag, define remote path';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : 'd6f04471d8e33c5019343a791a635c205b500764',
+      local : 0,
+      remote : 1,
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+    });
+
+    test.identical( got, 'v0.0.99' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'version - last commit in branch, define remote path';
+    return null;
+  });
+
+  var commitHash;
+  a.ready.then( () =>
+  {
+    commitHash = a.fileProvider.fileRead( a.abs( '.git/refs/heads/master' ) );
+    commitHash = commitHash.trim();
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : commitHash,
+      local : 0,
+      remote : 1,
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+    });
+    got = _.arrayAs( got );
+
+    test.true( _.longHas( got, 'master' ) );
+    return null;
+  });
+
+
   /* - */
 
   return a.ready;
@@ -9229,7 +9308,111 @@ function repositoryVersionToTagWithOptionRemote( test )
   }
 }
 
-repositoryVersionToTagWithOptionRemote.timeOut = 15000;
+repositoryVersionToTagWithOptionRemote.timeOut = 30000;
+
+//
+
+function repositoryVersionToTagWithOptionsRemoteAndLocal( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'version - hash of commit';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : 'b6e306fd904c4aee13e104f4132ca70bb4f97fa6',
+      local : 1,
+      remote : 1,
+    });
+
+    test.identical( got, 'v0.0.99' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'version - hash of tag';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : 'd6f04471d8e33c5019343a791a635c205b500764',
+      local : 1,
+      remote : 1,
+    });
+
+    test.identical( got, 'v0.0.99' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'version - last commit in branch';
+    return null;
+  });
+
+  var commitHash;
+  a.ready.then( () =>
+  {
+    commitHash = a.fileProvider.fileRead( a.abs( '.git/refs/heads/master' ) );
+    commitHash = commitHash.trim();
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.repositoryVersionToTag
+    ({
+      localPath : a.abs( '.' ),
+      version : commitHash,
+      local : 1,
+      remote : 1,
+    });
+    got = _.arrayAs( got );
+
+    test.true( _.longHas( got, 'master' ) );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.fileProvider.dirMake( a.abs( '.' ) );
+      return null;
+    });
+
+    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git ./' );
+    return a.ready;
+  }
+}
+
+repositoryVersionToTagWithOptionsRemoteAndLocal.timeOut = 15000;
 
 //
 
@@ -18220,6 +18403,7 @@ var Proto =
 
     repositoryVersionToTagWithOptionLocal,
     repositoryVersionToTagWithOptionRemote,
+    repositoryVersionToTagWithOptionsRemoteAndLocal,
 
     hasFiles,
     hasRemote,
