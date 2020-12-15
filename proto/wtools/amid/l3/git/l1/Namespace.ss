@@ -304,6 +304,43 @@ defaults.insidePath = null;
 // version
 // --
 
+/**
+ * Routine tagLocalChange() switches HEAD to defined tag {-o.tag-} in git repository located at {-o.localPath-}.
+ *
+ * @example
+ * // if script is run in git repository with branch 'test'
+ * let tag = _.git.tagLocalRetrive
+ * ({
+ *   localPath : _.path.current(),
+ * });
+ * console.log( tag );
+ * // log : 'master'
+ *
+ * _.git.tagLocalChange
+ * ({
+ *   localPath : _.path.current(),
+ *   tag : 'test',
+ * });
+ * let tag = _.git.tagLocalRetrive
+ * ({
+ *   localPath : _.path.current(),
+ * });
+ * console.log( tag );
+ * // log : 'test'
+ *
+ * @param { MapLike } o - Options map.
+ * @param { String } o.localPath - Path to git repository on hard drive.
+ * @param { String } o.tag - Tag to switch on.
+ * @param { Number } o.verbosity - Level of verbosity. Default is 0.
+ * @returns { Boolean } - Returns true if HEAD switched to tag {-o.tag-}, otherwise, returns false.
+ * @function tagLocalChange
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If options map {-o-} has extra options.
+ * @throws { Error } If {-o.localPath-} is not a String with defined length.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
+ */
+
 function tagLocalChange( o )
 {
   if( !_.mapIs( o ) )
@@ -354,58 +391,8 @@ defaults.verbosity = 0;
 
 //
 
-function versionLocalChange( o )
-{
-  if( !_.mapIs( o ) )
-  o = { localPath : o };
-
-  _.routineOptions( versionLocalChange, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
-
-  let localVersion = _.git.versionLocalRetrive
-  ({
-    localPath : o.localPath,
-    verbosity : o.verbosity
-  });
-
-  if( !localVersion )
-  return false;
-
-  if( localVersion === o.version )
-  return true;
-
-  let start = _.process.starter
-  ({
-    verbosity : o.verbosity - 1,
-    sync : 1,
-    deasync : 0,
-    outputCollecting : 1,
-    currentPath : o.localPath,
-  });
-
-  let result = start( 'git status' );
-  let localChanges = _.strHas( result.output, 'Changes to be committed' );
-
-  if( localChanges )
-  start( 'git stash' );
-
-  start( 'git checkout ' + o.version );
-
-  if( localChanges )
-  start( 'git pop' );
-
-  return true;
-}
-
-var defaults = versionLocalChange.defaults = Object.create( null );
-defaults.localPath = null;
-defaults.version = null
-defaults.verbosity = 0;
-
-//
-
 /**
- * Routine tagLocalRetrive() returns tag of label HEAD ( current commit ) from git repository located at `o.localPath`.
+ * Routine tagLocalRetrive() returns tag of label HEAD ( current commit ) from git repository located at {-o.localPath-}.
  *
  * @example
  * // if script is run in git repository on branch 'master'
@@ -432,13 +419,16 @@ defaults.verbosity = 0;
  * //   isBranch : true,
  * // }
  *
- * @param { Object } o - Options map.
+ * @param { MapLike } o - Options map.
  * @param { String } o.localPath - Path to git repository on hard drive.
  * @param { Number } o.verbosity - Level of verbosity. Default is 0.
  * @param { BoolLike } o.detailing - If {-o.detailing-} is true, result is map with tag description.
  * @returns { String|Map|Boolean } - Returns name of the tag or false if {-o.localPath-} is not a git repository.
  * If {-o.detailing-} is true, routine returns map with tag description.
  * @function tagLocalRetrive
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If options map {-o-} has extra options.
+ * @throws { Error } If {-o.localPath-} is not a String with defined length.
  * @namespace wTools.git
  * @module Tools/mid/GitTools
  */
@@ -504,6 +494,56 @@ var defaults = tagLocalRetrive.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.detailing = 0;
+
+//
+
+function versionLocalChange( o )
+{
+  if( !_.mapIs( o ) )
+  o = { localPath : o };
+
+  _.routineOptions( versionLocalChange, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+
+  let localVersion = _.git.versionLocalRetrive
+  ({
+    localPath : o.localPath,
+    verbosity : o.verbosity
+  });
+
+  if( !localVersion )
+  return false;
+
+  if( localVersion === o.version )
+  return true;
+
+  let start = _.process.starter
+  ({
+    verbosity : o.verbosity - 1,
+    sync : 1,
+    deasync : 0,
+    outputCollecting : 1,
+    currentPath : o.localPath,
+  });
+
+  let result = start( 'git status' );
+  let localChanges = _.strHas( result.output, 'Changes to be committed' );
+
+  if( localChanges )
+  start( 'git stash' );
+
+  start( 'git checkout ' + o.version );
+
+  if( localChanges )
+  start( 'git pop' );
+
+  return true;
+}
+
+var defaults = versionLocalChange.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.version = null
+defaults.verbosity = 0;
 
 //
 
@@ -5007,11 +5047,14 @@ let Extension =
   insideRepository,
   localPathFromInside,
 
-  // version
+  // tag
 
   tagLocalChange,
-  versionLocalChange,
   tagLocalRetrive,
+
+  // version
+
+  versionLocalChange,
   versionLocalRetrive,
   versionRemoteLatestRetrive,
   versionRemoteCurrentRetrive,
