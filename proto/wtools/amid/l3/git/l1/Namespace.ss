@@ -354,6 +354,56 @@ defaults.verbosity = 0;
 
 //
 
+function versionLocalChange( o )
+{
+  if( !_.mapIs( o ) )
+  o = { localPath : o };
+
+  _.routineOptions( versionLocalChange, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+
+  let localVersion = _.git.versionLocalRetrive
+  ({
+    localPath : o.localPath,
+    verbosity : o.verbosity
+  });
+
+  if( !localVersion )
+  return false;
+
+  if( localVersion === o.version )
+  return true;
+
+  let start = _.process.starter
+  ({
+    verbosity : o.verbosity - 1,
+    sync : 1,
+    deasync : 0,
+    outputCollecting : 1,
+    currentPath : o.localPath,
+  });
+
+  let result = start( 'git status' );
+  let localChanges = _.strHas( result.output, 'Changes to be committed' );
+
+  if( localChanges )
+  start( 'git stash' );
+
+  start( 'git checkout ' + o.version );
+
+  if( localChanges )
+  start( 'git pop' );
+
+  return true;
+}
+
+var defaults = versionLocalChange.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.version = null
+defaults.verbosity = 0;
+
+//
+
 /**
  * @summary Returns hash of latest commit from git repository located at `o.localPath`.
  * @param {Object} o Options map.
@@ -370,7 +420,7 @@ function tagLocalRetrive( o )
   let path = localProvider.path;
 
   if( !_.mapIs( o ) )
-  o = { localPath : o }
+  o = { localPath : o };
 
   _.routineOptions( tagLocalRetrive, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
@@ -388,15 +438,64 @@ function tagLocalRetrive( o )
   let r = /^ref: refs\/heads\/(.+)\s*$/;
 
   let found = r.exec( currentTag );
-  if( found )
-  currentTag = found[ 1 ];
+  if( !found )
+  return '';
 
-  currentTag = currentTag.trim() || null;
+  currentTag = .trim() || null;
 
   if( o.detailing )
   {
     let result = Object.create( null );
-    result.version = currentTag;
+    result.tag = currentTag;
+    result.isHash = !found;
+    result.isBranch = true;
+
+    return result;
+  }
+
+  return currentTag;
+}
+
+var defaults = tagLocalRetrive.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.verbosity = 0;
+defaults.detailing = 0;
+
+//
+
+function versionLocalRetrive( o )
+{
+  let localProvider = _.fileProvider;
+  let path = localProvider.path;
+
+  if( !_.mapIs( o ) )
+  o = { localPath : o };
+
+  _.routineOptions( versionLocalRetrive, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strIs( o.localPath ), 'Expects local path' );
+
+  if( !_.git.isRepository({ localPath : o.localPath, verbosity : o.verbosity }) )
+  return '';
+
+  let gitPath = path.join( o.localPath, '.git' );
+
+  if( !localProvider.fileExists( gitPath ) )
+  return '';
+
+  let currentVersion = localProvider.fileRead( path.join( gitPath, 'HEAD' ) );
+  let r = /^ref: refs\/heads\/(.+)\s*$/;
+
+  let found = r.exec( currentVersion );
+  if( found )
+  currentVersion = found[ 1 ];
+
+  currentVersion = currentVersion.trim() || null;
+
+  if( o.detailing )
+  {
+    let result = Object.create( null );
+    result.version = currentVersion;
     result.isHash = false;
     result.isBranch = false;
 
@@ -408,10 +507,10 @@ function tagLocalRetrive( o )
     return result;
   }
 
-  return currentTag;
+  return currentVersion;
 }
 
-var defaults = tagLocalRetrive.defaults = Object.create( null );
+var defaults = versionLocalRetrive.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.detailing = 0;
@@ -4860,7 +4959,9 @@ let Extension =
   // version
 
   tagLocalChange,
+  versionLocalChange,
   tagLocalRetrive,
+  versionLocalRetrive,
   versionRemoteLatestRetrive,
   versionRemoteCurrentRetrive,
   versionIsCommitHash,
