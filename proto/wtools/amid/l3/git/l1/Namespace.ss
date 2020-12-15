@@ -441,7 +441,7 @@ function tagLocalRetrive( o )
   if( !found )
   return '';
 
-  currentTag = .trim() || null;
+  currentTag = found[ 1 ].trim();
 
   if( o.detailing )
   {
