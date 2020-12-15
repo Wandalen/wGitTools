@@ -638,6 +638,342 @@ function tagLocalChange( test )
 
 //
 
+function tagLocalRetrive( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'not a repository';
+    a.fileProvider.dirMake( a.abs( '.' ) );
+    a.fileProvider.fileWrite( a.abs( 'file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalRetrive
+    ({
+      localPath : a.abs( '.' ),
+    });
+
+    test.identical( got, false );
+    return null;
+  });
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.open( 'default options' );
+    return null;
+  });
+
+  begin().then( () =>
+  {
+    test.case = 'repository, on branch master';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalRetrive
+    ({
+      localPath : a.abs( '.' ),
+    });
+
+    test.identical( got, 'master' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'repository, on another branch';
+    return null;
+  });
+
+  a.shell( 'git checkout -b second' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalRetrive
+    ({
+      localPath : a.abs( '.' ),
+    });
+
+    test.identical( got, 'second' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'repository, in detached mode, detached to tag';
+    _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      sync : 1,
+      tag : 'v0.0.0',
+      description : 'v0.0.0',
+    });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'file.txt' ), 'new data' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' );
+  a.shell( 'git checkout v0.0.0' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalRetrive
+    ({
+      localPath : a.abs( '.' ),
+    });
+
+    test.identical( got, 'v0.0.0' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'repository, in detached mode, detached to commit';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'file.txt' ), 'new data' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' );
+  a.shell( 'git checkout HEAD~' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalRetrive
+    ({
+      localPath : a.abs( '.' ),
+    });
+
+    test.identical( got, '' );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.close( 'default options' );
+    return null;
+  });
+
+  /* - */
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.open( 'option detailing enabled' );
+    return null;
+  });
+
+  begin().then( () =>
+  {
+    test.case = 'repository, on branch master';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalRetrive
+    ({
+      localPath : a.abs( '.' ),
+      detailing : 1,
+    });
+
+    var exp =
+    {
+      tag : 'master',
+      isTag : false,
+      isBranch : true,
+    };
+    test.identical( got, exp );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'repository, on another branch';
+    return null;
+  });
+
+  a.shell( 'git checkout -b second' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalRetrive
+    ({
+      localPath : a.abs( '.' ),
+      detailing : 1,
+    });
+
+    var exp =
+    {
+      tag : 'second',
+      isTag : false,
+      isBranch : true,
+    };
+    test.identical( got, exp );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'repository, in detached mode, detached to tag';
+    _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      sync : 1,
+      tag : 'v0.0.0',
+      description : 'v0.0.0',
+    });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'file.txt' ), 'new data' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' );
+  a.shell( 'git checkout v0.0.0' );
+
+  a.ready.then( () =>
+  {
+    debugger;
+    var got = _.git.tagLocalRetrive
+    ({
+      localPath : a.abs( '.' ),
+      detailing : 1,
+    });
+
+    var exp =
+    {
+      tag : 'v0.0.0',
+      isTag : true,
+      isBranch : false,
+    };
+    test.identical( got, exp );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'repository, in detached mode, detached to commit';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'file.txt' ), 'new data' );
+    return null;
+  });
+
+  a.shell( 'git commit -am second' );
+  a.shell( 'git checkout HEAD~' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.tagLocalRetrive
+    ({
+      localPath : a.abs( '.' ),
+      detailing : 1,
+    });
+
+    var exp =
+    {
+      tag : '',
+      isTag : false,
+      isBranch : false,
+    };
+    test.identical( got, exp );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.close( 'option detailing enabled' );
+    return null;
+  });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    a.ready.then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.tagLocalRetrive() );
+
+      test.case = 'extra arguments';
+      test.shouldThrowErrorSync( () => _.git.tagLocalRetrive( { localPath : a.abs( '.' ) }, {} ) );
+
+      test.case = 'wrong type of localPath';
+      test.shouldThrowErrorSync( () => _.git.tagLocalRetrive({ localPath : 1 }) );
+
+      test.case = 'unknown option in options map o';
+      test.shouldThrowErrorSync( () => _.git.tagLocalRetrive({ localPath : 1, unknown : 1 }) );
+
+      return null;
+    });
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ) );
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( '.' ) );
+      return null;
+    });
+    a.shell( `git init` );
+    a.ready.then( () =>
+    {
+      a.fileProvider.fileWrite( a.abs( 'file.txt' ), 'file.txt' );
+      return null;
+    });
+    a.shell( 'git add .' );
+    a.shell( 'git commit -m init' );
+    return a.ready;
+  }
+}
+
+//
+
 function versionsRemoteRetrive( test )
 {
   let context = this;
@@ -18378,6 +18714,7 @@ var Proto =
     pathParse, /* qqq : check tests */
 
     tagLocalChange,
+    tagLocalRetrive,
 
     versionsRemoteRetrive,
     versionsPull,
