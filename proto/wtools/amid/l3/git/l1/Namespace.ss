@@ -2713,7 +2713,7 @@ function repositoryVersionToTag( o )
   if( o.remote )
   ready.then( checkRemote );
 
-  ready.catch( ( err ) => /* Dmytro : this is extra branch, because any of started process does not throw exit code */
+  ready.catch( ( err ) =>
   {
     _.errAttend( err );
     throw _.err( 'Failed to obtain tags and heads from remote repository.\n', err );
@@ -2731,6 +2731,7 @@ function repositoryVersionToTag( o )
 
   function checkLocal()
   {
+    // return start( `git show-ref --heads --tags` )
     return start( `git show-ref --dereference --heads --tags` )
     .then( hasTag )
   }
@@ -2741,7 +2742,8 @@ function repositoryVersionToTag( o )
     return result;
 
     let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
-    return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    // return start( `git ls-remote --tags --heads ${remotePath}` )
+    return start( `git ls-remote --tags --heads ${remotePath}` )
     .then( hasTag )
   }
 
