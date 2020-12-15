@@ -439,16 +439,30 @@ function tagLocalRetrive( o )
 
   let found = r.exec( currentTag );
   if( !found )
-  return '';
+  {
+    let tag = _.git.repositoryVersionToTag
+    ({
+      localPath : o.localPath,
+      version : currentTag.trim(),
+      local : 1,
+      remote : 0,
+    });
 
-  currentTag = found[ 1 ].trim();
+    if( !tag.length )
+    return '';
+    currentTag = tag[ 0 ];
+  }
+  else
+  {
+    currentTag = found[ 1 ].trim();
+  }
 
   if( o.detailing )
   {
     let result = Object.create( null );
     result.tag = currentTag;
-    result.isHash = !found;
-    result.isBranch = true;
+    result.isTag = !found;
+    result.isBranch = !!found;
 
     return result;
   }
@@ -2679,7 +2693,7 @@ function repositoryVersionToTag( o )
     sync : 0,
     deasync : 0,
     outputCollecting : 1,
-    mode : 'spawn',
+    mode : 'shell',
     currentPath : o.localPath,
     throwingExitCode : 0,
     inputMirroring : 0,
@@ -2699,7 +2713,7 @@ function repositoryVersionToTag( o )
   if( o.remote )
   ready.then( checkRemote );
 
-  ready.catch( ( err ) =>
+  ready.catch( ( err ) => /* Dmytro : this is extra branch, because any of started process does not throw exit code */
   {
     _.errAttend( err );
     throw _.err( 'Failed to obtain tags and heads from remote repository.\n', err );
@@ -2717,7 +2731,7 @@ function repositoryVersionToTag( o )
 
   function checkLocal()
   {
-    return start( `git show-ref --heads --tags` )
+    return start( `git show-ref --dereference --heads --tags` )
     .then( hasTag )
   }
 
@@ -2735,8 +2749,9 @@ function repositoryVersionToTag( o )
   {
     let headsPrefix = 'refs/heads/';
     let tagsPrefix = 'refs/tags/';
+    let tagsPostfix = '^{}';
 
-    let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' })
+    let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
     refs = refs.map( ( src ) => _.strSplitNonPreserving({ src, delimeter : /\s+/, stripping : 1 }) );
 
     let result = [];
@@ -2749,7 +2764,11 @@ function repositoryVersionToTag( o )
       tag = _.strRemoveBegin( tag, headsPrefix )
       else if( _.strBegins( tag, tagsPrefix ) )
       tag = _.strRemoveBegin( tag, tagsPrefix )
-      result.push( tag );
+
+      if( _.strEnds( tag, tagsPostfix ) )
+      tag = _.strRemoveEnd( tag, tagsPostfix );
+
+      _.arrayAppendOnce( result, tag );
     }
 
     if( result.length === 1 )
@@ -2767,7 +2786,7 @@ repositoryVersionToTag.defaults =
   local : 1,
   remote : 1,
   sync : 1
-}
+};
 
 //
 
