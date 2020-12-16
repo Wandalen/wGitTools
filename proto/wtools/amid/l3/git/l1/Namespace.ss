@@ -4781,9 +4781,9 @@ function pull( o )
     outputCollecting : 1,
     mode : 'shell',
     currentPath : o.localPath,
-    throwingExitCode : 0,
-    inputMirroring : 0,
-    outputPiping : 0,
+    throwingExitCode : o.throwing,
+    inputMirroring : 1,
+    outputPiping : 1,
     ready,
   });
 
@@ -4802,6 +4802,7 @@ pull.defaults =
   localPath : null,
   dry : 0,
   sync : 1,
+  throwing : 0,
 };
 
 //
