@@ -13577,9 +13577,9 @@ function repositoryHasTag( test )
 
   /*  */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
+    test.case = 'tag - master, local - 1, remote - 1';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13591,6 +13591,7 @@ function repositoryHasTag( test )
     })
     test.identical( got, true );
 
+    test.case = 'tag - master, local - 0, remote - 1';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13602,6 +13603,7 @@ function repositoryHasTag( test )
     })
     test.identical( got, true );
 
+    test.case = 'tag - master, not exists, local - 1, remote - 0';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13613,6 +13615,9 @@ function repositoryHasTag( test )
     })
     test.identical( got, true );
 
+    /* */
+
+    test.case = 'tag - abc, not exists, local - 1, remote - 1';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13624,6 +13629,7 @@ function repositoryHasTag( test )
     })
     test.identical( got, false );
 
+    test.case = 'tag - abc, not exists, local - 0, remote - 1';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13635,6 +13641,7 @@ function repositoryHasTag( test )
     })
     test.identical( got, false );
 
+    test.case = 'tag - abc, local - 1, remote - 0';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13646,6 +13653,8 @@ function repositoryHasTag( test )
     })
     test.identical( got, false );
 
+    /* */
+    test.case = 'tag - 0.0.37, exists, local - 1, remote - 1';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13657,6 +13666,7 @@ function repositoryHasTag( test )
     })
     test.identical( got, true );
 
+    test.case = 'tag - 0.0.37, exists, local - 0, remote - 1';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13668,6 +13678,7 @@ function repositoryHasTag( test )
     })
     test.identical( got, true );
 
+    test.case = 'tag - 0.0.37, exists, local - 1, remote - 0';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13679,6 +13690,9 @@ function repositoryHasTag( test )
     })
     test.identical( got, true );
 
+    /* */
+
+    test.case = 'tag - hash, not exists, local - 1, remote - 1';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13690,6 +13704,7 @@ function repositoryHasTag( test )
     })
     test.identical( got, false );
 
+    test.case = 'tag - hash, not exists, local - 0, remote - 1';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13701,6 +13716,7 @@ function repositoryHasTag( test )
     })
     test.identical( got, false );
 
+    test.case = 'tag - hash, not exists, local - 1, remote - 0';
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
@@ -13712,91 +13728,106 @@ function repositoryHasTag( test )
     })
     test.identical( got, false );
 
-    test.description = 'should throw error if localPath does not contain git repo'
-    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasTag
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
-        tag : 'master',
-        local : 1,
-        remote : 1,
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasTag
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
-        tag : 'master',
-        local : 0,
-        remote : 1,
-        sync : 1
-      })
-    })
+    /* - */
 
     if( !Config.debug )
     return null;
 
+    test.case = 'without arguments';
+    test.shouldThrowErrorSync( () => _.git.repositoryHasTag() );
 
+    test.case = 'extra arguments';
     test.shouldThrowErrorSync( () =>
     {
-      _.git.repositoryHasTag
+      let o =
+      {
+        tag : 'master',
+        localPath : a.abs( 'wModuleForTesting1' ),
+      };
+      return _.git.repositoryHasTag( o, {} );
+    });
+
+    test.case = 'options map o has unknown option';
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryHasTag
+      ({
+        tag : 'master',
+        localPath : a.abs( 'wModuleForTesting1' ),
+        unknown : 1,
+      });
+    });
+
+    test.case = 'wrong type of o.localPath';
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryHasTag
+      ({
+        tag : 'master',
+        localPath : 1,
+      });
+    });
+
+    test.case = 'wrong type of o.tag';
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryHasTag
+      ({
+        tag : 1,
+        localPath : a.abs( 'wModuleForTesting1' ),
+      });
+    });
+
+    test.case = 'wrong type of o.remotePath';
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryHasTag
+      ({
+        tag : 'master',
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : 1,
+      });
+    });
+
+    test.case = 'directory is not a git repository'
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryHasTag
+      ({
+        localPath : a.abs( '.' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        tag : 'master',
+      });
+    });
+
+    test.case = 'local - 0 and remote - 0';
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryHasTag
       ({
         localPath : a.abs( 'wModuleForTesting1' ),
         remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
         tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
         local : 0,
         remote : 0,
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasTag
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
-        tag : 'master',
-        local : 0,
-        remote : 0,
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasTag
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
-        tag : '0.0.37',
-        local : 0,
-        remote : 0,
-        sync : 1
-      })
-    })
+      });
+    });
 
     return null;
   })
 
+  /* - */
+
   return a.ready;
 
-  /*  */
+  /* */
 
   function begin()
   {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ))
-    a.shell( `git clone ${ 'https://github.com/Wandalen/wModuleForTesting1.git' }` )
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ) );
+    a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
     return a.ready;
   }
-
 }
 
 repositoryHasTag.timeOut = 60000;

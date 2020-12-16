@@ -2547,7 +2547,7 @@ function repositoryHasTag( o )
     sync : 0,
     deasync : 0,
     outputCollecting : 1,
-    mode : 'spawn',
+    mode : 'shell',
     currentPath : o.localPath,
     throwingExitCode : 0,
     inputMirroring : 0,
@@ -2557,7 +2557,7 @@ function repositoryHasTag( o )
   ready.then( () =>
   {
     if( !self.isRepository({ localPath : o.localPath }) )
-    throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
+    throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` );
     return null;
   })
 
@@ -2604,7 +2604,7 @@ function repositoryHasTag( o )
     let possibleTag = `refs/tags/${o.tag}`;
     let possibleHead = `refs/heads/${o.tag}`;
 
-    let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' })
+    let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
     refs = refs.map( ( src ) => _.strSplitNonPreserving({ src, delimeter : /\s+/, stripping : 1 }) );
 
     for( let i = 0, l = refs.length; i < l; i++ )
