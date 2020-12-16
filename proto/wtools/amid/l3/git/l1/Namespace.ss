@@ -4825,13 +4825,15 @@ function push( o )
     outputCollecting : 1,
     mode : 'shell',
     currentPath : o.localPath,
-    throwingExitCode : 0,
-    inputMirroring : 0,
-    outputPiping : 0,
+    throwingExitCode : o.throwing,
+    inputMirroring : 1,
+    outputPiping : 1,
     ready,
   });
 
-  start( `git push -u origin master` );
+  start( `git push -u origin --all` );
+  if( o.withTags )
+  start( `git push --tags --force` );
 
   if( o.sync )
   {
@@ -4844,8 +4846,10 @@ function push( o )
 push.defaults =
 {
   localPath : null,
+  withTags : 0,
   dry : 0,
   sync : 1,
+  throwing : 0,
 };
 
 //
