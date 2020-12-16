@@ -1018,101 +1018,6 @@ defaults.verbosity = 0;
 
 //
 
-function isRepository( o )
-{
-  let path = _.uri;
-
-  _.routineOptions( isRepository, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
-
-  let ready = _.Consequence.Try( () =>
-  {
-    if( o.localPath === null )
-    return false;
-    return _.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) );
-  })
-
-  if( o.remotePath === null )
-  return end();
-
-  let remoteParsed = o.remotePath;
-
-  ready.then( ( exists ) =>
-  {
-    if( !exists && o.localPath )
-    return false;
-    if( path.isGlobal( o.remotePath ) )
-    remoteParsed = this.pathParse( o.remotePath ).remoteVcsPath;
-    return remoteIsRepository( remoteParsed );
-  })
-
-  ready.then( ( isRepo ) =>
-  {
-    if( !isRepo || o.localPath === null )
-    return isRepo;
-
-    return localHasRightOrigin();
-  })
-
-  return end();
-
-  /* */
-
-  function remoteIsRepository()
-  {
-    let ready = _.Consequence.Try( () =>
-    {
-      return _.process.start
-      ({
-        execPath : 'git ls-remote ' + remoteParsed,
-        throwingExitCode : 0,
-        outputPiping : 0,
-        stdio : 'ignore',
-        sync : o.sync,
-        deasync : 0,
-        inputMirroring : 1,
-        outputCollecting : 0
-      });
-    })
-    ready.then( ( got ) =>
-    {
-      return got.exitCode === 0;
-    });
-
-    if( o.sync )
-    return ready.syncMaybe();
-    return ready;
-  }
-
-  /*  */
-
-  function localHasRightOrigin()
-  {
-    let config = configRead( o.localPath );
-    let originPath = config[ 'remote "origin"' ].url
-    if( !path.isGlobal( originPath ) )
-    originPath = path.normalize( originPath )
-    return originPath === remoteParsed;
-  }
-
-  /*  */
-
-  function end()
-  {
-    if( o.sync )
-    return ready.syncMaybe();
-    return ready;
-  }
-}
-
-var defaults = isRepository.defaults = Object.create( null );
-defaults.localPath = null;
-defaults.remotePath = null;
-defaults.sync = 1;
-defaults.verbosity = 0;
-
-//
-
 /**
  * @summary Returns true if path `o.localPath` contains a git repository that was cloned from remote `o.remotePath`.
  * @param {Object} o Options map.
@@ -1184,6 +1089,103 @@ function hasRemote( o )
 }
 
 var defaults = hasRemote.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.remotePath = null;
+defaults.sync = 1;
+defaults.verbosity = 0;
+
+//
+
+function isRepository( o )
+{
+  let self = this;
+  let path = _.uri;
+
+  _.routineOptions( isRepository, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+
+  let ready = _.Consequence.Try( () =>
+  {
+    if( o.localPath === null )
+    return false;
+    return _.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) );
+  });
+
+  if( o.remotePath === null )
+  return end();
+
+  let remoteParsed = o.remotePath;
+
+  ready.then( ( exists ) =>
+  {
+    if( !exists && o.localPath )
+    return false;
+    if( path.isGlobal( o.remotePath ) )
+    remoteParsed = self.pathParse( o.remotePath ).remoteVcsPath;
+    return remoteIsRepository( remoteParsed );
+  });
+
+  ready.then( ( isRepo ) =>
+  {
+    if( !isRepo || o.localPath === null )
+    return isRepo;
+
+    return localHasRightOrigin();
+  })
+
+  return end();
+
+  /* */
+
+  function remoteIsRepository()
+  {
+    let ready = _.Consequence.Try( () =>
+    {
+      return _.process.start
+      ({
+        execPath : 'git ls-remote ' + remoteParsed,
+        mode : 'shell',
+        throwingExitCode : 0,
+        outputPiping : 0,
+        stdio : 'ignore',
+        sync : o.sync,
+        deasync : 0,
+        inputMirroring : 1,
+        outputCollecting : 0
+      });
+    })
+    ready.then( ( got ) =>
+    {
+      return got.exitCode === 0;
+    });
+
+    if( o.sync )
+    return ready.syncMaybe();
+    return ready;
+  }
+
+  /* */
+
+  function localHasRightOrigin()
+  {
+    let config = configRead( o.localPath );
+    let originPath = config[ 'remote "origin"' ].url
+    if( !path.isGlobal( originPath ) )
+    originPath = path.normalize( originPath )
+    return originPath === remoteParsed;
+  }
+
+  /* */
+
+  function end()
+  {
+    if( o.sync )
+    return ready.syncMaybe();
+    return ready;
+  }
+}
+
+var defaults = isRepository.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
 defaults.sync = 1;
@@ -5068,8 +5070,8 @@ let Extension =
 
   isUpToDate,
   hasFiles,
-  isRepository,
   hasRemote,
+  isRepository,
   isHead,
   sureHasOrigin,
 
