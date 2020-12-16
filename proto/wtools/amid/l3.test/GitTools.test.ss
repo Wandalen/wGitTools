@@ -14160,6 +14160,350 @@ repositoryVersionToTagWithOptionsRemoteAndLocal.timeOut = 15000;
 
 //
 
+function tagMake( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'make lightweight tag';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      light : 1,
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'make two lightweight tags in single commit';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      light : 1,
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v001',
+      light : 1,
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 3 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    test.identical( _.strCount( op.output, 'v001' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'make two lightweight tags with the same name in single commit, deleting - 1';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      light : 1,
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      light : 1,
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make tag without description';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'make two tags without description in single commit';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v001',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 3 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    test.identical( _.strCount( op.output, 'v001' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'make two tags without description, tags have the same name, deleting - 1';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make tag with description';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 000',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'make two tags with description in single commit';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 000',
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v001',
+      description : 'version 001',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 3 );
+    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
+    test.identical( _.strCount( op.output, /v001\s+version 001/ ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'make two tags with description, tags have the same name, deleting - 1';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 001',
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 000',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
+    test.identical( _.strCount( op.output, /v000\s+version 001/ ), 0 );
+    return null;
+  });
+  /* - */
+
+  if( Config.debug )
+  {
+    a.ready.then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.tagMake() );
+
+      test.case = 'extra arguments';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), tag : 'v0' };
+        return _.git.tagMake( o, o );
+      });
+
+      test.case = 'unknown option in options map o';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), tag : 'v0', unknown : 1 };
+        return _.git.tagMake( o );
+      });
+
+      test.case = 'wrong type of o.localPath';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : 1, tag : 'v0' };
+        return _.git.tagMake( o );
+      });
+
+      test.case = 'o.localPath is not a repository';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '..' ), tag : 'v0' };
+        return _.git.tagMake( o );
+      });
+
+      test.case = 'wrong type of o.tag';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), tag : 1 };
+        return _.git.tagMake( o );
+      });
+
+      test.case = 'add several tags with same name without deleting';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), tag : 'v000', light : 1, deleting : 0 };
+        _.git.tagMake( o );
+        return _.git.tagMake( o );
+      });
+
+      test.case = 'add several tags with same name without deleting';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), tag : 'v000', deleting : 0 };
+        _.git.tagMake( o );
+        return _.git.tagMake( o );
+      });
+
+      return null;
+    });
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ) );
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( '.' ) );
+      return null;
+    });
+    a.shell( `git init` );
+    a.ready.then( () =>
+    {
+      a.fileProvider.fileWrite( a.abs( 'file.txt' ), 'file.txt' );
+      return null;
+    });
+    a.shell( 'git add .' );
+    a.shell( 'git commit -m init' );
+    return a.ready;
+  }
+}
+
+//
+
 function gitHooksManager( test )
 {
   let context = this;
@@ -19246,6 +19590,7 @@ var Proto =
     repositoryVersionToTagWithOptionLocal,
     repositoryVersionToTagWithOptionRemote,
     repositoryVersionToTagWithOptionsRemoteAndLocal,
+    tagMake,
 
     // hook
 

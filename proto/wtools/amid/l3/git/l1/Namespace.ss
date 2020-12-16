@@ -708,7 +708,7 @@ function versionIsCommitHash( o )
     sync : 0,
     deasync : 0,
     outputCollecting : 1,
-    mode : 'spawn',
+    mode : 'shell',
     currentPath : o.localPath,
     throwingExitCode : 0,
     inputMirroring : 0,
@@ -721,7 +721,7 @@ function versionIsCommitHash( o )
     if( !self.isRepository({ localPath : o.localPath }) )
     throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
     return null;
-  })
+  });
 
   start( `git rev-parse --symbolic-full-name ${o.version}` )
 
@@ -730,13 +730,13 @@ function versionIsCommitHash( o )
     if( got.exitCode !== 0 || got.output && _.strHas( got.output, 'refs/' ) )
     return false;
     return true;
-  })
+  });
 
   ready.catch( ( err ) =>
   {
     _.errAttend( err );
     throw _.err( 'Failed to check if provided version is a commit hash.\n', err );
-  })
+  });
 
   if( o.sync )
   {
@@ -745,16 +745,14 @@ function versionIsCommitHash( o )
   }
 
   return ready;
-
-  /*  */
 }
 
 versionIsCommitHash.defaults =
 {
   localPath : null,
   version : null,
-  sync : 1
-}
+  sync : 1,
+};
 
 //
 
@@ -2983,6 +2981,7 @@ function tagMake( o )
 {
   let ready;
 
+  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
   _.routineOptions( tagMake, arguments );
 
   let start = _.process.starter
@@ -3050,7 +3049,7 @@ tagMake.defaults =
   light : 0,
   deleting : 1,
   sync : 1,
-}
+};
 
 // --
 // hook
