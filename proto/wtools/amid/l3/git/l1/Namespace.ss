@@ -2977,6 +2977,37 @@ exists.defaults =
 
 //
 
+/**
+ * Routine tagMake() makes tag for current commit.
+ *
+ * @example
+ * // make tag `v0.1` if script run in git repository
+ * let tag = _.git.tagMake
+ * ({
+ *   localPath : _.path.current(),
+ *   tag : 'v0.1',
+ *   description : 'version 0.1',
+ * });
+ *
+ * @param { MapLike } o - Options map.
+ * @param { String } o.localPath - Path to git repository on hard drive.
+ * @param { String } o.tag - Name of tag.
+ * @param { String } o.description - Description of tag.
+ * @param { BoolLike } o.light - Enable lightweight tags. Default is 0.
+ * @param { BoolLike } o.deleting - Enable deleting of duplicated tags. Default is 1.
+ * @param { BoolLike } o.sync - Enable synchronous execution of code. Default is 1.
+ * @returns { Consequence|MapLike } - Returns map like object with results of Process execution
+ * or Consequence that handle such Process.
+ * @function tagMake
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If options map {-o-} has extra options.
+ * @throws { Error } If {-o.localPath-} is not a String with defined length.
+ * @throws { Error } If {-o.tag-} is not a String with defined length.
+ * @throws { Error } If added two tags with identical names to single commit and {-o.deleting-} is false.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
+ */
+
 function tagMake( o )
 {
   let ready;
@@ -5092,7 +5123,7 @@ let Extension =
   repositoryTagToVersion, /* aaa : cover */ /* Dmytro : covered */
   repositoryVersionToTag, /* aaa : cover */ /* Dmytro : covered */
   exists,
-  tagMake, /* qqq : cover */
+  tagMake, /* aaa : cover */ /* Dmytro : covered */
 
   // hook
 
