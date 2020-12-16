@@ -2624,7 +2624,7 @@ repositoryHasTag.defaults =
   remote : 1,
   returnVersion : 0,
   sync : 1
-}
+};
 
 //
 
@@ -2732,7 +2732,7 @@ function repositoryTagToVersion( o )
   let self = this;
   _.routineOptions( repositoryTagToVersion, o );
   _.assert( arguments.length === 1 );
-  let o2 = _.mapExtend( null, o, { returnVersion : 1 });
+  let o2 = _.mapExtend( null, o, { returnVersion : 1 } );
   return self.repositoryHasTag( o2 );
 }
 
@@ -2744,7 +2744,7 @@ repositoryTagToVersion.defaults =
   local : 1,
   remote : 1,
   sync : 1
-}
+};
 
 //
 
@@ -5088,8 +5088,8 @@ let Extension =
 
   repositoryHasTag,
   repositoryHasVersion,
-  repositoryTagToVersion, /* qqq : cover */
-  repositoryVersionToTag, /* qqq : cover */
+  repositoryTagToVersion, /* aaa : cover */ /* Dmytro : covered */
+  repositoryVersionToTag, /* aaa : cover */ /* Dmytro : covered */
   exists,
   tagMake, /* qqq : cover */
 

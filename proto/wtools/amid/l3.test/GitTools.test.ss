@@ -9195,6 +9195,272 @@ function hasLocalChangesSpecial( test )
 
 //
 
+function repositoryTagToVersion( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  a.fileProvider.dirMake( a.abs( '.' ) )
+
+  /*  */
+
+  begin().then( () =>
+  {
+    test.case = 'tag - master, local - 1, remote - 1';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'master',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got.match( /\b[0-9A-Fa-f]{40}\b/ )[ 0 ], got );
+
+    test.case = 'tag - master, local - 0, remote - 1';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'master',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got.match( /\b[0-9A-Fa-f]{40}\b/ )[ 0 ], got );
+
+    test.case = 'tag - master, not exists, local - 1, remote - 0';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'master',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got.match( /\b[0-9A-Fa-f]{40}\b/ )[ 0 ], got );
+
+    /* */
+
+    test.case = 'tag - abc, not exists, local - 1, remote - 1';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'abc',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - abc, not exists, local - 0, remote - 1';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'abc',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - abc, local - 1, remote - 0';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'abc',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    /* */
+    test.case = 'tag - 0.0.37, exists, local - 1, remote - 1';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : '0.0.37',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, 'b75c79ceeb6602d0f5aa1f1a230d60c0aff8e3bf' );
+
+    test.case = 'tag - 0.0.37, exists, local - 0, remote - 1';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : '0.0.37',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, 'b75c79ceeb6602d0f5aa1f1a230d60c0aff8e3bf' );
+
+    test.case = 'tag - 0.0.37, exists, local - 1, remote - 0';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : '0.0.37',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, 'b75c79ceeb6602d0f5aa1f1a230d60c0aff8e3bf' );
+
+    /* */
+
+    test.case = 'tag - hash, not exists, local - 1, remote - 1';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - hash, not exists, local - 0, remote - 1';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - hash, not exists, local - 1, remote - 0';
+    var got = _.git.repositoryTagToVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    /* - */
+
+    if( !Config.debug )
+    return null;
+
+    test.case = 'without arguments';
+    test.shouldThrowErrorSync( () => _.git.repositoryTagToVersion() );
+
+    test.case = 'extra arguments';
+    test.shouldThrowErrorSync( () =>
+    {
+      let o =
+      {
+        tag : 'master',
+        localPath : a.abs( 'wModuleForTesting1' ),
+      };
+      return _.git.repositoryTagToVersion( o, {} );
+    });
+
+    test.case = 'options map o has unknown option';
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryTagToVersion
+      ({
+        tag : 'master',
+        localPath : a.abs( 'wModuleForTesting1' ),
+        unknown : 1,
+      });
+    });
+
+    test.case = 'wrong type of o.localPath';
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryTagToVersion
+      ({
+        tag : 'master',
+        localPath : 1,
+      });
+    });
+
+    test.case = 'wrong type of o.tag';
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryTagToVersion
+      ({
+        tag : 1,
+        localPath : a.abs( 'wModuleForTesting1' ),
+      });
+    });
+
+    test.case = 'wrong type of o.remotePath';
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryTagToVersion
+      ({
+        tag : 'master',
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : 1,
+      });
+    });
+
+    test.case = 'directory is not a git repository'
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryTagToVersion
+      ({
+        localPath : a.abs( '.' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        tag : 'master',
+      });
+    });
+
+    test.case = 'local - 0 and remote - 0';
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryTagToVersion
+      ({
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+        local : 0,
+        remote : 0,
+      });
+    });
+
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ) );
+    a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
+    return a.ready;
+  }
+}
+
+repositoryTagToVersion.timeOut = 60000;
+
+//
+
 function repositoryVersionToTagWithOptionLocal( test )
 {
   let context = this;
@@ -18946,6 +19212,8 @@ var Proto =
     hasRemoteChanges,
     hasChanges,
     hasLocalChangesSpecial,
+
+    repositoryTagToVersion,
 
     repositoryVersionToTagWithOptionLocal,
     repositoryVersionToTagWithOptionRemote,
