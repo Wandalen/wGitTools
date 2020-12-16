@@ -636,6 +636,8 @@ function tagLocalChange( test )
   }
 }
 
+tagLocalChange.timeOut = 10000;
+
 //
 
 function tagLocalRetrive( test )
@@ -866,7 +868,6 @@ function tagLocalRetrive( test )
 
   a.ready.then( () =>
   {
-    debugger;
     var got = _.git.tagLocalRetrive
     ({
       localPath : a.abs( '.' ),
@@ -971,6 +972,8 @@ function tagLocalRetrive( test )
     return a.ready;
   }
 }
+
+tagLocalRetrive.timeOut = 10000;
 
 //
 
@@ -1685,7 +1688,6 @@ function statusLocal( test )
       'status' : expectedStatus,
       'conflicts' : false
     }
-    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -2219,7 +2221,6 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    debugger
     test.true( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.true( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -2310,7 +2311,6 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    debugger
     test.true( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.true( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -2495,7 +2495,6 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    debugger
     test.true( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.true( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -2589,7 +2588,6 @@ function statusLocal( test )
       'conflicts' : false
 
     }
-    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -3032,7 +3030,6 @@ function statusLocal( test )
       'status' : 'List of uncommited changes in files:\n  R  README -> README_',
       'conflicts' : false
     }
-    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -3114,7 +3111,6 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    debugger
     test.true( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.true( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -3381,7 +3377,6 @@ function statusLocal( test )
       'status' : 'List of uncommited changes in files:\n  D  README',
       'conflicts' : false
     }
-    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -3464,7 +3459,6 @@ function statusLocal( test )
       'conflicts' : false
     }
     test.contains( got, expected )
-    debugger
     test.true( _.strHas( got.status, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.true( _.strHas( got.unpushed, /List of branches with unpushed commits:\n.*\* master .* \[origin\/master: ahead 1\] test/ ) )
     test.true( _.strHas( got.unpushedCommits, /\* master .* \[origin\/master: ahead 1\] test/ ) )
@@ -3639,7 +3633,6 @@ function statusLocal( test )
       'status' : 'List of unpushed:\n  [new branch]        testbranch -> ?',
       'conflicts' : false
     }
-    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -3815,7 +3808,6 @@ function statusLocal( test )
       'conflicts' : false
 
     }
-    debugger
     test.identical( got, expected )
 
     var got = _.git.statusLocal
@@ -4783,7 +4775,6 @@ function statusLocalEmptyWithOrigin( test )
   a.shell( 'git commit -m init --allow-empty' )
   .then( () =>
   {
-    debugger
     test.case = 'empty, first commit'
     var got = _.git.statusLocal
     ({
@@ -4884,7 +4875,6 @@ function statusLocalEmptyWithOrigin( test )
   .then( () =>
   {
     test.case = 'empty, new tag'
-    debugger
     var got = _.git.statusLocal
     ({
       localPath : a.abs( 'clone' ),
@@ -8574,7 +8564,6 @@ function hasChanges( test )
     a.fileProvider.fileWrite( a.abs( 'clone', 'newFile' ), a.abs( 'clone', 'newFile' ) );
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    debugger
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
     test.identical( got, true );
     return null;
@@ -9169,7 +9158,6 @@ function hasLocalChangesSpecial( test )
   // shell( 'git push --dry-run' )
   .then( () =>
   {
-    debugger
     var got = _.git.hasLocalChanges
     ({
       localPath : a.abs( 'clone' ),
@@ -11782,7 +11770,6 @@ function statusFull( test )
   begin()
   .then( () =>
   {
-    debugger
     var status = _.git.statusFull
     ({
       localPath : a.abs( 'clone' ),
@@ -11829,7 +11816,6 @@ function statusFull( test )
 
     //
 
-    debugger
     var status = _.git.statusFull
     ({
       localPath : a.abs( 'clone' ),
@@ -12964,9 +12950,7 @@ function statusEveryCheck( test )
       '  refs\\/tags\\/testtag',
       '  refs\\/tags\\/testtag2',
       '  refs\\/tags\\/testtag2\\^\\{\\}',
-    ]
-
-    debugger
+    ];
 
     _.each( expectedStatus, ( line ) =>
     {
@@ -13072,7 +13056,6 @@ function statusEveryCheck( test )
       '  refs\\/tags\\/testtag2\\^\\{\\}'
     ]
 
-    debugger
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
@@ -16549,6 +16532,8 @@ function pull( test )
   }
 }
 
+pull.timeOut = 10000;
+
 //
 
 function push( test )
@@ -16647,6 +16632,8 @@ function push( test )
     return a.ready;
   }
 }
+
+push.timeOut = 10000;
 
 //
 
@@ -17737,8 +17724,6 @@ function hookPreservingHardLinks( test )
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'a', 'dir/a' ] ) ), true );
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'b', 'dir/b' ] ) ), true );
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'c', 'dir/c' ] ) ), false );
-
-    debugger
 
     return null;
   })

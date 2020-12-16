@@ -301,7 +301,7 @@ var defaults = localPathFromInside.defaults = Object.create( null );
 defaults.insidePath = null;
 
 // --
-// version
+// tag
 // --
 
 /**
@@ -495,7 +495,9 @@ defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.detailing = 0;
 
-//
+// --
+// version
+// --
 
 function versionLocalChange( o )
 {
