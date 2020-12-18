@@ -667,7 +667,7 @@ function tagLocalChange( test )
   }
 }
 
-tagLocalChange.timeOut = 10000;
+tagLocalChange.timeOut = 20000;
 
 //
 
@@ -1004,7 +1004,7 @@ function tagLocalRetrive( test )
   }
 }
 
-tagLocalRetrive.timeOut = 10000;
+tagLocalRetrive.timeOut = 20000;
 
 //
 
@@ -18606,6 +18606,283 @@ pull.timeOut = 10000;
 
 //
 
+function pullCheckOutput( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.shell.predefined.outputCollecting = 1;
+  a.shell.predefined.currentPath = a.abs( 'repo' );
+  let programPath;
+
+  let programShell = _.process.starter
+  ({
+    currentPath : a.abs( '.' ),
+    mode : 'shell',
+    throwingExitCode : 1,
+    outputCollecting : 1,
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'pull changes';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ) });
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'clone/file2.txt' ), 'file2.txt' );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git push' });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt' ] );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + _.path.nativize( programPath ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, />.*git pull/ ), 1 );
+    test.identical( _.strCount( op.output, 'file2.txt | 1' ), 1 );
+    test.identical( _.strCount( op.output, '1 file changed, 1 insertion(+)' ), 1 );
+    test.identical( _.strCount( op.output, /master\s+-> origin\/master/ ), 1 );
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt', './file2.txt' ] );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'dry - 1, pull not changes';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ), dry : 1 });
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'clone/file2.txt' ), 'file2.txt' );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git push' });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt' ] );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + _.path.nativize( programPath ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, />.*git pull/ ), 0 );
+    test.identical( _.strCount( op.output, 'file2.txt | 1' ), 0 );
+    test.identical( _.strCount( op.output, '1 file changed, 1 insertion(+)' ), 0 );
+    test.identical( _.strCount( op.output, /master\s+-> origin\/master/ ), 0 );
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt' ] );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'pull with conflict, throwing - 0';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'repo/file.txt' ), 'new line' );
+    a.fileProvider.fileAppend( a.abs( 'clone/file.txt' ), 'another line' );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git push' });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m change' );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt' ] );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + _.path.nativize( programPath ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, />.*git pull/ ), 1 );
+    test.identical( _.strCount( op.output, 'Auto-merging file.txt' ), 1 );
+    test.identical( _.strCount( op.output, 'CONFLICT (content): Merge conflict in file.txt' ), 1 );
+    test.identical( _.strCount( op.output, /master\s+-> origin\/master/ ), 1 );
+    test.identical( _.strCount( op.output, 'Process returned exit code 1' ), 0 );
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt' ] );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'pull with conflict, throwing - 1';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'repo/file.txt' ), 'new line' );
+    a.fileProvider.fileAppend( a.abs( 'clone/file.txt' ), 'another line' );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git push' });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m change' );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt' ] );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( programPath ) });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, />.*git pull/ ), 1 );
+    test.identical( _.strCount( op.output, 'Auto-merging file.txt' ), 1 );
+    test.identical( _.strCount( op.output, 'CONFLICT (content): Merge conflict in file.txt' ), 1 );
+    test.identical( _.strCount( op.output, /master\s+-> origin\/master/ ), 2 );
+    test.identical( _.strCount( op.output, 'Process returned exit code 1' ), 1 );
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt' ] );
+
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( 'main' ) );
+      a.fileProvider.filesDelete( a.abs( 'clone' ) );
+      a.fileProvider.filesDelete( a.abs( 'repo' ) );
+      return null;
+    });
+
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( 'main' ) );
+      a.fileProvider.dirMake( a.abs( 'repo' ) );
+      a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+      return null;
+    });
+    a.shell({ currentPath : a.abs( 'main' ), execPath : `git init --bare` });
+
+    a.shell( `git init` );
+    a.shell( 'git remote add origin ../main' );
+    a.shell( 'git add .' );
+    a.shell( 'git commit -m init' );
+    a.shell( 'git push -u origin master' );
+    return a.ready;
+  }
+
+  /* */
+
+  function programMake( options )
+  {
+    let locals = { toolsPath : _.module.resolve( 'wTools' ), o : options };
+    return a.program({ routine : testApp, locals });
+  }
+
+  /* */
+
+  function testApp()
+  {
+    let _ = require( toolsPath );
+    _.include( 'wGitTools' );
+    return _.git.pull( o );
+  }
+}
+
+pullCheckOutput.timeOut = 30000;
+
+//
+
 function push( test )
 {
   let context = this;
@@ -21155,6 +21432,7 @@ var Proto =
     diffSameStates,
 
     pull,
+    pullCheckOutput,
     push,
     reset,
     resetWithOptionRemovingUntracked,
