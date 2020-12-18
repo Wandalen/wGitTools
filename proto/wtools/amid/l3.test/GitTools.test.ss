@@ -15789,13 +15789,16 @@ function prOpenRemote( test )
 {
   let a = test.assetFor( 'basic' );
   let repository = `https://github.com/wtools-bot/New-${ _.idWithDateAndTime() }`;
-  a.reflect();
+  let validPlatform = process.platform !== 'linux' && process.platform !== 'darwin';
+  let insideTestContainer = !_.process.insideTestContainer();
 
-  if( process.platform !== 'linux' && process.platform !== 'darwin' )
+  if( !validPlatform || !insideTestContainer )
   {
     test.true( true );
     return;
   }
+
+  a.reflect();
 
   /* */
 
