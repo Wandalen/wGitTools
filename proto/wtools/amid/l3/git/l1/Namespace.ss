@@ -4373,6 +4373,74 @@ configReset.defaults =
 
 */
 
+function _stateParse( state )
+{
+  let statesBegin = [ '#', '!' ];
+  let statesSpecial = [ 'working', 'staging', 'committed' ];
+  /*
+  https://neurathsboat.blog/post/git-intro/
+  https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F
+  */
+
+  let result =
+  {
+    original : state,
+    value : state,
+    isSpecial : false
+  };
+
+  if( _.strBegins( state, 'HEAD' ) )
+  {
+    result.isSpecial = true;
+    return result;
+  }
+
+  if( _.strBegins( state, statesBegin ) )
+  {
+    result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
+    result.isTag = _.strBegins( state, statesBegin[ 1 ] );
+    result.value = _.strRemoveBegin( state, statesBegin );
+
+    if( !result.isTag )
+    return result;
+
+    if( _.strEnds( result.value, '/' ) )
+    {
+      result.isTag = false;
+      result.value = _.strRemoveEnd( result.value, '/' );
+    }
+    else if( _.strHas( result.value, '/' ) )
+    {
+      result.isRemoteTag = true;
+      let r = _.strIsolateLeftOrNone( result.value, '/' );
+      _.sure
+      (
+        _.strDefined( r[ 0 ] ) && _.strDefined( r[ 2 ] ),
+        `Failed to parse state: ${result.original}, expects remote tag in format: "!remote/tag".`
+      );
+      result.remotePath = `:///${r[ 0 ]}`;
+      result.remote = `!${r[ 2 ]}`;
+    }
+
+    return result;
+  }
+
+  // if( !allowSpecial )
+  // throw _.err( `Expects state in one of formats:${statesBegin}, but got: ${state}` );
+
+  if( !_.longHas( statesSpecial, state ) )
+  {
+    debugger;
+    throw _.err( `Expects one of special states: ${statesSpecial}, but got: ${state}` );
+  }
+
+  result.isSpecial = true;
+
+  return result;
+}
+
+//
+
 function diff( o )
 {
   let self = this;
@@ -4390,8 +4458,8 @@ function diff( o )
 
   let ready = new _.Consequence().take( null );
   let result = Object.create( null );
-  let state1 = stateParse( o.state1 );
-  let state2 = stateParse( o.state2 ); /* qqq : ! aaa: special tags now work in both states */
+  let state1 = self._stateParse( o.state1 );
+  let state2 = self._stateParse( o.state2 ); /* qqq : ! aaa: special tags now work in both states */
 
   let start = _.process.starter
   ({
@@ -4420,74 +4488,6 @@ function diff( o )
   }
 
   return ready;
-
-  /* - */
-
-  function stateParse( state )
-  {
-    let statesBegin = [ '#', '!' ];
-    let statesSpecial = [ 'working', 'staging', 'committed' ];
-    /*
-    https://neurathsboat.blog/post/git-intro/
-    https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F
-    */
-
-    let result =
-    {
-      original : state,
-      value : state,
-      isSpecial : false
-    };
-
-    if( _.strBegins( state, 'HEAD' ) )
-    {
-      result.isSpecial = true;
-      return result;
-    }
-
-    if( _.strBegins( state, statesBegin ) )
-    {
-      result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
-      result.isTag = _.strBegins( state, statesBegin[ 1 ] );
-      result.value = _.strRemoveBegin( state, statesBegin );
-
-      if( !result.isTag )
-      return result;
-
-      if( _.strEnds( result.value, '/' ) )
-      {
-        result.isTag = false;
-        result.value = _.strRemoveEnd( result.value, '/' );
-      }
-      else if( _.strHas( result.value, '/' ) )
-      {
-        result.isRemoteTag = true;
-        let r = _.strIsolateLeftOrNone( result.value, '/' );
-        _.sure
-        (
-          _.strDefined( r[ 0 ] ) && _.strDefined( r[ 2 ] ),
-          `Failed to parse state: ${result.original}, expects remote tag in format: "!remote/tag".`
-        );
-        result.remotePath = `:///${r[ 0 ]}`;
-        result.remote = `!${r[ 2 ]}`;
-      }
-
-      return result;
-    }
-
-    // if( !allowSpecial )
-    // throw _.err( `Expects state in one of formats:${statesBegin}, but got: ${state}` );
-
-    if( !_.longHas( statesSpecial, state ) )
-    {
-      debugger;
-      throw _.err( `Expects one of special states: ${statesSpecial}, but got: ${state}` );
-    }
-
-    result.isSpecial = true;
-
-    return result;
-  }
 
   /* - */
 
@@ -4856,21 +4856,38 @@ push.defaults =
 
 function reset( o )
 {
-  let ready = new _.Consequence().take( null );
+  let self = this;
 
-  _.routineOptions( reset, arguments );
   _.assert( arguments.length === 1 );
+  _.routineOptions( reset, arguments );
+  _.assert( _.strDefined( o.state1 ) );
+  _.assert( _.strDefined( o.state2 ) );
   _.assert( _.strDefined( o.localPath ) );
+  _.assert( _.longHas( [ null, 'all' ], o.preset ) );
 
-  if( o.removingUntracked === null )
-  o.removingUntracked = 1;
+  if( o.preset === 'all' )
+  {
+    _.assert( o.state2 === 'committed', 'Preset `all` resets all changes to latest commit' );
+
+    let o2 =
+    {
+      removingUntracked : 1,
+      removingSubrepositories : 1,
+      removingIgnored : 1,
+    };
+    _.mapExtend( o, o2 );
+  }
+
+  /* */
+
+  let ready = new _.Consequence().take( null );
 
   let start = _.process.starter
   ({
     sync : 0,
     deasync : 0,
     outputCollecting : 1,
-    mode : 'spawn',
+    mode : 'shell',
     currentPath : o.localPath,
     throwingExitCode : 0,
     inputMirroring : 0,
@@ -4878,29 +4895,101 @@ function reset( o )
     ready
   });
 
-  start( `git reset --hard` );
-  if( o.removingUntracked )
-  start( `git clean -df` );
+  /* */
 
-  /* qqq : should be "git clean -dffx", but not by default */
-  /* qqq : cover each option */
+  let state1 = self._stateParse( o.state1 );
+  let state2 = self._stateParse( o.state2 );
+
+  if( o.dry )
+  return resetDry();
+
+  if( state2.value === 'working' || state2.value === 'staged' )
+  return;
+
+  if( state1.isVersion || state1.isTag )
+  start( `git checkout ${ state1.value }` );
+
+  if( state2.value === 'committed' )
+  start( `git reset --hard` );
+  else if( state2.isVersion || state2.isTag )
+  start( `git reset --hard ${ state2.value }` );
+
+  if( o.removingUntracked )
+  {
+    let command = `git clean -df`
+    if( o.removingSubrepositories )
+    command += 'f';
+    if( o.removingIgnored )
+    command += 'x';
+
+    start( command );
+  }
+
+  /* aaa : should be "git clean -dffx", but not by default */ /* Dmytro : implemented */
+  /* aaa : cover each option */ /* Dmytro : covered */
 
   if( o.sync )
   {
     ready.deasync();
     return ready.sync();
   }
+
   return ready;
+
+  /* */
+
+  function resetDry()
+  {
+    let shouldReset = state2.isVersion || state2.isTag || state2.value === 'committed';
+    let o2 =
+    {
+      localPath : o.localPath,
+      uncommitted : 0,
+      uncommittedUntracked : o.removingUntracked,
+      uncommittedAdded : o.removingUntracked,
+      uncommittedChanged : shouldReset,
+      uncommittedDeleted : shouldReset,
+      uncommittedRenamed : shouldReset,
+      uncommittedCopied : o.removingUntracked,
+      uncommittedIgnored : o.removingUntracked && o.removingIgnored,
+      unpushed : 0,
+      unpushedCommits : 0,
+      unpushedTags : 0,
+      unpushedBranches : 0,
+      explaining : 1,
+      detailing : 1,
+      sync : 1
+    };
+    let status = _.git.statusLocal( o2 );
+
+    /* */
+
+    let msgReset = `Uncommitted changes, would be reseted :`;
+    msgReset += status.uncommittedChanged ? `\n${ status.uncommittedChanged }` : ``;
+    msgReset += status.uncommittedDeleted ? `\n${ status.uncommittedDeleted }` : ``;
+    msgReset += status.uncommittedRenamed ? `\n${ status.uncommittedRenamed }` : ``;
+    logger.log( msgReset );
+
+    let msgClean = `Uncommitted changes, would be cleaned :`;
+    msgClean += status.uncommittedUntracked ? `\n${ status.uncommittedUntracked }` : ``;
+    msgClean += status.uncommittedAdded ? `\n${ status.uncommittedAdded }` : ``;
+    msgClean += status.uncommittedCopied ? `\n${ status.uncommittedCopied }` : ``;
+    msgClean += status.uncommittedIgnored ? `\n${ status.uncommittedIgnored }` : ``;
+    logger.log( msgClean );
+    return true;
+  }
 }
 
 reset.defaults =
 {
+  state1 : 'working', /* 'working', 'staged', 'committed' some commit or tag */
+  state2 : 'committed', /* 'working', 'staged', 'committed' some commit or tag */
   localPath : null,
-  preset : null, /*[ null, 'all' ]*/ /* qqq : implement and cover option */
+  preset : null, /*[ null, 'all' ]*/ /* qqq : implement and cover option */ /* Dmytro : implemented trivial branch. Please, clarify the behavior of the option */
   removingUntracked : 1,
-  removingIgnored : 0, /* qqq : implement and cover option */
-  removingSubrepositories : 1, /* qqq : implement and cover option. option -ffx of git command clean */
-  dry : 0, /* qqq : implement and cover option */
+  removingIgnored : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
+  removingSubrepositories : 1, /* aaa : implement and cover option. option -ffx of git command clean */ /* Dmytro : implemented, covered */
+  dry : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
   sync : 1,
 }
 
@@ -5159,6 +5248,7 @@ let Extension =
   configRead,
   configSave,
   configReset, /* qqq : implement routine _.git.configReset() */
+  _stateParse,
   diff,
   pull,
   push,
