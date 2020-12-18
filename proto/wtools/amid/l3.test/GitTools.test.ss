@@ -18495,16 +18495,16 @@ function pull( test )
 
   a.ready.then( () =>
   {
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt' ] );
 
     _.git.pull
     ({
       localPath : a.abs( 'repo' ),
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt', './file2.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt', './file2.txt' ] );
 
     return null;
   });
@@ -18533,8 +18533,8 @@ function pull( test )
 
   a.ready.then( () =>
   {
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt' ] );
 
     _.git.pull
     ({
@@ -18542,8 +18542,8 @@ function pull( test )
       dry : 1,
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt' ] );
 
     return null;
   });
@@ -18559,10 +18559,13 @@ function pull( test )
       test.shouldThrowErrorSync( () => _.git.pull( { localPath : a.abs( 'repo' ) }, { extra : 1 } ) );
 
       test.case = 'wrong type of options map o';
-      test.shouldThrowErrorSync( () => _.git.pull( [ a.abs( 'repo' ) ] ) );
+      test.shouldThrowErrorSync( () => _.git.pull([ a.abs( 'repo' ) ]) );
 
       test.case = 'unknown option in options map o';
-      test.shouldThrowErrorSync( () => _.git.pull( { localPath : a.abs( 'repo' ), unknown : 1 } ) );
+      test.shouldThrowErrorSync( () => _.git.pull({ localPath : a.abs( 'repo' ), unknown : 1 }) );
+
+      test.case = 'wrong type of o.localPath';
+      test.shouldThrowErrorSync( () => _.git.pull({ localPath : 1 }) );
 
       return null;
     });
@@ -18648,8 +18651,8 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt' ] );
     return null;
   });
 
@@ -18665,8 +18668,8 @@ function pullCheckOutput( test )
     test.identical( _.strCount( op.output, '1 file changed, 1 insertion(+)' ), 1 );
     test.identical( _.strCount( op.output, /master\s+-> origin\/master/ ), 1 );
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt', './file2.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt', './file2.txt' ] );
 
     return null;
   });
@@ -18697,8 +18700,8 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt' ] );
     return null;
   });
 
@@ -18714,8 +18717,8 @@ function pullCheckOutput( test )
     test.identical( _.strCount( op.output, '1 file changed, 1 insertion(+)' ), 0 );
     test.identical( _.strCount( op.output, /master\s+-> origin\/master/ ), 0 );
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt' ] );
 
     return null;
   });
@@ -18750,8 +18753,8 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt' ] );
     return null;
   });
 
@@ -18768,8 +18771,8 @@ function pullCheckOutput( test )
     test.identical( _.strCount( op.output, /master\s+-> origin\/master/ ), 1 );
     test.identical( _.strCount( op.output, 'Process returned exit code 1' ), 0 );
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt' ] );
 
     return null;
   });
@@ -18804,8 +18807,8 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt' ] );
     return null;
   });
 
@@ -18822,8 +18825,8 @@ function pullCheckOutput( test )
     test.identical( _.strCount( op.output, /master\s+-> origin\/master/ ), 2 );
     test.identical( _.strCount( op.output, 'Process returned exit code 1' ), 1 );
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ '.', './file.txt' ] );
 
     return null;
   });
@@ -18890,80 +18893,259 @@ function push( test )
   a.shell.predefined.outputCollecting = 1;
   a.shell.predefined.currentPath = a.abs( 'repo' );
 
-  a.ready.then( () =>
+  /* */
+
+  begin().then( () =>
   {
-    a.fileProvider.dirMake( a.abs( 'main' ) );
+    test.case = 'push to not added master branch';
     return null;
   });
 
-  _.process.start
-  ({
-    currentPath : a.abs( 'main' ),
-    execPath : 'git init --bare',
-    ready : a.ready,
-  });
-
-
-  begin().then( () =>
+  a.ready.then( () =>
   {
     a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
     return null;
   });
 
-  a.shell( 'git remote add origin ../main' );
   a.shell( 'git add .' );
   a.shell( 'git commit -m init' );
 
   a.ready.then( () =>
   {
-    test.case = 'push to not added master branch';
-    _.git.push
-    ({
-      localPath : a.abs( 'repo' ),
-    });
+    var got = _.git.push({ localPath : a.abs( 'repo' ) });
+    test.identical( got.exitCode, 0 );
     return null;
   });
+
   a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
-
   a.ready.then( () =>
   {
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'clone' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
-
-    a.fileProvider.fileWrite( a.abs( 'clone/file2.txt' ), 'file2.txt' );
-    return null;
-  });
-
-  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
-  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
-  a.ready.then( () =>
-  {
-    test.case = 'push to automatically added branch';
-    _.git.push
-    ({
-      localPath : a.abs( 'clone' ),
-    });
+    var got = a.find( a.abs( 'clone' ) );
+    test.identical( got, [ '.', './file.txt' ] );
     return null;
   });
 
   /* */
 
-  a.ready.then( () =>
+  begin().then( () =>
   {
-    test.case = 'pull changes';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt' ] );
-
-    _.git.pull
-    ({
-      localPath : a.abs( 'repo' ),
-    });
-
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
-    test.identical( got, [ './file.txt', './file2.txt' ] );
-
+    test.case = 'push to automatically added branch';
     return null;
   });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+  a.shell( 'git push -u origin master' );
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'clone/file.txt' ), '\nnew line' );
+    return null;
+  });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.push({ localPath : a.abs( 'clone' ) });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git pull' )
+  .then( () =>
+  {
+    var got = a.fileProvider.fileRead( a.abs( 'repo/file.txt' ) );
+    var exp =
+`file.txt
+new line`;
+    test.identical( got, exp );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'several pushes';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.push({ localPath : a.abs( 'repo' ) });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.push({ localPath : a.abs( 'repo' ) });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+  a.ready.then( () =>
+  {
+    var got = a.find( a.abs( 'clone' ) );
+    test.identical( got, [ '.', './file.txt' ] );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'dry - 1, push no changes';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.push({ localPath : a.abs( 'repo' ), dry : 1 });
+    test.identical( got, undefined );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+  a.ready.then( () =>
+  {
+    var got = a.find( a.abs( 'clone' ) );
+    test.identical( got, [ '.' ] );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'withTags - 1, no unpushed tags exist';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    var got = _.git.push({ localPath : a.abs( 'repo' ), withTags : 1 });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+  a.ready.then( () =>
+  {
+    var got = a.find( a.abs( 'clone' ) );
+    test.identical( got, [ '.', './file.txt' ] );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git tag' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.output, '' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'withTags - 1, tags exist';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000' });
+    _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init' });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    var got = _.git.push({ localPath : a.abs( 'repo' ), withTags : 1 });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+  a.ready.then( () =>
+  {
+    var got = a.find( a.abs( 'clone' ) );
+    test.identical( got, [ '.', './file.txt' ] );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git tag' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    test.identical( _.strCount( op.output, 'init' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    a.ready.then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.push() );
+
+      test.case = 'extra arguments';
+      test.shouldThrowErrorSync( () => _.git.push( { localPath : a.abs( 'repo' ) }, { extra : 1 } ) );
+
+      test.case = 'wrong type of options map o';
+      test.shouldThrowErrorSync( () => _.git.push([ a.abs( 'repo' ) ]) );
+
+      test.case = 'unknown option in options map o';
+      test.shouldThrowErrorSync( () => _.git.push({ localPath : a.abs( 'repo' ), unknown : 1 }) );
+
+      test.case = 'wrong type of o.localPath';
+      test.shouldThrowErrorSync( () => _.git.push({ localPath : 1 }) );
+
+      return null;
+    });
+  }
 
   /* - */
 
@@ -18973,14 +19155,29 @@ function push( test )
 
   function begin()
   {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'repo' ) ))
-    a.ready.then( () => { a.fileProvider.dirMake( a.abs( 'repo' ) ); return null })
-    a.shell( `git init` )
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( 'main' ) );
+      a.fileProvider.filesDelete( a.abs( 'clone' ) );
+      a.fileProvider.filesDelete( a.abs( 'repo' ) );
+      return null;
+    });
+
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( 'main' ) );
+      a.fileProvider.dirMake( a.abs( 'repo' ) );
+      return null;
+    });
+    a.shell({ currentPath : a.abs( 'main' ), execPath : `git init --bare` });
+
+    a.shell( `git init` );
+    a.shell( 'git remote add origin ../main' );
     return a.ready;
   }
 }
 
-push.timeOut = 10000;
+push.timeOut = 30000;
 
 //
 
@@ -19670,8 +19867,8 @@ function resetWithOptionRemovingUntracked( test )
   a.ready.then( () =>
   {
     test.case = 'removingUntracked - 0, should not delete untraked file';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file', './file2' ] );
 
     var got = _.git.reset
     ({
@@ -19679,8 +19876,8 @@ function resetWithOptionRemovingUntracked( test )
       removingUntracked : 0,
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file', './file2' ] );
     return null;
   });
 
@@ -19703,8 +19900,8 @@ function resetWithOptionRemovingUntracked( test )
   a.ready.then( () =>
   {
     test.case = 'removingUntracked - 1, should delete untraked file';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file', './file2' ] );
 
     var got = _.git.reset
     ({
@@ -19712,8 +19909,8 @@ function resetWithOptionRemovingUntracked( test )
       removingUntracked : 1,
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file' ] );
     return null;
   });
 
@@ -19744,8 +19941,8 @@ function resetWithOptionRemovingUntracked( test )
   a.ready.then( () =>
   {
     test.case = 'removingUntracked - 0, should not delete untraked file';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file', './file2' ] );
 
     var got = _.git.reset
     ({
@@ -19753,8 +19950,8 @@ function resetWithOptionRemovingUntracked( test )
       removingUntracked : 0,
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file', './file2' ] );
     return null;
   });
 
@@ -19785,8 +19982,8 @@ function resetWithOptionRemovingUntracked( test )
   a.ready.then( () =>
   {
     test.case = 'removingUntracked - 1, should delete untraked file';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file', './file2' ] );
 
     var got = _.git.reset
     ({
@@ -19794,8 +19991,8 @@ function resetWithOptionRemovingUntracked( test )
       removingUntracked : 1,
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file', './file2' ] );
     return null;
   });
 
@@ -19848,8 +20045,8 @@ function resetWithOptionRemovingSubrepositories( test )
   a.ready.then( () =>
   {
     test.case = 'removingSubrepositories - 1, removingUntracked - 0, should not delete subrepository';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file', './sub/file' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file', './sub', './sub/file' ] );
 
     var got = _.git.reset
     ({
@@ -19858,8 +20055,8 @@ function resetWithOptionRemovingSubrepositories( test )
       removingSubrepositories : 1,
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file', './sub/file' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file', './sub', './sub/file' ] );
     return null;
   });
 
@@ -19883,8 +20080,8 @@ function resetWithOptionRemovingSubrepositories( test )
   a.ready.then( () =>
   {
     test.case = 'removingSubrepositories - 0, removingUntracked - 1, should not delete subrepository';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file', './sub/file' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file', './sub', './sub/file' ] );
 
     var got = _.git.reset
     ({
@@ -19893,8 +20090,8 @@ function resetWithOptionRemovingSubrepositories( test )
       removingSubrepositories : 0,
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file', './sub/file' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file', './sub', './sub/file' ] );
     return null;
   });
 
@@ -19918,8 +20115,8 @@ function resetWithOptionRemovingSubrepositories( test )
   a.ready.then( () =>
   {
     test.case = 'removingSubrepositories - 1, removingUntracked - 1, should delete subrepository';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file', './sub/file' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file', './sub', './sub/file' ] );
 
     var got = _.git.reset
     ({
@@ -19928,8 +20125,8 @@ function resetWithOptionRemovingSubrepositories( test )
       removingSubrepositories : 1,
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file' ] );
     return null;
   });
 
@@ -19989,8 +20186,8 @@ function resetWithOptionRemovingIgnored( test )
   a.ready.then( () =>
   {
     test.case = 'removingIgnored - 1, removingUntracked - 0, should not delete untraked file';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file', './file2' ] );
 
     var got = _.git.reset
     ({
@@ -19999,8 +20196,8 @@ function resetWithOptionRemovingIgnored( test )
       removingIgnored : 1,
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file', './file2' ] );
     return null;
   });
 
@@ -20031,8 +20228,8 @@ function resetWithOptionRemovingIgnored( test )
   a.ready.then( () =>
   {
     test.case = 'removingIgnored - 0, removingUntracked - 1, should not delete untraked file';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file', './file2' ] );
 
     var got = _.git.reset
     ({
@@ -20041,8 +20238,8 @@ function resetWithOptionRemovingIgnored( test )
       removingIgnored : 0,
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file', './file2' ] );
     return null;
   });
 
@@ -20073,8 +20270,8 @@ function resetWithOptionRemovingIgnored( test )
   a.ready.then( () =>
   {
     test.case = 'removingIgnored - 1, removingUntracked - 1, should delete untraked file';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file', './file2' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file', './file2' ] );
 
     var got = _.git.reset
     ({
@@ -20083,8 +20280,8 @@ function resetWithOptionRemovingIgnored( test )
       removingIgnored : 1,
     });
 
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file' ] );
     return null;
   });
 
@@ -20163,8 +20360,8 @@ function resetWithOptionDry( test )
       test.identical( _.strCount( op.output, 'file1' ), 0 );
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be cleaned :' ), 1 );
 
-      var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-      test.identical( got, [ './file', './file1' ] );
+      var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+      test.identical( got, [ '.', './file', './file1' ] );
       return null;
     })
     .then( () =>
@@ -20208,8 +20405,8 @@ function resetWithOptionDry( test )
   a.ready.then( () =>
   {
     test.case = 'repository changed, without untraked';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file', './file2', './file3' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file', './file2', './file3' ] );
     return null
   });
 
@@ -20223,8 +20420,8 @@ function resetWithOptionDry( test )
       test.identical( _.strCount( op.output, 'D file1' ), 1 );
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be cleaned :' ), 1 );
 
-      var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-      test.identical( got, [ './file', './file2', './file3' ] );
+      var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+      test.identical( got, [ '.', './file', './file2', './file3' ] );
       return null;
     })
     .then( () =>
@@ -20268,8 +20465,8 @@ function resetWithOptionDry( test )
   a.ready.then( () =>
   {
     test.case = 'repository changed, with untraked';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './file', './file2', './file3' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './file', './file2', './file3' ] );
     return null
   });
 
@@ -20285,8 +20482,8 @@ function resetWithOptionDry( test )
       test.identical( _.strCount( op.output, '?? file3' ), 1 );
       test.identical( _.strCount( op.output, 'A  file2' ), 1 );
 
-      var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-      test.identical( got, [ './file', './file2', './file3' ] );
+      var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+      test.identical( got, [ '.', './file', './file2', './file3' ] );
       return null;
     })
     .then( () =>
@@ -20331,8 +20528,8 @@ function resetWithOptionDry( test )
   a.ready.then( () =>
   {
     test.case = 'repository changed, with untraked and without ignored';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file', './file2', './file3' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file', './file2', './file3' ] );
     return null
   });
 
@@ -20348,8 +20545,8 @@ function resetWithOptionDry( test )
       test.identical( _.strCount( op.output, '!! file3' ), 0 );
       test.identical( _.strCount( op.output, 'A  file2' ), 1 );
 
-      var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-      test.identical( got, [ './.gitignore', './file', './file2', './file3' ] );
+      var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+      test.identical( got, [ '.', './.gitignore', './file', './file2', './file3' ] );
       return null;
     })
     .then( () =>
@@ -20394,8 +20591,8 @@ function resetWithOptionDry( test )
   a.ready.then( () =>
   {
     test.case = 'repository changed, with untraked and with ignored';
-    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-    test.identical( got, [ './.gitignore', './file', './file2', './file3' ] );
+    var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+    test.identical( got, [ '.', './.gitignore', './file', './file2', './file3' ] );
     return null
   });
 
@@ -20411,8 +20608,8 @@ function resetWithOptionDry( test )
       test.identical( _.strCount( op.output, '!! file3' ), 1 );
       test.identical( _.strCount( op.output, 'A  file2' ), 1 );
 
-      var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
-      test.identical( got, [ './.gitignore', './file', './file2', './file3' ] );
+      var got = a.find({ filePath : a.abs( 'repo' ), outputFormat : 'relative' });
+      test.identical( got, [ '.', './.gitignore', './file', './file2', './file3' ] );
       return null;
     })
     .then( () =>

@@ -4811,8 +4811,8 @@ function push( o )
 {
   let ready = new _.Consequence().take( null );
 
-  _.routineOptions( push, arguments );
   _.assert( arguments.length === 1 );
+  _.routineOptions( push, arguments );
   _.assert( _.strDefined( o.localPath ) );
 
   if( o.dry )
