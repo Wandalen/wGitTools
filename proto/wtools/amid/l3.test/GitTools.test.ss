@@ -19811,7 +19811,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + programPath )
+    return programShell( 'node ' + _.path.nativize( programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -19871,7 +19871,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + programPath )
+    return programShell( 'node ' + _.path.nativize( programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -19931,7 +19931,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + programPath )
+    return programShell( 'node ' + _.path.nativize( programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -19994,7 +19994,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + programPath )
+    return programShell( 'node ' + _.path.nativize( programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -20057,7 +20057,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + programPath )
+    return programShell( 'node ' + _.path.nativize( programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
