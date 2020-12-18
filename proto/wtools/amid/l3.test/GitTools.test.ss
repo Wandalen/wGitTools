@@ -19181,6 +19181,367 @@ push.timeOut = 30000;
 
 //
 
+function pushCheckOutput( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.shell.predefined.outputCollecting = 1;
+  a.shell.predefined.currentPath = a.abs( 'repo' );
+  let programPath;
+
+  let programShell = _.process.starter
+  ({
+    currentPath : a.abs( '.' ),
+    mode : 'shell',
+    throwingExitCode : 1,
+    outputCollecting : 1,
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'push to not added master branch';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ) });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + _.path.nativize( programPath ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
+    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'push to automatically added branch';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'clone' ) });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+  a.shell( 'git push -u origin master' );
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileAppend( a.abs( 'clone/file.txt' ), '\nnew line' );
+    return null;
+  });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + _.path.nativize( programPath ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
+    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 0 );
+    test.identical( _.strCount( op.output, 'master -> master' ), 1 );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'several pushes';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ) });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + _.path.nativize( programPath ) );
+  });
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + _.path.nativize( programPath ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
+    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, 'Everything up-to-date' ), 1 );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'dry - 1, push no changes';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ), dry : 1 });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + _.path.nativize( programPath ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'withTags - 1, no unpushed tags exist';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + _.path.nativize( programPath ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
+    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
+    test.identical( _.strCount( op.output, />.*git push --tags --force/ ), 1 );
+    test.identical( _.strCount( op.output, 'Everything up-to-date' ), 1 );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'withTags - 1, tags exist';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000' });
+    _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init' });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + _.path.nativize( programPath ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
+    test.identical( _.strCount( op.output, />.*git push --tags --force/ ), 1 );
+    test.identical( _.strCount( op.output, /\* \[new tag\]\s+v000 -> v000/ ), 1 );
+    test.identical( _.strCount( op.output, /\* \[new tag\]\s+init -> init/ ), 1 );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'throwing - 0, push to not existed repository';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    a.fileProvider.filesDelete( a.abs( 'main' ) );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    return programShell( 'node ' + _.path.nativize( programPath ) );
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'fatal: \'../main\' does not appear to be a git repository' ), 1 );
+    test.identical( _.strCount( op.output, 'fatal: Could not read from remote repository.' ), 1 );
+    test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 1 );
+    test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 1 );
+    test.identical( _.strCount( op.output, 'and the repository exists.' ), 1 );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'throwing - 1, push to not existed repository';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    a.fileProvider.filesDelete( a.abs( 'main' ) );
+    return null;
+  });
+
+  a.shell( 'git add .' );
+  a.shell( 'git commit -m init' );
+
+  a.ready.then( () =>
+  {
+    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( programPath ) });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'fatal: \'../main\' does not appear to be a git repository' ), 2 );
+    test.identical( _.strCount( op.output, 'fatal: Could not read from remote repository.' ), 2 );
+    test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 2 );
+    test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 2 );
+    test.identical( _.strCount( op.output, 'and the repository exists.' ), 2 );
+
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( 'main' ) );
+      a.fileProvider.filesDelete( a.abs( 'clone' ) );
+      a.fileProvider.filesDelete( a.abs( 'repo' ) );
+      return null;
+    });
+
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( 'main' ) );
+      a.fileProvider.dirMake( a.abs( 'repo' ) );
+      return null;
+    });
+    a.shell({ currentPath : a.abs( 'main' ), execPath : `git init --bare` });
+
+    a.shell( `git init` );
+    a.shell( 'git remote add origin ../main' );
+    return a.ready;
+  }
+
+  /* */
+
+  function programMake( options )
+  {
+    let locals = { toolsPath : _.module.resolve( 'wTools' ), o : options };
+    return a.program({ routine : testApp, locals });
+  }
+
+  /* */
+
+  function testApp()
+  {
+    let _ = require( toolsPath );
+    _.include( 'wGitTools' );
+    return _.git.push( o );
+  }
+}
+
+pushCheckOutput.timeOut = 30000;
+
+//
+
 function reset( test )
 {
   let context = this;
@@ -21627,10 +21988,10 @@ var Proto =
     diff,
     diffSpecial,
     diffSameStates,
-
     pull,
     pullCheckOutput,
     push,
+    pushCheckOutput,
     reset,
     resetWithOptionRemovingUntracked,
     resetWithOptionRemovingSubrepositories,
