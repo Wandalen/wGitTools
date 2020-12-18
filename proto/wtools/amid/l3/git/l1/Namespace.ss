@@ -301,18 +301,217 @@ var defaults = localPathFromInside.defaults = Object.create( null );
 defaults.insidePath = null;
 
 // --
+// tag
+// --
+
+/**
+ * Routine tagLocalChange() switches HEAD to defined tag {-o.tag-} in git repository located at {-o.localPath-}.
+ *
+ * @example
+ * // if script is run in git repository with branch 'test'
+ * let tag = _.git.tagLocalRetrive
+ * ({
+ *   localPath : _.path.current(),
+ * });
+ * console.log( tag );
+ * // log : 'master'
+ *
+ * _.git.tagLocalChange
+ * ({
+ *   localPath : _.path.current(),
+ *   tag : 'test',
+ * });
+ * let tag = _.git.tagLocalRetrive
+ * ({
+ *   localPath : _.path.current(),
+ * });
+ * console.log( tag );
+ * // log : 'test'
+ *
+ * @param { MapLike } o - Options map.
+ * @param { String } o.localPath - Path to git repository on hard drive.
+ * @param { String } o.tag - Tag to switch on.
+ * @param { Number } o.verbosity - Level of verbosity. Default is 0.
+ * @returns { Boolean } - Returns true if HEAD switched to tag {-o.tag-}, otherwise, returns false.
+ * @function tagLocalChange
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If options map {-o-} has extra options.
+ * @throws { Error } If {-o.localPath-} is not a String with defined length.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
+ */
+
+function tagLocalChange( o )
+{
+  if( !_.mapIs( o ) )
+  o = { localPath : o };
+
+  _.routineOptions( tagLocalChange, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+
+  let localTag = _.git.tagLocalRetrive
+  ({
+    localPath : o.localPath,
+    verbosity : o.verbosity
+  });
+
+  if( localTag === false )
+  return false;
+
+  if( localTag === o.tag )
+  return true;
+
+  let start = _.process.starter
+  ({
+    verbosity : o.verbosity - 1,
+    sync : 1,
+    deasync : 0,
+    outputCollecting : 1,
+    currentPath : o.localPath,
+  });
+
+  let result = start( 'git status' );
+  let localChanges = _.strHas( result.output, 'Changes to be committed' );
+
+  if( localChanges )
+  start( 'git stash' );
+
+  start( 'git checkout ' + o.tag );
+
+  if( localChanges )
+  start( 'git pop' );
+
+  return true;
+}
+
+var defaults = tagLocalChange.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.tag = null
+defaults.verbosity = 0;
+
+//
+
+/**
+ * Routine tagLocalRetrive() returns tag of label HEAD ( current commit ) from git repository located at {-o.localPath-}.
+ *
+ * @example
+ * // if script is run in git repository on branch 'master'
+ * let tag = _.git.tagLocalRetrive
+ * ({
+ *   localPath : _.path.current(),
+ *   detailing : 0,
+ * });
+ * console.log( tag );
+ * // log : 'master'
+ *
+ * @example
+ * // if script is run in git repository on branch 'master'
+ * let tag = _.git.tagLocalRetrive
+ * ({
+ *   localPath : _.path.current(),
+ *   detailing : 1,
+ * });
+ * console.log( tag );
+ * // log :
+ * // {
+ * //   tag : 'master',
+ * //   isTag : false,
+ * //   isBranch : true,
+ * // }
+ *
+ * @param { MapLike } o - Options map.
+ * @param { String } o.localPath - Path to git repository on hard drive.
+ * @param { Number } o.verbosity - Level of verbosity. Default is 0.
+ * @param { BoolLike } o.detailing - If {-o.detailing-} is true, result is map with tag description.
+ * @returns { String|Map|Boolean } - Returns name of the tag or false if {-o.localPath-} is not a git repository.
+ * If {-o.detailing-} is true, routine returns map with tag description.
+ * @function tagLocalRetrive
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If options map {-o-} has extra options.
+ * @throws { Error } If {-o.localPath-} is not a String with defined length.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
+ */
+
+function tagLocalRetrive( o )
+{
+  let localProvider = _.fileProvider;
+  let path = localProvider.path;
+
+  if( !_.mapIs( o ) )
+  o = { localPath : o };
+
+  _.routineOptions( tagLocalRetrive, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strIs( o.localPath ), 'Expects local path' );
+
+  if( !_.git.isRepository({ localPath : o.localPath, verbosity : o.verbosity }) )
+  return false;
+
+  let gitPath = path.join( o.localPath, '.git' );
+
+  if( !localProvider.fileExists( gitPath ) )
+  return false;
+
+  let currentTag = localProvider.fileRead( path.join( gitPath, 'HEAD' ) );
+  let r = /^ref: refs\/heads\/(.+)\s*$/;
+
+  let found = r.exec( currentTag );
+  if( !found )
+  {
+    let tag = _.git.repositoryVersionToTag
+    ({
+      localPath : o.localPath,
+      version : currentTag.trim(),
+      local : 1,
+      remote : 0,
+    });
+
+    if( !tag.length )
+    currentTag = '';
+    else
+    currentTag = _.strIs( tag ) ? tag : tag[ 0 ];
+  }
+  else
+  {
+    currentTag = found[ 1 ].trim();
+  }
+
+  if( o.detailing )
+  {
+    let result = Object.create( null );
+    result.tag = currentTag;
+    result.isTag = !found && !!currentTag;
+    result.isBranch = !!found;
+
+    return result;
+  }
+
+  return currentTag;
+}
+
+var defaults = tagLocalRetrive.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.verbosity = 0;
+defaults.detailing = 0;
+
+// --
 // version
 // --
 
 function versionLocalChange( o )
 {
   if( !_.mapIs( o ) )
-  o = { localPath : o }
+  o = { localPath : o };
 
   _.routineOptions( versionLocalChange, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let localVersion = _.git.versionLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
+  let localVersion = _.git.versionLocalRetrive
+  ({
+    localPath : o.localPath,
+    verbosity : o.verbosity
+  });
 
   if( !localVersion )
   return false;
@@ -326,19 +525,19 @@ function versionLocalChange( o )
     sync : 1,
     deasync : 0,
     outputCollecting : 1,
-    currentPath : o.localPath
+    currentPath : o.localPath,
   });
 
   let result = start( 'git status' );
   let localChanges = _.strHas( result.output, 'Changes to be committed' );
 
   if( localChanges )
-  start( 'git stash' )
+  start( 'git stash' );
 
   start( 'git checkout ' + o.version );
 
   if( localChanges )
-  start( 'git pop' )
+  start( 'git pop' );
 
   return true;
 }
@@ -350,23 +549,13 @@ defaults.verbosity = 0;
 
 //
 
-/**
- * @summary Returns hash of latest commit from git repository located at `o.localPath`.
- * @param {Object} o Options map.
- * @param {String} o.localPath Path to git repository on hard drive.
- * @param {Number} o.verbosity=0 Level of verbosity.
- * @function versionLocalRetrive
- * @namespace wTools.git
- * @module Tools/mid/GitTools
- */
-
 function versionLocalRetrive( o )
 {
   let localProvider = _.fileProvider;
   let path = localProvider.path;
 
   if( !_.mapIs( o ) )
-  o = { localPath : o }
+  o = { localPath : o };
 
   _.routineOptions( versionLocalRetrive, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
@@ -519,7 +708,7 @@ function versionIsCommitHash( o )
     sync : 0,
     deasync : 0,
     outputCollecting : 1,
-    mode : 'spawn',
+    mode : 'shell',
     currentPath : o.localPath,
     throwingExitCode : 0,
     inputMirroring : 0,
@@ -532,7 +721,7 @@ function versionIsCommitHash( o )
     if( !self.isRepository({ localPath : o.localPath }) )
     throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
     return null;
-  })
+  });
 
   start( `git rev-parse --symbolic-full-name ${o.version}` )
 
@@ -541,13 +730,13 @@ function versionIsCommitHash( o )
     if( got.exitCode !== 0 || got.output && _.strHas( got.output, 'refs/' ) )
     return false;
     return true;
-  })
+  });
 
   ready.catch( ( err ) =>
   {
     _.errAttend( err );
     throw _.err( 'Failed to check if provided version is a commit hash.\n', err );
-  })
+  });
 
   if( o.sync )
   {
@@ -556,16 +745,14 @@ function versionIsCommitHash( o )
   }
 
   return ready;
-
-  /*  */
 }
 
 versionIsCommitHash.defaults =
 {
   localPath : null,
   version : null,
-  sync : 1
-}
+  sync : 1,
+};
 
 //
 
@@ -718,7 +905,7 @@ function isUpToDate( o )
     let result = false;
     let detachedRegexp = /* /HEAD detached at (\w+)/ */ /HEAD detached at (.+)/;
     let detachedParsed = detachedRegexp.exec( got.output );
-    // let versionLocal = _.git.versionLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
+    // let versionLocal = _.git.tagLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
 
     // if( detachedParsed )
     // {
@@ -829,101 +1016,6 @@ defaults.verbosity = 0;
 
 //
 
-function isRepository( o )
-{
-  let path = _.uri;
-
-  _.routineOptions( isRepository, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
-
-  let ready = _.Consequence.Try( () =>
-  {
-    if( o.localPath === null )
-    return false;
-    return _.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) );
-  })
-
-  if( o.remotePath === null )
-  return end();
-
-  let remoteParsed = o.remotePath;
-
-  ready.then( ( exists ) =>
-  {
-    if( !exists && o.localPath )
-    return false;
-    if( path.isGlobal( o.remotePath ) )
-    remoteParsed = this.pathParse( o.remotePath ).remoteVcsPath;
-    return remoteIsRepository( remoteParsed );
-  })
-
-  ready.then( ( isRepo ) =>
-  {
-    if( !isRepo || o.localPath === null )
-    return isRepo;
-
-    return localHasRightOrigin();
-  })
-
-  return end();
-
-  /* */
-
-  function remoteIsRepository()
-  {
-    let ready = _.Consequence.Try( () =>
-    {
-      return _.process.start
-      ({
-        execPath : 'git ls-remote ' + remoteParsed,
-        throwingExitCode : 0,
-        outputPiping : 0,
-        stdio : 'ignore',
-        sync : o.sync,
-        deasync : 0,
-        inputMirroring : 1,
-        outputCollecting : 0
-      });
-    })
-    ready.then( ( got ) =>
-    {
-      return got.exitCode === 0;
-    });
-
-    if( o.sync )
-    return ready.syncMaybe();
-    return ready;
-  }
-
-  /*  */
-
-  function localHasRightOrigin()
-  {
-    let config = configRead( o.localPath );
-    let originPath = config[ 'remote "origin"' ].url
-    if( !path.isGlobal( originPath ) )
-    originPath = path.normalize( originPath )
-    return originPath === remoteParsed;
-  }
-
-  /*  */
-
-  function end()
-  {
-    if( o.sync )
-    return ready.syncMaybe();
-    return ready;
-  }
-}
-
-var defaults = isRepository.defaults = Object.create( null );
-defaults.localPath = null;
-defaults.remotePath = null;
-defaults.sync = 1;
-defaults.verbosity = 0;
-
-//
-
 /**
  * @summary Returns true if path `o.localPath` contains a git repository that was cloned from remote `o.remotePath`.
  * @param {Object} o Options map.
@@ -995,6 +1087,103 @@ function hasRemote( o )
 }
 
 var defaults = hasRemote.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.remotePath = null;
+defaults.sync = 1;
+defaults.verbosity = 0;
+
+//
+
+function isRepository( o )
+{
+  let self = this;
+  let path = _.uri;
+
+  _.routineOptions( isRepository, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+
+  let ready = _.Consequence.Try( () =>
+  {
+    if( o.localPath === null )
+    return false;
+    return _.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) );
+  });
+
+  if( o.remotePath === null )
+  return end();
+
+  let remoteParsed = o.remotePath;
+
+  ready.then( ( exists ) =>
+  {
+    if( !exists && o.localPath )
+    return false;
+    if( path.isGlobal( o.remotePath ) )
+    remoteParsed = self.pathParse( o.remotePath ).remoteVcsPath;
+    return remoteIsRepository( remoteParsed );
+  });
+
+  ready.then( ( isRepo ) =>
+  {
+    if( !isRepo || o.localPath === null )
+    return isRepo;
+
+    return localHasRightOrigin();
+  })
+
+  return end();
+
+  /* */
+
+  function remoteIsRepository()
+  {
+    let ready = _.Consequence.Try( () =>
+    {
+      return _.process.start
+      ({
+        execPath : 'git ls-remote ' + remoteParsed,
+        mode : 'shell',
+        throwingExitCode : 0,
+        outputPiping : 0,
+        stdio : 'ignore',
+        sync : o.sync,
+        deasync : 0,
+        inputMirroring : 1,
+        outputCollecting : 0
+      });
+    })
+    ready.then( ( got ) =>
+    {
+      return got.exitCode === 0;
+    });
+
+    if( o.sync )
+    return ready.syncMaybe();
+    return ready;
+  }
+
+  /* */
+
+  function localHasRightOrigin()
+  {
+    let config = configRead( o.localPath );
+    let originPath = config[ 'remote "origin"' ].url
+    if( !path.isGlobal( originPath ) )
+    originPath = path.normalize( originPath )
+    return originPath === remoteParsed;
+  }
+
+  /* */
+
+  function end()
+  {
+    if( o.sync )
+    return ready.syncMaybe();
+    return ready;
+  }
+}
+
+var defaults = isRepository.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
 defaults.sync = 1;
@@ -2358,7 +2547,7 @@ function repositoryHasTag( o )
     sync : 0,
     deasync : 0,
     outputCollecting : 1,
-    mode : 'spawn',
+    mode : 'shell',
     currentPath : o.localPath,
     throwingExitCode : 0,
     inputMirroring : 0,
@@ -2368,7 +2557,7 @@ function repositoryHasTag( o )
   ready.then( () =>
   {
     if( !self.isRepository({ localPath : o.localPath }) )
-    throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
+    throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` );
     return null;
   })
 
@@ -2415,7 +2604,7 @@ function repositoryHasTag( o )
     let possibleTag = `refs/tags/${o.tag}`;
     let possibleHead = `refs/heads/${o.tag}`;
 
-    let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' })
+    let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
     refs = refs.map( ( src ) => _.strSplitNonPreserving({ src, delimeter : /\s+/, stripping : 1 }) );
 
     for( let i = 0, l = refs.length; i < l; i++ )
@@ -2435,7 +2624,7 @@ repositoryHasTag.defaults =
   remote : 1,
   returnVersion : 0,
   sync : 1
-}
+};
 
 //
 
@@ -2543,7 +2732,7 @@ function repositoryTagToVersion( o )
   let self = this;
   _.routineOptions( repositoryTagToVersion, o );
   _.assert( arguments.length === 1 );
-  let o2 = _.mapExtend( null, o, { returnVersion : 1 });
+  let o2 = _.mapExtend( null, o, { returnVersion : 1 } );
   return self.repositoryHasTag( o2 );
 }
 
@@ -2555,7 +2744,7 @@ repositoryTagToVersion.defaults =
   local : 1,
   remote : 1,
   sync : 1
-}
+};
 
 //
 
@@ -2576,7 +2765,7 @@ function repositoryVersionToTag( o )
     sync : 0,
     deasync : 0,
     outputCollecting : 1,
-    mode : 'spawn',
+    mode : 'shell',
     currentPath : o.localPath,
     throwingExitCode : 0,
     inputMirroring : 0,
@@ -2614,7 +2803,8 @@ function repositoryVersionToTag( o )
 
   function checkLocal()
   {
-    return start( `git show-ref --heads --tags` )
+    // return start( `git show-ref --heads --tags` )
+    return start( `git show-ref --dereference --heads --tags` )
     .then( hasTag )
   }
 
@@ -2624,7 +2814,8 @@ function repositoryVersionToTag( o )
     return result;
 
     let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
-    return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    // return start( `git ls-remote --tags --heads ${remotePath}` )
+    return start( `git ls-remote --tags --heads ${remotePath}` )
     .then( hasTag )
   }
 
@@ -2632,8 +2823,9 @@ function repositoryVersionToTag( o )
   {
     let headsPrefix = 'refs/heads/';
     let tagsPrefix = 'refs/tags/';
+    let tagsPostfix = '^{}';
 
-    let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' })
+    let refs = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
     refs = refs.map( ( src ) => _.strSplitNonPreserving({ src, delimeter : /\s+/, stripping : 1 }) );
 
     let result = [];
@@ -2646,7 +2838,11 @@ function repositoryVersionToTag( o )
       tag = _.strRemoveBegin( tag, headsPrefix )
       else if( _.strBegins( tag, tagsPrefix ) )
       tag = _.strRemoveBegin( tag, tagsPrefix )
-      result.push( tag );
+
+      if( _.strEnds( tag, tagsPostfix ) )
+      tag = _.strRemoveEnd( tag, tagsPostfix );
+
+      _.arrayAppendOnce( result, tag );
     }
 
     if( result.length === 1 )
@@ -2664,7 +2860,7 @@ repositoryVersionToTag.defaults =
   local : 1,
   remote : 1,
   sync : 1
-}
+};
 
 //
 
@@ -2781,10 +2977,42 @@ exists.defaults =
 
 //
 
+/**
+ * Routine tagMake() makes tag for current commit.
+ *
+ * @example
+ * // make tag `v0.1` if script run in git repository
+ * let tag = _.git.tagMake
+ * ({
+ *   localPath : _.path.current(),
+ *   tag : 'v0.1',
+ *   description : 'version 0.1',
+ * });
+ *
+ * @param { MapLike } o - Options map.
+ * @param { String } o.localPath - Path to git repository on hard drive.
+ * @param { String } o.tag - Name of tag.
+ * @param { String } o.description - Description of tag.
+ * @param { BoolLike } o.light - Enable lightweight tags. Default is 0.
+ * @param { BoolLike } o.deleting - Enable deleting of duplicated tags. Default is 1.
+ * @param { BoolLike } o.sync - Enable synchronous execution of code. Default is 1.
+ * @returns { Consequence|MapLike } - Returns map like object with results of Process execution
+ * or Consequence that handle such Process.
+ * @function tagMake
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If options map {-o-} has extra options.
+ * @throws { Error } If {-o.localPath-} is not a String with defined length.
+ * @throws { Error } If {-o.tag-} is not a String with defined length.
+ * @throws { Error } If added two tags with identical names to single commit and {-o.deleting-} is false.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
+ */
+
 function tagMake( o )
 {
   let ready;
 
+  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
   _.routineOptions( tagMake, arguments );
 
   let start = _.process.starter
@@ -2792,7 +3020,7 @@ function tagMake( o )
     sync : 0,
     deasync : 0,
     outputCollecting : 1,
-    mode : 'spawn',
+    mode : 'shell',
     currentPath : o.localPath,
     throwingExitCode : 1,
     inputMirroring : 0,
@@ -2813,7 +3041,6 @@ function tagMake( o )
 
     ready.then( ( has ) =>
     {
-      debugger;
       if( has )
       return start( `git tag -d ${o.tag}` );
       return has;
@@ -2853,7 +3080,7 @@ tagMake.defaults =
   light : 0,
   deleting : 1,
   sync : 1,
-}
+};
 
 // --
 // hook
@@ -4536,6 +4763,97 @@ diff.defaults =
 
 //
 
+function pull( o )
+{
+  let ready = new _.Consequence().take( null );
+
+  _.assert( arguments.length === 1 );
+  _.routineOptions( pull, arguments );
+  _.assert( _.strDefined( o.localPath ) );
+
+  if( o.dry )
+  return;
+
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'shell',
+    currentPath : o.localPath,
+    throwingExitCode : o.throwing,
+    inputMirroring : 1,
+    outputPiping : 1,
+    ready,
+  });
+
+  start( `git pull` );
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+  return ready;
+}
+
+pull.defaults =
+{
+  localPath : null,
+  dry : 0,
+  sync : 1,
+  throwing : 0,
+};
+
+//
+
+function push( o )
+{
+  let ready = new _.Consequence().take( null );
+
+  _.assert( arguments.length === 1 );
+  _.routineOptions( push, arguments );
+  _.assert( _.strDefined( o.localPath ) );
+
+  if( o.dry )
+  return;
+
+  let start = _.process.starter
+  ({
+    sync : 0,
+    deasync : 0,
+    outputCollecting : 1,
+    mode : 'shell',
+    currentPath : o.localPath,
+    throwingExitCode : o.throwing,
+    inputMirroring : 1,
+    outputPiping : 1,
+    ready,
+  });
+
+  start( `git push -u origin --all` );
+  if( o.withTags )
+  start( `git push --tags --force` );
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+  return ready;
+}
+
+push.defaults =
+{
+  localPath : null,
+  withTags : 0,
+  dry : 0,
+  sync : 1,
+  throwing : 0,
+};
+
+//
+
 function reset( o )
 {
   let self = this;
@@ -4857,6 +5175,11 @@ let Extension =
   insideRepository,
   localPathFromInside,
 
+  // tag
+
+  tagLocalChange,
+  tagLocalRetrive,
+
   // version
 
   versionLocalChange,
@@ -4871,8 +5194,8 @@ let Extension =
 
   isUpToDate,
   hasFiles,
-  isRepository,
   hasRemote,
+  isRepository,
   isHead,
   sureHasOrigin,
 
@@ -4891,10 +5214,10 @@ let Extension =
 
   repositoryHasTag,
   repositoryHasVersion,
-  repositoryTagToVersion, /* qqq : cover */
-  repositoryVersionToTag, /* qqq : cover */
+  repositoryTagToVersion, /* aaa : cover */ /* Dmytro : covered */
+  repositoryVersionToTag, /* aaa : cover */ /* Dmytro : covered */
   exists,
-  tagMake, /* qqq : cover */
+  tagMake, /* aaa : cover */ /* Dmytro : covered */
 
   // hook
 
@@ -4925,9 +5248,10 @@ let Extension =
   configRead,
   configSave,
   configReset, /* qqq : implement routine _.git.configReset() */
-
   _stateParse,
   diff,
+  pull,
+  push,
   reset,
   renormalize,
 

@@ -1,0 +1,38 @@
+
+require( 'wgittools' );
+let _ = wTools;
+
+let ready = _.take( null );
+let provider = _.FileProvider.HardDrive();
+
+ready.then( () =>
+{
+  return _.process.start
+  ({
+    currentPath : _.path.join( __dirname, 'repo' ),
+    execPath : 'git remote set-url origin https://github.com/dmvict/test.git',
+  });
+});
+
+ready.then( () =>
+{
+  console.log( 'Pulling ::' );
+
+  return _.git.pull
+  ({
+    localPath : _.path.join( __dirname, 'repo' ),
+  });
+});
+
+ready.finally( ( err, op ) =>
+{
+  if( err )
+  _.errAttend( err );
+  /* provider.filesDelete( _.path.join( __dirname, 'repo' ) ); */
+
+  console.log( 'Succefully finished.' );
+  return null;
+});
+
+return ready;
+
