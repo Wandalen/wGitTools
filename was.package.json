@@ -26,6 +26,6 @@
     "ini" : "=2.0.0",
     "octonode" : "=0.10.0"
   },
-  "devDependencies" : { "wTesting" : "", "wgittools" : "file:.", "eslint" : "7.15.0" },
+  "devDependencies" : { "wTesting" : "", "wgittools" : "file:.", "eslint" : "7.1.0" },
   "keywords" : [ "wTools" ]
 }
