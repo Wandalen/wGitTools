@@ -15791,7 +15791,7 @@ function prOpenRemote( test )
   let repository = `https://github.com/wtools-bot/New-${ _.idWithDateAndTime() }`;
   a.reflect();
 
-  if( process.platform !== 'linux' )
+  if( process.platform !== 'linux' && process.platform !== 'darwin' )
   {
     test.true( true );
     return;
