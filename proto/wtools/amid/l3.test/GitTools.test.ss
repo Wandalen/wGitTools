@@ -18605,7 +18605,7 @@ function pull( test )
   }
 }
 
-pull.timeOut = 10000;
+pull.timeOut = 60000;
 
 //
 
@@ -18882,7 +18882,7 @@ function pullCheckOutput( test )
   }
 }
 
-pullCheckOutput.timeOut = 30000;
+pullCheckOutput.timeOut = 60000;
 
 //
 
@@ -19177,7 +19177,7 @@ new line`;
   }
 }
 
-push.timeOut = 30000;
+push.timeOut = 60000;
 
 //
 
@@ -19538,7 +19538,7 @@ function pushCheckOutput( test )
   }
 }
 
-pushCheckOutput.timeOut = 30000;
+pushCheckOutput.timeOut = 60000;
 
 //
 
@@ -20197,7 +20197,7 @@ function reset( test )
   }
 }
 
-reset.timeOut = 15000;
+reset.timeOut = 30000;
 
 //
 
@@ -20376,6 +20376,8 @@ function resetWithOptionRemovingUntracked( test )
   }
 }
 
+resetWithOptionRemovingUntracked.timeOut = 30000;
+
 //
 
 function resetWithOptionRemovingSubrepositories( test )
@@ -20509,6 +20511,8 @@ function resetWithOptionRemovingSubrepositories( test )
     return a.ready;
   }
 }
+
+resetWithOptionRemovingSubrepositories.timeOut = 30000;
 
 //
 
@@ -20664,6 +20668,8 @@ function resetWithOptionRemovingIgnored( test )
     return a.ready;
   }
 }
+
+resetWithOptionRemovingIgnored.timeOut = 30000;
 
 //
 
@@ -21015,7 +21021,7 @@ function resetWithOptionDry( test )
   }
 }
 
-resetWithOptionDry.timeOut = 15000;
+resetWithOptionDry.timeOut = 30000;
 
 //
 
