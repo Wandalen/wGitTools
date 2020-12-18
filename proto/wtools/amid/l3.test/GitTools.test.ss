@@ -14502,6 +14502,8 @@ function tagMake( test )
   }
 }
 
+tagMake.timeOut = 10000;
+
 //
 
 function gitHooksManager( test )
