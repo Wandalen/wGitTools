@@ -4767,8 +4767,8 @@ function pull( o )
 {
   let ready = new _.Consequence().take( null );
 
-  _.routineOptions( pull, arguments );
   _.assert( arguments.length === 1 );
+  _.routineOptions( pull, arguments );
   _.assert( _.strDefined( o.localPath ) );
 
   if( o.dry )

@@ -13878,9 +13878,13 @@ function repositoryVersionToTagWithOptionRemote( test )
   let context = this;
   let a = test.assetFor( 'basic' );
 
-  /* - */
+  /* */
 
-  begin().then( () =>
+  begin();
+
+  /* */
+
+  a.ready.then( () =>
   {
     test.case = 'version - hash of commit';
     return null;
@@ -13902,7 +13906,7 @@ function repositoryVersionToTagWithOptionRemote( test )
 
   /* */
 
-  begin().then( () =>
+  a.ready.then( () =>
   {
     test.case = 'version - hash of tag';
     return null;
@@ -13924,7 +13928,7 @@ function repositoryVersionToTagWithOptionRemote( test )
 
   /* */
 
-  begin().then( () =>
+  a.ready.then( () =>
   {
     test.case = 'version - last commit in branch';
     return null;
@@ -13955,7 +13959,7 @@ function repositoryVersionToTagWithOptionRemote( test )
 
   /* */
 
-  begin().then( () =>
+  a.ready.then( () =>
   {
     test.case = 'version - hash of commit, define remote path';
     return null;
@@ -13978,7 +13982,7 @@ function repositoryVersionToTagWithOptionRemote( test )
 
   /* */
 
-  begin().then( () =>
+  a.ready.then( () =>
   {
     test.case = 'version - hash of tag, define remote path';
     return null;
@@ -14001,7 +14005,7 @@ function repositoryVersionToTagWithOptionRemote( test )
 
   /* */
 
-  begin().then( () =>
+  a.ready.then( () =>
   {
     test.case = 'version - last commit in branch, define remote path';
     return null;
@@ -14052,7 +14056,7 @@ function repositoryVersionToTagWithOptionRemote( test )
   }
 }
 
-repositoryVersionToTagWithOptionRemote.timeOut = 30000;
+repositoryVersionToTagWithOptionRemote.timeOut = 60000;
 
 //
 
@@ -18467,30 +18471,14 @@ function pull( test )
   a.shell.predefined.outputCollecting = 1;
   a.shell.predefined.currentPath = a.abs( 'repo' );
 
-  a.ready.then( () =>
-  {
-    a.fileProvider.dirMake( a.abs( 'main' ) );
-    return null;
-  });
-
-  _.process.start
-  ({
-    currentPath : a.abs( 'main' ),
-    execPath : 'git init --bare',
-    ready : a.ready,
-  });
-
+  /* */
 
   begin().then( () =>
   {
-    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+    test.case = 'pull changes';
     return null;
   });
 
-  a.shell( 'git remote add origin ../main' );
-  a.shell( 'git add .' );
-  a.shell( 'git commit -m init' );
-  a.shell( 'git push -u origin master' );
   a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
 
   a.ready.then( () =>
@@ -18507,7 +18495,6 @@ function pull( test )
 
   a.ready.then( () =>
   {
-    test.case = 'pull changes';
     var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
     test.identical( got, [ './file.txt' ] );
 
@@ -18522,6 +18509,65 @@ function pull( test )
     return null;
   });
 
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'dry - 1, pull not changes';
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.fileWrite( a.abs( 'clone/file2.txt' ), 'file2.txt' );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
+  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git push' });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt' ] );
+
+    _.git.pull
+    ({
+      localPath : a.abs( 'repo' ),
+      dry : 1,
+    });
+
+    var got = a.fileProvider.filesFind({ filePath : a.abs( 'repo' ), outputFormat : 'relative' })
+    test.identical( got, [ './file.txt' ] );
+
+    return null;
+  });
+
+  if( Config.debug )
+  {
+    a.ready.then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.pull() );
+
+      test.case = 'extra arguments';
+      test.shouldThrowErrorSync( () => _.git.pull( { localPath : a.abs( 'repo' ) }, { extra : 1 } ) );
+
+      test.case = 'wrong type of options map o';
+      test.shouldThrowErrorSync( () => _.git.pull( [ a.abs( 'repo' ) ] ) );
+
+      test.case = 'unknown option in options map o';
+      test.shouldThrowErrorSync( () => _.git.pull( { localPath : a.abs( 'repo' ), unknown : 1 } ) );
+
+      return null;
+    });
+  }
+
   /* - */
 
   return a.ready;
@@ -18530,9 +18576,28 @@ function pull( test )
 
   function begin()
   {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'repo' ) ))
-    a.ready.then( () => { a.fileProvider.dirMake( a.abs( 'repo' ) ); return null })
-    a.shell( `git init` )
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( 'main' ) );
+      a.fileProvider.filesDelete( a.abs( 'clone' ) );
+      a.fileProvider.filesDelete( a.abs( 'repo' ) );
+      return null;
+    });
+
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( 'main' ) );
+      a.fileProvider.dirMake( a.abs( 'repo' ) );
+      a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+      return null;
+    });
+    a.shell({ currentPath : a.abs( 'main' ), execPath : `git init --bare` });
+
+    a.shell( `git init` );
+    a.shell( 'git remote add origin ../main' );
+    a.shell( 'git add .' );
+    a.shell( 'git commit -m init' );
+    a.shell( 'git push -u origin master' );
     return a.ready;
   }
 }
