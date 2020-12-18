@@ -19297,6 +19297,8 @@ function reset( test )
   }
 }
 
+reset.timeOut = 15000;
+
 //
 
 function resetWithOptionRemovingUntracked( test )
