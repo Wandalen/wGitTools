@@ -19813,7 +19813,7 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state1 : '#HEAD~',
+      state1 : '!HEAD~',
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
@@ -19851,7 +19851,7 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state1 : `#${ latestCommit }`,
+      state1 : `#${ latestCommit }`.trim(),
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
@@ -20038,7 +20038,7 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state2 : '#HEAD~',
+      state2 : '!HEAD~',
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
@@ -20076,7 +20076,7 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state2 : `#${ latestCommit }`,
+      state2 : `#${ latestCommit }`.trim(),
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
@@ -20169,8 +20169,8 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state1 : `#${ latestCommit }`,
-      state2 : `#${ latestCommit }`,
+      state1 : `#${ latestCommit }`.trim(),
+      state2 : `#${ latestCommit }`.trim(),
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
@@ -20214,8 +20214,8 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state1 : `#HEAD~2`,
-      state2 : `#${ latestCommit }`,
+      state1 : `!HEAD~2`,
+      state2 : `#${ latestCommit }`.trim(),
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
