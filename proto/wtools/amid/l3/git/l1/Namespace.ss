@@ -8,6 +8,20 @@ let Self = _.git = _.git || Object.create( null );
 let Ini = null;
 
 // --
+// checker
+//
+
+function versionIs( src )
+{
+  _.assert( arguments.length === 1, 'Expects argument {-src-}' );
+
+  if( !_.strIs( src ) || !_.strBegins( src, '#' ) )
+  return false;
+
+  return /^[a-fA-F0-9]{4,40}$/.test( _.strRemoveBegin( src, '#' ) );
+}
+
+// --
 // path
 // --
 
@@ -5161,6 +5175,10 @@ let Extension =
 {
 
   protocols : [ 'git' ],
+
+  // checker
+
+  versionIs,
 
   // path
 
