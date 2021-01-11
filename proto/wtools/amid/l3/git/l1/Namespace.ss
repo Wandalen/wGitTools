@@ -55,6 +55,34 @@ function versionIs( src )
 
 //
 
+/**
+ * Routine tagIs() checks weather the input element {-src-} is a git tag ( branch or tag ).
+ *
+ * @example
+ * _.git.tagIs( 'e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * // returns : false
+ *
+ * @example
+ * _.git.tagIs( '#e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * // returns : true
+ *
+ * @example
+ * _.git.tagIs( '#e86' );
+ * // returns : false
+ *
+ * @example
+ * _.git.tagIs( '#e862' );
+ * // returns : true
+ *
+ * @param { * } src - An element to check.
+ * @returns { Boolean } - Returns true if {-src-} is a String that begins with '#'
+ * and length of hash is great or equal to 4 and less than 40. Otherwise, returns false.
+ * @function tagIs
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
+ */
+
 function tagIs( src )
 {
   _.assert( arguments.length === 1, 'Expects argument {-src-}' );
@@ -4452,8 +4480,10 @@ function _stateParse( state )
 
   if( _.strBegins( state, statesBegin ) )
   {
-    result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
-    result.isTag = _.strBegins( state, statesBegin[ 1 ] );
+    // result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
+    // result.isTag = _.strBegins( state, statesBegin[ 1 ] );
+    result.isVersion = _.git.versionIs( state );
+    result.isTag = _.git.tagIs( state );
     result.value = _.strRemoveBegin( state, statesBegin );
 
     if( !result.isTag )
