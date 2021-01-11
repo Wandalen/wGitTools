@@ -11,6 +11,38 @@ let Ini = null;
 // checker
 //
 
+/**
+ * Routine vesionIs() checks weather the input element {-src-} is a git version ( hash ).
+ *
+ * @example
+ * _.git.versionIs( 'not a hash' );
+ * // returns : false
+ *
+ * @example
+ * _.git.versionIs( 'e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * // returns : false
+ *
+ * @example
+ * _.git.versionIs( '#e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * // returns : true
+ *
+ * @example
+ * _.git.versionIs( '#e86' );
+ * // returns : false
+ *
+ * @example
+ * _.git.versionIs( '#e862' );
+ * // returns : true
+ *
+ * @param { * } src - An element to check.
+ * @returns { Boolean } - Returns true if {-src-} is a String that begins with '#'
+ * and length of hash is great or equal to 4 and less than 40. Otherwise, returns false.
+ * @function versionIs
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
+ */
+
 function versionIs( src )
 {
   _.assert( arguments.length === 1, 'Expects argument {-src-}' );
