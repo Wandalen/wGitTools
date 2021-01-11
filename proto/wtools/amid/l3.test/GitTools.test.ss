@@ -43,6 +43,62 @@ function onSuiteEnd( test )
 // tests
 // --
 
+function versionIs( test )
+{
+  test.case = 'not a string';
+  var src = [ '#abc0' ];
+  var got = _.git.versionIs( src );
+  test.identical( got, false );
+
+  test.case = 'empty string - not a version';
+  var src = '';
+  var got = _.git.versionIs( src );
+  test.identical( got, false );
+
+  test.case = 'string - without #';
+  var src = 'abc0';
+  var got = _.git.versionIs( src );
+  test.identical( got, false );
+
+  test.case = 'string - length of hash is less than 4';
+  var src = '#abc';
+  var got = _.git.versionIs( src );
+  test.identical( got, false );
+
+  test.case = 'string - length of hash is bigger than 40';
+  var src = '#e862c547239662eb77989fd56ab0d56afa7d3ce6a';
+  var got = _.git.versionIs( src );
+  test.identical( got, false );
+
+  test.case = 'string - # placed at the middle';
+  var src = 'ab#c0';
+  var got = _.git.versionIs( src );
+  test.identical( got, false );
+
+  test.case = 'string - is version, minimal length';
+  var src = '#abc0';
+  var got = _.git.versionIs( src );
+  test.identical( got, true );
+
+  test.case = 'string - is version, maximal length';
+  var src = '#e862c547239662eb77989fd56ab0d56afa7d3ce6';
+  var got = _.git.versionIs( src );
+  test.identical( got, true );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'without arguments';
+  test.shouldThrowErrorSync( () => _.git.versionIs() );
+
+  test.case = 'extra arguments';
+  test.shouldThrowErrorSync( () => _.git.versionIs( '#abc0', 'extra' ) );
+}
+
+//
+
 function pathParse( test )
 {
   var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git';
@@ -21917,6 +21973,10 @@ var Proto =
 
   tests :
   {
+
+    // checker
+
+    versionIs,
 
     // path
 
