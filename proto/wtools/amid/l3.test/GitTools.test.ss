@@ -99,6 +99,52 @@ function versionIs( test )
 
 //
 
+function tagIs( test )
+{
+  test.case = 'not a string';
+  var src = [ '!tag' ];
+  var got = _.git.tagIs( src );
+  test.identical( got, false );
+
+  test.case = 'empty string';
+  var src = '';
+  var got = _.git.tagIs( src );
+  test.identical( got, false );
+
+  test.case = 'string without !';
+  var src = 'tag';
+  var got = _.git.tagIs( src );
+  test.identical( got, false );
+
+  test.case = 'string with ! at the middle';
+  var src = 'ta!g';
+  var got = _.git.tagIs( src );
+  test.identical( got, false );
+
+  test.case = 'string with only !, src.length === 1';
+  var src = '!';
+  var got = _.git.tagIs( src );
+  test.identical( got, false );
+
+  test.case = 'string - tag';
+  var src = '!tag';
+  var got = _.git.tagIs( src );
+  test.identical( got, true );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'without arguments';
+  test.shouldThrowErrorSync( () => _.git.tagIs() );
+
+  test.case = 'extra arguments';
+  test.shouldThrowErrorSync( () => _.git.tagIs( '!tag', 'extra' ) );
+}
+
+//
+
 function pathParse( test )
 {
   var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git';
@@ -21977,6 +22023,7 @@ var Proto =
     // checker
 
     versionIs,
+    tagIs,
 
     // path
 
