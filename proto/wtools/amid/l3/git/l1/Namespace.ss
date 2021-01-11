@@ -53,6 +53,15 @@ function versionIs( src )
   return /^[a-fA-F0-9]{4,40}$/.test( _.strRemoveBegin( src, '#' ) );
 }
 
+//
+
+function tagIs( src )
+{
+  _.assert( arguments.length === 1, 'Expects argument {-src-}' );
+
+  return _.strIs( src ) && _.strBegins( src, '!' ) && src.length >= 2;
+}
+
 // --
 // path
 // --
@@ -5211,6 +5220,7 @@ let Extension =
   // checker
 
   versionIs,
+  tagIs,
 
   // path
 
