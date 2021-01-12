@@ -980,10 +980,9 @@ function isUpToDate( o )
   //   'git status',
   // ]);
 
-  shell( 'git status' )
+  shell( 'git status' );
 
-  ready
-  .then( function( got )
+  ready.then( function( got )
   {
     let result = false;
     let detachedRegexp = /* /HEAD detached at (\w+)/ */ /HEAD detached at (.+)/;
@@ -1000,10 +999,13 @@ function isUpToDate( o )
     // }
 
     //qqq: find better way to check if hash is not a branch name
-    //qqq: replace with versionIsCommitHash after testing
-    if( parsed.hash && !parsed.isFixated )
+    // if( parsed.hash && !parsed.isFixated )
     // throw _.err( `Remote path: ${_.color.strFormat( String( o.remotePath ), 'path' )} is fixated, but hash: ${_.color.strFormat( String( parsed.hash ), 'path' ) } doesn't look like commit hash.` )
-    throw _.err( `Remote path: ( ${_.color.strFormat( String( o.remotePath ), 'path' )} ) looks like path with tag, but defined as path with version. Please use @ instead of # to specify tag` );
+
+    // aaa: replace with versionIsCommitHash after testing /* Dmytro : replaced, the routine versionIsCommitHash is tested */
+    // if( parsed.hash && !parsed.isFixated )
+    if( parsed.hash && !_.git.versionIsCommitHash({ localPath : o.localPath, version : parsed.hash }) )
+    throw _.err( `Remote path: ( ${_.color.strFormat( String( o.remotePath ), 'path' )} ) looks like path with tag, but defined as path with version. Please use ! instead of # to specify tag` );
 
     result = _.git.isHead
     ({
@@ -1031,10 +1033,9 @@ function isUpToDate( o )
     logger.log( o.remotePath, result ? 'is up to date' : 'is not up to date' );
 
     return result;
-  })
+  });
 
-  ready
-  .finally( function( err, arg )
+  ready.finally( function( err, arg )
   {
     if( err )
     throw _.err( err );
