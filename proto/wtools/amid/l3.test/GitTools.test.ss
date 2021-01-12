@@ -13235,136 +13235,290 @@ function repositoryHasVersion( test )
   let context = this;
   let a = test.assetFor( 'basic' );
 
-  a.fileProvider.dirMake( a.abs( '.' ) )
-
   /* */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
+    test.open( 'local - 1, remote - 0' );
+
+    test.case = 'full commit hash, exists';
     var got = _.git.repositoryHasVersion
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
+      local : 1,
+      remote : 0,
       sync : 1
-    })
+    });
     test.identical( got, true );
 
+    test.case = 'part of commit hash, exists';
     var got = _.git.repositoryHasVersion
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a730fa104a7b6c7',
+      local : 1,
+      remote : 0,
       sync : 1
-    })
+    });
     test.identical( got, true );
 
+    test.case = 'minimal length of commit hash, exists';
     var got = _.git.repositoryHasVersion
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a',
+      local : 1,
+      remote : 0,
       sync : 1
-    })
+    });
     test.identical( got, true );
 
+    /* */
+
+    test.case = 'full commit hash, not exists';
     var got = _.git.repositoryHasVersion
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
+      local : 1,
+      remote : 0,
       sync : 1
-    })
+    });
     test.identical( got, false );
 
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : 'master',
-        sync : 1
-      })
-    })
+    test.case = 'minimal part of commit hash, not exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : 'd290baa',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
 
-    test.description = 'version length less than 7'
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : '1c',
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : '0.0.37',
-        sync : 1
-      })
-    })
-
-    test.description = 'remote repository, should throw error'
-    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) )
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : '0.0.37',
-        sync : 1
-      })
-    })
-
-    //
-
-    if( !Config.debug )
-    return null;
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : null,
-        version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : null,
-        sync : 1
-      })
-    })
+    test.close( 'local - 1, remote - 0' );
 
     return null;
-  })
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.open( 'local - 0, remote - 1' );
+
+    test.case = 'full commit hash, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'part of commit hash, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : '041839a730fa104a7b6c7',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'minimal length of commit hash, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : '041839a',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    /* */
+
+    test.case = 'full commit hash, not exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'minimal part of commit hash, not exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : 'd290baa',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.close( 'local - 0, remote - 1' );
+
+    return null;
+  });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    begin().then( () =>
+    {
+      test.case = 'o.version is a branch name, not a hash';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Provided version: .* is not a commit hash/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          version : 'master',
+          sync : 1
+        });
+      }, errCallback );
+
+      /* */
+
+      test.case = 'o.version is a tag name, not a hash';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Provided version: .* is not a commit hash/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          version : '0.0.37',
+          sync : 1
+        });
+      }, errCallback );
+
+      /* */
+
+      test.case = 'o.version length is less than 7';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Provided version: .* is not a commit hash/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          version : '1c',
+          sync : 1
+        });
+      }, errCallback );
+
+      /* */
+
+      test.case = 'not a repository, should throw error';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Provided \{-o\.localPath-\}: .* doesn't contain a git repository/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'wModuleForTesting12' ),
+          version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+          sync : 1
+        });
+      }, errCallback );
+
+      /* */
+
+      test.case = 'wrong type of o.localPath';
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : null,
+          version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+          sync : 1
+        });
+      });
+
+      /* */
+
+      test.case = 'wrong type of o.version';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Provided version: .* is not a commit hash/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          version : null,
+          sync : 1
+        });
+      }, errCallback );
+
+      return null;
+    });
+
+    begin();
+    a.shell( 'git clone wModuleForTesting1 repo' );
+    a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git commit --allow-empty -m empty' });
+    a.ready.then( () =>
+    {
+      test.case = 'remote is ahead';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Local repository at .* is not up-to-date with remote/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'repo' ),
+          version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
+          local : 0,
+          remote : 1,
+          sync : 1,
+        });
+      }, errCallback );
+
+      return null;
+    });
+  }
 
   return a.ready;
 
@@ -13372,11 +13526,15 @@ function repositoryHasVersion( test )
 
   function begin()
   {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ))
-    a.shell( `git clone ${'https://github.com/Wandalen/wModuleForTesting1.git'}` )
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
+      a.fileProvider.dirMake( a.abs( '.' ) );
+      return null;
+    });
+    a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
     return a.ready;
   }
-
 }
 
 repositoryHasVersion.timeOut = 60000;
