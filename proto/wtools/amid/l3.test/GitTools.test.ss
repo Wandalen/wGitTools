@@ -1771,7 +1771,7 @@ function isUpToDate( test )
       a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
       return null;
     });
-    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1' );
+    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git wModuleForTesting1' );
     return a.ready;
   }
 }

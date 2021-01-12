@@ -2669,8 +2669,18 @@ function repositoryHasTag( o )
 
   function checkLocal()
   {
-    return start( `git show-ref --heads --tags` )
-    .then( hasTag )
+    // return start( `git show-ref --heads --tags` )
+    // .then( hasTag );
+    return start( `git show-ref --heads --tags -- ${o.tag}` ) /* Dmytro : fast searching for tag - result empty string or tag */
+    .then( ( got ) =>
+    {
+      if( got.output !== '' )
+      {
+        let splits = _.strSplitNonPreserving({ src : got.output, delimeter : /\s+/, stripping : 1 });
+        return o.returnVersion ? splits[ 0 ] : true;
+      }
+      return false;
+    });
   }
 
   function checkRemote( result )
@@ -2679,7 +2689,8 @@ function repositoryHasTag( o )
     return result;
 
     let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
-    return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    // return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` ) /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
     .then( hasTag )
   }
 
@@ -3021,7 +3032,7 @@ function exists( o )
       returnVersion : o.returnVersion,
       tag : remote.tag,
       sync : o.sync
-    })
+    });
 
     return self.repositoryHasVersion
     ({
@@ -3030,9 +3041,15 @@ function exists( o )
       remote : 1,
       version : remote.version,
       sync : o.sync
-    })
+    });
 
     /* qqq3: Find how to check if remote has commit */
+    /* Dmytro : the first way is fetching of all commits and searching for desired ( implemented above )
+
+      Also, it can be checked by specific API of git provider.
+      For example, for github.com we can use Rest API of Github or module `octonode` instead :
+      https://github.com/pksunkara/octonode#get-a-certain-commit-for-a-repository-get-repospksunkarahubcommits18293abcd72
+    */
     _.assert( 0, 'Case remote:#version is not implemented' );
 
     return true;
