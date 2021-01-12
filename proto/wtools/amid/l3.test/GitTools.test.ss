@@ -1221,93 +1221,121 @@ function versionIsCommitHash( test )
   let context = this;
   let a = test.assetFor( 'basic' );
 
-  a.fileProvider.dirMake( a.abs( '.' ) )
-
   /* */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
-    test.description = 'full hash length, commit exists in repo'
+    test.description = 'full hash length, commit exists in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
       sync : 1
-    })
+    });
     test.identical( got, true );
 
-    test.description = 'less then full hash length, commit exists in repo'
+    test.description = 'less then full hash length, commit exists in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a730fa104a7b6c7',
       sync : 1
-    })
+    });
     test.identical( got, true );
 
-    test.description = 'minimal hash length, commit exists in repo'
+    test.description = 'minimal hash length, commit exists in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a',
       sync : 1
-    })
+    });
     test.identical( got, true );
 
-    test.description = 'full hash length, commit does not exist in repo'
+    test.description = 'hash length less than 7, commit exists in repo';
+    var got = _.git.versionIsCommitHash
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : '04183',
+      sync : 1
+    });
+    test.identical( got, true );
+
+    /* */
+
+    test.description = 'full hash length, commit does not exist in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
       sync : 1
-    })
+    });
     test.identical( got, true );
 
-    var got = _.git.versionIsCommitHash
-    ({
-      localPath : a.abs( 'wModuleForTesting1' ),
-      version : 'master',
-      sync : 1
-    })
-    test.identical( got, false );
-
-    var got = _.git.versionIsCommitHash
-    ({
-      localPath : a.abs( 'wModuleForTesting1' ),
-      version : '0.7.50',
-      sync : 1
-    })
-    test.identical( got, false );
-
-    test.description = 'minimal hash length, commit does not exist in repo'
+    test.description = 'minimal hash length, commit does not exist in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : 'd290dba',
       sync : 1
-    })
-    test.identical( got, false )
+    });
+    test.identical( got, false );
 
-    test.description = 'version length less than 7'
-    var got = _.git.versionIsCommitHash
-    ({
-      localPath : a.abs( 'wModuleForTesting1' ),
-      version : '04',
-      sync : 1
-    })
-    test.identical( got, false )
-
-    test.description = 'version length less than 7'
+    test.description = 'version length less than 7, commit hash does not exist in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : 'd290db',
       sync : 1
-    })
-    test.identical( got, false )
+    });
+    test.identical( got, false );
 
-    test.description = 'remove repository, should throw error'
+    test.case = 'branch name, not a hash';
+    var got = _.git.versionIsCommitHash
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : 'master',
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag, not a hash';
+    var got = _.git.versionIsCommitHash
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : '0.7.50',
+      sync : 1
+    });
+    test.identical( got, false );
+
+    /* - */
+
+    if( !Config.debug )
+    return null;
+
+    test.case = 'wrong o.localPath';
+    test.shouldThrowErrorSync( () =>
+    {
+      _.git.versionIsCommitHash
+      ({
+        localPath : null,
+        version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
+        sync : 1
+      });
+    });
+
+    test.case = 'wrong o.version';
+    test.shouldThrowErrorSync( () =>
+    {
+      _.git.versionIsCommitHash
+      ({
+        localPath : a.abs( 'wModuleForTesting1' ),
+        version : null,
+        sync : 1
+      });
+    });
+
+    test.description = 'repository at o.localPath does not exist'
     _.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) )
     test.shouldThrowErrorSync( () =>
     {
@@ -1316,34 +1344,11 @@ function versionIsCommitHash( test )
         localPath : a.abs( 'wModuleForTesting1' ),
         version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
         sync : 1
-      })
-    })
-
-    if( !Config.debug )
-    return null;
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.versionIsCommitHash
-      ({
-        localPath : null,
-        version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.versionIsCommitHash
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : null,
-        sync : 1
-      })
-    })
+      });
+    });
 
     return null;
-  })
+  });
 
   return a.ready;
 
@@ -1351,11 +1356,15 @@ function versionIsCommitHash( test )
 
   function begin()
   {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ) )
-    a.shell( `git clone ${'https://github.com/Wandalen/wModuleForTesting1.git'}` )
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( '.' ) )
+      a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
+      return null;
+    });
+    a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
     return a.ready;
   }
-
 }
 
 versionIsCommitHash.timeOut = 60000;
