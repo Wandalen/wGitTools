@@ -2750,7 +2750,10 @@ function repositoryHasVersion( o )
     if( !self.isRepository({ localPath : o.localPath }) )
     throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
 
-    if( !_.git.versionIsCommitHash( _.mapOnly( o, _.git.versionIsCommitHash.defaults )) )
+    // if( !_.git.versionIsCommitHash( _.mapOnly( o, _.git.versionIsCommitHash.defaults )) ) /* Dmytro : the routine `versionIsCommitHash` searches a hash in local repository, but the hash can be on remote repository */
+    // throw _.err( `Provided version: ${_.strQuote( o.version ) } is not a commit hash.` )
+
+    if( !_.git.stateIsHash( `#${ o.version }` ) )
     throw _.err( `Provided version: ${_.strQuote( o.version ) } is not a commit hash.` )
 
     return null;
