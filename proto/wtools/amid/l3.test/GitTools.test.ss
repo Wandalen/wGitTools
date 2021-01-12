@@ -43,46 +43,46 @@ function onSuiteEnd( test )
 // tests
 // --
 
-function versionIs( test )
+function stateIsHash( test )
 {
   test.case = 'not a string';
-  var src = [ '#abc0' ];
-  var got = _.git.versionIs( src );
+  var src = [ '#e862c54' ];
+  var got = _.git.stateIsHash( src );
   test.identical( got, false );
 
   test.case = 'empty string - not a version';
   var src = '';
-  var got = _.git.versionIs( src );
+  var got = _.git.stateIsHash( src );
   test.identical( got, false );
 
   test.case = 'string - without #';
-  var src = 'abc0';
-  var got = _.git.versionIs( src );
+  var src = 'e862c54';
+  var got = _.git.stateIsHash( src );
   test.identical( got, false );
 
-  test.case = 'string - length of hash is less than 4';
-  var src = '#abc';
-  var got = _.git.versionIs( src );
+  test.case = 'string - length of hash is less than 7';
+  var src = '#e862c5';
+  var got = _.git.stateIsHash( src );
   test.identical( got, false );
 
   test.case = 'string - length of hash is bigger than 40';
   var src = '#e862c547239662eb77989fd56ab0d56afa7d3ce6a';
-  var got = _.git.versionIs( src );
+  var got = _.git.stateIsHash( src );
   test.identical( got, false );
 
   test.case = 'string - # placed at the middle';
-  var src = 'ab#c0';
-  var got = _.git.versionIs( src );
+  var src = 'e862c54#c0';
+  var got = _.git.stateIsHash( src );
   test.identical( got, false );
 
   test.case = 'string - is version, minimal length';
-  var src = '#abc0';
-  var got = _.git.versionIs( src );
+  var src = '#e862c54';
+  var got = _.git.stateIsHash( src );
   test.identical( got, true );
 
   test.case = 'string - is version, maximal length';
   var src = '#e862c547239662eb77989fd56ab0d56afa7d3ce6';
-  var got = _.git.versionIs( src );
+  var got = _.git.stateIsHash( src );
   test.identical( got, true );
 
   /* - */
@@ -91,44 +91,44 @@ function versionIs( test )
   return;
 
   test.case = 'without arguments';
-  test.shouldThrowErrorSync( () => _.git.versionIs() );
+  test.shouldThrowErrorSync( () => _.git.stateIsHash() );
 
   test.case = 'extra arguments';
-  test.shouldThrowErrorSync( () => _.git.versionIs( '#abc0', 'extra' ) );
+  test.shouldThrowErrorSync( () => _.git.stateIsHash( '#e862c54', 'extra' ) );
 }
 
 //
 
-function tagIs( test )
+function stateIsTag( test )
 {
   test.case = 'not a string';
   var src = [ '!tag' ];
-  var got = _.git.tagIs( src );
+  var got = _.git.stateIsTag( src );
   test.identical( got, false );
 
   test.case = 'empty string';
   var src = '';
-  var got = _.git.tagIs( src );
+  var got = _.git.stateIsTag( src );
   test.identical( got, false );
 
   test.case = 'string without !';
   var src = 'tag';
-  var got = _.git.tagIs( src );
+  var got = _.git.stateIsTag( src );
   test.identical( got, false );
 
   test.case = 'string with ! at the middle';
   var src = 'ta!g';
-  var got = _.git.tagIs( src );
+  var got = _.git.stateIsTag( src );
   test.identical( got, false );
 
   test.case = 'string with only !, src.length === 1';
   var src = '!';
-  var got = _.git.tagIs( src );
+  var got = _.git.stateIsTag( src );
   test.identical( got, false );
 
   test.case = 'string - tag';
   var src = '!tag';
-  var got = _.git.tagIs( src );
+  var got = _.git.stateIsTag( src );
   test.identical( got, true );
 
   /* - */
@@ -137,10 +137,10 @@ function tagIs( test )
   return;
 
   test.case = 'without arguments';
-  test.shouldThrowErrorSync( () => _.git.tagIs() );
+  test.shouldThrowErrorSync( () => _.git.stateIsTag() );
 
   test.case = 'extra arguments';
-  test.shouldThrowErrorSync( () => _.git.tagIs( '!tag', 'extra' ) );
+  test.shouldThrowErrorSync( () => _.git.stateIsTag( '!tag', 'extra' ) );
 }
 
 //
@@ -22022,8 +22022,8 @@ var Proto =
 
     // checker
 
-    versionIs,
-    tagIs,
+    stateIsHash,
+    stateIsTag,
 
     // path
 

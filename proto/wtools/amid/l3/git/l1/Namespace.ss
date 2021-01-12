@@ -12,78 +12,78 @@ let Ini = null;
 //
 
 /**
- * Routine vesionIs() checks weather the input element {-src-} is a git version ( hash ).
+ * Routine stateIsHash() checks weather the input element {-src-} is a git version ( hash ).
  *
  * @example
- * _.git.versionIs( 'not a hash' );
+ * _.git.stateIsHash( 'not a hash' );
  * // returns : false
  *
  * @example
- * _.git.versionIs( 'e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * _.git.stateIsHash( 'e862c547239662eb77989fd56ab0d56afa7d3ce6' );
  * // returns : false
  *
  * @example
- * _.git.versionIs( '#e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * _.git.stateIsHash( '#e862c547239662eb77989fd56ab0d56afa7d3ce6' );
  * // returns : true
  *
  * @example
- * _.git.versionIs( '#e86' );
+ * _.git.stateIsHash( '#e86' );
  * // returns : false
  *
  * @example
- * _.git.versionIs( '#e862' );
+ * _.git.stateIsHash( '#e862' );
  * // returns : true
  *
  * @param { * } src - An element to check.
  * @returns { Boolean } - Returns true if {-src-} is a String that begins with '#'
  * and length of hash is great or equal to 4 and less than 40. Otherwise, returns false.
- * @function versionIs
+ * @function stateIsHash
  * @throws { Error } If arguments.length is not equal to 1.
  * @namespace wTools.git
  * @module Tools/mid/GitTools
  */
 
-function versionIs( src )
+function stateIsHash( src )
 {
   _.assert( arguments.length === 1, 'Expects argument {-src-}' );
 
   if( !_.strIs( src ) || !_.strBegins( src, '#' ) )
   return false;
 
-  return /^[a-fA-F0-9]{4,40}$/.test( _.strRemoveBegin( src, '#' ) );
+  return /^[a-fA-F0-9]{7,40}$/.test( _.strRemoveBegin( src, '#' ) );
 }
 
 //
 
 /**
- * Routine tagIs() checks weather the input element {-src-} is a git tag ( branch or tag ).
+ * Routine stateIsTag() checks weather the input element {-src-} is a git tag ( branch or tag ).
  *
  * @example
- * _.git.tagIs( 'e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * _.git.stateIsTag( 'e862c547239662eb77989fd56ab0d56afa7d3ce6' );
  * // returns : false
  *
  * @example
- * _.git.tagIs( '#e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * _.git.stateIsTag( '#e862c547239662eb77989fd56ab0d56afa7d3ce6' );
  * // returns : true
  *
  * @example
- * _.git.tagIs( '#e86' );
+ * _.git.stateIsTag( '#e86' );
  * // returns : false
  *
  * @example
- * _.git.tagIs( '#e862' );
+ * _.git.stateIsTag( '#e862' );
  * // returns : true
  *
  * @param { * } src - An element to check.
  * @returns { Boolean } - Returns true if {-src-} is a String that begins with '#'
  * and length of hash is great or equal to 4 and less than 40. Otherwise, returns false.
- * @function tagIs
+ * @function stateIsTag
  * @throws { Error } If arguments.length is not equal to 1.
  * @namespace wTools.git
  * @module Tools/mid/GitTools
  */
 
-function tagIs( src )
+function stateIsTag( src )
 {
   _.assert( arguments.length === 1, 'Expects argument {-src-}' );
 
@@ -4482,8 +4482,8 @@ function _stateParse( state )
   {
     // result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
     // result.isTag = _.strBegins( state, statesBegin[ 1 ] );
-    result.isVersion = _.git.versionIs( state );
-    result.isTag = _.git.tagIs( state );
+    result.isVersion = _.git.versionIsHash( state );
+    result.isTag = _.git.versionIsTag( state );
     result.value = _.strRemoveBegin( state, statesBegin );
 
     if( !result.isTag )
@@ -5249,8 +5249,8 @@ let Extension =
 
   // checker
 
-  versionIs,
-  tagIs,
+  stateIsHash,
+  stateIsTag,
 
   // path
 
