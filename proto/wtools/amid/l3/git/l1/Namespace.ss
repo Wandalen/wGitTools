@@ -3316,17 +3316,25 @@ function hookRegister( o )
     provider.fileWrite( handlerPath, sourceCode );
   }
 
-  function setPermissions() /* qqq : use _.fileProvider.* routine */
+  function setPermissions() /* aaa : use _.fileProvider.* routine */ /* Dmytro : used, the mask 0o754 is equivalent to ug+x */
   {
-    if( process.platform !== 'win32' )
-    _.process.start
+
+    const files = provider.filesFind
     ({
-      execPath : 'chmod ug+x .git/hooks/*',
-      currentPath : o.repoPath,
-      sync : 1,
-      inputMirroring : 0,
-      outputPiping : 1
-    })
+      filePath : provider.path.join( o.repoPath, '.git/hooks' ),
+      outputFormat : 'absolute',
+    });
+    _.each( files, ( filePath ) => provider.rightsWrite({ filePath, setRights : 0o754 }) );
+
+    // if( process.platform !== 'win32' )
+    // _.process.start
+    // ({
+    //   execPath : 'chmod ug+x .git/hooks/*',
+    //   currentPath : o.repoPath,
+    //   sync : 1,
+    //   inputMirroring : 0,
+    //   outputPiping : 1
+    // })
   }
 }
 
@@ -4503,8 +4511,8 @@ function _stateParse( state )
   {
     // result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
     // result.isTag = _.strBegins( state, statesBegin[ 1 ] );
-    result.isVersion = _.git.versionIsHash( state );
-    result.isTag = _.git.versionIsTag( state );
+    result.isVersion = _.git.stateIsHash( state );
+    result.isTag = _.git.stateIsTag( state );
     result.value = _.strRemoveBegin( state, statesBegin );
 
     if( !result.isTag )
