@@ -4441,31 +4441,137 @@ function configSave( filePath, config )
 
 //
 
-function configReset() /* qqq : implement */
+function configReset( o ) /* aaa : implement */ /* Dmytro : implemented */
 {
+  _.assert( arguments.length === 1, 'Expects single options map {-o-}' );
+  _.routineOptions( configReset, o );
+  if( o.preset === 'recommended' )
+  {
+    _.assert( _.strDefined( o.userName ), 'Expects user name {-o.userName-}' );
+    _.assert( _.strDefined( o.userMail ), 'Expects user email {-o.userMail-}' );
+  }
+  else
+  {
+    _.assert( o.preset === 'standard' );
+  }
 
-  /*
+  /* */
 
-  git config --global user.email "wandalen.me@gmail.com"
-  git config --global user.name "wandalen"
-  git config --global core.autocrlf false
-  git config --global core.ignorecase false
-  git config --global core.fileMode false
+  const ready = _.take( null );
+  const start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    mode : 'shell',
+    outputCollecting : 1,
+    throwingExitCode : 1,
+    inputMirroring : 0,
+    sync : 0,
+    ready,
+  });
 
-  git config --global url."https://wandalen@github.com".insteadOf "https://github.com"
-  git config --global url."https://wandalen@bitbucket.org".insteadOf "https://bitbucket.org"
+  /* */
 
-  git config --global credential.helper store
+  if( o.withLocal )
+  {
+    _.assert( _.git.isRepository({ localPath : o.localPath }), 'Expects git repository' );
 
-  */
+    stadardLocalConfigSet();
+    if( o.preset === 'recommended' )
+    recommendedConfigSet( 'local' );
+  }
 
+  if( o.withGlobal )
+  {
+    standardGlobalConfigSet();
+    if( o.preset === 'recommended' )
+    recommendedConfigSet( 'global' );
+  }
+
+  ready.catch( ( err ) =>
+  {
+    _.errAttend( err );
+    throw _.err( err );
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /* */
+
+  function recommendedConfigSet( scope )
+  {
+    return start
+    ({
+      execPath :
+      [
+        `git config --${ scope } core.autocrlf false`,
+        `git config --${ scope } core.ignorecase false`,
+        `git config --${ scope } core.fileMode false`,
+        `git config --${ scope } credential.helper store`,
+        `git config --${ scope } user.name "${ o.userName }"`,
+        `git config --${ scope } user.email "${ o.userMail }"`,
+        `git config --${ scope } url."https://${ o.userName }@github.com".insteadOf "https://github.com"`,
+        `git config --${ scope } url."https://${ o.userName }@bitbucket.org".insteadOf "https://bitbucket.org"`,
+      ],
+    });
+  }
+
+  /* */
+
+  function stadardLocalConfigSet()
+  {
+    /* clean sections core and user */
+    start
+    ({
+      throwingExitCode : 0,
+      execPath :
+      [
+        'git config --local --remove-section core',
+        'git config --local --remove-section user',
+      ],
+    });
+
+    return start
+    ({
+      execPath :
+      [
+        'git config --local core.repositoryformatversion 0',
+        'git config --local core.filemode true',
+        'git config --local core.bare false',
+        'git config --local core.logallrefupdates true',
+      ],
+    });
+  }
+
+  /* */
+
+  function standardGlobalConfigSet()
+  {
+    const provider = _.fileProvider;
+    const path = provider.path;
+
+    const globalConfigPath = path.nativize( path.join( process.env.HOME, '.gitconfig' ) );
+    /* by default global config has no settings */
+    provider.fileWrite( globalConfigPath, '' );
+  }
 }
 
 configReset.defaults =
 {
-  global : 0,
-  preset : 'recommended', /*[ recommended, standard ]*/
-}
+  localPath : null,
+  sync : 0,
+
+  preset : 'recommended', /* [ recommended, standard ] */
+  withGlobal : 0,
+  withLocal : 1,
+  userName : null,
+  userMail : null,
+};
 
 //
 
@@ -5367,6 +5473,9 @@ let Extension =
   configRead,
   configSave,
   configReset, /* qqq : implement routine _.git.configReset() */
+
+  //
+
   _stateParse,
   diff,
   pull,
