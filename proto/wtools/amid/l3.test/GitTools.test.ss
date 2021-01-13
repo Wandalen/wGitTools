@@ -16224,7 +16224,6 @@ function configResetWithOptionWithLocal( test )
     test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
     test.identical( _.strCount( op.output, 'core.autocrlf=false' ), 1 );
     test.identical( _.strCount( op.output, 'core.ignorecase=false' ), 1 );
-    test.identical( _.strCount( op.output, 'core.filemode=false' ), 1 );
     test.identical( _.strCount( op.output, 'credential.helper=store' ), 1 );
     test.identical( _.strCount( op.output, 'url.https://user@github.com.insteadof=https://github.com' ), 1 );
     test.identical( _.strCount( op.output, 'url.https://user@bitbucket.org.insteadof=https://bitbucket.org' ), 1 );
@@ -16315,7 +16314,7 @@ function configResetWithOptionWithGlobal( test )
   /* */
 
   begin();
-  a.shell( 'git config --global user.name "user"' );
+  a.shell( 'git config --global user.name "user2"' );
   a.ready.then( () =>
   {
     test.case = 'without local path, preset - standard';
@@ -16337,7 +16336,7 @@ function configResetWithOptionWithGlobal( test )
   /* */
 
   begin();
-  a.shell( 'git config --global user.name "user"' );
+  a.shell( 'git config --global user.name "user2"' );
   a.ready.then( () =>
   {
     test.case = 'with local path, preset - standard';
@@ -16419,6 +16418,126 @@ function configResetWithOptionWithGlobal( test )
     test.identical( _.strCount( op.output, 'credential.helper=store' ), 1 );
     test.identical( _.strCount( op.output, 'url.https://user@github.com.insteadof=https://github.com' ), 1 );
     test.identical( _.strCount( op.output, 'url.https://user@bitbucket.org.insteadof=https://bitbucket.org' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.finally( ( err, arg ) =>
+  {
+    a.fileProvider.fileWrite( globalConfigPath, originalGlobalConfig );
+
+    if( err )
+    {
+      _.errAttend( err );
+      throw _.err( err );
+    }
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ));
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git init` );
+    return a.ready;
+  }
+}
+
+//
+
+function configResetWithOptionsWithLocalWithGlobal( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* to prevent global config corruption */
+  if( !_.process.insideTestContainer() )
+  {
+    test.true( true );
+    return;
+  }
+
+  /* save original global config */
+  let globalConfigPath, originalGlobalConfig;
+  a.ready.then( ( op ) =>
+  {
+    globalConfigPath = a.path.nativize( a.path.join( process.env.HOME, '.gitconfig' ) );
+    originalGlobalConfig = a.fileProvider.fileRead( globalConfigPath );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell( 'git config --global user.name "user2"' );
+  a.shellNonThrowing( 'git config --local --remove-section core' );
+  a.shellNonThrowing( 'git config --local --remove-section user' );
+  a.ready.then( () =>
+  {
+    test.case = 'with local path, preset - standard';
+    return _.git.configReset
+    ({
+      localPath : a.abs( '.' ),
+      withLocal : 1,
+      withGlobal : 1,
+      preset : 'standard',
+    });
+  });
+  a.shell( 'git config --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'core.repositoryformatversion=0' ), 1 );
+    test.identical( _.strCount( op.output, 'core.filemode=true' ), 1 );
+    test.identical( _.strCount( op.output, 'core.bare=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.logallrefupdates=true' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell( 'git config --global user.name "user2"' );
+  a.shellNonThrowing( 'git config --local --remove-section core' );
+  a.shellNonThrowing( 'git config --local --remove-section user' );
+  a.ready.then( () =>
+  {
+    test.case = 'with local path, preset - recommended';
+    return _.git.configReset
+    ({
+      localPath : a.abs( '.' ),
+      withLocal : 1,
+      withGlobal : 1,
+      userName : 'user',
+      userMail : 'user@domain.com',
+      preset : 'recommended',
+    });
+  });
+  a.shell( 'git config --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'core.repositoryformatversion=0' ), 1 );
+    test.identical( _.strCount( op.output, 'core.filemode=false' ), 2 );
+    test.identical( _.strCount( op.output, 'core.bare=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.logallrefupdates=true' ), 1 );
+
+    test.identical( _.strCount( op.output, 'user.name=user' ), 2 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 2 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 2 );
+    test.identical( _.strCount( op.output, 'core.autocrlf=false' ), 2 );
+    test.identical( _.strCount( op.output, 'core.ignorecase=false' ), 2 );
+    test.identical( _.strCount( op.output, 'core.filemode=false' ), 2 );
+    test.identical( _.strCount( op.output, 'credential.helper=store' ), 2 );
+    test.identical( _.strCount( op.output, 'url.https://user@github.com.insteadof=https://github.com' ), 2 );
+    test.identical( _.strCount( op.output, 'url.https://user@bitbucket.org.insteadof=https://bitbucket.org' ), 2 );
     return null;
   });
 
@@ -22488,6 +22607,7 @@ var Proto =
 
     configResetWithOptionWithLocal,
     configResetWithOptionWithGlobal,
+    configResetWithOptionsWithLocalWithGlobal,
 
     //
 
