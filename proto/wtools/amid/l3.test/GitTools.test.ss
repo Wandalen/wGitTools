@@ -16160,6 +16160,136 @@ prOpenRemote.timeOut = 60000;
 
 //
 
+function configResetWithOptionWithLocal( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* */
+
+  begin();
+  a.shellNonThrowing( 'git config --local --remove-section core' );
+  a.shellNonThrowing( 'git config --local --remove-section user' );
+  a.ready.then( () =>
+  {
+    test.case = 'with local path, preset - standard';
+    return _.git.configReset
+    ({
+      localPath : a.abs( '.' ),
+      withLocal : 1,
+      withGlobal : 0,
+      preset : 'standard',
+    });
+  });
+  a.shell( 'git config --local --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'core.repositoryformatversion=0' ), 1 );
+    test.identical( _.strCount( op.output, 'core.filemode=true' ), 1 );
+    test.identical( _.strCount( op.output, 'core.bare=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.logallrefupdates=true' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shellNonThrowing( 'git config --local --remove-section core' );
+  a.shellNonThrowing( 'git config --local --remove-section user' );
+  a.ready.then( () =>
+  {
+    test.case = 'with local path, preset - recommended';
+    return _.git.configReset
+    ({
+      localPath : a.abs( '.' ),
+      withLocal : 1,
+      withGlobal : 0,
+      userName : 'user',
+      userMail : 'user@domain.com',
+      preset : 'recommended',
+    });
+  });
+  a.shell( 'git config --local --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'core.repositoryformatversion=0' ), 1 );
+    test.identical( _.strCount( op.output, 'core.filemode=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.bare=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.logallrefupdates=true' ), 1 );
+
+    test.identical( _.strCount( op.output, 'user.name=user' ), 1 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
+    test.identical( _.strCount( op.output, 'core.autocrlf=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.ignorecase=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.filemode=false' ), 1 );
+    test.identical( _.strCount( op.output, 'credential.helper=store' ), 1 );
+    test.identical( _.strCount( op.output, 'url.https://user@github.com.insteadof=https://github.com' ), 1 );
+    test.identical( _.strCount( op.output, 'url.https://user@bitbucket.org.insteadof=https://bitbucket.org' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    begin().then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.configReset() );
+
+      test.case = 'extra arguments';
+      var o = { withLocal : 0, withGlobal : 1, preset : 'standard' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o, o ) );
+
+      test.case = 'wrong type of options map';
+      var o = { withLocal : 0, withGlobal : 1, preset : 'standard' };
+      test.shouldThrowErrorSync( () => _.git.configReset([ o ]) );
+
+      test.case = 'unknown option in options map';
+      var o = { unknown : 1, withLocal : 0, withGlobal : 1, preset : 'standard' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      test.case = 'preset - recommended, and options map has not user name or user email';
+      var o = { withLocal : 0, withGlobal : 1, preset : 'recommended' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      var o = { withLocal : 0, withGlobal : 1, preset : 'recommended', userName : 'user' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      var o = { withLocal : 0, withGlobal : 1, preset : 'recommended', userMail : 'user@domain.com' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      test.case = 'withLocal - 1, and options map has wrong o.localPath';
+      var o = { withLocal : 1, withGlobal : 0, preset : 'standard' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      var o = { localPath : a.abs( 'unknown' ), withLocal : 1, withGlobal : 0, preset : 'standard' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      return null;
+    });
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ));
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git init` );
+    return a.ready;
+  }
+}
+
+//
+
 function configResetWithOptionWithGlobal( test )
 {
   let context = this;
@@ -16230,7 +16360,7 @@ function configResetWithOptionWithGlobal( test )
   /* */
 
   begin();
-  a.shell( 'git config --global user.name "user"' );
+  a.shell( 'git config --global user.name "user2"' );
   a.ready.then( () =>
   {
     test.case = 'without local path, preset - recommended';
@@ -16262,7 +16392,7 @@ function configResetWithOptionWithGlobal( test )
   /* */
 
   begin();
-  a.shell( 'git config --global user.name "user"' );
+  a.shell( 'git config --global user.name "user2"' );
   a.ready.then( () =>
   {
     test.case = 'with local path, preset - recommended';
@@ -22356,6 +22486,7 @@ var Proto =
 
     // etc
 
+    configResetWithOptionWithLocal,
     configResetWithOptionWithGlobal,
 
     //
