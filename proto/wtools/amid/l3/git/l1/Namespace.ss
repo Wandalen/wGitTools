@@ -8,6 +8,89 @@ let Self = _.git = _.git || Object.create( null );
 let Ini = null;
 
 // --
+// checker
+//
+
+/**
+ * Routine stateIsHash() checks weather the input element {-src-} is a git version ( hash ).
+ *
+ * @example
+ * _.git.stateIsHash( 'not a hash' );
+ * // returns : false
+ *
+ * @example
+ * _.git.stateIsHash( 'e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * // returns : false
+ *
+ * @example
+ * _.git.stateIsHash( '#e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * // returns : true
+ *
+ * @example
+ * _.git.stateIsHash( '#e86' );
+ * // returns : false
+ *
+ * @example
+ * _.git.stateIsHash( '#e862' );
+ * // returns : true
+ *
+ * @param { * } src - An element to check.
+ * @returns { Boolean } - Returns true if {-src-} is a String that begins with '#'
+ * and length of hash is great or equal to 4 and less than 40. Otherwise, returns false.
+ * @function stateIsHash
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
+ */
+
+function stateIsHash( src )
+{
+  _.assert( arguments.length === 1, 'Expects argument {-src-}' );
+
+  if( !_.strIs( src ) || !_.strBegins( src, '#' ) )
+  return false;
+
+  return /^[a-fA-F0-9]{7,40}$/.test( _.strRemoveBegin( src, '#' ) );
+}
+
+//
+
+/**
+ * Routine stateIsTag() checks weather the input element {-src-} is a git tag ( branch or tag ).
+ *
+ * @example
+ * _.git.stateIsTag( 'e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * // returns : false
+ *
+ * @example
+ * _.git.stateIsTag( '#e862c547239662eb77989fd56ab0d56afa7d3ce6' );
+ * // returns : true
+ *
+ * @example
+ * _.git.stateIsTag( '#e86' );
+ * // returns : false
+ *
+ * @example
+ * _.git.stateIsTag( '#e862' );
+ * // returns : true
+ *
+ * @param { * } src - An element to check.
+ * @returns { Boolean } - Returns true if {-src-} is a String that begins with '#'
+ * and length of hash is great or equal to 4 and less than 40. Otherwise, returns false.
+ * @function stateIsTag
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
+ */
+
+function stateIsTag( src )
+{
+  _.assert( arguments.length === 1, 'Expects argument {-src-}' );
+
+  return _.strIs( src ) && _.strBegins( src, '!' ) && src.length >= 2;
+}
+
+// --
 // path
 // --
 
@@ -897,10 +980,9 @@ function isUpToDate( o )
   //   'git status',
   // ]);
 
-  shell( 'git status' )
+  shell( 'git status' );
 
-  ready
-  .then( function( got )
+  ready.then( function( got )
   {
     let result = false;
     let detachedRegexp = /* /HEAD detached at (\w+)/ */ /HEAD detached at (.+)/;
@@ -917,10 +999,13 @@ function isUpToDate( o )
     // }
 
     //qqq: find better way to check if hash is not a branch name
-    //qqq: replace with versionIsCommitHash after testing
-    if( parsed.hash && !parsed.isFixated )
+    // if( parsed.hash && !parsed.isFixated )
     // throw _.err( `Remote path: ${_.color.strFormat( String( o.remotePath ), 'path' )} is fixated, but hash: ${_.color.strFormat( String( parsed.hash ), 'path' ) } doesn't look like commit hash.` )
-    throw _.err( `Remote path: ( ${_.color.strFormat( String( o.remotePath ), 'path' )} ) looks like path with tag, but defined as path with version. Please use @ instead of # to specify tag` );
+
+    // aaa: replace with versionIsCommitHash after testing /* Dmytro : replaced, the routine versionIsCommitHash is tested */
+    // if( parsed.hash && !parsed.isFixated )
+    if( parsed.hash && !_.git.versionIsCommitHash({ localPath : o.localPath, version : parsed.hash }) )
+    throw _.err( `Remote path: ( ${_.color.strFormat( String( o.remotePath ), 'path' )} ) looks like path with tag, but defined as path with version. Please use ! instead of # to specify tag` );
 
     result = _.git.isHead
     ({
@@ -948,10 +1033,9 @@ function isUpToDate( o )
     logger.log( o.remotePath, result ? 'is up to date' : 'is not up to date' );
 
     return result;
-  })
+  });
 
-  ready
-  .finally( function( err, arg )
+  ready.finally( function( err, arg )
   {
     if( err )
     throw _.err( err );
@@ -2585,8 +2669,18 @@ function repositoryHasTag( o )
 
   function checkLocal()
   {
-    return start( `git show-ref --heads --tags` )
-    .then( hasTag )
+    // return start( `git show-ref --heads --tags` )
+    // .then( hasTag );
+    return start( `git show-ref --heads --tags -- ${o.tag}` ) /* Dmytro : fast searching for tag - result empty string or tag */
+    .then( ( got ) =>
+    {
+      if( got.output !== '' )
+      {
+        let splits = _.strSplitNonPreserving({ src : got.output, delimeter : /\s+/, stripping : 1 });
+        return o.returnVersion ? splits[ 0 ] : true;
+      }
+      return false;
+    });
   }
 
   function checkRemote( result )
@@ -2595,7 +2689,8 @@ function repositoryHasTag( o )
     return result;
 
     let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
-    return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    // return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` ) /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
     .then( hasTag )
   }
 
@@ -2655,7 +2750,10 @@ function repositoryHasVersion( o )
     if( !self.isRepository({ localPath : o.localPath }) )
     throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
 
-    if( !_.git.versionIsCommitHash( _.mapOnly( o, _.git.versionIsCommitHash.defaults )) )
+    // if( !_.git.versionIsCommitHash( _.mapOnly( o, _.git.versionIsCommitHash.defaults )) ) /* Dmytro : the routine `versionIsCommitHash` searches a hash in local repository, but the hash can be on remote repository */
+    // throw _.err( `Provided version: ${_.strQuote( o.version ) } is not a commit hash.` )
+
+    if( !_.git.stateIsHash( `#${ o.version }` ) )
     throw _.err( `Provided version: ${_.strQuote( o.version ) } is not a commit hash.` )
 
     return null;
@@ -2937,7 +3035,7 @@ function exists( o )
       returnVersion : o.returnVersion,
       tag : remote.tag,
       sync : o.sync
-    })
+    });
 
     return self.repositoryHasVersion
     ({
@@ -2946,9 +3044,15 @@ function exists( o )
       remote : 1,
       version : remote.version,
       sync : o.sync
-    })
+    });
 
     /* qqq3: Find how to check if remote has commit */
+    /* Dmytro : the first way is fetching of all commits and searching for desired ( implemented above )
+
+      Also, it can be checked by specific API of git provider.
+      For example, for github.com we can use Rest API of Github or module `octonode` instead :
+      https://github.com/pksunkara/octonode#get-a-certain-commit-for-a-repository-get-repospksunkarahubcommits18293abcd72
+    */
     _.assert( 0, 'Case remote:#version is not implemented' );
 
     return true;
@@ -3212,17 +3316,25 @@ function hookRegister( o )
     provider.fileWrite( handlerPath, sourceCode );
   }
 
-  function setPermissions() /* qqq : use _.fileProvider.* routine */
+  function setPermissions() /* aaa : use _.fileProvider.* routine */ /* Dmytro : used, the mask 0o754 is equivalent to ug+x */
   {
-    if( process.platform !== 'win32' )
-    _.process.start
+
+    const files = provider.filesFind
     ({
-      execPath : 'chmod ug+x .git/hooks/*',
-      currentPath : o.repoPath,
-      sync : 1,
-      inputMirroring : 0,
-      outputPiping : 1
-    })
+      filePath : provider.path.join( o.repoPath, '.git/hooks' ),
+      outputFormat : 'absolute',
+    });
+    _.each( files, ( filePath ) => provider.rightsWrite({ filePath, setRights : 0o754 }) );
+
+    // if( process.platform !== 'win32' )
+    // _.process.start
+    // ({
+    //   execPath : 'chmod ug+x .git/hooks/*',
+    //   currentPath : o.repoPath,
+    //   sync : 1,
+    //   inputMirroring : 0,
+    //   outputPiping : 1
+    // })
   }
 }
 
@@ -4329,31 +4441,137 @@ function configSave( filePath, config )
 
 //
 
-function configReset() /* qqq : implement */
+function configReset( o ) /* aaa : implement */ /* Dmytro : implemented */
 {
+  _.assert( arguments.length === 1, 'Expects single options map {-o-}' );
+  _.routineOptions( configReset, o );
+  if( o.preset === 'recommended' )
+  {
+    _.assert( _.strDefined( o.userName ), 'Expects user name {-o.userName-}' );
+    _.assert( _.strDefined( o.userMail ), 'Expects user email {-o.userMail-}' );
+  }
+  else
+  {
+    _.assert( o.preset === 'standard' );
+  }
 
-  /*
+  /* */
 
-  git config --global user.email "wandalen.me@gmail.com"
-  git config --global user.name "wandalen"
-  git config --global core.autocrlf false
-  git config --global core.ignorecase false
-  git config --global core.fileMode false
+  const ready = _.take( null );
+  const start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    mode : 'shell',
+    outputCollecting : 1,
+    throwingExitCode : 1,
+    inputMirroring : 0,
+    sync : 0,
+    ready,
+  });
 
-  git config --global url."https://wandalen@github.com".insteadOf "https://github.com"
-  git config --global url."https://wandalen@bitbucket.org".insteadOf "https://bitbucket.org"
+  /* */
 
-  git config --global credential.helper store
+  if( o.withLocal )
+  {
+    _.assert( _.git.isRepository({ localPath : o.localPath }), 'Expects git repository' );
 
-  */
+    stadardLocalConfigSet();
+    if( o.preset === 'recommended' )
+    recommendedConfigSet( 'local' );
+  }
 
+  if( o.withGlobal )
+  {
+    standardGlobalConfigSet();
+    if( o.preset === 'recommended' )
+    recommendedConfigSet( 'global' );
+  }
+
+  ready.catch( ( err ) =>
+  {
+    _.errAttend( err );
+    throw _.err( err );
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /* */
+
+  function recommendedConfigSet( scope )
+  {
+    return start
+    ({
+      execPath :
+      [
+        `git config --${ scope } core.autocrlf false`,
+        `git config --${ scope } core.ignorecase false`,
+        `git config --${ scope } core.fileMode false`,
+        `git config --${ scope } credential.helper store`,
+        `git config --${ scope } user.name "${ o.userName }"`,
+        `git config --${ scope } user.email "${ o.userMail }"`,
+        `git config --${ scope } url."https://${ o.userName }@github.com".insteadOf "https://github.com"`,
+        `git config --${ scope } url."https://${ o.userName }@bitbucket.org".insteadOf "https://bitbucket.org"`,
+      ],
+    });
+  }
+
+  /* */
+
+  function stadardLocalConfigSet()
+  {
+    /* clean sections core and user */
+    start
+    ({
+      throwingExitCode : 0,
+      execPath :
+      [
+        'git config --local --remove-section core',
+        'git config --local --remove-section user',
+      ],
+    });
+
+    return start
+    ({
+      execPath :
+      [
+        'git config --local core.repositoryformatversion 0',
+        'git config --local core.filemode true',
+        'git config --local core.bare false',
+        'git config --local core.logallrefupdates true',
+      ],
+    });
+  }
+
+  /* */
+
+  function standardGlobalConfigSet()
+  {
+    const provider = _.fileProvider;
+    const path = provider.path;
+
+    const globalConfigPath = path.nativize( path.join( process.env.HOME, '.gitconfig' ) );
+    /* by default global config has no settings */
+    provider.fileWrite( globalConfigPath, '' );
+  }
 }
 
 configReset.defaults =
 {
-  global : 0,
-  preset : 'recommended', /*[ recommended, standard ]*/
-}
+  localPath : null,
+  sync : 0,
+
+  preset : 'recommended', /* [ recommended, standard ] */
+  withGlobal : 0,
+  withLocal : 1,
+  userName : null,
+  userMail : null,
+};
 
 //
 
@@ -4397,8 +4615,10 @@ function _stateParse( state )
 
   if( _.strBegins( state, statesBegin ) )
   {
-    result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
-    result.isTag = _.strBegins( state, statesBegin[ 1 ] );
+    // result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
+    // result.isTag = _.strBegins( state, statesBegin[ 1 ] );
+    result.isVersion = _.git.stateIsHash( state );
+    result.isTag = _.git.stateIsTag( state );
     result.value = _.strRemoveBegin( state, statesBegin );
 
     if( !result.isTag )
@@ -5162,6 +5382,11 @@ let Extension =
 
   protocols : [ 'git' ],
 
+  // checker
+
+  stateIsHash,
+  stateIsTag,
+
   // path
 
   objectsParse,
@@ -5248,6 +5473,9 @@ let Extension =
   configRead,
   configSave,
   configReset, /* qqq : implement routine _.git.configReset() */
+
+  //
+
   _stateParse,
   diff,
   pull,

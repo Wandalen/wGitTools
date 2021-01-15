@@ -43,6 +43,108 @@ function onSuiteEnd( test )
 // tests
 // --
 
+function stateIsHash( test )
+{
+  test.case = 'not a string';
+  var src = [ '#e862c54' ];
+  var got = _.git.stateIsHash( src );
+  test.identical( got, false );
+
+  test.case = 'empty string - not a version';
+  var src = '';
+  var got = _.git.stateIsHash( src );
+  test.identical( got, false );
+
+  test.case = 'string - without #';
+  var src = 'e862c54';
+  var got = _.git.stateIsHash( src );
+  test.identical( got, false );
+
+  test.case = 'string - length of hash is less than 7';
+  var src = '#e862c5';
+  var got = _.git.stateIsHash( src );
+  test.identical( got, false );
+
+  test.case = 'string - length of hash is bigger than 40';
+  var src = '#e862c547239662eb77989fd56ab0d56afa7d3ce6a';
+  var got = _.git.stateIsHash( src );
+  test.identical( got, false );
+
+  test.case = 'string - # placed at the middle';
+  var src = 'e862c54#c0';
+  var got = _.git.stateIsHash( src );
+  test.identical( got, false );
+
+  test.case = 'string - is version, minimal length';
+  var src = '#e862c54';
+  var got = _.git.stateIsHash( src );
+  test.identical( got, true );
+
+  test.case = 'string - is version, maximal length';
+  var src = '#e862c547239662eb77989fd56ab0d56afa7d3ce6';
+  var got = _.git.stateIsHash( src );
+  test.identical( got, true );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'without arguments';
+  test.shouldThrowErrorSync( () => _.git.stateIsHash() );
+
+  test.case = 'extra arguments';
+  test.shouldThrowErrorSync( () => _.git.stateIsHash( '#e862c54', 'extra' ) );
+}
+
+//
+
+function stateIsTag( test )
+{
+  test.case = 'not a string';
+  var src = [ '!tag' ];
+  var got = _.git.stateIsTag( src );
+  test.identical( got, false );
+
+  test.case = 'empty string';
+  var src = '';
+  var got = _.git.stateIsTag( src );
+  test.identical( got, false );
+
+  test.case = 'string without !';
+  var src = 'tag';
+  var got = _.git.stateIsTag( src );
+  test.identical( got, false );
+
+  test.case = 'string with ! at the middle';
+  var src = 'ta!g';
+  var got = _.git.stateIsTag( src );
+  test.identical( got, false );
+
+  test.case = 'string with only !, src.length === 1';
+  var src = '!';
+  var got = _.git.stateIsTag( src );
+  test.identical( got, false );
+
+  test.case = 'string - tag';
+  var src = '!tag';
+  var got = _.git.stateIsTag( src );
+  test.identical( got, true );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'without arguments';
+  test.shouldThrowErrorSync( () => _.git.stateIsTag() );
+
+  test.case = 'extra arguments';
+  test.shouldThrowErrorSync( () => _.git.stateIsTag( '!tag', 'extra' ) );
+}
+
+//
+
 function pathParse( test )
 {
   var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git';
@@ -1119,93 +1221,121 @@ function versionIsCommitHash( test )
   let context = this;
   let a = test.assetFor( 'basic' );
 
-  a.fileProvider.dirMake( a.abs( '.' ) )
-
   /* */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
-    test.description = 'full hash length, commit exists in repo'
+    test.description = 'full hash length, commit exists in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
       sync : 1
-    })
+    });
     test.identical( got, true );
 
-    test.description = 'less then full hash length, commit exists in repo'
+    test.description = 'less then full hash length, commit exists in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a730fa104a7b6c7',
       sync : 1
-    })
+    });
     test.identical( got, true );
 
-    test.description = 'minimal hash length, commit exists in repo'
+    test.description = 'minimal hash length, commit exists in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a',
       sync : 1
-    })
+    });
     test.identical( got, true );
 
-    test.description = 'full hash length, commit does not exist in repo'
+    test.description = 'hash length less than 7, commit exists in repo';
+    var got = _.git.versionIsCommitHash
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : '04183',
+      sync : 1
+    });
+    test.identical( got, true );
+
+    /* */
+
+    test.description = 'full hash length, commit does not exist in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
       sync : 1
-    })
+    });
     test.identical( got, true );
 
-    var got = _.git.versionIsCommitHash
-    ({
-      localPath : a.abs( 'wModuleForTesting1' ),
-      version : 'master',
-      sync : 1
-    })
-    test.identical( got, false );
-
-    var got = _.git.versionIsCommitHash
-    ({
-      localPath : a.abs( 'wModuleForTesting1' ),
-      version : '0.7.50',
-      sync : 1
-    })
-    test.identical( got, false );
-
-    test.description = 'minimal hash length, commit does not exist in repo'
+    test.description = 'minimal hash length, commit does not exist in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : 'd290dba',
       sync : 1
-    })
-    test.identical( got, false )
+    });
+    test.identical( got, false );
 
-    test.description = 'version length less than 7'
-    var got = _.git.versionIsCommitHash
-    ({
-      localPath : a.abs( 'wModuleForTesting1' ),
-      version : '04',
-      sync : 1
-    })
-    test.identical( got, false )
-
-    test.description = 'version length less than 7'
+    test.description = 'version length less than 7, commit hash does not exist in repo';
     var got = _.git.versionIsCommitHash
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : 'd290db',
       sync : 1
-    })
-    test.identical( got, false )
+    });
+    test.identical( got, false );
 
-    test.description = 'remove repository, should throw error'
+    test.case = 'branch name, not a hash';
+    var got = _.git.versionIsCommitHash
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : 'master',
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag, not a hash';
+    var got = _.git.versionIsCommitHash
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : '0.7.50',
+      sync : 1
+    });
+    test.identical( got, false );
+
+    /* - */
+
+    if( !Config.debug )
+    return null;
+
+    test.case = 'wrong o.localPath';
+    test.shouldThrowErrorSync( () =>
+    {
+      _.git.versionIsCommitHash
+      ({
+        localPath : null,
+        version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
+        sync : 1
+      });
+    });
+
+    test.case = 'wrong o.version';
+    test.shouldThrowErrorSync( () =>
+    {
+      _.git.versionIsCommitHash
+      ({
+        localPath : a.abs( 'wModuleForTesting1' ),
+        version : null,
+        sync : 1
+      });
+    });
+
+    test.description = 'repository at o.localPath does not exist'
     _.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) )
     test.shouldThrowErrorSync( () =>
     {
@@ -1214,34 +1344,11 @@ function versionIsCommitHash( test )
         localPath : a.abs( 'wModuleForTesting1' ),
         version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
         sync : 1
-      })
-    })
-
-    if( !Config.debug )
-    return null;
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.versionIsCommitHash
-      ({
-        localPath : null,
-        version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.versionIsCommitHash
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : null,
-        sync : 1
-      })
-    })
+      });
+    });
 
     return null;
-  })
+  });
 
   return a.ready;
 
@@ -1249,11 +1356,15 @@ function versionIsCommitHash( test )
 
   function begin()
   {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ) )
-    a.shell( `git clone ${'https://github.com/Wandalen/wModuleForTesting1.git'}` )
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( '.' ) )
+      a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
+      return null;
+    });
+    a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
     return a.ready;
   }
-
 }
 
 versionIsCommitHash.timeOut = 60000;
@@ -1427,156 +1538,71 @@ versionsPull.routineTimeOut = 30000;
 
 function isUpToDate( test )
 {
-
   let context = this;
   let a = test.assetFor( 'basic' );
-  let con = new _.Consequence().take( null )
 
-  a.shell.predefined.mode = 'spawn';
+  /* */
 
-  con
-  .then( () =>
+  begin().then( () =>
   {
-    test.open( 'local master' );
-    test.case = 'setup';
-    let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git';
-    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
-    a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
-    return a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1' )
-  })
-
-  .then( () =>
-  {
-    test.case = 'remote master';
+    test.case = 'remote master, local on branch master';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git';
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
       return got;
-    })
-  })
+    });
+  });
 
-  .then( () =>
+  a.ready.then( () =>
   {
-    test.case = 'remote has different branch that does not exist';
-    let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git!other';
-    var con = _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
-    return test.shouldThrowErrorAsync( con )
-  })
-
-  .then( () =>
-  {
-    test.case = 'remote has fixed version';
+    test.case = 'remote has fixated version, local on branch master';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git#041839a730fa104a7b6c7e4935b4751ad81b00e0';
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
       return got;
-    })
-  })
-
-  .then( () =>
-  {
-    test.close( 'local master' );
-    return null;
-  })
+    });
+  });
 
   /* */
 
-  .then( () =>
-  {
-    test.open( 'local detached' );
-    test.case = 'setup';
-    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
-    a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
-    return null;
-  })
+  begin();
+  a.shell({ execPath : 'git -C wModuleForTesting1 checkout 041839a730fa104a7b6c7e4935b4751ad81b00e0' })
 
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1', ready : con })
-  a.shell({ execPath : 'git -C wModuleForTesting1 checkout 041839a730fa104a7b6c7e4935b4751ad81b00e0', ready : con })
-
-  .then( () =>
+  a.ready.then( () =>
   {
-    test.case = 'remote has same fixed version';
+    test.case = 'remote has same fixed version, local is detached';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git#041839a730fa104a7b6c7e4935b4751ad81b00e0';
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
       return got;
-    })
-  })
+    });
+  });
 
-  .then( () =>
+  a.ready.then( () =>
   {
-    test.case = 'remote has other fixed version';
+    test.case = 'remote has other fixated version, local is detached';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d70162fc9d06783ec24f622424a35dbda64fe956';
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
       return got;
-    })
-  })
+    });
+  });
 
-  .then( () =>
+  /* - */
+
+  begin().then( () =>
   {
-    test.case = 'remote has other branch that does not exist';
-    let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git!other';
-    var con = _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
-    return test.shouldThrowErrorAsync( con )
-  })
-
-  .then( () =>
-  {
-    test.case = 'branch name as hash';
-    let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git#other';
-    var con = _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
-    return test.shouldThrowErrorAsync( con )
-  })
-
-  .then( () =>
-  {
-    test.case = 'hash as tag';
-    let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git!d70162fc9d06783ec24f622424a35dbda64fe956';
-    var con = _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
-    return test.shouldThrowErrorAsync( con )
-  })
-
-  if( Config.debug )
-  {
-    con.then( () =>
-    {
-      test.case = 'hash and tag';
-      let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d70162fc9d06783ec24f622424a35dbda64fe956!master';
-      test.shouldThrowErrorSync( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
-      return null;
-    })
-  }
-
-  con.then( () =>
-  {
-    test.close( 'local detached' );
-    return null;
-  })
-
-  /* */
-
-  .then( () =>
-  {
-    test.case = 'local is behind remote';
-    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
-    a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
-    return null;
-  })
-
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1', ready : con })
-
-  .then( () =>
-  {
+    test.case = 'local repository resetted to previous commit';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git';
+
     return _.process.start
     ({
       execPath : 'git reset --hard HEAD~1',
@@ -1587,23 +1613,12 @@ function isUpToDate( test )
     {
       test.identical( got, false );
       return got;
-    })
-  })
+    });
+  });
 
-  /* */
-
-  .then( () =>
+  begin().then( () =>
   {
-    test.case = 'local is ahead remote';
-    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
-    a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
-    return null;
-  })
-
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1', ready : con })
-
-  .then( () =>
-  {
+    test.case = 'local repository has new commit';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git';
 
     return _.process.start
@@ -1616,23 +1631,12 @@ function isUpToDate( test )
     {
       test.identical( got, true );
       return got;
-    })
-  })
+    });
+  });
 
-  /* */
-
-  .then( () =>
+  begin().then( () =>
   {
-    test.case = 'local and remote have new commit';
-    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
-    a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
-    return null;
-  })
-
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1', ready : con })
-
-  .then( () =>
-  {
+    test.case = 'local repository update latest commit';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git';
 
     let ready = new _.Consequence().take( null );
@@ -1642,14 +1646,14 @@ function isUpToDate( test )
       execPath : 'git reset --hard HEAD~1',
       currentPath : a.abs( 'wModuleForTesting1' ),
       ready
-    })
+    });
 
     _.process.start
     ({
       execPath : 'git commit --allow-empty -m emptycommit',
       currentPath : a.abs( 'wModuleForTesting1' ),
       ready
-    })
+    });
 
     ready
     .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
@@ -1657,27 +1661,19 @@ function isUpToDate( test )
     {
       test.identical( got, false );
       return got;
-    })
+    });
 
     return ready;
-  })
+  });
 
-  /* */
+  begin();
+  a.shell({ execPath : 'git -C wModuleForTesting1 checkout 34f17134e3c1fc49ef4b9fa3ec60da8851922588' })
 
-  .then( () =>
+  a.ready.then( () =>
   {
-    test.case = 'local is detached and has local commit';
-    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
-    a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
-    return null;
-  })
-
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1', ready : con })
-  a.shell({ execPath : 'git -C wModuleForTesting1 checkout 34f17134e3c1fc49ef4b9fa3ec60da8851922588', ready : con })
-
-  .then( () =>
-  {
+    test.case = 'local repository has new commit, local is detached';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git';
+
     return _.process.start
     ({
       execPath : 'git commit --allow-empty -m emptycommit',
@@ -1688,58 +1684,96 @@ function isUpToDate( test )
     {
       test.identical( got, false );
       return got;
-    })
-  })
+    });
+  });
 
   /* */
 
-  .then( () =>
-  {
-    test.case = 'local is on different branch than remote';
-    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
-    a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
-    return null;
-  })
+  begin();
+  a.shell({ execPath : 'git -C wModuleForTesting1 checkout -b newbranch' });
 
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1', ready : con })
-  a.shell({ execPath : 'git -C wModuleForTesting1 checkout -b newbranch', ready : con })
-
-  .then( () =>
+  a.ready.then( () =>
   {
+    test.case = 'local is on new branch, chech with no identical remote branch';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master';
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
       return got;
-    })
-  })
+    });
+  });
 
-  /* */
+  begin();
+  a.shell({ execPath : 'git -C wModuleForTesting1 checkout -b newbranch' });
 
-  .then( () =>
+  a.ready.then( () =>
   {
-    test.case = 'local is on different branch than remote';
-    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
-    a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
-    return null;
-  })
-
-  a.shell({ execPath : 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1', ready : con })
-  a.shell({ execPath : 'git -C wModuleForTesting1 checkout -b newbranch', ready : con })
-
-  .then( () =>
-  {
+    test.case = 'local is on new branch, chech with identical remote branch';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!newbranch';
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
       return got;
-    })
-  })
+    });
+  });
 
-  return con;
+  /* - */
+
+  if( Config.debug )
+  {
+    begin().then( () =>
+    {
+      test.case = 'remote has different branch that does not exist';
+      let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git!other';
+      var con = _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath });
+      return test.shouldThrowErrorAsync( con );
+    });
+
+    a.ready.then( () =>
+    {
+      test.case = 'branch name as hash';
+      let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git#other';
+      var con = _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath });
+      return test.shouldThrowErrorAsync( con );
+    });
+
+    a.ready.then( () =>
+    {
+      test.case = 'hash as tag';
+      let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git!d70162fc9d06783ec24f622424a35dbda64fe956';
+      var con = _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath });
+      return test.shouldThrowErrorAsync( con );
+    })
+
+    a.ready.then( () =>
+    {
+      test.case = 'hash and tag';
+      let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d70162fc9d06783ec24f622424a35dbda64fe956!master';
+      test.shouldThrowErrorSync( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+      return null;
+    });
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () =>
+    {
+      let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git';
+      a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
+      a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
+      return null;
+    });
+    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git wModuleForTesting1' );
+    return a.ready;
+  }
 }
 
 isUpToDate.timeOut = 120000;
@@ -13201,136 +13235,290 @@ function repositoryHasVersion( test )
   let context = this;
   let a = test.assetFor( 'basic' );
 
-  a.fileProvider.dirMake( a.abs( '.' ) )
-
   /* */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
+    test.open( 'local - 1, remote - 0' );
+
+    test.case = 'full commit hash, exists';
     var got = _.git.repositoryHasVersion
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
+      local : 1,
+      remote : 0,
       sync : 1
-    })
+    });
     test.identical( got, true );
 
+    test.case = 'part of commit hash, exists';
     var got = _.git.repositoryHasVersion
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a730fa104a7b6c7',
+      local : 1,
+      remote : 0,
       sync : 1
-    })
+    });
     test.identical( got, true );
 
+    test.case = 'minimal length of commit hash, exists';
     var got = _.git.repositoryHasVersion
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : '041839a',
+      local : 1,
+      remote : 0,
       sync : 1
-    })
+    });
     test.identical( got, true );
 
+    /* */
+
+    test.case = 'full commit hash, not exists';
     var got = _.git.repositoryHasVersion
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
+      local : 1,
+      remote : 0,
       sync : 1
-    })
+    });
     test.identical( got, false );
 
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : 'master',
-        sync : 1
-      })
-    })
+    test.case = 'minimal part of commit hash, not exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : 'd290baa',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
 
-    test.description = 'version length less than 7'
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : '1c',
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : '0.0.37',
-        sync : 1
-      })
-    })
-
-    test.description = 'remote repository, should throw error'
-    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) )
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : '0.0.37',
-        sync : 1
-      })
-    })
-
-    //
-
-    if( !Config.debug )
-    return null;
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : null,
-        version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
-        sync : 1
-      })
-    })
-
-    test.shouldThrowErrorSync( () =>
-    {
-      _.git.repositoryHasVersion
-      ({
-        localPath : a.abs( 'wModuleForTesting1' ),
-        version : null,
-        sync : 1
-      })
-    })
+    test.close( 'local - 1, remote - 0' );
 
     return null;
-  })
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.open( 'local - 0, remote - 1' );
+
+    test.case = 'full commit hash, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'part of commit hash, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : '041839a730fa104a7b6c7',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'minimal length of commit hash, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : '041839a',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    /* */
+
+    test.case = 'full commit hash, not exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : 'd290dbaa22ea0f13a75d5b9ba19d5b061c6ba8bf',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'minimal part of commit hash, not exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      version : 'd290baa',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.close( 'local - 0, remote - 1' );
+
+    return null;
+  });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    begin().then( () =>
+    {
+      test.case = 'o.version is a branch name, not a hash';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Provided version: .* is not a commit hash/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          version : 'master',
+          sync : 1
+        });
+      }, errCallback );
+
+      /* */
+
+      test.case = 'o.version is a tag name, not a hash';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Provided version: .* is not a commit hash/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          version : '0.0.37',
+          sync : 1
+        });
+      }, errCallback );
+
+      /* */
+
+      test.case = 'o.version length is less than 7';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Provided version: .* is not a commit hash/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          version : '1c',
+          sync : 1
+        });
+      }, errCallback );
+
+      /* */
+
+      test.case = 'not a repository, should throw error';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Provided \{-o\.localPath-\}: .* doesn't contain a git repository/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'wModuleForTesting12' ),
+          version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+          sync : 1
+        });
+      }, errCallback );
+
+      /* */
+
+      test.case = 'wrong type of o.localPath';
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : null,
+          version : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+          sync : 1
+        });
+      });
+
+      /* */
+
+      test.case = 'wrong type of o.version';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Provided version: .* is not a commit hash/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          version : null,
+          sync : 1
+        });
+      }, errCallback );
+
+      return null;
+    });
+
+    begin();
+    a.shell( 'git clone wModuleForTesting1 repo' );
+    a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git commit --allow-empty -m empty' });
+    a.ready.then( () =>
+    {
+      test.case = 'remote is ahead';
+      var errCallback = ( err, arg ) =>
+      {
+        test.identical( arg, undefined );
+        test.true( _.errIs( err ) );
+        var pattern = /Local repository at .* is not up-to-date with remote/;
+        test.identical( _.strCount( err.messag, pattern ), 1 );
+      };
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'repo' ),
+          version : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
+          local : 0,
+          remote : 1,
+          sync : 1,
+        });
+      }, errCallback );
+
+      return null;
+    });
+  }
 
   return a.ready;
 
@@ -13338,11 +13526,15 @@ function repositoryHasVersion( test )
 
   function begin()
   {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ))
-    a.shell( `git clone ${'https://github.com/Wandalen/wModuleForTesting1.git'}` )
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
+      a.fileProvider.dirMake( a.abs( '.' ) );
+      return null;
+    });
+    a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
     return a.ready;
   }
-
 }
 
 repositoryHasVersion.timeOut = 60000;
@@ -15965,6 +16157,418 @@ function prOpenRemote( test )
 }
 
 prOpenRemote.timeOut = 60000;
+
+//
+
+function configResetWithOptionWithLocal( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* */
+
+  begin();
+  a.shellNonThrowing( 'git config --local --remove-section core' );
+  a.shellNonThrowing( 'git config --local --remove-section user' );
+  a.ready.then( () =>
+  {
+    test.case = 'with local path, preset - standard';
+    return _.git.configReset
+    ({
+      localPath : a.abs( '.' ),
+      withLocal : 1,
+      withGlobal : 0,
+      preset : 'standard',
+    });
+  });
+  a.shell( 'git config --local --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'core.repositoryformatversion=0' ), 1 );
+    test.identical( _.strCount( op.output, 'core.filemode=true' ), 1 );
+    test.identical( _.strCount( op.output, 'core.bare=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.logallrefupdates=true' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shellNonThrowing( 'git config --local --remove-section core' );
+  a.shellNonThrowing( 'git config --local --remove-section user' );
+  a.ready.then( () =>
+  {
+    test.case = 'with local path, preset - recommended';
+    return _.git.configReset
+    ({
+      localPath : a.abs( '.' ),
+      withLocal : 1,
+      withGlobal : 0,
+      userName : 'user',
+      userMail : 'user@domain.com',
+      preset : 'recommended',
+    });
+  });
+  a.shell( 'git config --local --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'core.repositoryformatversion=0' ), 1 );
+    test.identical( _.strCount( op.output, 'core.filemode=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.bare=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.logallrefupdates=true' ), 1 );
+
+    test.identical( _.strCount( op.output, 'user.name=user' ), 1 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
+    test.identical( _.strCount( op.output, 'core.autocrlf=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.ignorecase=false' ), 1 );
+    test.identical( _.strCount( op.output, 'credential.helper=store' ), 1 );
+    test.identical( _.strCount( op.output, 'url.https://user@github.com.insteadof=https://github.com' ), 1 );
+    test.identical( _.strCount( op.output, 'url.https://user@bitbucket.org.insteadof=https://bitbucket.org' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    begin().then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.configReset() );
+
+      test.case = 'extra arguments';
+      var o = { withLocal : 0, withGlobal : 1, preset : 'standard' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o, o ) );
+
+      test.case = 'wrong type of options map';
+      var o = { withLocal : 0, withGlobal : 1, preset : 'standard' };
+      test.shouldThrowErrorSync( () => _.git.configReset([ o ]) );
+
+      test.case = 'unknown option in options map';
+      var o = { unknown : 1, withLocal : 0, withGlobal : 1, preset : 'standard' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      test.case = 'preset - recommended, and options map has not user name or user email';
+      var o = { withLocal : 0, withGlobal : 1, preset : 'recommended' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      var o = { withLocal : 0, withGlobal : 1, preset : 'recommended', userName : 'user' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      var o = { withLocal : 0, withGlobal : 1, preset : 'recommended', userMail : 'user@domain.com' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      test.case = 'withLocal - 1, and options map has wrong o.localPath';
+      var o = { withLocal : 1, withGlobal : 0, preset : 'standard' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      var o = { localPath : a.abs( 'unknown' ), withLocal : 1, withGlobal : 0, preset : 'standard' };
+      test.shouldThrowErrorSync( () => _.git.configReset( o ) );
+
+      return null;
+    });
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ));
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git init` );
+    return a.ready;
+  }
+}
+
+//
+
+function configResetWithOptionWithGlobal( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.fileProvider.dirMake( a.abs( '.' ) );
+
+  /* to prevent global config corruption */
+  if( !_.process.insideTestContainer() )
+  {
+    test.true( true );
+    return;
+  }
+
+  /* save original global config */
+  let globalConfigPath, originalGlobalConfig;
+  a.ready.then( ( op ) =>
+  {
+    globalConfigPath = a.path.nativize( a.path.join( process.env.HOME, '.gitconfig' ) );
+    originalGlobalConfig = a.fileProvider.fileRead( globalConfigPath );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell( 'git config --global user.name "user2"' );
+  a.ready.then( () =>
+  {
+    test.case = 'without local path, preset - standard';
+    return _.git.configReset
+    ({
+      withLocal : 0,
+      withGlobal : 1,
+      preset : 'standard',
+    });
+  });
+  a.shell( 'git config --global --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell( 'git config --global user.name "user2"' );
+  a.ready.then( () =>
+  {
+    test.case = 'with local path, preset - standard';
+    return _.git.configReset
+    ({
+      localPath : a.abs( '.' ),
+      withLocal : 0,
+      withGlobal : 1,
+      preset : 'standard',
+    });
+  });
+  a.shell( 'git config --global --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell( 'git config --global user.name "user2"' );
+  a.ready.then( () =>
+  {
+    test.case = 'without local path, preset - recommended';
+    return _.git.configReset
+    ({
+      withLocal : 0,
+      withGlobal : 1,
+      userName : 'user',
+      userMail : 'user@domain.com',
+      preset : 'recommended',
+    });
+  });
+  a.shell( 'git config --global --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'user.name=user' ), 1 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
+    test.identical( _.strCount( op.output, 'core.autocrlf=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.ignorecase=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.filemode=false' ), 1 );
+    test.identical( _.strCount( op.output, 'credential.helper=store' ), 1 );
+    test.identical( _.strCount( op.output, 'url.https://user@github.com.insteadof=https://github.com' ), 1 );
+    test.identical( _.strCount( op.output, 'url.https://user@bitbucket.org.insteadof=https://bitbucket.org' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell( 'git config --global user.name "user2"' );
+  a.ready.then( () =>
+  {
+    test.case = 'with local path, preset - recommended';
+    return _.git.configReset
+    ({
+      localPath : a.abs( '.' ),
+      withLocal : 0,
+      withGlobal : 1,
+      userName : 'user',
+      userMail : 'user@domain.com',
+      preset : 'recommended',
+    });
+  });
+  a.shell( 'git config --global --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'user.name=user' ), 1 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
+    test.identical( _.strCount( op.output, 'core.autocrlf=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.ignorecase=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.filemode=false' ), 1 );
+    test.identical( _.strCount( op.output, 'credential.helper=store' ), 1 );
+    test.identical( _.strCount( op.output, 'url.https://user@github.com.insteadof=https://github.com' ), 1 );
+    test.identical( _.strCount( op.output, 'url.https://user@bitbucket.org.insteadof=https://bitbucket.org' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.finally( ( err, arg ) =>
+  {
+    a.fileProvider.fileWrite( globalConfigPath, originalGlobalConfig );
+
+    if( err )
+    {
+      _.errAttend( err );
+      throw _.err( err );
+    }
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ));
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git init` );
+    return a.ready;
+  }
+}
+
+//
+
+function configResetWithOptionsWithLocalWithGlobal( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* to prevent global config corruption */
+  if( !_.process.insideTestContainer() )
+  {
+    test.true( true );
+    return;
+  }
+
+  /* save original global config */
+  let globalConfigPath, originalGlobalConfig;
+  a.ready.then( ( op ) =>
+  {
+    globalConfigPath = a.path.nativize( a.path.join( process.env.HOME, '.gitconfig' ) );
+    originalGlobalConfig = a.fileProvider.fileRead( globalConfigPath );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell( 'git config --global user.name "user2"' );
+  a.shellNonThrowing( 'git config --local --remove-section core' );
+  a.shellNonThrowing( 'git config --local --remove-section user' );
+  a.ready.then( () =>
+  {
+    test.case = 'with local path, preset - standard';
+    return _.git.configReset
+    ({
+      localPath : a.abs( '.' ),
+      withLocal : 1,
+      withGlobal : 1,
+      preset : 'standard',
+    });
+  });
+  a.shell( 'git config --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'core.repositoryformatversion=0' ), 1 );
+    test.identical( _.strCount( op.output, 'core.filemode=true' ), 1 );
+    test.identical( _.strCount( op.output, 'core.bare=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.logallrefupdates=true' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell( 'git config --global user.name "user2"' );
+  a.shellNonThrowing( 'git config --local --remove-section core' );
+  a.shellNonThrowing( 'git config --local --remove-section user' );
+  a.ready.then( () =>
+  {
+    test.case = 'with local path, preset - recommended';
+    return _.git.configReset
+    ({
+      localPath : a.abs( '.' ),
+      withLocal : 1,
+      withGlobal : 1,
+      userName : 'user',
+      userMail : 'user@domain.com',
+      preset : 'recommended',
+    });
+  });
+  a.shell( 'git config --list' )
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'core.repositoryformatversion=0' ), 1 );
+    test.identical( _.strCount( op.output, 'core.filemode=false' ), 2 );
+    test.identical( _.strCount( op.output, 'core.bare=false' ), 1 );
+    test.identical( _.strCount( op.output, 'core.logallrefupdates=true' ), 1 );
+
+    test.identical( _.strCount( op.output, 'user.name=user' ), 2 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 2 );
+    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 2 );
+    test.identical( _.strCount( op.output, 'core.autocrlf=false' ), 2 );
+    test.identical( _.strCount( op.output, 'core.ignorecase=false' ), 2 );
+    test.identical( _.strCount( op.output, 'core.filemode=false' ), 2 );
+    test.identical( _.strCount( op.output, 'credential.helper=store' ), 2 );
+    test.identical( _.strCount( op.output, 'url.https://user@github.com.insteadof=https://github.com' ), 2 );
+    test.identical( _.strCount( op.output, 'url.https://user@bitbucket.org.insteadof=https://bitbucket.org' ), 2 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.finally( ( err, arg ) =>
+  {
+    a.fileProvider.fileWrite( globalConfigPath, originalGlobalConfig );
+
+    if( err )
+    {
+      _.errAttend( err );
+      throw _.err( err );
+    }
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ));
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git init` );
+    return a.ready;
+  }
+}
 
 //
 
@@ -19711,7 +20315,7 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state1 : '#HEAD~',
+      state1 : '!HEAD~',
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
@@ -19749,7 +20353,7 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state1 : `#${ latestCommit }`,
+      state1 : `#${ latestCommit }`.trim(),
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
@@ -19936,7 +20540,7 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state2 : '#HEAD~',
+      state2 : '!HEAD~',
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
@@ -19974,7 +20578,7 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state2 : `#${ latestCommit }`,
+      state2 : `#${ latestCommit }`.trim(),
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
@@ -20067,8 +20671,8 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state1 : `#${ latestCommit }`,
-      state2 : `#${ latestCommit }`,
+      state1 : `#${ latestCommit }`.trim(),
+      state2 : `#${ latestCommit }`.trim(),
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
@@ -20112,8 +20716,8 @@ function reset( test )
 
     var got = _.git.reset
     ({
-      state1 : `#HEAD~2`,
-      state2 : `#${ latestCommit }`,
+      state1 : `!HEAD~2`,
+      state2 : `#${ latestCommit }`.trim(),
       localPath : a.abs( 'repo' ),
     });
     var read = a.fileProvider.fileRead( a.abs( 'repo', 'file' ) );
@@ -21918,6 +22522,11 @@ var Proto =
   tests :
   {
 
+    // checker
+
+    stateIsHash,
+    stateIsTag,
+
     // path
 
     pathParse, /* qqq : check tests */
@@ -21993,6 +22602,14 @@ var Proto =
     repositoryInit,
     prOpen,
     prOpenRemote,
+
+    // etc
+
+    configResetWithOptionWithLocal,
+    configResetWithOptionWithGlobal,
+    configResetWithOptionsWithLocalWithGlobal,
+
+    //
 
     diff,
     diffSpecial,
