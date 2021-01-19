@@ -12931,6 +12931,44 @@ function repositoryHasTag( test )
     });
     test.identical( got, false );
 
+    /* */
+
+    test.case = 'tag - branch, exists only on remote server, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'dev1',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - branch, exists only on remote server, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'dev1',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - hash, not exists, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'dev1',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
+
     /* - */
 
     if( !Config.debug )
@@ -13202,6 +13240,47 @@ function repositoryHasTagWithOptionReturnVersion( test )
       localPath : a.abs( 'wModuleForTesting1' ),
       remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
       tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 1,
+      remote : 0,
+      sync : 1,
+      returnVersion : 1,
+    });
+    test.identical( got, false );
+
+    /* */
+
+    test.case = 'tag - branch, exists only on remote server, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'dev1',
+      local : 1,
+      remote : 1,
+      sync : 1,
+      returnVersion : 1,
+    });
+    test.identical( got, 'd1065f64a0bce60b3a533949433895be50d62505' );
+
+    test.case = 'tag - branch, exists only on remote server, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'dev1',
+      local : 0,
+      remote : 1,
+      sync : 1,
+      returnVersion : 1,
+    });
+    test.identical( got, 'd1065f64a0bce60b3a533949433895be50d62505' );
+
+    test.case = 'tag - hash, not exists, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      tag : 'dev1',
       local : 1,
       remote : 0,
       sync : 1,
