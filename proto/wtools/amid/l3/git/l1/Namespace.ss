@@ -1016,7 +1016,13 @@ function isUpToDate( o )
 
     if( !result && parsed.tag )
     {
-      let repositoryHasTag = _.git.repositoryHasTag({ localPath : o.localPath, tag : parsed.tag });
+      let repositoryHasTag = _.git.repositoryHasTag
+      ({
+        localPath : o.localPath,
+        remotePath : srcCurrentPath,
+        tag : parsed.tag
+      });
+
       if( !repositoryHasTag )
       throw _.err
       (
@@ -1050,7 +1056,7 @@ function isUpToDate( o )
   {
     let conf = _.git.configRead( o.localPath );
 
-    if( !conf[ 'remote "origin"' ] || !conf[ 'remote "origin"' ] || !_.strIs( conf[ 'remote "origin"' ].url ) )
+    if( !conf || !conf[ 'remote "origin"' ] || !_.strIs( conf[ 'remote "origin"' ].url ) )
     return false;
 
     srcCurrentPath = conf[ 'remote "origin"' ].url;
