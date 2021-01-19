@@ -2669,18 +2669,18 @@ function repositoryHasTag( o )
 
   function checkLocal()
   {
-    return start( `git show-ref --heads --tags` )
-    .then( hasTag );
-    // return start( `git show-ref --heads --tags -- ${o.tag}` ) /* Dmytro : fast searching for tag - result empty string or tag */
-    // .then( ( got ) =>
-    // {
-    //   if( got.output !== '' )
-    //   {
-    //     let splits = _.strSplitNonPreserving({ src : got.output, delimeter : /\s+/, stripping : 1 });
-    //     return o.returnVersion ? splits[ 0 ] : true;
-    //   }
-    //   return false;
-    // });
+    // return start( `git show-ref --heads --tags` )
+    // .then( hasTag );
+    return start( `git show-ref --heads --tags -- ${o.tag}` ) /* Dmytro : fast searching for tag - result empty string or tag */
+    .then( ( got ) =>
+    {
+      if( got.output !== '' )
+      {
+        let splits = _.strSplitNonPreserving({ src : got.output, delimeter : /\s+/, stripping : 1 });
+        return o.returnVersion ? splits[ 0 ] : true;
+      }
+      return false;
+    });
   }
 
   function checkRemote( result )
@@ -2688,9 +2688,10 @@ function repositoryHasTag( o )
     if( result )
     return result;
 
-    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
-    // return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` ) /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
-    return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : 'origin';
+    return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` ) /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
+    // let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
+    // return start( `git ls-remote --tags --refs --heads ${remotePath}` )
     .then( hasTag )
   }
 
