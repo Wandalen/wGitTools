@@ -7323,12 +7323,11 @@ function statusRemoteTags( test )
 
   a.shell.predefined.currentPath = a.abs( 'clone' );
 
-  a.fileProvider.dirMake( a.abs( '.' ) )
+  a.fileProvider.dirMake( a.abs( '.' ) );
 
   /* */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
     test.case = 'check tags on fresh clone';
 
@@ -7347,10 +7346,13 @@ function statusRemoteTags( test )
       remoteBranches : false,
       remoteTags : false,
       status : false
-    }
+    };
     test.identical( got, expected );
     return null;
-  })
+  });
+
+  /* */
+
   a.shell( 'git tag -d v0.0.70' )
   .then( () =>
   {
@@ -7371,10 +7373,13 @@ function statusRemoteTags( test )
       remoteBranches : false,
       remoteTags : 'refs/tags/v0.0.70\nrefs/tags/v0.0.70^{}',
       status : 'List of unpulled remote tags:\n  refs/tags/v0.0.70\n  refs/tags/v0.0.70^{}'
-    }
+    };
     test.identical( got, expected );
     return null;
-  })
+  });
+
+  /* */
+
   a.shell( 'git fetch --all' )
   .then( () =>
   {
@@ -7395,10 +7400,13 @@ function statusRemoteTags( test )
       remoteBranches : false,
       remoteTags : false,
       status : false
-    }
+    };
     test.identical( got, expected );
     return null;
-  })
+  });
+
+  /* */
+
   a.shell( 'git tag sometag' )
   .then( () =>
   {
@@ -7419,11 +7427,14 @@ function statusRemoteTags( test )
       remoteBranches : false,
       remoteTags : false,
       status : false
-    }
+    };
     test.identical( got, expected );
     return null;
-  })
-  a.shell( 'git tag new v0.0.70' )
+  });
+
+  /* */
+
+  a.shell( 'git tag new v0.0.70' );
   a.shell( 'git tag -d v0.0.70' )
   .then( () =>
   {
@@ -7444,30 +7455,25 @@ function statusRemoteTags( test )
       remoteBranches : false,
       remoteTags : 'refs/tags/v0.0.70\nrefs/tags/v0.0.70^{}',
       status : 'List of unpulled remote tags:\n  refs/tags/v0.0.70\n  refs/tags/v0.0.70^{}'
-    }
+    };
     test.identical( got, expected );
     return null;
-  })
+  });
 
-  /* */
+  /* - */
 
   return a.ready;
 
-  /* - */
+  /* */
 
   function begin()
   {
     a.ready.then( () =>
     {
-      test.case = 'clean clone';
       a.fileProvider.filesDelete( a.abs( 'clone' ) );
-      return _.process.start
-      ({
-        execPath : 'git clone ' + 'https://github.com/Wandalen/wModuleForTesting1.git' + ' ' + 'clone',
-        currentPath : a.abs( '.' ),
-      })
-    })
-
+      return null;
+    });
+    a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone https://github.com/Wandalen/wModuleForTesting2.git clone' });
     return a.ready;
   }
 }
