@@ -16231,6 +16231,55 @@ function repositoryCheckout( test )
       };
       test.shouldThrowErrorSync( () => _.git.repositoryCheckout( o ) );
 
+      test.case = 'o.localPath is empty string';
+      var o =
+      {
+        localPath : '',
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      };
+      test.shouldThrowErrorSync( () => _.git.repositoryCheckout( o ) );
+
+      test.case = 'wrong type of o.localPath';
+      var o =
+      {
+        localPath : [ a.abs( 'wModuleForTesting1' ) ],
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      };
+      test.shouldThrowErrorSync( () => _.git.repositoryCheckout( o ) );
+
+      test.case = 'o.remotePath is empty string';
+      var o =
+      {
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : '',
+      };
+      test.shouldThrowErrorSync( () => _.git.repositoryCheckout( o ) );
+
+      test.case = 'wrong type of o.remotePath';
+      var o =
+      {
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : [ 'https://github.com/Wandalen/wModuleForTesting1.git' ],
+      };
+      test.shouldThrowErrorSync( () => _.git.repositoryCheckout( o ) );
+
+      test.case = 'local directory is not a git repository, path with tag';
+      a.fileProvider.dirMake( a.abs( 'wModuleForTesting12' ) );
+      var o =
+      {
+        localPath : a.abs( 'wModuleForTesting12' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting12.git!master',
+      };
+      test.shouldThrowErrorAsync( () => _.git.repositoryCheckout( o ) );
+
+      test.case = 'local and remote repository has no tag';
+      var o =
+      {
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git!unknown',
+      };
+      test.shouldThrowErrorAsync( () => _.git.repositoryCheckout( o ) );
+
       return null;
     });
   }

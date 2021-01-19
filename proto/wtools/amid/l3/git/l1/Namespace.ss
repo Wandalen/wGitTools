@@ -4046,8 +4046,8 @@ function repositoryCheckout( o )
 {
   let localProvider = _.fileProvider;
 
-  _.routineOptions( repositoryCheckout, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
+  _.routineOptions( repositoryCheckout, o );
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
   _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
 
@@ -4065,7 +4065,12 @@ function repositoryCheckout( o )
   if( parsed.tag )
   ready.then( () =>
   {
-    let repoHasTag = _.git.repositoryHasTag({ localPath : o.localPath, tag : parsed.tag });
+    let repoHasTag = _.git.repositoryHasTag
+    ({
+      localPath : o.localPath,
+      remotePath : parsed.remoteVcsPath,
+      tag : parsed.tag
+    });
 
     if( !repoHasTag )
     throw _.err
