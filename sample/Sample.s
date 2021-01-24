@@ -1,10 +1,9 @@
+if( typeof 'module' !== undefined )
 require( 'wgittools' );
+
 let _ = wTools;
 
-var got =  _.git.status
-({
-  localPath : _.path.join( __dirname, '..' ),
-  detailing : 1
-});
+let localPath = _.path.join( __dirname, '..' );
+var isRepository =  _.git.isRepository({ localPath });
 
-console.log( _.toStr( got ) )
+console.log( `Current directory ${ localPath } is a Git repository : ${ isRepository }` );
