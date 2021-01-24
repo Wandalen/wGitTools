@@ -8,7 +8,7 @@ Collection of tools to use git programmatically.
 git clone https://github.com/Wandalen/wGitTools
 cd wGitTools
 npm install
-node sample/Sample.s
+node sample/trivial/Sample.s
 ```
 
 ## To add to your project
