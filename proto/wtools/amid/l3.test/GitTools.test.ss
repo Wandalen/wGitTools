@@ -17216,7 +17216,7 @@ function prOpenRemote( test )
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
   let insideTestContainer = _.process.insideTestContainer();
 
-  if( !validPlatform || !insideTestContainer )
+  if( !validPlatform || !insideTestContainer || process.env.GITHUB_EVENT_NAME === 'pull_request' )
   {
     test.true( true );
     return;
