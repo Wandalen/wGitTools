@@ -13081,6 +13081,225 @@ repositoryHasTag.timeOut = 60000;
 
 //
 
+function repositoryHasTagRemotePathIsMap( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  a.fileProvider.dirMake( a.abs( '.' ) )
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'tag - master, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'master',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - master, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'master',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - master, not exists, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'master',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    /* */
+
+    test.case = 'tag - abc, not exists, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'abc',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - abc, not exists, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'abc',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - abc, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'abc',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    /* */
+    test.case = 'tag - 0.0.37, exists, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '0.0.37',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - 0.0.37, exists, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '0.0.37',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - 0.0.37, exists, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '0.0.37',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    /* */
+
+    test.case = 'tag - hash, not exists, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - hash, not exists, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - hash, not exists, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    /* */
+
+    test.case = 'tag - branch, exists only on remote server, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'dev1',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - branch, exists only on remote server, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'dev1',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - hash, not exists, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'dev1',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ) );
+    a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
+    return a.ready;
+  }
+}
+
+repositoryHasTagRemotePathIsMap.timeOut = 60000;
+
+//
+
 function repositoryHasTagWithOptionReturnVersion( test )
 {
   let context = this;
@@ -23389,6 +23608,7 @@ var Proto =
     // tag and version
 
     repositoryHasTag,
+    repositoryHasTagRemotePathIsMap,
     repositoryHasTagWithOptionReturnVersion,
     repositoryHasVersion,
     repositoryTagToVersion,
