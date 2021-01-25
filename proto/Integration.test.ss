@@ -89,7 +89,6 @@ function production( test )
     version = _.path.dir( mdlPath );
   }
 
-
   let data = { dependencies : { [ mdl.name ] : version } };
   a.fileProvider.fileWrite({ filePath : a.abs( 'package.json' ), data, encoding : 'json' });
 
