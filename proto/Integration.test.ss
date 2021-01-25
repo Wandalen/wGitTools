@@ -49,7 +49,7 @@ function production( test )
   let a = test.assetFor( 'production' );
   let runList = [];
 
-  if( process.env.GITHUB_ACTOR !== 'Wandalen' )
+  if( process.env.GITHUB_EVENT_NAME === 'pull_request' )
   {
     test.true( true );
     return;
