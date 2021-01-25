@@ -78,7 +78,7 @@ function production( test )
 
   /* */
 
-  if( process.end.GITHUB_ACTOR === 'Wandalen' )
+  if( process.env.GITHUB_ACTOR === 'Wandalen' )
   a.shell( `npm i --production` );
   else
   a.shell( `npm i ${ process.env.GITHUB_REPOSITORY }` );
