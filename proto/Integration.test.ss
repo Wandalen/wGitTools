@@ -74,13 +74,23 @@ function production( test )
   let mdl = a.fileProvider.fileRead({ filePath : mdlPath, encoding : 'json' });
 
   let version;
-  let githubPackage = process.env.GITHUB_REPOSITORY;
-  if( mdl.repository.url !== `https://github.com/${ githubPackage }.git` )
-  version = _.npm.versionRemoteRetrive( `npm:///${ mdl.name }!alpha` ) === '' ? 'latest' : 'alpha';
-  else if( !_.process.insideTestContainer() )
-  version = _.path.dir( mdlPath );
+  let githubRepository = process.env.GITHUB_REPOSITORY;
+  if( _.process.insideTestContainer() )
+  {
+    let parsed = _.uri.parseAtomic( mdl.repository.url || mdl.repository );
+    let resourceName = parsed.resourcePath;
+    resourcePath = _.strRemoveEnd( resourceName, '.git' );
+
+    if( resourcePath === githubRepository )
+    version = _.npm.versionRemoteRetrive( `npm:///${ mdl.name }!alpha` ) === '' ? 'latest' : 'alpha';
+    else
+    version = githubRepository;
+  }
   else
-  version = githubPackage;
+  {
+    version = _.path.dir( mdlPath );
+  }
+
 
   let data = { dependencies : { [ mdl.name ] : version } };
   a.fileProvider.fileWrite({ filePath : a.abs( 'package.json' ), data, encoding : 'json' });
@@ -90,7 +100,6 @@ function production( test )
   a.shell( `npm i --production` )
   .then( ( op ) =>
   {
-    debugger;
     test.case = 'install module';
     test.identical( op.exitCode, 0 );
     return null;
