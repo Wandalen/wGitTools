@@ -73,28 +73,37 @@ function production( test )
   let mdlPath = a.abs( __dirname, '../package.json' );
   let mdl = a.fileProvider.fileRead({ filePath : mdlPath, encoding : 'json' });
 
-  let origin;
-  try
+  let version;
+  let remotePath = null;
+  let localPath = null;
+
+  if( _.git.insideRepository( _.path.join( __dirname, '..' ) ) )
   {
-    origin = _.git.remotePathFromLocal( _.path.join( __dirname, '..' ) );
-  }
-  catch( err )
-  {
-    _.errAttend( err );
-    origin = null;
+    remotePath = _.git.remotePathFromLocal( _.path.join( __dirname, '..' ) );
+    localPath = _.git.localPathFromInside( _.path.join( __dirname, '..' ) );
   }
 
-  let version;
-  if( mdl.repository.url === origin || origin === null )
-  version = _.npm.versionRemoteRetrive( `npm:///${ mdl.name }!alpha` ) === '' ? 'latest' : 'alpha';
-  else
-  version = origin;
+  debugger;
+  let remotePathParsed1, remotePathParsed2;
+  if( remotePath )
+  {
+    remotePathParsed1 = _.git.pathParse( remotePath );
+    remotePathParsed2 = _.uri.parseFull( remotePath );
+    /* qqq : should be no 2 parse */
+  }
+
+  // if( mdl.repository.url === remotePath.full || remotePath === null )
+  // version = _.npm.versionRemoteRetrive( `npm:///${ mdl.name }!alpha` ) === '' ? 'latest' : 'alpha';
+  // else
+  version = remotePathParsed1.remoteVcsLongerPath;
 
   if( !version )
   throw _.err( 'Cannot obtain version to install' );
 
-  let data = { dependencies : { [ mdl.name ] : version } };
-  a.fileProvider.fileWrite({ filePath : a.abs( 'package.json' ), data, encoding : 'json' });
+  let structure = { dependencies : { [ mdl.name ] : version } };
+  a.fileProvider.fileWrite({ filePath : a.abs( 'package.json' ), data : structure, encoding : 'json' });
+  let data = a.fileProvider.fileRead({ filePath : a.abs( 'package.json' ) });
+  console.log( data );
 
   /* */
 
@@ -112,6 +121,8 @@ function production( test )
   /* */
 
   return a.ready;
+
+  /* */
 
   function run( name )
   {

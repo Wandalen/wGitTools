@@ -320,9 +320,9 @@ function remotePathFromLocal( o )
   if( _.strIs( arguments[ 0 ] ) )
   o = { localPath : arguments[ 0 ] }
   o = _.routineOptions( remotePathFromLocal, o );
-  debugger;
+  // debugger;
   let config = _.git.configRead( o.localPath );
-  debugger;
+  // debugger;
 
   if( !config )
   {
