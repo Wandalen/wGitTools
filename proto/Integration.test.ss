@@ -78,8 +78,12 @@ function production( test )
 
   /* */
 
-  a.shell( `npm i --production` )
-  .then( ( op ) =>
+  if( process.end.GITHUB_ACTOR === 'Wandalen' )
+  a.shell( `npm i --production` );
+  else
+  a.shell( `npm i ${ process.env.GITHUB_REPOSITORY }` );
+
+  a.ready.then( ( op ) =>
   {
     test.case = 'install module';
     test.identical( op.exitCode, 0 );
