@@ -2694,10 +2694,10 @@ function repositoryHasTag( o )
     if( result )
     return result;
 
-    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : 'origin';
-    return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` ) /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
-    // let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
-    // return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    // let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : 'origin';
+    // return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` ) /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
+    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
+    return start( `git ls-remote --tags --refs --heads ${remotePath}` )
     .then( hasTag )
   }
 
