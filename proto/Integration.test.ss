@@ -74,12 +74,13 @@ function production( test )
   let mdl = a.fileProvider.fileRead({ filePath : mdlPath, encoding : 'json' });
 
   let version;
-  if( process.env.GITHUB_ACTOR === 'Wandalen' )
+  let githubPackage = process.env.GITHUB_REPOSITORY;
+  if( mdl.repository.url !== `https://github.com/${ githubPackage }.git` )
   version = _.npm.versionRemoteRetrive( `npm:///${ mdl.name }!alpha` ) === '' ? 'latest' : 'alpha';
   else if( !_.process.insideTestContainer() )
   version = _.path.dir( mdlPath );
   else
-  version = process.env.GITHUB_REPOSITORY;
+  version = githubPackage;
 
   let data = { dependencies : { [ mdl.name ] : version } };
   a.fileProvider.fileWrite({ filePath : a.abs( 'package.json' ), data, encoding : 'json' });
