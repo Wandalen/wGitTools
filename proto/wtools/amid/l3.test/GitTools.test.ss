@@ -16425,9 +16425,18 @@ function repositoryCheckout( test )
   let context = this;
   let a = test.assetFor( 'basic' );
 
+  /* */
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.dirMake( a.abs( '.' ) )
+    return null;
+  });
+  a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
+
   /* - */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - simple http path, without hash or tag';
     return _.git.repositoryCheckout
@@ -16446,7 +16455,7 @@ function repositoryCheckout( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global http path, without hash or tag';
     return _.git.repositoryCheckout
@@ -16465,7 +16474,7 @@ function repositoryCheckout( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global path with several protocols, without hash or tag';
     return _.git.repositoryCheckout
@@ -16484,7 +16493,7 @@ function repositoryCheckout( test )
 
   /* - */
 
-  begin();
+  checkout();
   a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
   .then( () =>
   {
@@ -16505,7 +16514,7 @@ function repositoryCheckout( test )
 
   /* */
 
-  begin();
+  checkout();
   a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
   .then( () =>
   {
@@ -16526,7 +16535,7 @@ function repositoryCheckout( test )
 
   /* */
 
-  begin();
+  checkout();
   a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
   .then( () =>
   {
@@ -16547,7 +16556,7 @@ function repositoryCheckout( test )
 
   /* - */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - simple http path, checkout to hash';
     return _.git.repositoryCheckout
@@ -16566,7 +16575,7 @@ function repositoryCheckout( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global http path, checkout to hash';
     return _.git.repositoryCheckout
@@ -16585,7 +16594,7 @@ function repositoryCheckout( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global path with several protocols, checkout to hash';
     return _.git.repositoryCheckout
@@ -16604,7 +16613,7 @@ function repositoryCheckout( test )
 
   /* - */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - simple http path, checkout to tag';
     return _.git.repositoryCheckout
@@ -16623,7 +16632,7 @@ function repositoryCheckout( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global http path, checkout to tag';
     return _.git.repositoryCheckout
@@ -16642,7 +16651,7 @@ function repositoryCheckout( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global path with several protocols, checkout to tag';
     return _.git.repositoryCheckout
@@ -16661,7 +16670,7 @@ function repositoryCheckout( test )
 
   /* - */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - simple http path, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
@@ -16680,7 +16689,7 @@ function repositoryCheckout( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global http path, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
@@ -16699,7 +16708,7 @@ function repositoryCheckout( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global path with several protocols, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
@@ -16720,7 +16729,7 @@ function repositoryCheckout( test )
 
   if( Config.debug )
   {
-    begin().then( () =>
+    checkout().then( () =>
     {
       test.case = 'without arguments';
       test.shouldThrowErrorSync( () => _.git.repositoryCheckout() );
@@ -16801,23 +16810,13 @@ function repositoryCheckout( test )
 
   /* */
 
-  function begin()
+  function checkout()
   {
-    if( !a.fileProvider.fileExists( a.abs( '.' ) ) )
-    a.ready.then( () =>
-    {
-      a.fileProvider.dirMake( a.abs( '.' ) )
-      return null;
-    });
-
-    if( !a.fileProvider.fileExists( a.abs( 'wModuleForTesting1' ) ) )
-    a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
-    else
-    a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git checkout master' });
-
-    return a.ready;
+    return a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git checkout master' });
   }
 }
+
+repositoryCheckout.timeOut = 30000;
 
 //
 
@@ -16826,9 +16825,18 @@ function repositoryCheckoutRemotePathIsMap( test )
   let context = this;
   let a = test.assetFor( 'basic' );
 
+  /* */
+
+  a.ready.then( () =>
+  {
+    a.fileProvider.dirMake( a.abs( '.' ) )
+    return null;
+  });
+  a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
+
   /* - */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - simple http path, without hash or tag';
     return _.git.repositoryCheckout
@@ -16847,7 +16855,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global http path, without hash or tag';
     return _.git.repositoryCheckout
@@ -16866,7 +16874,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global path with several protocols, without hash or tag';
     return _.git.repositoryCheckout
@@ -16885,7 +16893,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* - */
 
-  begin();
+  checkout();
   a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
   .then( () =>
   {
@@ -16906,7 +16914,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* */
 
-  begin();
+  checkout();
   a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
   .then( () =>
   {
@@ -16927,7 +16935,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* */
 
-  begin();
+  checkout();
   a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
   .then( () =>
   {
@@ -16948,7 +16956,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* - */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - simple http path, checkout to hash';
     return _.git.repositoryCheckout
@@ -16967,7 +16975,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global http path, checkout to hash';
     return _.git.repositoryCheckout
@@ -16986,7 +16994,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global path with several protocols, checkout to hash';
     return _.git.repositoryCheckout
@@ -17005,7 +17013,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* - */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - simple http path, checkout to tag';
     return _.git.repositoryCheckout
@@ -17024,7 +17032,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global http path, checkout to tag';
     return _.git.repositoryCheckout
@@ -17043,7 +17051,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global path with several protocols, checkout to tag';
     return _.git.repositoryCheckout
@@ -17062,7 +17070,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* - */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - simple http path, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
@@ -17081,7 +17089,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global http path, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
@@ -17100,7 +17108,7 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* */
 
-  begin().then( () =>
+  checkout().then( () =>
   {
     test.case = 'remotePath - global path with several protocols, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
@@ -17123,23 +17131,13 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* */
 
-  function begin()
+  function checkout()
   {
-    if( !a.fileProvider.fileExists( a.abs( '.' ) ) )
-    a.ready.then( () =>
-    {
-      a.fileProvider.dirMake( a.abs( '.' ) )
-      return null;
-    });
-
-    if( !a.fileProvider.fileExists( a.abs( 'wModuleForTesting1' ) ) )
-    a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
-    else
-    a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git checkout master' });
-
-    return a.ready;
+    return a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git checkout master' });
   }
 }
+
+repositoryCheckoutRemotePathIsMap.timeOut = 30000;
 
 //
 
