@@ -74,13 +74,13 @@ function production( test )
   let mdl = a.fileProvider.fileRead({ filePath : mdlPath, encoding : 'json' });
 
   let version;
-  let githubRepository = process.env.GITHUB_REPOSITORY;
   if( _.process.insideTestContainer() )
   {
     let parsed = _.uri.parseAtomic( mdl.repository.url || mdl.repository );
     let resourceName = parsed.resourcePath;
     resourcePath = _.strRemoveEnd( resourceName, '.git' );
 
+    let githubRepository = process.env.GITHUB_REPOSITORY;
     if( resourcePath === githubRepository )
     version = _.npm.versionRemoteRetrive( `npm:///${ mdl.name }!alpha` ) === '' ? 'latest' : 'alpha';
     else
