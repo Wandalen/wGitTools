@@ -49,6 +49,12 @@ function production( test )
   let a = test.assetFor( 'production' );
   let runList = [];
 
+  if( process.env.GITHUB_ACTOR !== 'Wandalen' )
+  {
+    test.true( true );
+    return;
+  }
+
   /* */
 
   let sampleDir = a.abs( __dirname, '../sample/trivial' );
