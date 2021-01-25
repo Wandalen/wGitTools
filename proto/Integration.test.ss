@@ -73,21 +73,25 @@ function production( test )
   let mdlPath = a.abs( __dirname, '../package.json' );
   let mdl = a.fileProvider.fileRead({ filePath : mdlPath, encoding : 'json' });
 
-  let version;
-  if( _.process.insideTestContainer() )
+  let origin;
+  try
   {
-    let config = _.fileProvider.configRead( _.path.join( __dirname, '.git/config' ) );
-    let origin = config[ 'remote "origin"' ];
+    origin = _.git.remotePathFromLocal( _.path.join( __dirname, '..' ) );
+  }
+  catch( err )
+  {
+    _.errAttend( err );
+    origin = null;
+  }
 
-    if( mdl.repository.url === origin.url )
-    version = _.npm.versionRemoteRetrive( `npm:///${ mdl.name }!alpha` ) === '' ? 'latest' : 'alpha';
-    else
-    version = process.env.GITHUB_REPOSITORY;
-  }
+  let version;
+  if( mdl.repository.url === origin || origin === null )
+  version = _.npm.versionRemoteRetrive( `npm:///${ mdl.name }!alpha` ) === '' ? 'latest' : 'alpha';
   else
-  {
-    version = _.path.dir( mdlPath );
-  }
+  version = origin;
+
+  if( !version )
+  throw _.err( 'Cannot obtain version to install' );
 
   let data = { dependencies : { [ mdl.name ] : version } };
   a.fileProvider.fileWrite({ filePath : a.abs( 'package.json' ), data, encoding : 'json' });
