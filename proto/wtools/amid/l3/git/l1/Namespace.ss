@@ -2628,7 +2628,7 @@ function repositoryHasTag( o )
   _.routineOptions( repositoryHasTag, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.tag ) );
-  _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
+  _.assert( o.remotePath === null || _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ) );
   _.assert( o.local || o.remote );
 
   let ready = new _.Consequence().take( null );
@@ -2694,10 +2694,10 @@ function repositoryHasTag( o )
     if( result )
     return result;
 
-    // let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : 'origin';
-    // return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` ) /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
-    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
-    return start( `git ls-remote --tags --refs --heads ${remotePath}` )
+    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : 'origin';
+    return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` ) /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
+    // let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
+    // return start( `git ls-remote --tags --refs --heads ${remotePath}` )
     .then( hasTag )
   }
 
@@ -4075,7 +4075,7 @@ function repositoryCheckout( o )
     let repoHasTag = _.git.repositoryHasTag
     ({
       localPath : o.localPath,
-      remotePath : parsed.remoteVcsPath,
+      remotePath : parsed,
       tag : parsed.tag
     });
 
