@@ -1,6 +1,6 @@
 {
   "name": "wgittools",
-  "version": "0.3.232",
+  "version": "0.3.233",
   "description": "Collection of tools to use git programmatically.",
   "author": "Kostiantyn Wandalen <wanalen@01.school>",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "out"
   ],
   "scripts": {
-    "test": "wtest .run 'proto/**' rapidity:-1",
+    "test": "wtest .run 'proto/**' rapidity:-3",
     "docgen": "wdocgen proto"
   },
   "repository": {
