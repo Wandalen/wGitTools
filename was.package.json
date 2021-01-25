@@ -6,7 +6,7 @@
   "license" : "MIT",
   "main" : "proto/wtools/amid/l3/git/entry/GitTools.ss",
   "files" : [ "proto/wtools/amid/l3/git", "proto/wtools/Tools.s", "out" ],
-  "scripts" : { "test" : "wtest .run 'proto/**' rapidity:-1", "docgen" : "wdocgen proto" },
+  "scripts" : { "test" : "wtest .run 'proto/**' rapidity:-3", "docgen" : "wdocgen proto" },
   "repository" :
   {
     "type" : "git",

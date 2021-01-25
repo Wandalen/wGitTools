@@ -1019,7 +1019,7 @@ function isUpToDate( o )
       let repositoryHasTag = _.git.repositoryHasTag
       ({
         localPath : o.localPath,
-        remotePath : srcCurrentPath,
+        remotePath : parsed,
         tag : parsed.tag
       });
 
