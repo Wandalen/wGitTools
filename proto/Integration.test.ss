@@ -72,19 +72,24 @@ function production( test )
   a.fileProvider.filesReflect({ reflectMap : { [ sampleDir ] : a.abs( 'sample/trivial' ) } });
   let mdlPath = a.abs( __dirname, '../package.json' );
   let mdl = a.fileProvider.fileRead({ filePath : mdlPath, encoding : 'json' });
-  let version = _.npm.versionRemoteRetrive( `npm:///${ mdl.name }!alpha` ) === '' ? 'latest' : 'alpha';
+
+  let version;
+  if( process.env.GITHUB_ACTOR === 'Wandalen' )
+  version = _.npm.versionRemoteRetrive( `npm:///${ mdl.name }!alpha` ) === '' ? 'latest' : 'alpha';
+  else if( !_.process.insideTestContainer() )
+  version = _.path.dir( mdlPath );
+  else
+  version = process.env.GITHUB_REPOSITORY;
+
   let data = { dependencies : { [ mdl.name ] : version } };
   a.fileProvider.fileWrite({ filePath : a.abs( 'package.json' ), data, encoding : 'json' });
 
   /* */
 
-  if( process.env.GITHUB_ACTOR === 'Wandalen' || !_.process.insideTestContainer() )
-  a.shell( `npm i --production` );
-  else
-  a.shell( `npm i ${ process.env.GITHUB_REPOSITORY }` );
-
-  a.ready.then( ( op ) =>
+  a.shell( `npm i --production` )
+  .then( ( op ) =>
   {
+    debugger;
     test.case = 'install module';
     test.identical( op.exitCode, 0 );
     return null;
