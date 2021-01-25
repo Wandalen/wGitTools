@@ -13081,6 +13081,225 @@ repositoryHasTag.timeOut = 60000;
 
 //
 
+function repositoryHasTagRemotePathIsMap( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  a.fileProvider.dirMake( a.abs( '.' ) )
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'tag - master, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'master',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - master, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'master',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - master, not exists, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'master',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    /* */
+
+    test.case = 'tag - abc, not exists, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'abc',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - abc, not exists, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'abc',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - abc, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'abc',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    /* */
+    test.case = 'tag - 0.0.37, exists, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '0.0.37',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - 0.0.37, exists, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '0.0.37',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - 0.0.37, exists, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '0.0.37',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    /* */
+
+    test.case = 'tag - hash, not exists, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - hash, not exists, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'tag - hash, not exists, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    /* */
+
+    test.case = 'tag - branch, exists only on remote server, local - 1, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'dev1',
+      local : 1,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - branch, exists only on remote server, local - 0, remote - 1';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'dev1',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'tag - hash, not exists, local - 1, remote - 0';
+    var got = _.git.repositoryHasTag
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      tag : 'dev1',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ) );
+    a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
+    return a.ready;
+  }
+}
+
+repositoryHasTagRemotePathIsMap.timeOut = 60000;
+
+//
+
 function repositoryHasTagWithOptionReturnVersion( test )
 {
   let context = this;
@@ -16368,6 +16587,328 @@ function repositoryCheckout( test )
       return null;
     });
   }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    if( !a.fileProvider.fileExists( a.abs( '.' ) ) )
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( '.' ) )
+      return null;
+    });
+
+    if( !a.fileProvider.fileExists( a.abs( 'wModuleForTesting1' ) ) )
+    a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
+    else
+    a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git checkout master' });
+
+    return a.ready;
+  }
+}
+
+//
+
+function repositoryCheckoutRemotePathIsMap( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - simple http path, without hash or tag';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch --show-current' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.equivalent( op.output, 'master' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - global http path, without hash or tag';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch --show-current' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.equivalent( op.output, 'master' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - global path with several protocols, without hash or tag';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch --show-current' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.equivalent( op.output, 'master' );
+    return null;
+  });
+
+  /* - */
+
+  begin();
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
+  .then( () =>
+  {
+    test.case = 'remotePath - simple http path, checkout to newly created local branch';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git!new' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch --show-current' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.equivalent( op.output, 'new' );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
+  .then( () =>
+  {
+    test.case = 'remotePath - global http path, checkout to newly created local branch';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git!new' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch --show-current' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.equivalent( op.output, 'new' );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
+  .then( () =>
+  {
+    test.case = 'remotePath - global path with several protocols, checkout to newly created local branch';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!new' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch --show-current' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.equivalent( op.output, 'new' );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - simple http path, checkout to hash';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'HEAD detached at d7ef64c' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - global http path, checkout to hash';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'HEAD detached at d7ef64c' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - global path with several protocols, checkout to hash';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'HEAD detached at d7ef64c' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - simple http path, checkout to tag';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'HEAD detached at v0.0.101' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - global http path, checkout to tag';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'HEAD detached at v0.0.101' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - global path with several protocols, checkout to tag';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'HEAD detached at v0.0.101' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - simple http path, checkout to branch which exists only on remote server';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git!dev1' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch --show-current' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.equivalent( op.output, 'dev1' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - global http path, checkout to branch which exists only on remote server';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git!dev1' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch --show-current' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.equivalent( op.output, 'dev1' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'remotePath - global path with several protocols, checkout to branch which exists only on remote server';
+    return _.git.repositoryCheckout
+    ({
+      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!dev1' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
+    });
+  });
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch --show-current' })
+  .then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.equivalent( op.output, 'dev1' );
+    return null;
+  });
 
   /* - */
 
@@ -23067,6 +23608,7 @@ var Proto =
     // tag and version
 
     repositoryHasTag,
+    repositoryHasTagRemotePathIsMap,
     repositoryHasTagWithOptionReturnVersion,
     repositoryHasVersion,
     repositoryTagToVersion,
@@ -23087,6 +23629,7 @@ var Proto =
 
     repositoryInit,
     repositoryCheckout,
+    repositoryCheckoutRemotePathIsMap,
     prOpen,
     prOpenRemote,
 

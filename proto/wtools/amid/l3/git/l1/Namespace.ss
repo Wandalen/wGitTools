@@ -2628,7 +2628,7 @@ function repositoryHasTag( o )
   _.routineOptions( repositoryHasTag, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.tag ) );
-  _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
+  _.assert( o.remotePath === null || _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ) );
   _.assert( o.local || o.remote );
 
   let ready = new _.Consequence().take( null );
@@ -4075,7 +4075,7 @@ function repositoryCheckout( o )
     let repoHasTag = _.git.repositoryHasTag
     ({
       localPath : o.localPath,
-      remotePath : parsed.remoteVcsPath,
+      remotePath : parsed,
       tag : parsed.tag
     });
 
