@@ -20,156 +20,1118 @@ let _ = _global_.wTools;
 // tests
 // --
 
-function parse( test )
+function parseFullRemoteProtocols( test )
 {
-  var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git';
+  test.open( 'empty protocol - git or ssh syntax' );
+
+  test.case = 'simple git path';
+  var remotePath = 'git@github.com:someorg/somerepo.git';
+  var expected =
+  {
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'tag' : 'master',
+    'localVcsPath' : './',
+    'protocols' : [],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git path with tag';
+  var remotePath = 'git@github.com:someorg/somerepo.git!new';
+  var expected =
+  {
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git path with tag after slash';
+  var remotePath = 'git@github.com:someorg/somerepo.git/!new';
+  var expected =
+  {
+    'longPath' : 'git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git path with hash';
+  var remotePath = 'git@github.com:someorg/somerepo.git#b6968a12';
+  var expected =
+  {
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git path with hash after slash';
+  var remotePath = 'git@github.com:someorg/somerepo.git/#b6968a12';
+  var expected =
+  {
+    'longPath' : 'git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.close( 'empty protocol - git or ssh syntax' );
+
+  /* - */
+
+  test.open( 'git' );
+
+  test.case = 'simple git path';
+  var remotePath = 'git://git@github.com:someorg/somerepo.git';
   var expected =
   {
     'protocol' : 'git',
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
     'tag' : 'master',
-    'longPath' : '/git@bitbucket.org:someorg/somerepo.git',
     'localVcsPath' : './',
-    'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
-    'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
+    'protocols' : [ 'git' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
     'isFixated' : false
-  }
+  };
   var got = _.git.path.parse( remotePath );
-  test.identical( got, expected )
+  test.identical( got, expected );
 
-  var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git/#master';
+  test.case = 'global git path';
+  var remotePath = 'git:///git@github.com:someorg/somerepo.git';
   var expected =
   {
     'protocol' : 'git',
-    'hash' : 'master',
-    'longPath' : '/git@bitbucket.org:someorg/somerepo.git/',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
-    'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
-    'isFixated' : false
-  }
-  var got = _.git.path.parse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#041839a730fa104a7b6c7e4935b4751ad81b00e0';
-  var expected =
-  {
-    'protocol' : 'git+https',
-    'hash' : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
-    'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'isFixated' : true
-  }
-  var got = _.git.path.parse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!0.0.37'
-  var expected =
-  {
-    'protocol' : 'git+https',
-    'tag' : '0.0.37',
-    'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'isFixated' : false
-  }
-  var got = _.git.path.parse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master'
-  var expected =
-  {
-    'protocol' : 'git+https',
+    'longPath' : '/git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
     'tag' : 'master',
-    'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
     'localVcsPath' : './',
-    'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+    'protocols' : [ 'git' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
     'isFixated' : false
-  }
+  };
   var got = _.git.path.parse( remotePath );
-  test.identical( got, expected )
+  test.identical( got, expected );
 
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will!master'
+  test.case = 'git path with tag';
+  var remotePath = 'git://git@github.com:someorg/somerepo.git!new';
   var expected =
   {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will',
+    'protocol' : 'git',
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git path with tag';
+  var remotePath = 'git:///git@github.com:someorg/somerepo.git!new';
+  var expected =
+  {
+    'protocol' : 'git',
+    'longPath' : '/git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git path with tag after slash';
+  var remotePath = 'git://git@github.com:someorg/somerepo.git/!new';
+  var expected =
+  {
+    'protocol' : 'git',
+    'longPath' : 'git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git path with tag after slash';
+  var remotePath = 'git:///git@github.com:someorg/somerepo.git/!new';
+  var expected =
+  {
+    'protocol' : 'git',
+    'longPath' : '/git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git path with hash';
+  var remotePath = 'git://git@github.com:someorg/somerepo.git#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git',
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git path with hash';
+  var remotePath = 'git:///git@github.com:someorg/somerepo.git#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git',
+    'longPath' : '/git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git path with hash after slash';
+  var remotePath = 'git://git@github.com:someorg/somerepo.git/#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git',
+    'longPath' : 'git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git path with hash after slash';
+  var remotePath = 'git:///git@github.com:someorg/somerepo.git/#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git',
+    'longPath' : '/git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.close( 'git' );
+
+  /* - */
+
+  test.open( 'ssh' );
+
+  test.case = 'simple ssh path';
+  var remotePath = 'ssh://git@github.com:someorg/somerepo.git';
+  var expected =
+  {
+    'protocol' : 'ssh',
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
     'tag' : 'master',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
+    'localVcsPath' : './',
+    'protocols' : [ 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
     'isFixated' : false
-  }
+  };
   var got = _.git.path.parse( remotePath );
-  test.identical( got, expected )
+  test.identical( got, expected );
 
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will!v0.8.505'
+  test.case = 'global ssh path';
+  var remotePath = 'ssh:///git@github.com:someorg/somerepo.git';
   var expected =
   {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will',
-    'tag' : 'v0.8.505',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
+    'protocol' : 'ssh',
+    'longPath' : '/git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'tag' : 'master',
+    'localVcsPath' : './',
+    'protocols' : [ 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
     'isFixated' : false
-  }
+  };
   var got = _.git.path.parse( remotePath );
-  test.identical( got, expected )
+  test.identical( got, expected );
 
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/!v0.8.505'
+  test.case = 'ssh path with tag';
+  var remotePath = 'ssh://git@github.com:someorg/somerepo.git!new';
   var expected =
   {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will/',
-    'tag' : 'v0.8.505',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will/',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
+    'protocol' : 'ssh',
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
     'isFixated' : false
-  }
+  };
   var got = _.git.path.parse( remotePath );
-  test.identical( got, expected )
+  test.identical( got, expected );
 
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
+  test.case = 'global git path with tag';
+  var remotePath = 'ssh:///git@github.com:someorg/somerepo.git!new';
   var expected =
   {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will',
-    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
+    'protocol' : 'ssh',
+    'longPath' : '/git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'ssh path with tag after slash';
+  var remotePath = 'ssh://git@github.com:someorg/somerepo.git/!new';
+  var expected =
+  {
+    'protocol' : 'ssh',
+    'longPath' : 'git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global ssh path with tag after slash';
+  var remotePath = 'ssh:///git@github.com:someorg/somerepo.git/!new';
+  var expected =
+  {
+    'protocol' : 'ssh',
+    'longPath' : '/git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'ssh path with hash';
+  var remotePath = 'ssh://git@github.com:someorg/somerepo.git#b6968a12';
+  var expected =
+  {
+    'protocol' : 'ssh',
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
     'isFixated' : true
-  }
+  };
   var got = _.git.path.parse( remotePath );
-  test.identical( got, expected )
+  test.identical( got, expected );
 
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
+  test.case = 'global ssh path with hash';
+  var remotePath = 'ssh:///git@github.com:someorg/somerepo.git#b6968a12';
   var expected =
   {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will/',
-    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will/',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
+    'protocol' : 'ssh',
+    'longPath' : '/git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
     'isFixated' : true
-  }
+  };
   var got = _.git.path.parse( remotePath );
-  test.identical( got, expected )
+  test.identical( got, expected );
 
-  test.case = 'both hash and tag'
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3!master';
+  test.case = 'ssh path with hash after slash';
+  var remotePath = 'ssh://git@github.com:someorg/somerepo.git/#b6968a12';
+  var expected =
+  {
+    'protocol' : 'ssh',
+    'longPath' : 'git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global ssh path with hash after slash';
+  var remotePath = 'ssh:///git@github.com:someorg/somerepo.git/#b6968a12';
+  var expected =
+  {
+    'protocol' : 'ssh',
+    'longPath' : '/git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.close( 'ssh' );
+
+  /* - */
+
+  test.open( 'https' );
+
+  test.case = 'simple https path';
+  var remotePath = 'https://github.com/someorg/somerepo.git';
+  var expected =
+  {
+    'protocol' : 'https',
+    'longPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'master',
+    'localVcsPath' : './',
+    'protocols' : [ 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global https path';
+  var remotePath = 'https:///github.com/someorg/somerepo.git';
+  var expected =
+  {
+    'protocol' : 'https',
+    'longPath' : '/github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'master',
+    'localVcsPath' : './',
+    'protocols' : [ 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'https path with tag';
+  var remotePath = 'https://github.com/someorg/somerepo.git!new';
+  var expected =
+  {
+    'protocol' : 'https',
+    'longPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global https path with tag';
+  var remotePath = 'https:///github.com/someorg/somerepo.git!new';
+  var expected =
+  {
+    'protocol' : 'https',
+    'longPath' : '/github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'https path with tag after slash';
+  var remotePath = 'https://github.com/someorg/somerepo.git/!new';
+  var expected =
+  {
+    'protocol' : 'https',
+    'longPath' : 'github.com/someorg/somerepo.git/',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global https path with tag after slash';
+  var remotePath = 'https:///github.com/someorg/somerepo.git/!new';
+  var expected =
+  {
+    'protocol' : 'https',
+    'longPath' : '/github.com/someorg/somerepo.git/',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'https path with hash';
+  var remotePath = 'https://github.com/someorg/somerepo.git#b6968a12';
+  var expected =
+  {
+    'protocol' : 'https',
+    'longPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global https path with hash';
+  var remotePath = 'https:///github.com/someorg/somerepo.git#b6968a12';
+  var expected =
+  {
+    'protocol' : 'https',
+    'longPath' : '/github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'https path with hash after slash';
+  var remotePath = 'https://github.com/someorg/somerepo.git/#b6968a12';
+  var expected =
+  {
+    'protocol' : 'https',
+    'longPath' : 'github.com/someorg/somerepo.git/',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global https path with hash after slash';
+  var remotePath = 'https:///github.com/someorg/somerepo.git/#b6968a12';
+  var expected =
+  {
+    'protocol' : 'https',
+    'longPath' : '/github.com/someorg/somerepo.git/',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.close( 'https' );
+
+  /* - */
+
+  test.open( 'git+ssh' );
+
+  test.case = 'simple git+ssh path';
+  var remotePath = 'git+ssh://git@github.com:someorg/somerepo.git';
+  var expected =
+  {
+    'protocol' : 'git+ssh',
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'tag' : 'master',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git+ssh path';
+  var remotePath = 'git+ssh:///git@github.com:someorg/somerepo.git';
+  var expected =
+  {
+    'protocol' : 'git+ssh',
+    'longPath' : '/git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'tag' : 'master',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with tag';
+  var remotePath = 'git+ssh://git@github.com:someorg/somerepo.git!new';
+  var expected =
+  {
+    'protocol' : 'git+ssh',
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git+ssh path with tag';
+  var remotePath = 'git+ssh:///git@github.com:someorg/somerepo.git!new';
+  var expected =
+  {
+    'protocol' : 'git+ssh',
+    'longPath' : '/git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with tag after slash';
+  var remotePath = 'git+ssh://git@github.com:someorg/somerepo.git/!new';
+  var expected =
+  {
+    'protocol' : 'git+ssh',
+    'longPath' : 'git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git+ssh path with tag after slash';
+  var remotePath = 'git+ssh:///git@github.com:someorg/somerepo.git/!new';
+  var expected =
+  {
+    'protocol' : 'git+ssh',
+    'longPath' : '/git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with hash';
+  var remotePath = 'git+ssh://git@github.com:someorg/somerepo.git#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git+ssh',
+    'longPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git+ssh path with hash';
+  var remotePath = 'git+ssh:///git@github.com:someorg/somerepo.git#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git+ssh',
+    'longPath' : '/git@github.com:someorg/somerepo.git',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with hash after slash';
+  var remotePath = 'git+ssh://git@github.com:someorg/somerepo.git/#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git+ssh',
+    'longPath' : 'git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git+ssh path with hash after slash';
+  var remotePath = 'git+ssh:///git@github.com:someorg/somerepo.git/#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git+ssh',
+    'longPath' : '/git@github.com:someorg/somerepo.git/',
+    'remoteVcsPath' : 'git@github.com:someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'ssh://git@github.com:someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'ssh' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.close( 'git+ssh' );
+
+  /* - */
+
+  test.open( 'git+https' );
+
+  test.case = 'simple git+https path';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'longPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'master',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git+https path';
+  var remotePath = 'git+https:///github.com/someorg/somerepo.git';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'longPath' : '/github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'master',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+https path with tag';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git!new';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'longPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with tag';
+  var remotePath = 'git+https:///github.com/someorg/somerepo.git!new';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'longPath' : '/github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+https path with tag after slash';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git/!new';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'longPath' : 'github.com/someorg/somerepo.git/',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with tag after slash';
+  var remotePath = 'git+https:///github.com/someorg/somerepo.git/!new';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'longPath' : '/github.com/someorg/somerepo.git/',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'tag' : 'new',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+https path with hash';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'longPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with hash';
+  var remotePath = 'git+https:///github.com/someorg/somerepo.git#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'longPath' : '/github.com/someorg/somerepo.git',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+https path with hash after slash';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git/#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'longPath' : 'github.com/someorg/somerepo.git/',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with hash after slash';
+  var remotePath = 'git+https:///github.com/someorg/somerepo.git/#b6968a12';
+  var expected =
+  {
+    'protocol' : 'git+https',
+    'longPath' : '/github.com/someorg/somerepo.git/',
+    'remoteVcsPath' : 'github.com/someorg/somerepo.git',
+    'remoteVcsLongerPath' : 'https://github.com/someorg/somerepo.git',
+    'hash' : 'b6968a12',
+    'localVcsPath' : './',
+    'protocols' : [ 'git', 'https' ],
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.close( 'git+https' );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'without arguments';
+  test.shouldThrowErrorSync( () => _.git.path.parse() );
+
+  test.case = 'extra arguments';
+  var remotePath = 'https://github.com/user/repo.git';
+  test.shouldThrowErrorSync( () => _.git.path.parse( remotePath, remotePath ) );
+
+  test.case = 'wrong type of options map';
+  var remotePath = 'https://github.com/user/repo.git';
+  test.shouldThrowErrorSync( () => _.git.path.parse([ remotePath ]) );
+
+  test.case = 'remote path has hash and tag';
+  var remotePath = 'git+https:///github.com/user/repo.git/#b6968a12!master';
   test.shouldThrowErrorSync( () => _.git.path.parse( remotePath ) );
+
+  test.case = 'unknown option in options map';
+  var o =
+  {
+    remotePath : 'https://github.com/user/repo.git',
+    unknown : 1,
+  };
+  test.shouldThrowErrorSync( () => _.git.path.parse( o ) );
+
+  test.case = 'o.full and o.atomic are setled to 1';
+  var o =
+  {
+    remotePath : 'https://github.com/user/repo.git',
+    full : 1,
+    atomic : 1,
+  };
+  test.shouldThrowErrorSync( () => _.git.path.parse( o ) );
 }
 
 // --
@@ -190,7 +1152,7 @@ var Proto =
 
     // parse
 
-    parse, /* qqq : check tests */
+    parseFullRemoteProtocols,
 
   },
 

@@ -14,42 +14,35 @@ let Self = _.git.path = _.git.path || Object.create( Parent );
 function parse( o )
 {
   if( _.strIs( o ) )
-  o = { filePath : o };
+  o = { remotePath : o };
 
   _.assert( arguments.length === 1, 'Expects single options map {-o-}' );
   _.routineOptions( parse, o );
+  _.assert
+  ( ( !o.full || !o.atomic )
+    || ( !o.full && !o.atomic ),
+    'Expects only full parsing with {-o.full-} or atomic parsing with {-o.atomic-} but not both'
+  );
 
-  if( _.mapIs( o.filePath ) )
-  return o.filePath;
+  if( _.mapIs( o.remotePath ) )
+  return o.remotePath;
 
-  _.assert( _.strIs( o.filePath ), 'Expects file path {-o.filePath-}' );
+  _.assert( _.strIs( o.remotePath ), 'Expects file path {-o.remotePath-}' );
 
-  let result = pathParse( o.filePath );
+  let result = pathParse( o.remotePath );
+
+  let objects = null;
+  if( o.withObjects )
+  objects = objectsParse( result.protocol, result.longPath );
+
+  result = _.mapExtend( result, objects );
+
   if( o.full )
   return result;
+  else if( o.atomic )
   return pathAtomicMake( result );
-
-  /* */
-
-  function objectsParse( remotePath )
-  {
-    let result = Object.create( null );
-    let gitHubRegexp = /\:\/\/\/github\.com\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/;
-    // let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
-    /* Dmytro : this regexp does not search dashes, maybe needs additional symbols */
-
-    remotePath = this.remotePathNormalize( remotePath );
-    let match = remotePath.match( gitHubRegexp );
-
-    if( match )
-    {
-      result.service = 'github.com';
-      result.user = match[ 1 ];
-      result.repo = _.strRemoveEnd( match[ 2 ], '.git' );
-    }
-
-    return result;
-  }
+  else
+  return objects;
 
   /* */
 
@@ -129,6 +122,30 @@ function parse( o )
 
   /* */
 
+  function objectsParse( protocol, remotePath )
+  {
+    let objects = Object.create( null );
+    let objectsRegexp;
+    if( protocol && _.strHas( protocol, 'http' ) )
+    objectsRegexp = /([a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+)\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/;
+    else if( protocol === undefined || _.strHas( protocol, 'git' ) || _.strHas( protocol, 'ssh' ) )
+    objectsRegexp = /([a-zA-Z0-9-_.]+\.[a-zA-Z0-9-_.]+):([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/
+
+    remotePath = _.git.remotePathNormalize( remotePath );
+    let match = remotePath.match( objectsRegexp );
+
+    if( match )
+    {
+      objects.service = match[ 1 ];
+      objects.user = match[ 2 ];
+      objects.repo = _.strRemoveEnd( match[ 3 ], '.git' );
+    }
+
+    return objects;
+  }
+
+  /* */
+
   function pathAtomicMake( src )
   {
     return src;
@@ -137,16 +154,17 @@ function parse( o )
 
 parse.defaults =
 {
-  filePath : null,
+  remotePath : null,
   full : 1,
   atomic : 0,
+  withObjects : 1,
 };
 
 //
 
 function pathIsFixated( filePath )
 {
-  let parsed = _.git.path.parse({ filePath });
+  let parsed = _.git.path.parse({ remotePath : filePath });
 
   if( !parsed.hash )
   return false;
@@ -181,7 +199,7 @@ function pathFixate( o )
   _.routineOptions( pathFixate, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let parsed = _.git.path.parse({ filePath : o.remotePath });
+  let parsed = _.git.path.parse({ remotePath : o.remotePath });
   let latestVersion = _.git.versionRemoteLatestRetrive
   ({
     remotePath : o.remotePath,
