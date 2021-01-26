@@ -75,20 +75,23 @@ function production( test )
 
   let version;
   let remotePath = null;
-  let localPath = null;
+  // let localPath = null;
 
   if( _.git.insideRepository( _.path.join( __dirname, '..' ) ) )
   {
     remotePath = _.git.remotePathFromLocal( _.path.join( __dirname, '..' ) );
-    localPath = _.git.localPathFromInside( _.path.join( __dirname, '..' ) );
+    // localPath = _.git.localPathFromInside( _.path.join( __dirname, '..' ) );
   }
 
   debugger;
-  let remotePathParsed1, remotePathParsed2;
+  // let remotePathParsed1, remotePathParsed2;
+  let remotePathParsed1;
   if( remotePath )
   {
+    /* local path can use ssh */
+    remotePath = _.strReplaceBegin( remotePath, 'git@github.com:', 'https://github.com/' );
     remotePathParsed1 = _.git.pathParse( remotePath );
-    remotePathParsed2 = _.uri.parseFull( remotePath );
+    // remotePathParsed2 = _.uri.parseFull( remotePath );
     /* qqq : should be no 2 parse */
   }
 
