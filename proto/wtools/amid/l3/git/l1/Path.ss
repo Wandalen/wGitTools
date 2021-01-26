@@ -146,7 +146,7 @@ function parse_body( o )
     else
     return objects;
 
-    remotePath = _.git.remotePathNormalize( remotePath );
+    remotePath = _.git.path.remotePathNormalize( remotePath );
     let match = remotePath.match( objectsRegexp );
 
     if( match )
