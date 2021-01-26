@@ -11,29 +11,37 @@ let Self = _.git.path = _.git.path || Object.create( Parent );
 //
 // --
 
-function parse( o )
+function parse_head( routine, args )
 {
+  let o = args[ 0 ];
+
+  _.assert( args.length === 1, 'Expects single options map {-o-}' );
+
   if( _.strIs( o ) )
   o = { remotePath : o };
 
-  _.assert( arguments.length === 1, 'Expects single options map {-o-}' );
   _.routineOptions( parse, o );
+  _.assert( _.strIs( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects file path {-o.remotePath-}' );
   _.assert
-  ( ( !o.full || !o.atomic )
+  (
+    ( !o.full || !o.atomic )
     || ( !o.full && !o.atomic ),
     'Expects only full parsing with {-o.full-} or atomic parsing with {-o.atomic-} but not both'
   );
 
+  return o;
+}
+
+//
+
+function parse_body( o )
+{
   if( _.mapIs( o.remotePath ) )
   return o.remotePath;
 
-  _.assert( _.strIs( o.remotePath ), 'Expects file path {-o.remotePath-}' );
 
-  let result = pathParse( o.remotePath );
-
-  let objects = null;
-  if( o.withObjects )
-  objects = objectsParse( result.protocol, result.longPath );
+  let result = pathParse( o.remotePath, o.full );
+  let objects = objectsParse( result.longPath, result.protocol );
 
   result = _.mapExtend( result, objects );
 
@@ -41,12 +49,14 @@ function parse( o )
   return result;
   else if( o.atomic )
   return pathAtomicMake( result );
-  else
+  else if( o.objects )
   return objects;
+  else
+  throw _.err( 'Routine should return some parsed path, but options set to return nothing' )
 
   /* */
 
-  function pathParse( remotePath )
+  function pathParse( remotePath, full )
   {
     let result = Object.create( null );
 
@@ -60,6 +70,9 @@ function parse( o )
 
     let isolated = pathIsolateGlobalAndLocal( parsed1 );
     result.localVcsPath = isolated.localPath;
+
+    if( !full )
+    return result;
 
     /* remoteVcsPath */
 
@@ -122,7 +135,7 @@ function parse( o )
 
   /* */
 
-  function objectsParse( protocol, remotePath )
+  function objectsParse( remotePath, protocol )
   {
     let objects = Object.create( null );
     let objectsRegexp;
@@ -130,6 +143,8 @@ function parse( o )
     objectsRegexp = /([a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+)\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/;
     else if( protocol === undefined || _.strHas( protocol, 'git' ) || _.strHas( protocol, 'ssh' ) )
     objectsRegexp = /([a-zA-Z0-9-_.]+\.[a-zA-Z0-9-_.]+):([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/
+    else
+    return objects;
 
     remotePath = _.git.remotePathNormalize( remotePath );
     let match = remotePath.match( objectsRegexp );
@@ -146,19 +161,27 @@ function parse( o )
 
   /* */
 
-  function pathAtomicMake( src )
+  function pathAtomicMake( parsedPath )
   {
-    return src;
+    if( parsedPath.protocol && _.strHas( parsedPath.protocol, 'hd' ) )
+    return parsedPath;
+
+    const butMap = { longPath : null };
+    return _.mapBut_( parsedPath, butMap );
   }
 }
 
-parse.defaults =
+parse_body.defaults =
 {
   remotePath : null,
   full : 1,
   atomic : 0,
-  withObjects : 1,
+  objects : 1,
 };
+
+//
+
+let parse = _.routineUnite( parse_head, parse_body );
 
 //
 
