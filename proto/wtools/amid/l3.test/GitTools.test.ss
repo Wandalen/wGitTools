@@ -17392,6 +17392,89 @@ prOpenRemote.timeOut = 60000;
 
 //
 
+function configRead( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'filePath is not a git repository';
+    var got = _.git.configRead( a.abs( 'notAGit' ) );
+    test.identical( got, null );
+    return null;
+  });
+
+  begin().then( () =>
+  {
+    test.case = 'local git repository exists, default config';
+    var got = _.git.configRead( a.abs( '.' ) );
+    test.identical( _.mapKeys( got ), [ 'core' ] );
+    test.true( _.mapIs( got.core ) );
+    test.identical( got.core.bare, false );
+    test.identical( got.core.filemode, true );
+    test.identical( got.core.logallrefupdates, true );
+    test.identical( got.core.repositoryformatversion, "0" );
+    return null;
+  });
+
+  begin();
+  a.shell( 'git config user.name user' );
+  a.shell( 'git config user.email user@domain.com' );
+  a.ready.then( () =>
+  {
+    test.case = 'local git repository exists, not default config';
+    var got = _.git.configRead( a.abs( '.' ) );
+    test.identical( _.mapKeys( got ), [ 'core', 'user' ] );
+    test.true( _.mapIs( got.core ) );
+    test.identical( got.core.bare, false );
+    test.identical( got.core.filemode, true );
+    test.identical( got.core.logallrefupdates, true );
+    test.identical( got.core.repositoryformatversion, "0" );
+    test.true( _.mapIs( got.user ) );
+    test.identical( got.user.name, 'user' );
+    test.identical( got.user.email, 'user@domain.com' );
+    return null;
+  });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    begin().then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.configRead() );
+
+      test.case = 'extra arguments';
+      test.shouldThrowErrorSync( () => _.git.configRead( a.abs( '.' ), a.abs( '.' ) ) );
+
+      test.case = 'wrong type of filePath';
+      test.shouldThrowErrorSync( () => _.git.configRead( { filePath : 'wrong' } ) );
+
+      return null;
+    });
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ));
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git init` );
+    return a.ready;
+  }
+}
+
+//
+
 function configResetWithOptionWithLocal( test )
 {
   let context = this;
@@ -23841,6 +23924,7 @@ var Proto =
 
     // etc
 
+    configRead,
     configResetWithOptionWithLocal,
     configResetWithOptionWithGlobal,
     configResetWithOptionsWithLocalWithGlobal,
