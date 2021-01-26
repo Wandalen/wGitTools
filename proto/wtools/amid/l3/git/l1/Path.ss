@@ -7,8 +7,6 @@ let _ = _global_.wTools;
 let Parent = _.uri.path;
 let Self = _.git.path = _.git.path || Object.create( Parent );
 
-
-
 // --
 //
 // --
