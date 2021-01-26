@@ -1134,6 +1134,226 @@ function parseFullRemoteProtocols( test )
   test.shouldThrowErrorSync( () => _.git.path.parse( o ) );
 }
 
+//
+
+function parseFullLocalProtocols( test )
+{
+  test.open( 'hd' );
+
+  test.case = 'simple hd path with query';
+  var remotePath = 'hd://Tools?out=out/wTools.out.will'
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : 'Tools',
+    'remoteVcsPath' : 'Tools',
+    'remoteVcsLongerPath' : 'Tools',
+    'tag' : 'master',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+    'protocols' : [ 'hd' ],
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global hd path with query';
+  var remotePath = 'hd:///Tools?out=out/wTools.out.will'
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : '/Tools',
+    'remoteVcsPath' : '/Tools',
+    'remoteVcsLongerPath' : '/Tools',
+    'tag' : 'master',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+    'protocols' : [ 'hd' ],
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'hd path with tag and query';
+  var remotePath = 'hd://Tools?out=out/wTools.out.will!new'
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : 'Tools',
+    'remoteVcsPath' : 'Tools',
+    'remoteVcsLongerPath' : 'Tools',
+    'tag' : 'new',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+    'protocols' : [ 'hd' ],
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'hd path with query and tag after slash';
+  var remotePath = 'hd://Tools?out=out/wTools.out.will/!new'
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : 'Tools',
+    'remoteVcsPath' : 'Tools',
+    'remoteVcsLongerPath' : 'Tools',
+    'tag' : 'new',
+    'query' : 'out=out/wTools.out.will/',
+    'localVcsPath' : 'out/wTools.out.will/',
+    'protocols' : [ 'hd' ],
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'hd path with query and hash';
+  var remotePath = 'hd://Tools?out=out/wTools.out.will#b6968a12'
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : 'Tools',
+    'remoteVcsPath' : 'Tools',
+    'remoteVcsLongerPath' : 'Tools',
+    'hash' : 'b6968a12',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+    'protocols' : [ 'hd' ],
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'hd path with query and hash after slash';
+  var remotePath = 'hd://Tools?out=out/wTools.out.will/#b6968a12'
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : 'Tools',
+    'remoteVcsPath' : 'Tools',
+    'remoteVcsLongerPath' : 'Tools',
+    'hash' : 'b6968a12',
+    'query' : 'out=out/wTools.out.will/',
+    'localVcsPath' : 'out/wTools.out.will/',
+    'protocols' : [ 'hd' ],
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.close( 'hd' );
+
+  /* - */
+
+
+  test.open( 'git+hd' );
+
+  test.case = 'simple git+hd path with query';
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : 'Tools',
+    'remoteVcsPath' : 'Tools',
+    'remoteVcsLongerPath' : 'Tools',
+    'tag' : 'master',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+    'protocols' : [ 'git', 'hd' ],
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'global git+hd path with query';
+  var remotePath = 'git+hd:///Tools?out=out/wTools.out.will'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : '/Tools',
+    'remoteVcsPath' : '/Tools',
+    'remoteVcsLongerPath' : '/Tools',
+    'tag' : 'master',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+    'protocols' : [ 'git', 'hd' ],
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+hd path with tag and query';
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will!new'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : 'Tools',
+    'remoteVcsPath' : 'Tools',
+    'remoteVcsLongerPath' : 'Tools',
+    'tag' : 'new',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+    'protocols' : [ 'git', 'hd' ],
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+hd path with query and tag after slash';
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/!new'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : 'Tools',
+    'remoteVcsPath' : 'Tools',
+    'remoteVcsLongerPath' : 'Tools',
+    'tag' : 'new',
+    'query' : 'out=out/wTools.out.will/',
+    'localVcsPath' : 'out/wTools.out.will/',
+    'protocols' : [ 'git', 'hd' ],
+    'isFixated' : false
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+hd path with query and hash';
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will#b6968a12'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : 'Tools',
+    'remoteVcsPath' : 'Tools',
+    'remoteVcsLongerPath' : 'Tools',
+    'hash' : 'b6968a12',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+    'protocols' : [ 'git', 'hd' ],
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.case = 'git+hd path with query and hash after slash';
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/#b6968a12'
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : 'Tools',
+    'remoteVcsPath' : 'Tools',
+    'remoteVcsLongerPath' : 'Tools',
+    'hash' : 'b6968a12',
+    'query' : 'out=out/wTools.out.will/',
+    'localVcsPath' : 'out/wTools.out.will/',
+    'protocols' : [ 'git', 'hd' ],
+    'isFixated' : true
+  };
+  var got = _.git.path.parse( remotePath );
+  test.identical( got, expected );
+
+  test.close( 'git+hd' );
+}
+
 // --
 // declare
 // --
@@ -1153,6 +1373,7 @@ var Proto =
     // parse
 
     parseFullRemoteProtocols,
+    parseFullLocalProtocols,
 
   },
 
