@@ -1141,7 +1141,7 @@ function parseFullLocalProtocols( test )
   test.open( 'hd' );
 
   test.case = 'simple hd path with query';
-  var remotePath = 'hd://Tools?out=out/wTools.out.will'
+  var remotePath = 'hd://Tools?out=out/wTools.out.will';
   var expected =
   {
     'protocol' : 'hd',
@@ -1158,7 +1158,7 @@ function parseFullLocalProtocols( test )
   test.identical( got, expected );
 
   test.case = 'global hd path with query';
-  var remotePath = 'hd:///Tools?out=out/wTools.out.will'
+  var remotePath = 'hd:///Tools?out=out/wTools.out.will';
   var expected =
   {
     'protocol' : 'hd',
@@ -1175,7 +1175,7 @@ function parseFullLocalProtocols( test )
   test.identical( got, expected );
 
   test.case = 'hd path with tag and query';
-  var remotePath = 'hd://Tools?out=out/wTools.out.will!new'
+  var remotePath = 'hd://Tools?out=out/wTools.out.will!new';
   var expected =
   {
     'protocol' : 'hd',
@@ -1192,7 +1192,7 @@ function parseFullLocalProtocols( test )
   test.identical( got, expected );
 
   test.case = 'hd path with query and tag after slash';
-  var remotePath = 'hd://Tools?out=out/wTools.out.will/!new'
+  var remotePath = 'hd://Tools?out=out/wTools.out.will/!new';
   var expected =
   {
     'protocol' : 'hd',
@@ -1209,7 +1209,7 @@ function parseFullLocalProtocols( test )
   test.identical( got, expected );
 
   test.case = 'hd path with query and hash';
-  var remotePath = 'hd://Tools?out=out/wTools.out.will#b6968a12'
+  var remotePath = 'hd://Tools?out=out/wTools.out.will#b6968a12';
   var expected =
   {
     'protocol' : 'hd',
@@ -1226,7 +1226,7 @@ function parseFullLocalProtocols( test )
   test.identical( got, expected );
 
   test.case = 'hd path with query and hash after slash';
-  var remotePath = 'hd://Tools?out=out/wTools.out.will/#b6968a12'
+  var remotePath = 'hd://Tools?out=out/wTools.out.will/#b6968a12';
   var expected =
   {
     'protocol' : 'hd',
@@ -1246,11 +1246,10 @@ function parseFullLocalProtocols( test )
 
   /* - */
 
-
   test.open( 'git+hd' );
 
   test.case = 'simple git+hd path with query';
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will'
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will';
   var expected =
   {
     'protocol' : 'git+hd',
@@ -1267,7 +1266,7 @@ function parseFullLocalProtocols( test )
   test.identical( got, expected );
 
   test.case = 'global git+hd path with query';
-  var remotePath = 'git+hd:///Tools?out=out/wTools.out.will'
+  var remotePath = 'git+hd:///Tools?out=out/wTools.out.will';
   var expected =
   {
     'protocol' : 'git+hd',
@@ -1284,7 +1283,7 @@ function parseFullLocalProtocols( test )
   test.identical( got, expected );
 
   test.case = 'git+hd path with tag and query';
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will!new'
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will!new';
   var expected =
   {
     'protocol' : 'git+hd',
@@ -1301,7 +1300,7 @@ function parseFullLocalProtocols( test )
   test.identical( got, expected );
 
   test.case = 'git+hd path with query and tag after slash';
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/!new'
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/!new';
   var expected =
   {
     'protocol' : 'git+hd',
@@ -1318,7 +1317,7 @@ function parseFullLocalProtocols( test )
   test.identical( got, expected );
 
   test.case = 'git+hd path with query and hash';
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will#b6968a12'
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will#b6968a12';
   var expected =
   {
     'protocol' : 'git+hd',
@@ -1335,7 +1334,7 @@ function parseFullLocalProtocols( test )
   test.identical( got, expected );
 
   test.case = 'git+hd path with query and hash after slash';
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/#b6968a12'
+  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/#b6968a12';
   var expected =
   {
     'protocol' : 'git+hd',
@@ -2158,6 +2157,177 @@ function parseAtomicRemoteProtocols( test )
   test.close( 'git+https' );
 }
 
+//
+
+function parseAtomicLocalProtocols( test )
+{
+  test.open( 'hd' );
+
+  test.case = 'simple hd path with query';
+  var o = { remotePath : 'hd://Tools?out=out/wTools.out.will', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : 'Tools',
+    'tag' : 'master',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'global hd path with query';
+  var o = { remotePath : 'hd:///Tools?out=out/wTools.out.will', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : '/Tools',
+    'tag' : 'master',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'hd path with tag and query';
+  var o = { remotePath : 'hd://Tools?out=out/wTools.out.will!new', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : 'Tools',
+    'tag' : 'new',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'hd path with query and tag after slash';
+  var o = { remotePath : 'hd://Tools?out=out/wTools.out.will/!new', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : 'Tools',
+    'tag' : 'new',
+    'query' : 'out=out/wTools.out.will/',
+    'localVcsPath' : 'out/wTools.out.will/',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'hd path with query and hash';
+  var o = { remotePath : 'hd://Tools?out=out/wTools.out.will#b6968a12', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : 'Tools',
+    'hash' : 'b6968a12',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'hd path with query and hash after slash';
+  var o = { remotePath : 'hd://Tools?out=out/wTools.out.will/#b6968a12', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'hd',
+    'longPath' : 'Tools',
+    'hash' : 'b6968a12',
+    'query' : 'out=out/wTools.out.will/',
+    'localVcsPath' : 'out/wTools.out.will/',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.close( 'hd' );
+
+  /* - */
+
+  test.open( 'git+hd' );
+
+  test.case = 'simple git+hd path with query';
+  var o = { remotePath : 'git+hd://Tools?out=out/wTools.out.will', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : 'Tools',
+    'tag' : 'master',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'global git+hd path with query';
+  var o = { remotePath : 'git+hd:///Tools?out=out/wTools.out.will', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : '/Tools',
+    'tag' : 'master',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'git+hd path with tag and query';
+  var o = { remotePath : 'git+hd://Tools?out=out/wTools.out.will!new', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : 'Tools',
+    'tag' : 'new',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'git+hd path with query and tag after slash';
+  var o = { remotePath : 'git+hd://Tools?out=out/wTools.out.will/!new', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : 'Tools',
+    'tag' : 'new',
+    'query' : 'out=out/wTools.out.will/',
+    'localVcsPath' : 'out/wTools.out.will/',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'git+hd path with query and hash';
+  var o = { remotePath : 'git+hd://Tools?out=out/wTools.out.will#b6968a12', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : 'Tools',
+    'hash' : 'b6968a12',
+    'query' : 'out=out/wTools.out.will',
+    'localVcsPath' : 'out/wTools.out.will',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'git+hd path with query and hash after slash';
+  var o = { remotePath : 'git+hd://Tools?out=out/wTools.out.will/#b6968a12', full : 0, atomic : 1 };
+  var expected =
+  {
+    'protocol' : 'git+hd',
+    'longPath' : 'Tools',
+    'hash' : 'b6968a12',
+    'query' : 'out=out/wTools.out.will/',
+    'localVcsPath' : 'out/wTools.out.will/',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.close( 'git+hd' );
+}
+
 // --
 // declare
 // --
@@ -2179,6 +2349,7 @@ var Proto =
     parseFullRemoteProtocols,
     parseFullLocalProtocols,
     parseAtomicRemoteProtocols,
+    parseAtomicLocalProtocols,
 
   },
 
