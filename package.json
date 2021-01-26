@@ -1,41 +1,31 @@
 {
-  "name": "wgittools",
-  "version": "0.3.236",
-  "description": "Collection of tools to use git programmatically.",
-  "author": "Kostiantyn Wandalen <wanalen@01.school>",
-  "license": "MIT",
-  "main": "proto/wtools/amid/l3/git/entry/GitTools.ss",
-  "files": [
-    "proto/wtools/amid/l3/git",
-    "proto/wtools/Tools.s",
-    "out"
-  ],
-  "scripts": {
-    "test": "wtest .run 'proto/**' rapidity:-3",
-    "docgen": "wdocgen proto"
+  "name" : "wgittools",
+  "version" : "0.3.237",
+  "description" : "Collection of tools to use git programmatically.",
+  "author" : "Kostiantyn Wandalen <wanalen@01.school>",
+  "license" : "MIT",
+  "main" : "proto/wtools/amid/l3/git/entry/GitTools.ss",
+  "files" : [ "proto/wtools/amid/l3/git", "proto/wtools/Tools.s", "out" ],
+  "scripts" : { "test" : "wtest .run 'proto/**' rapidity:-3", "docgen" : "wdocgen proto" },
+  "repository" :
+  {
+    "type" : "git",
+    "url" : "https://github.com/Wandalen/wGitTools.git"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Wandalen/wGitTools.git"
+  "bugs" :
+  {
+    "url" : "https://github.com/Wandalen/wGitTools/issues"
   },
-  "bugs": {
-    "url": "https://github.com/Wandalen/wGitTools/issues"
+  "dependencies" :
+  {
+    "wTools" : "",
+    "wCopyable" : "",
+    "wFiles" : "",
+    "wfilesarchive" : "",
+    "wprocess" : "",
+    "ini" : "=2.0.0",
+    "octonode" : "=0.10.0"
   },
-  "dependencies": {
-    "ini": "=2.0.0",
-    "octonode": "=0.10.0",
-    "wTools": "alpha",
-    "wCopyable": "alpha",
-    "wFiles": "alpha",
-    "wfilesarchive": "alpha",
-    "wprocess": "alpha"
-  },
-  "devDependencies": {
-    "eslint": "7.1.0",
-    "wTesting": "alpha",
-    "wgittools": "file:."
-  },
-  "keywords": [
-    "wTools"
-  ]
+  "devDependencies" : { "wTesting" : "", "wgittools" : "file:.", "eslint" : "7.1.0" },
+  "keywords" : [ "wTools" ]
 }
