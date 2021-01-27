@@ -17416,7 +17416,7 @@ function configRead( test )
     test.identical( got.core.bare, false );
     test.identical( got.core.filemode, true );
     test.identical( got.core.logallrefupdates, true );
-    test.identical( got.core.repositoryformatversion, "0" );
+    test.identical( got.core.repositoryformatversion, '0' );
     return null;
   });
 
@@ -17432,7 +17432,7 @@ function configRead( test )
     test.identical( got.core.bare, false );
     test.identical( got.core.filemode, true );
     test.identical( got.core.logallrefupdates, true );
-    test.identical( got.core.repositoryformatversion, "0" );
+    test.identical( got.core.repositoryformatversion, '0' );
     test.true( _.mapIs( got.user ) );
     test.identical( got.user.name, 'user' );
     test.identical( got.user.email, 'user@domain.com' );
