@@ -79,29 +79,29 @@ function parse_body( o )
     let parsed2 = Object.create( null );
     result.protocols = parsed2.protocols = parsed1.protocol ? parsed1.protocol.split( '+' ) : [];
 
-    let isHardDrive = _.longHasAny( result.protocols, [ 'hd' ] );
-
-    parsed2.longPath = isolated.globalPath;
-    if( !isHardDrive )
-    parsed2.longPath = _.strRemoveBegin( parsed2.longPath, '/' );
-    parsed2.longPath = _.strRemoveEnd( parsed2.longPath, '/' );
-
-    let protocols = _.longSlice( parsed2.protocols );
-    parsed2.protocols = _.arrayRemovedArrayOnce( protocols, [ 'git', 'hd' ] );
-    result.remoteVcsPath = _.uri.str( parsed2 );
-
-    if( isHardDrive )
-    result.remoteVcsPath = _.fileProvider.path.nativize( result.remoteVcsPath );
-
-    /* remoteVcsLongerPath */
-
-    let parsed3 = Object.create( null );
-    parsed3.longPath = parsed2.longPath;
-    parsed3.protocols = protocols;
-    result.remoteVcsLongerPath = _.uri.str( parsed3 );
-
-    if( isHardDrive )
-    result.remoteVcsLongerPath = _.fileProvider.path.nativize( result.remoteVcsLongerPath );
+    // let isHardDrive = _.longHasAny( result.protocols, [ 'hd' ] );
+    //
+    // parsed2.longPath = isolated.globalPath;
+    // if( !isHardDrive )
+    // parsed2.longPath = _.strRemoveBegin( parsed2.longPath, '/' );
+    // parsed2.longPath = _.strRemoveEnd( parsed2.longPath, '/' );
+    //
+    // let protocols = _.longSlice( parsed2.protocols );
+    // parsed2.protocols = _.arrayRemovedArrayOnce( protocols, [ 'git', 'hd' ] );
+    // result.remoteVcsPath = _.uri.str( parsed2 );
+    //
+    // if( isHardDrive )
+    // result.remoteVcsPath = _.fileProvider.path.nativize( result.remoteVcsPath );
+    //
+    // /* remoteVcsLongerPath */
+    //
+    // let parsed3 = Object.create( null );
+    // parsed3.longPath = parsed2.longPath;
+    // parsed3.protocols = protocols;
+    // result.remoteVcsLongerPath = _.uri.str( parsed3 );
+    //
+    // if( isHardDrive )
+    // result.remoteVcsLongerPath = _.fileProvider.path.nativize( result.remoteVcsLongerPath );
 
     /* */
 
