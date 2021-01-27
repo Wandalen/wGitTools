@@ -139,9 +139,9 @@ function parse_body( o )
   {
     let objects = Object.create( null );
     let objectsRegexp;
-    if( protocol && _.strHas( protocol, 'http' ) )
+    if( protocol && ( _.strHas( protocol, 'http' ) || _.strHas( protocol, 'ssh' ) ) )
     objectsRegexp = /([a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+)\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/;
-    else if( protocol === undefined || _.strHas( protocol, 'git' ) || _.strHas( protocol, 'ssh' ) )
+    else if( protocol === undefined || _.strHas( protocol, 'git' ) )
     objectsRegexp = /([a-zA-Z0-9-_.]+\.[a-zA-Z0-9-_.]+):([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/
     else
     return objects;
