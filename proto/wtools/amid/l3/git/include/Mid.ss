@@ -11,8 +11,10 @@ if( typeof module !== 'undefined' )
 
   require( './Basic.ss' );
   require( '../l1/Namespace.ss' );
+  require( '../l1/Path.ss' );
 
   module[ 'exports' ] = _global_.wTools;
 }
 
 })();
+
