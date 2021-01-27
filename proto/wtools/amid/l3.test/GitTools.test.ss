@@ -17414,8 +17414,7 @@ function configRead( test )
     test.identical( _.mapKeys( got ), [ 'core' ] );
     test.true( _.mapIs( got.core ) );
     test.identical( got.core.bare, false );
-    var exp = process.platform === 'win32' ? false : true;
-    test.identical( got.core.filemode, exp );
+    test.identical( got.core.filemode, !( process.platform === 'win32' ) );
     test.identical( got.core.logallrefupdates, true );
     test.identical( got.core.repositoryformatversion, '0' );
     return null;
@@ -17431,8 +17430,7 @@ function configRead( test )
     test.identical( _.mapKeys( got ), [ 'core', 'user' ] );
     test.true( _.mapIs( got.core ) );
     test.identical( got.core.bare, false );
-    var exp = process.platform === 'win32' ? false : true;
-    test.identical( got.core.filemode, exp );
+    test.identical( got.core.filemode, !( process.platform === 'win32' ) );
     test.identical( got.core.logallrefupdates, true );
     test.identical( got.core.repositoryformatversion, '0' );
     test.true( _.mapIs( got.user ) );
