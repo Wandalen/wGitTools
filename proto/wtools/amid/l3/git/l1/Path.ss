@@ -167,6 +167,8 @@ function parse_body( o )
     return parsedPath;
 
     const butMap = { longPath : null };
+    if( _.strBegins( parsedPath.longPath, '/' ) )
+    parsedPath.isGlobal = true;
     return _.mapBut_( parsedPath, butMap );
   }
 }
@@ -182,6 +184,59 @@ parse_body.defaults =
 //
 
 let parse = _.routineUnite( parse_head, parse_body );
+
+//
+
+function str( srcPath )
+{
+  _.assert( arguments.length === 1, 'Expects single argument {-srcPath-}' );
+
+  if( _.strIs( srcPath ) )
+  return srcPath;
+
+  _.assert( _.mapIs( srcPath ), 'Expects map with parsed path to construct string' );
+
+  let result = '';
+  let isParsedAtomic = srcPath.isFixated === undefined && srcPath.protocols === undefined;
+
+  if( isParsedAtomic && srcPath.localVcsPath === undefined )
+  throw _.err( 'Cannot create path from objects. Not enough information about protocols' );
+
+  if( srcPath.protocol )
+  result += srcPath.protocol + '://';
+  if( srcPath.longPath )
+  result += srcPath.longPath;
+
+  if( isParsedAtomic )
+  {
+    if( srcPath.protocol )
+    {
+      if( srcPath.service )
+      result += srcPath.isGlobal ? '/' + srcPath.service : srcPath.service;
+      if( srcPath.user )
+      result = _.git.path.join( result, srcPath.user );
+    }
+    else
+    {
+      if( srcPath.service )
+      result += `git@${ srcPath.service }:`;
+      if( srcPath.user )
+      result += srcPath.user;
+    }
+
+    if( srcPath.repo )
+    result = _.git.path.join( result, `${ srcPath.repo }.git` );
+  }
+
+  if( srcPath.query )
+  result +=  _.uri.queryToken + srcPath.query;
+  if( srcPath.tag )
+  result += srcPath.tag === 'master' ? '' : _.uri.tagToken + srcPath.tag;
+  if( srcPath.hash )
+  result += _.uri.hashToken + srcPath.hash;
+
+  return result;
+}
 
 //
 
@@ -275,9 +330,10 @@ function remotePathNativize( remotePath )
 
 let Extension =
 {
-  // path
 
   parse,
+
+  str,
 
   pathIsFixated,
   pathFixate,
