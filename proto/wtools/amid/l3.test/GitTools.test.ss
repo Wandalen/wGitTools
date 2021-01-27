@@ -17765,6 +17765,8 @@ function configResetWithOptionWithGlobal( test )
   }
 }
 
+configResetWithOptionWithGlobal.timeOut = 15000;
+
 //
 
 function configResetWithOptionsWithLocalWithGlobal( test )
@@ -17884,6 +17886,8 @@ function configResetWithOptionsWithLocalWithGlobal( test )
     return a.ready;
   }
 }
+
+configResetWithOptionsWithLocalWithGlobal.timeOut = 15000;
 
 //
 
