@@ -334,8 +334,10 @@ function remotePathFromLocal( o )
 
   let remotePath = config[ 'remote "origin"' ].url;
 
+  // if( remotePath )
+  // remotePath = this.remotePathNormalize( remotePath );
   if( remotePath )
-  remotePath = this.remotePathNormalize( remotePath );
+  remotePath = _.git.path.normalize( remotePath );
 
   return remotePath;
 }
@@ -2406,8 +2408,6 @@ function status_body( o )
   .finally( ( err, arg ) =>
   {
     if( err )
-    debugger;
-    if( err )
     {
       let errors = _.arrayAppendArrayOnce( localReady.errorsGet().slice(), remoteReady.errorsGet() );
       _.each( errors, ( err ) => _.errAttend( err ) )
@@ -2740,7 +2740,7 @@ function repositoryHasTag( o )
     if( o.remotePath )
     {
       let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remotePath = _.git.path.nativize( remoteVcsPath );
     }
@@ -2976,7 +2976,7 @@ function repositoryVersionToTag( o )
     if( o.remotePath )
     {
       let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remotePath = _.git.path.nativize( remoteVcsPath );
     }
@@ -3693,7 +3693,6 @@ function repositoryInit( o )
 
   _.assert( !o.remote || _.strDefined( o.remotePath ), `Expects path to remote repository {-o.remotePath-}, but got ${_.color.strFormat( String( o.remotePath ), 'path' )}` )
 
-  debugger;
   if( o.remotePath )
   {
     o.remotePath = self.remotePathNormalize( o.remotePath );
@@ -3907,7 +3906,6 @@ function repositoryInit( o )
     {
       if( err )
       {
-        debugger;
         _.fileProvider.filesDelete( downloadPath );
         if( err )
         throw _.err( err );
@@ -3923,7 +3921,6 @@ function repositoryInit( o )
           linking : 'hardLink',
         }
         _.fileProvider.filesReflect( o2 );
-        debugger;
       }
       catch( err )
       {
@@ -3986,7 +3983,6 @@ function repositoryDelete( o )
   })
   .finally( ( err, arg ) =>
   {
-    debugger;
     if( err )
     if( !o.throwing )
     {
@@ -4130,6 +4126,7 @@ function repositoryCheckout( o )
 
   let ready = new _.Consequence().take( null );
   // let parsed = _.git.pathParse( o.remotePath );
+
   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
 
   let shell = _.process.starter
@@ -4746,7 +4743,6 @@ function _stateParse( state )
 
   if( !_.longHas( statesSpecial, state ) )
   {
-    debugger;
     throw _.err( `Expects one of special states: ${statesSpecial}, but got: ${state}` );
   }
 

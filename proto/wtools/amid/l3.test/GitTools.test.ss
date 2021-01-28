@@ -13010,7 +13010,6 @@ function repositoryHasTag( test )
     test.identical( got, true );
 
     test.case = 'tag - master, local - 0, remote - 1';
-    debugger;
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
