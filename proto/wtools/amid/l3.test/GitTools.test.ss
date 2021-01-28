@@ -11491,6 +11491,8 @@ function statusFullHalfStaged( test )
   }
 }
 
+statusFullHalfStaged.timeOut = 15000;
+
 //
 
 function hasLocalChanges( test )
