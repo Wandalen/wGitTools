@@ -110,7 +110,8 @@ function production( test )
 
   /* */
 
-  a.shell( `npm i --production` )
+  a.ready.Try( () => a.shell( `npm i --production` ) )
+  .catch( handleDownloadingError )
   .then( ( op ) =>
   {
     test.case = 'install module';
@@ -144,6 +145,17 @@ function production( test )
 
   }
 
+  /* */
+
+  function handleDownloadingError( err )
+  {
+    if( _.strHas( err.message, 'npm ERR! ERROR: Repository not found' ) )
+    {
+      _.errAttend( err );
+      return a.shell( `npm i --production` );
+    }
+    throw _.err( err );
+  }
 }
 
 production.timeOut = 300000;
