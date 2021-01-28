@@ -55,6 +55,9 @@ function production( test )
     return;
   }
 
+  console.log( `Event : ${process.env.GITHUB_EVENT_NAME}` );
+  console.log( `Env :\n${_.toStr( process.env )}` );
+
   /* */
 
   let sampleDir = a.abs( __dirname, '../sample/trivial' );
@@ -274,6 +277,10 @@ function eslint( test )
       '--ignore-pattern', '*.tgs',
       '--ignore-pattern', '*.bat',
       '--ignore-pattern', '*.sh',
+      '--ignore-pattern', '*.jslike',
+      '--ignore-pattern', '*.less',
+      '--ignore-pattern', '*.hbs',
+      '--ignore-pattern', '*.noeslint',
       '--quiet'
     ],
     throwingExitCode : 0,

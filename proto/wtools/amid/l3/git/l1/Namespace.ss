@@ -318,23 +318,17 @@ function remotePathNativize( remotePath )
 function remotePathFromLocal( o )
 {
   if( _.strIs( arguments[ 0 ] ) )
-  o = { localPath : arguments[ 0 ] }
+  o = { localPath : arguments[ 0 ] };
+
   o = _.routineOptions( remotePathFromLocal, o );
-  // debugger;
+
   let config = _.git.configRead( o.localPath );
-  // debugger;
 
   if( !config )
-  {
-    debugger;
-    throw _.err( `No git repository at ${o.localPath}` );
-  }
+  throw _.err( `No git repository at ${o.localPath}` );
 
   if( !config[ 'remote "origin"' ] || !config[ 'remote "origin"' ].url )
-  {
-    debugger;
-    return null;
-  }
+  return null;
 
   let remotePath = config[ 'remote "origin"' ].url;
 
@@ -347,7 +341,7 @@ function remotePathFromLocal( o )
 remotePathFromLocal.defaults =
 {
   localPath : null,
-}
+};
 
 //
 
@@ -4425,10 +4419,15 @@ function configRead( filePath )
   _.assert( arguments.length === 1 );
   _.assert( _.strIs( filePath ) );
 
+  let configPath = path.join( filePath, '.git/config' );
+
+  if( !fileProvider.fileExists( configPath ) )
+  return null;
+
   if( !Ini )
   Ini = require( 'ini' );
 
-  let read = fileProvider.fileRead( path.join( filePath, '.git/config' ) );
+  let read = fileProvider.fileRead( configPath );
   let config = Ini.parse( read );
 
   return config;
