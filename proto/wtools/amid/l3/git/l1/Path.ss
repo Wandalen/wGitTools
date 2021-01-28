@@ -263,8 +263,8 @@ function normalize( srcPath )
   return _.git.path.str( parsed );
 }
 
+// //
 //
-
 // function remotePathNormalize( remotePath )
 // {
 //   if( remotePath === null )
@@ -278,16 +278,40 @@ function normalize( srcPath )
 
 //
 
-function remotePathNativize( remotePath )
+function nativize( srcPath )
 {
-  if( remotePath === null )
-  return remotePath;
+  _.assert( arguments.length === 1 );
+  _.assert( _.strIs( srcPath ), 'Expects string path {-srcPath-}' );
 
-  remotePath = remotePath.replace( /^git\+(\w+):\/\//, '$1://' );
-  remotePath = remotePath.replace( /:\/\/\/\b/, '://' );
+  let parsed = _.git.path.parse( srcPath );
 
-  return remotePath;
+  _.assert( !!parsed.longPath );
+
+  if( parsed.protocol )
+  parsed.protocol = parsed.protocol.replace( /^git\+(\w+)/, '$1' );
+  else
+  parsed.protocol = 'git';
+
+  parsed.longPath = _.uri.normalize( parsed.longPath );
+  parsed.longPath = _.strRemoveBegin( parsed.longPath, '/' );
+  if( _.longHasAny( parsed.protocols, _.fileProvider.protocols ) )
+  parsed.longPath = _.uri.nativize( parsed.longPath );
+
+  return _.git.path.str( parsed );
 }
+
+// //
+//
+// function remotePathNativize( remotePath )
+// {
+//   if( remotePath === null )
+//   return remotePath;
+//
+//   remotePath = remotePath.replace( /^git\+(\w+):\/\//, '$1://' );
+//   remotePath = remotePath.replace( /:\/\/\/\b/, '://' );
+//
+//   return remotePath;
+// }
 
 //
 
@@ -361,7 +385,7 @@ let Extension =
   str,
 
   normalize,
-  remotePathNativize,
+  nativize,
 
   pathIsFixated,
   pathFixate,
