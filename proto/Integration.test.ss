@@ -49,6 +49,9 @@ function production( test )
   let a = test.assetFor( 'production' );
   let runList = [];
 
+  if( _.process.insideTestContainer() )
+  _.time.sleep( 60000 );
+
   if( process.env.GITHUB_EVENT_NAME === 'pull_request' )
   {
     test.true( true );
@@ -148,6 +151,8 @@ function production( test )
   }
 
 }
+
+production.timeOut = 300000;
 
 //
 
