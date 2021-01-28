@@ -199,7 +199,7 @@ function pathParse( remotePath )
 
   /* */
 
-  result.isFixated = _.git.pathIsFixated( result );
+  result.isFixated = _.git.path.isFixated( result );
 
   _.assert( !_.boolLike( result.hash ) );
   return result
@@ -229,21 +229,21 @@ function pathParse( remotePath )
 
 //
 
-function pathIsFixated( filePath )
-{
-  let parsed = _.git.pathParse( filePath );
-
-  if( !parsed.hash )
-  return false;
-
-  if( parsed.hash.length < 7 )
-  return false;
-
-  if( !/[0-9a-f]+/.test( parsed.hash ) )
-  return false;
-
-  return true;
-}
+// function pathIsFixated( filePath )
+// {
+//   let parsed = _.git.pathParse( filePath );
+//
+//   if( !parsed.hash )
+//   return false;
+//
+//   if( parsed.hash.length < 7 )
+//   return false;
+//
+//   if( !/[0-9a-f]+/.test( parsed.hash ) )
+//   return false;
+//
+//   return true;
+// }
 
 //
 
@@ -5406,7 +5406,7 @@ let Extension =
 
   // objectsParse,
   pathParse,
-  pathIsFixated,
+  // pathIsFixated,
   pathFixate,
   remotePathNormalize,
   remotePathNativize,

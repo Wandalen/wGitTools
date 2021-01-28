@@ -335,9 +335,9 @@ function refine( srcPath )
 
 //
 
-function pathIsFixated( filePath )
+function isFixated( filePath )
 {
-  let parsed = _.git.path.parse({ remotePath : filePath });
+  let parsed = _.git.path.parse({ remotePath : filePath, full : 0, atomic : 1 });
 
   if( !parsed.hash )
   return false;
@@ -408,7 +408,7 @@ let Extension =
   nativize,
   refine,
 
-  pathIsFixated,
+  isFixated,
   pathFixate,
 
 }
