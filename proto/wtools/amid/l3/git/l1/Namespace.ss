@@ -231,7 +231,8 @@ function pathParse( remotePath )
 
 function pathIsFixated( filePath )
 {
-  let parsed = _.git.pathParse( filePath );
+  // let parsed = _.git.pathParse( filePath );
+  let parsed = _.git.path.parse({ remotePath : filePath, full : 0, atomic : 1 });
 
   if( !parsed.hash )
   return false;
@@ -266,7 +267,8 @@ function pathFixate( o )
   _.routineOptions( pathFixate, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+  let parsed = _.git.path.parse( o.remotePath );
   let latestVersion = _.git.versionRemoteLatestRetrive
   ({
     remotePath : o.remotePath,
