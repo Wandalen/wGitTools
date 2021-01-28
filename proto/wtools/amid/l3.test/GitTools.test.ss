@@ -13302,10 +13302,11 @@ function repositoryHasTagRemotePathIsMap( test )
   begin().then( () =>
   {
     test.case = 'tag - master, local - 1, remote - 1';
+    debugger;
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'master',
       local : 1,
       remote : 1,
@@ -13317,7 +13318,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'master',
       local : 0,
       remote : 1,
@@ -13329,7 +13330,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'master',
       local : 1,
       remote : 0,
@@ -13343,7 +13344,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'abc',
       local : 1,
       remote : 1,
@@ -13355,7 +13356,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'abc',
       local : 0,
       remote : 1,
@@ -13367,7 +13368,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'abc',
       local : 1,
       remote : 0,
@@ -13380,7 +13381,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '0.0.37',
       local : 1,
       remote : 1,
@@ -13392,7 +13393,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '0.0.37',
       local : 1,
       remote : 0,
@@ -13404,7 +13405,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '0.0.37',
       local : 0,
       remote : 1,
@@ -13418,7 +13419,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
       local : 1,
       remote : 1,
@@ -13430,7 +13431,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
       local : 0,
       remote : 1,
@@ -13442,7 +13443,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
       local : 1,
       remote : 0,
@@ -13456,7 +13457,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'dev1',
       local : 1,
       remote : 1,
@@ -13468,7 +13469,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'dev1',
       local : 0,
       remote : 1,
@@ -13480,7 +13481,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'dev1',
       local : 1,
       remote : 0,

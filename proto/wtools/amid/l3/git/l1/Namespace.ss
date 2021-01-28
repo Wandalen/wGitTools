@@ -2740,7 +2740,7 @@ function repositoryHasTag( o )
     let remotePath = 'origin';
     if( o.remotePath )
     {
-      let parsed = _.git.path.parse( o.remotePath );
+      let parsed = _.git.path.parse({ remotePath : o.remotePath });
       let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remotePath = _.git.path.nativize( remoteVcsPath );
@@ -2976,7 +2976,7 @@ function repositoryVersionToTag( o )
     let remotePath = '';
     if( o.remotePath )
     {
-      let parsed = _.git.path.parse( o.remotePath );
+      let parsed = _.git.path.parse({ remotePath : o.remotePath });
       let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remotePath = _.git.path.nativize( remoteVcsPath );
