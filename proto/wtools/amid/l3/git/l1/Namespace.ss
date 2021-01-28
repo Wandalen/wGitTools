@@ -1485,10 +1485,14 @@ function sureHasOrigin( o )
   if( !_.git.isRepository({ localPath : o.localPath }) )
   throw _.err( `Provided path is not a git repository:${o.localPath}` );
 
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+  let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+  let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+  let remoteVcsParsed = _.git.path.nativize( remoteVcsPath );
+
   let config = _.git.configRead( o.localPath );
 
-  // debugger;
   _.sure
   (
     !!config[ 'remote "origin"' ] && !!config[ 'remote "origin"' ] && _.strIs( config[ 'remote "origin"' ].url ),
@@ -1497,12 +1501,20 @@ function sureHasOrigin( o )
 
   let srcCurrentPath = config[ 'remote "origin"' ].url;
 
+  // _.sure
+  // (
+  //   _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( parsed.remoteVcsPath, '/' ) ),
+  //   () => 'GIT repository at directory ' + _.strQuote( o.localPath ) + '\n'
+  //   + 'Has origin ' + _.strQuote( srcCurrentPath ) + '\n'
+  //   + 'Should have ' + _.strQuote( parsed.remoteVcsPath )
+  // );
+
   _.sure
   (
-    _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( parsed.remoteVcsPath, '/' ) ),
+    _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( remoteVcsPath, '/' ) ),
     () => 'GIT repository at directory ' + _.strQuote( o.localPath ) + '\n'
     + 'Has origin ' + _.strQuote( srcCurrentPath ) + '\n'
-    + 'Should have ' + _.strQuote( parsed.remoteVcsPath )
+    + 'Should have ' + _.strQuote( remoteVcsPath )
   );
 
   return config;
@@ -2721,11 +2733,23 @@ function repositoryHasTag( o )
     if( result )
     return result;
 
-    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : 'origin';
-    return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` ) /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
+    // let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : 'origin';
+    let remotePath = 'origin';
+    if( o.remotePath )
+    {
+      let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+      remotePath = _.git.path.nativize( remoteVcsPath );
+    }
+
+    /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
+    return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` )
+    .then( hasTag )
+
     // let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
     // return start( `git ls-remote --tags --refs --heads ${remotePath}` )
-    .then( hasTag )
+    // .then( hasTag )
   }
 
   function hasTag( got )
@@ -2945,10 +2969,21 @@ function repositoryVersionToTag( o )
     if( result )
     return result;
 
-    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
-    // return start( `git ls-remote --tags --heads ${remotePath}` )
-    return start( `git ls-remote --tags --heads ${remotePath}` )
+    // let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
+    let remotePath = '';
+    if( o.remotePath )
+    {
+      let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+      remotePath = _.git.path.nativize( remoteVcsPath );
+    }
+
+    return start( `git ls-remote --tags --heads ${ remotePath }` )
     .then( hasTag )
+
+    // return start( `git ls-remote --tags --heads ${remotePath}` )
+    // .then( hasTag )
   }
 
   function hasTag( got )
