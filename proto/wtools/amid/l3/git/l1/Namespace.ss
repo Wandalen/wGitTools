@@ -94,25 +94,25 @@ function stateIsTag( src )
 // path
 // --
 
-function objectsParse( remotePath )
-{
-  let result = Object.create( null );
-  let gitHubRegexp = /\:\/\/\/github\.com\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/;
-  // let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
-  /* Dmytro : this regexp does not search dashes, maybe needs additional symbols */
-
-  remotePath = this.remotePathNormalize( remotePath );
-  let match = remotePath.match( gitHubRegexp );
-
-  if( match )
-  {
-    result.service = 'github.com';
-    result.user = match[ 1 ];
-    result.repo = _.strRemoveEnd( match[ 2 ], '.git' );
-  }
-
-  return result;
-}
+// function objectsParse( remotePath )
+// {
+//   let result = Object.create( null );
+//   let gitHubRegexp = /\:\/\/\/github\.com\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/;
+//   // let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
+//   /* Dmytro : this regexp does not search dashes, maybe needs additional symbols */
+//
+//   remotePath = this.remotePathNormalize( remotePath );
+//   let match = remotePath.match( gitHubRegexp );
+//
+//   if( match )
+//   {
+//     result.service = 'github.com';
+//     result.user = match[ 1 ];
+//     result.repo = _.strRemoveEnd( match[ 2 ], '.git' );
+//   }
+//
+//   return result;
+// }
 
 //
 
@@ -3628,7 +3628,8 @@ function repositoryInit( o )
   {
     o.remotePath = self.remotePathNormalize( o.remotePath );
     nativeRemotePath = self.remotePathNativize( o.remotePath );
-    parsed = self.objectsParse( o.remotePath );
+    // parsed = self.objectsParse( o.remotePath );
+    parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
     remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
   }
 
@@ -3900,7 +3901,8 @@ function repositoryDelete( o )
   {
     o.remotePath = self.remotePathNormalize( o.remotePath );
     nativeRemotePath = self.remotePathNativize( o.remotePath );
-    parsed = self.objectsParse( o.remotePath );
+    // parsed = self.objectsParse( o.remotePath );
+    parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
     remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
   }
 
@@ -4234,7 +4236,8 @@ function prsGet( o )
   o = { remotePath : o }
   o = _.routineOptions( prsGet, o );
 
-  let parsed = this.objectsParse( o.remotePath );
+  // let parsed = this.objectsParse( o.remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
 
   ready
   .then( () =>
@@ -4315,10 +4318,10 @@ function prOpen( o )
   if( !o.token && o.throwing )
   throw _.errBrief( 'Cannot autorize user without user token.' )
 
-  let parsed = this.objectsParse( o.remotePath );
+  // let parsed = this.objectsParse( o.remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
 
-  ready
-  .then( () =>
+  ready.then( () =>
   {
     if( parsed.service === 'github.com' )
     return prOpenOnGithub();
@@ -5401,7 +5404,7 @@ let Extension =
 
   // path
 
-  objectsParse,
+  // objectsParse,
   pathParse,
   pathIsFixated,
   pathFixate,
