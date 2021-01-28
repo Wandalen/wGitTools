@@ -105,7 +105,7 @@ function parse_body( o )
 
     /* */
 
-    result.isFixated = _.git.path.pathIsFixated( result );
+    result.isFixated = _.git.path.isFixated( result );
 
     _.assert( !_.boolLike( result.hash ) );
 
