@@ -293,9 +293,17 @@ function nativize( srcPath )
   parsed.protocol = 'git';
 
   parsed.longPath = _.uri.normalize( parsed.longPath );
-  parsed.longPath = _.strRemoveBegin( parsed.longPath, '/' );
+
   if( _.longHasAny( parsed.protocols, _.fileProvider.protocols ) )
-  parsed.longPath = _.uri.nativize( parsed.longPath );
+  {
+    parsed.longPath = _.uri.nativize( parsed.longPath );
+    if( parsed.query )
+    parsed.query = _.uri.nativize( parsed.query );
+  }
+  else
+  {
+    parsed.longPath = _.strRemoveBegin( parsed.longPath, '/' );
+  }
 
   return _.git.path.str( parsed );
 }
