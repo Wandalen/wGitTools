@@ -698,7 +698,12 @@ function versionRemoteLatestRetrive( o )
   _.routineOptions( versionRemoteLatestRetrive, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+  parsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+  let remotePath = _.git.path.str( parsed );
+  remotePath = _.git.path.nativize( remotePath );
+
   let start = _.process.starter
   ({
     verbosity : o.verbosity - 1,
@@ -707,7 +712,8 @@ function versionRemoteLatestRetrive( o )
     outputCollecting : 1,
   });
 
-  let got = start( 'git ls-remote ' + parsed.remoteVcsLongerPath );
+  // let got = start( 'git ls-remote ' + parsed.remoteVcsLongerPath );
+  let got = start( `git ls-remote ${ remotePath }` );
   let latestVersion = /([0-9a-f]+)\s+HEAD/.exec( got.output );
   if( !latestVersion || !latestVersion[ 1 ] )
   return null;
@@ -742,7 +748,8 @@ function versionRemoteCurrentRetrive( o )
   _.routineOptions( versionRemoteCurrentRetrive, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+  let parsed = _.git.path.parse( o.remotePath );
   if( parsed.isFixated )
   return parsed.hash;
 
@@ -922,7 +929,9 @@ function isUpToDate( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let srcCurrentPath;
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+
   let ready = _.Consequence();
 
   let start = _.process.starter
@@ -1018,12 +1027,16 @@ function isUpToDate( o )
       });
 
       if( !repositoryHasTag )
-      throw _.err
-      (
-        `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
-        \nLocal path: ${_.color.strFormat( String( o.localPath ), 'path' )}\
-        \nRemote path: ${_.color.strFormat( String( parsed.remoteVcsPath ), 'path' )}`
-      );
+      {
+        let remoteVcsPathParsed = _.mapBut_( parsed, { protocol : null, tag : null, hash : null, query : null } );
+        let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+        throw _.err
+        (
+          `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
+          \nLocal path: ${_.color.strFormat( String( o.localPath ), 'path' )}\
+          \nRemote path: ${_.color.strFormat( String( remoteVcsPath ), 'path' )}`
+        );
+      }
     }
 
     if( result && !detachedParsed )
@@ -1054,8 +1067,15 @@ function isUpToDate( o )
     return false;
 
     srcCurrentPath = conf[ 'remote "origin"' ].url;
+    let originParsed = _.git.path.parse( srcCurrentPath );
 
-    if( !_.strEnds( srcCurrentPath, parsed.remoteVcsPath ) )
+    // if( !_.strEnds( srcCurrentPath, remoteVcsPath ) )
+    if
+    (
+      parsed.service !== originParsed.service
+      || parsed.user !== originParsed.user
+      || parsed.repo !== originParsed.repo
+    )
     return false;
 
     return true;

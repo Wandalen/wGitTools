@@ -1790,7 +1790,7 @@ function isUpToDateRemotePathIsMap( test )
   begin().then( () =>
   {
     test.case = 'remote master, local on branch master';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1802,7 +1802,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'remote has fixated version, local on branch master';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#041839a730fa104a7b6c7e4935b4751ad81b00e0' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#041839a730fa104a7b6c7e4935b4751ad81b00e0' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1819,7 +1819,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'remote has same fixed version, local is detached';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#041839a730fa104a7b6c7e4935b4751ad81b00e0' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#041839a730fa104a7b6c7e4935b4751ad81b00e0' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1831,7 +1831,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'remote has other fixated version, local is detached';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d70162fc9d06783ec24f622424a35dbda64fe956' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d70162fc9d06783ec24f622424a35dbda64fe956' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1845,7 +1845,7 @@ function isUpToDateRemotePathIsMap( test )
   begin().then( () =>
   {
     test.case = 'local repository resetted to previous commit';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
 
     return _.process.start
     ({
@@ -1863,7 +1863,7 @@ function isUpToDateRemotePathIsMap( test )
   begin().then( () =>
   {
     test.case = 'local repository has new commit';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
 
     return _.process.start
     ({
@@ -1881,7 +1881,7 @@ function isUpToDateRemotePathIsMap( test )
   begin().then( () =>
   {
     test.case = 'local repository update latest commit';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
 
     let ready = new _.Consequence().take( null );
 
@@ -1916,7 +1916,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'local repository has new commit, local is detached';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
 
     return _.process.start
     ({
@@ -1939,7 +1939,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'local is on new branch, chech with no identical remote branch';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1954,7 +1954,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'local is on new branch, chech with identical remote branch';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!newbranch' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!newbranch' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1973,7 +1973,7 @@ function isUpToDateRemotePathIsMap( test )
   {
     a.ready.then( () =>
     {
-      let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+      let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
       a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
       a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
       return null;
