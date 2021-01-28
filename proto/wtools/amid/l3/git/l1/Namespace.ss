@@ -1028,7 +1028,7 @@ function isUpToDate( o )
 
       if( !repositoryHasTag )
       {
-        let remoteVcsPathParsed = _.mapBut_( parsed, { protocol : null, tag : null, hash : null, query : null } );
+        let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
         let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
         throw _.err
         (
@@ -1164,7 +1164,13 @@ function hasRemote( o )
     }
 
     let config = _.git.configRead( o.localPath );
-    let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
+
+    // let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
+    let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+    let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+    let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+    remoteVcsPath = _.git.path.nativize( remoteVcsPath );
+
     let remoteOrigin = config[ 'remote "origin"' ];
     let originVcsPath = null;
 
@@ -1179,7 +1185,7 @@ function hasRemote( o )
     result.remoteIsValid = originVcsPath === remoteVcsPath;
 
     return result;
-  })
+  });
 
   if( o.sync )
   {
@@ -1223,7 +1229,14 @@ function isRepository( o )
     if( !exists && o.localPath )
     return false;
     if( path.isGlobal( o.remotePath ) )
-    remoteParsed = self.pathParse( o.remotePath ).remoteVcsPath;
+    {
+      // remoteParsed = self.pathParse( o.remotePath ).remoteVcsPath;
+      let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+      remoteParsed = _.git.path.nativize( remoteVcsPath );
+    }
+
     return remoteIsRepository( remoteParsed );
   });
 
