@@ -4078,7 +4078,11 @@ function repositoryClone( o )
   if( _.git.isRepository({ localPath : o.localPath }) )
   return ready;
 
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+  let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+  let remoteVcsLongerPath = _.git.path.str( remoteVcsPathParsed );
+  remoteVcsLongerPath = _.git.path.nativize( remoteVcsLongerPath );
 
   if( !localProvider.fileExists( o.localPath ) )
   localProvider.dirMake( o.localPath );
@@ -4092,7 +4096,7 @@ function repositoryClone( o )
     ready,
   });
 
-  shell( `git clone ${parsed.remoteVcsLongerPath} . --config core.autocrlf=false` );
+  shell( `git clone ${ remoteVcsLongerPath } . --config core.autocrlf=false` );
 
   if( o.sync )
   {
@@ -4123,7 +4127,8 @@ function repositoryCheckout( o )
   _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
 
   let ready = new _.Consequence().take( null );
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
 
   let shell = _.process.starter
   ({
@@ -4144,12 +4149,18 @@ function repositoryCheckout( o )
     });
 
     if( !repoHasTag )
-    throw _.err
-    (
-      `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
-      \nLocal path: ${_.color.strFormat( String( o.localPath ), 'path' )}\
-      \nRemote path: ${_.color.strFormat( String( parsed.remoteVcsPath ), 'path' )}`
-    );
+    {
+      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+      remoteVcsPath = _.git.path.nativize( remoteVcsPath );
+      throw _.err
+      (
+        `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
+        \nLocal path: ${_.color.strFormat( String( o.localPath ), 'path' )}\
+        \nRemote path: ${_.color.strFormat( String( remoteVcsPath ), 'path' )}`
+      );
+    }
+
     return null;
   });
 
