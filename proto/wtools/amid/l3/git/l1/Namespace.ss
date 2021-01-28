@@ -101,7 +101,8 @@ function objectsParse( remotePath )
   // let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
   /* Dmytro : this regexp does not search dashes, maybe needs additional symbols */
 
-  remotePath = this.remotePathNormalize( remotePath );
+  // remotePath = this.remotePathNormalize( remotePath );
+  remotePath = _.git.path.normalize( remotePath );
   let match = remotePath.match( gitHubRegexp );
 
   if( match )
@@ -2739,7 +2740,7 @@ function repositoryHasTag( o )
     let remotePath = 'origin';
     if( o.remotePath )
     {
-      let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+      let parsed = _.git.path.parse( o.remotePath );
       let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remotePath = _.git.path.nativize( remoteVcsPath );
@@ -2975,7 +2976,7 @@ function repositoryVersionToTag( o )
     let remotePath = '';
     if( o.remotePath )
     {
-      let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+      let parsed = _.git.path.parse( o.remotePath );
       let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remotePath = _.git.path.nativize( remoteVcsPath );
@@ -3695,8 +3696,10 @@ function repositoryInit( o )
 
   if( o.remotePath )
   {
-    o.remotePath = self.remotePathNormalize( o.remotePath );
-    nativeRemotePath = self.remotePathNativize( o.remotePath );
+    // o.remotePath = self.remotePathNormalize( o.remotePath );
+    // nativeRemotePath = self.remotePathNativize( o.remotePath );
+    o.remotePath = nativeRemotePath = _.git.path.nativize( o.remotePath );
+
     // parsed = self.objectsParse( o.remotePath );
     parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
     remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
@@ -3966,8 +3969,9 @@ function repositoryDelete( o )
 
   if( o.remotePath )
   {
-    o.remotePath = self.remotePathNormalize( o.remotePath );
-    nativeRemotePath = self.remotePathNativize( o.remotePath );
+    // o.remotePath = self.remotePathNormalize( o.remotePath );
+    // nativeRemotePath = self.remotePathNativize( o.remotePath );
+    o.remotePath = nativeRemotePath = _.git.path.normalize( o.remotePath );
     // parsed = self.objectsParse( o.remotePath );
     parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
     remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
@@ -4771,6 +4775,7 @@ function diff( o )
   let ready = new _.Consequence().take( null );
   let result = Object.create( null );
   let state1 = self._stateParse( o.state1 );
+  debugger;
   let state2 = self._stateParse( o.state2 ); /* qqq : ! aaa: special tags now work in both states */
 
   let start = _.process.starter
