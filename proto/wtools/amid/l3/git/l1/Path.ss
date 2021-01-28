@@ -315,6 +315,18 @@ function nativize( srcPath )
 
 //
 
+function refine( srcPath )
+{
+  _.assert( arguments.length === 1, 'Expects single path {-srcPath-}' );
+  _.assert( _.strIs( srcPath ), 'Expects string path {-srcPath-}' );
+
+  let parsed = _.git.path.parse( srcPath );
+  parsed.longPath = _.path.refine( parsed.longPath );
+  return _.git.path.str( parsed );
+}
+
+//
+
 function pathIsFixated( filePath )
 {
   let parsed = _.git.path.parse({ remotePath : filePath });
@@ -386,6 +398,7 @@ let Extension =
 
   normalize,
   nativize,
+  refine,
 
   pathIsFixated,
   pathFixate,
