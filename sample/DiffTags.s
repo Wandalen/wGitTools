@@ -4,7 +4,7 @@ let _ = wTools;
 
 /* Diff local tag 0.3.48 with tag v0.3.36 on remote "origin" */
 
-var got =  _.git.diff
+var got = _.git.diff
 ({
   localPath : _.path.join( __dirname, '..' ),
   state1 : '!0.3.48',

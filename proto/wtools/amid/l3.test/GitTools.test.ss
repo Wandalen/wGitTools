@@ -1790,7 +1790,7 @@ function isUpToDateRemotePathIsMap( test )
   begin().then( () =>
   {
     test.case = 'remote master, local on branch master';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1802,7 +1802,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'remote has fixated version, local on branch master';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#041839a730fa104a7b6c7e4935b4751ad81b00e0' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#041839a730fa104a7b6c7e4935b4751ad81b00e0' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1819,7 +1819,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'remote has same fixed version, local is detached';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#041839a730fa104a7b6c7e4935b4751ad81b00e0' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#041839a730fa104a7b6c7e4935b4751ad81b00e0' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1831,7 +1831,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'remote has other fixated version, local is detached';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d70162fc9d06783ec24f622424a35dbda64fe956' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d70162fc9d06783ec24f622424a35dbda64fe956' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1845,7 +1845,7 @@ function isUpToDateRemotePathIsMap( test )
   begin().then( () =>
   {
     test.case = 'local repository resetted to previous commit';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
 
     return _.process.start
     ({
@@ -1863,7 +1863,7 @@ function isUpToDateRemotePathIsMap( test )
   begin().then( () =>
   {
     test.case = 'local repository has new commit';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
 
     return _.process.start
     ({
@@ -1881,7 +1881,7 @@ function isUpToDateRemotePathIsMap( test )
   begin().then( () =>
   {
     test.case = 'local repository update latest commit';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
 
     let ready = new _.Consequence().take( null );
 
@@ -1916,7 +1916,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'local repository has new commit, local is detached';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
 
     return _.process.start
     ({
@@ -1939,7 +1939,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'local is on new branch, chech with no identical remote branch';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1954,7 +1954,7 @@ function isUpToDateRemotePathIsMap( test )
   a.ready.then( () =>
   {
     test.case = 'local is on new branch, chech with identical remote branch';
-    let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!newbranch' );
+    let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!newbranch' );
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
@@ -1973,7 +1973,7 @@ function isUpToDateRemotePathIsMap( test )
   {
     a.ready.then( () =>
     {
-      let remotePath = _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
+      let remotePath = _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' );
       a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
       a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
       return null;
@@ -11491,6 +11491,8 @@ function statusFullHalfStaged( test )
   }
 }
 
+statusFullHalfStaged.timeOut = 15000;
+
 //
 
 function hasLocalChanges( test )
@@ -13300,10 +13302,11 @@ function repositoryHasTagRemotePathIsMap( test )
   begin().then( () =>
   {
     test.case = 'tag - master, local - 1, remote - 1';
+    debugger;
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'master',
       local : 1,
       remote : 1,
@@ -13315,7 +13318,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'master',
       local : 0,
       remote : 1,
@@ -13327,7 +13330,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'master',
       local : 1,
       remote : 0,
@@ -13341,7 +13344,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'abc',
       local : 1,
       remote : 1,
@@ -13353,7 +13356,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'abc',
       local : 0,
       remote : 1,
@@ -13365,7 +13368,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'abc',
       local : 1,
       remote : 0,
@@ -13378,7 +13381,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '0.0.37',
       local : 1,
       remote : 1,
@@ -13390,7 +13393,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '0.0.37',
       local : 1,
       remote : 0,
@@ -13402,7 +13405,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '0.0.37',
       local : 0,
       remote : 1,
@@ -13416,7 +13419,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
       local : 1,
       remote : 1,
@@ -13428,7 +13431,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
       local : 0,
       remote : 1,
@@ -13440,7 +13443,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : '1c5607cbae0b62c8a0553b381b4052927cd40c32',
       local : 1,
       remote : 0,
@@ -13454,7 +13457,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'dev1',
       local : 1,
       remote : 1,
@@ -13466,7 +13469,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'dev1',
       local : 0,
       remote : 1,
@@ -13478,7 +13481,7 @@ function repositoryHasTagRemotePathIsMap( test )
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       tag : 'dev1',
       local : 1,
       remote : 0,
