@@ -363,13 +363,13 @@ function isFixated( filePath )
  * @module Tools/mid/GitTools
  */
 
-function pathFixate( o )
+function fixate( o )
 {
   let path = _.uri;
 
   if( !_.mapIs( o ) )
   o = { remotePath : o }
-  _.routineOptions( pathFixate, o );
+  _.routineOptions( fixate, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let parsed = _.git.path.parse({ remotePath : o.remotePath });
@@ -389,7 +389,7 @@ function pathFixate( o )
   return result;
 }
 
-var defaults = pathFixate.defaults = Object.create( null );
+var defaults = fixate.defaults = Object.create( null );
 defaults.remotePath = null;
 defaults.verbosity = 0;
 
@@ -409,7 +409,7 @@ let Extension =
   refine,
 
   isFixated,
-  pathFixate,
+  fixate,
 
 }
 

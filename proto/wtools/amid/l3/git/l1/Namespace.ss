@@ -94,25 +94,25 @@ function stateIsTag( src )
 // path
 // --
 
-// function objectsParse( remotePath )
-// {
-//   let result = Object.create( null );
-//   let gitHubRegexp = /\:\/\/\/github\.com\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/;
-//   // let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
-//   /* Dmytro : this regexp does not search dashes, maybe needs additional symbols */
-//
-//   remotePath = this.remotePathNormalize( remotePath );
-//   let match = remotePath.match( gitHubRegexp );
-//
-//   if( match )
-//   {
-//     result.service = 'github.com';
-//     result.user = match[ 1 ];
-//     result.repo = _.strRemoveEnd( match[ 2 ], '.git' );
-//   }
-//
-//   return result;
-// }
+function objectsParse( remotePath )
+{
+  let result = Object.create( null );
+  let gitHubRegexp = /\:\/\/\/github\.com\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/;
+  // let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
+  /* Dmytro : this regexp does not search dashes, maybe needs additional symbols */
+
+  remotePath = this.remotePathNormalize( remotePath );
+  let match = remotePath.match( gitHubRegexp );
+
+  if( match )
+  {
+    result.service = 'github.com';
+    result.user = match[ 1 ];
+    result.repo = _.strRemoveEnd( match[ 2 ], '.git' );
+  }
+
+  return result;
+}
 
 //
 
@@ -229,21 +229,21 @@ function pathParse( remotePath )
 
 //
 
-// function pathIsFixated( filePath )
-// {
-//   let parsed = _.git.pathParse( filePath );
-//
-//   if( !parsed.hash )
-//   return false;
-//
-//   if( parsed.hash.length < 7 )
-//   return false;
-//
-//   if( !/[0-9a-f]+/.test( parsed.hash ) )
-//   return false;
-//
-//   return true;
-// }
+function pathIsFixated( filePath )
+{
+  let parsed = _.git.pathParse( filePath );
+
+  if( !parsed.hash )
+  return false;
+
+  if( parsed.hash.length < 7 )
+  return false;
+
+  if( !/[0-9a-f]+/.test( parsed.hash ) )
+  return false;
+
+  return true;
+}
 
 //
 
@@ -5404,9 +5404,9 @@ let Extension =
 
   // path
 
-  // objectsParse,
+  objectsParse,
   pathParse,
-  // pathIsFixated,
+  pathIsFixated,
   pathFixate,
   remotePathNormalize,
   remotePathNativize,
