@@ -101,7 +101,8 @@ function objectsParse( remotePath )
   // let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
   /* Dmytro : this regexp does not search dashes, maybe needs additional symbols */
 
-  remotePath = this.remotePathNormalize( remotePath );
+  // remotePath = this.remotePathNormalize( remotePath );
+  remotePath = _.git.path.normalize( remotePath );
   let match = remotePath.match( gitHubRegexp );
 
   if( match )
@@ -199,7 +200,7 @@ function pathParse( remotePath )
 
   /* */
 
-  result.isFixated = _.git.pathIsFixated( result );
+  result.isFixated = _.git.path.isFixated( result );
 
   _.assert( !_.boolLike( result.hash ) );
   return result
@@ -231,7 +232,8 @@ function pathParse( remotePath )
 
 function pathIsFixated( filePath )
 {
-  let parsed = _.git.pathParse( filePath );
+  // let parsed = _.git.pathParse( filePath );
+  let parsed = _.git.path.parse({ remotePath : filePath, full : 0, atomic : 1 });
 
   if( !parsed.hash )
   return false;
@@ -266,7 +268,8 @@ function pathFixate( o )
   _.routineOptions( pathFixate, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+  let parsed = _.git.path.parse( o.remotePath );
   let latestVersion = _.git.versionRemoteLatestRetrive
   ({
     remotePath : o.remotePath,
@@ -332,8 +335,10 @@ function remotePathFromLocal( o )
 
   let remotePath = config[ 'remote "origin"' ].url;
 
+  // if( remotePath )
+  // remotePath = this.remotePathNormalize( remotePath );
   if( remotePath )
-  remotePath = this.remotePathNormalize( remotePath );
+  remotePath = _.git.path.normalize( remotePath );
 
   return remotePath;
 }
@@ -698,7 +703,12 @@ function versionRemoteLatestRetrive( o )
   _.routineOptions( versionRemoteLatestRetrive, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+  parsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+  let remotePath = _.git.path.str( parsed );
+  remotePath = _.git.path.nativize( remotePath );
+
   let start = _.process.starter
   ({
     verbosity : o.verbosity - 1,
@@ -707,7 +717,8 @@ function versionRemoteLatestRetrive( o )
     outputCollecting : 1,
   });
 
-  let got = start( 'git ls-remote ' + parsed.remoteVcsLongerPath );
+  // let got = start( 'git ls-remote ' + parsed.remoteVcsLongerPath );
+  let got = start( `git ls-remote ${ remotePath }` );
   let latestVersion = /([0-9a-f]+)\s+HEAD/.exec( got.output );
   if( !latestVersion || !latestVersion[ 1 ] )
   return null;
@@ -742,7 +753,8 @@ function versionRemoteCurrentRetrive( o )
   _.routineOptions( versionRemoteCurrentRetrive, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+  let parsed = _.git.path.parse( o.remotePath );
   if( parsed.isFixated )
   return parsed.hash;
 
@@ -922,7 +934,9 @@ function isUpToDate( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let srcCurrentPath;
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+
   let ready = _.Consequence();
 
   let start = _.process.starter
@@ -1018,12 +1032,16 @@ function isUpToDate( o )
       });
 
       if( !repositoryHasTag )
-      throw _.err
-      (
-        `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
-        \nLocal path: ${_.color.strFormat( String( o.localPath ), 'path' )}\
-        \nRemote path: ${_.color.strFormat( String( parsed.remoteVcsPath ), 'path' )}`
-      );
+      {
+        let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+        let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+        throw _.err
+        (
+          `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
+          \nLocal path: ${_.color.strFormat( String( o.localPath ), 'path' )}\
+          \nRemote path: ${_.color.strFormat( String( remoteVcsPath ), 'path' )}`
+        );
+      }
     }
 
     if( result && !detachedParsed )
@@ -1054,8 +1072,15 @@ function isUpToDate( o )
     return false;
 
     srcCurrentPath = conf[ 'remote "origin"' ].url;
+    let originParsed = _.git.path.parse( srcCurrentPath );
 
-    if( !_.strEnds( srcCurrentPath, parsed.remoteVcsPath ) )
+    // if( !_.strEnds( srcCurrentPath, remoteVcsPath ) )
+    if
+    (
+      parsed.service !== originParsed.service
+      || parsed.user !== originParsed.user
+      || parsed.repo !== originParsed.repo
+    )
     return false;
 
     return true;
@@ -1144,7 +1169,13 @@ function hasRemote( o )
     }
 
     let config = _.git.configRead( o.localPath );
-    let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
+
+    // let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
+    let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+    let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+    let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+    remoteVcsPath = _.git.path.nativize( remoteVcsPath );
+
     let remoteOrigin = config[ 'remote "origin"' ];
     let originVcsPath = null;
 
@@ -1159,7 +1190,7 @@ function hasRemote( o )
     result.remoteIsValid = originVcsPath === remoteVcsPath;
 
     return result;
-  })
+  });
 
   if( o.sync )
   {
@@ -1203,7 +1234,14 @@ function isRepository( o )
     if( !exists && o.localPath )
     return false;
     if( path.isGlobal( o.remotePath ) )
-    remoteParsed = self.pathParse( o.remotePath ).remoteVcsPath;
+    {
+      // remoteParsed = self.pathParse( o.remotePath ).remoteVcsPath;
+      let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+      remoteParsed = _.git.path.nativize( remoteVcsPath );
+    }
+
     return remoteIsRepository( remoteParsed );
   });
 
@@ -1452,10 +1490,14 @@ function sureHasOrigin( o )
   if( !_.git.isRepository({ localPath : o.localPath }) )
   throw _.err( `Provided path is not a git repository:${o.localPath}` );
 
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+  let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+  let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+  let remoteVcsParsed = _.git.path.nativize( remoteVcsPath );
+
   let config = _.git.configRead( o.localPath );
 
-  // debugger;
   _.sure
   (
     !!config[ 'remote "origin"' ] && !!config[ 'remote "origin"' ] && _.strIs( config[ 'remote "origin"' ].url ),
@@ -1464,12 +1506,20 @@ function sureHasOrigin( o )
 
   let srcCurrentPath = config[ 'remote "origin"' ].url;
 
+  // _.sure
+  // (
+  //   _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( parsed.remoteVcsPath, '/' ) ),
+  //   () => 'GIT repository at directory ' + _.strQuote( o.localPath ) + '\n'
+  //   + 'Has origin ' + _.strQuote( srcCurrentPath ) + '\n'
+  //   + 'Should have ' + _.strQuote( parsed.remoteVcsPath )
+  // );
+
   _.sure
   (
-    _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( parsed.remoteVcsPath, '/' ) ),
+    _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( remoteVcsPath, '/' ) ),
     () => 'GIT repository at directory ' + _.strQuote( o.localPath ) + '\n'
     + 'Has origin ' + _.strQuote( srcCurrentPath ) + '\n'
-    + 'Should have ' + _.strQuote( parsed.remoteVcsPath )
+    + 'Should have ' + _.strQuote( remoteVcsPath )
   );
 
   return config;
@@ -2359,8 +2409,6 @@ function status_body( o )
   .finally( ( err, arg ) =>
   {
     if( err )
-    debugger;
-    if( err )
     {
       let errors = _.arrayAppendArrayOnce( localReady.errorsGet().slice(), remoteReady.errorsGet() );
       _.each( errors, ( err ) => _.errAttend( err ) )
@@ -2688,11 +2736,23 @@ function repositoryHasTag( o )
     if( result )
     return result;
 
-    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : 'origin';
-    return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` ) /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
+    // let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : 'origin';
+    let remotePath = 'origin';
+    if( o.remotePath )
+    {
+      let parsed = _.git.path.parse({ remotePath : o.remotePath });
+      let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+      remotePath = _.git.path.nativize( remoteVcsPath );
+    }
+
+    /* Dmytro : searching tag, the tag can be a glob, decrease volume of output */
+    return start( `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}` )
+    .then( hasTag )
+
     // let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
     // return start( `git ls-remote --tags --refs --heads ${remotePath}` )
-    .then( hasTag )
+    // .then( hasTag )
   }
 
   function hasTag( got )
@@ -2912,10 +2972,21 @@ function repositoryVersionToTag( o )
     if( result )
     return result;
 
-    let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
-    // return start( `git ls-remote --tags --heads ${remotePath}` )
-    return start( `git ls-remote --tags --heads ${remotePath}` )
+    // let remotePath = o.remotePath ? self.pathParse( o.remotePath ).remoteVcsPath : '';
+    let remotePath = '';
+    if( o.remotePath )
+    {
+      let parsed = _.git.path.parse({ remotePath : o.remotePath });
+      let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+      remotePath = _.git.path.nativize( remoteVcsPath );
+    }
+
+    return start( `git ls-remote --tags --heads ${ remotePath }` )
     .then( hasTag )
+
+    // return start( `git ls-remote --tags --heads ${remotePath}` )
+    // .then( hasTag )
   }
 
   function hasTag( got )
@@ -3623,12 +3694,14 @@ function repositoryInit( o )
 
   _.assert( !o.remote || _.strDefined( o.remotePath ), `Expects path to remote repository {-o.remotePath-}, but got ${_.color.strFormat( String( o.remotePath ), 'path' )}` )
 
-  debugger;
   if( o.remotePath )
   {
-    o.remotePath = self.remotePathNormalize( o.remotePath );
-    nativeRemotePath = self.remotePathNativize( o.remotePath );
-    parsed = self.objectsParse( o.remotePath );
+    // o.remotePath = self.remotePathNormalize( o.remotePath );
+    // nativeRemotePath = self.remotePathNativize( o.remotePath );
+    o.remotePath = nativeRemotePath = _.git.path.nativize( o.remotePath );
+
+    // parsed = self.objectsParse( o.remotePath );
+    parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
     remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
   }
 
@@ -3836,7 +3909,6 @@ function repositoryInit( o )
     {
       if( err )
       {
-        debugger;
         _.fileProvider.filesDelete( downloadPath );
         if( err )
         throw _.err( err );
@@ -3852,7 +3924,6 @@ function repositoryInit( o )
           linking : 'hardLink',
         }
         _.fileProvider.filesReflect( o2 );
-        debugger;
       }
       catch( err )
       {
@@ -3898,9 +3969,11 @@ function repositoryDelete( o )
 
   if( o.remotePath )
   {
-    o.remotePath = self.remotePathNormalize( o.remotePath );
-    nativeRemotePath = self.remotePathNativize( o.remotePath );
-    parsed = self.objectsParse( o.remotePath );
+    // o.remotePath = self.remotePathNormalize( o.remotePath );
+    // nativeRemotePath = self.remotePathNativize( o.remotePath );
+    o.remotePath = nativeRemotePath = _.git.path.normalize( o.remotePath );
+    // parsed = self.objectsParse( o.remotePath );
+    parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
     remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
   }
 
@@ -3914,7 +3987,6 @@ function repositoryDelete( o )
   })
   .finally( ( err, arg ) =>
   {
-    debugger;
     if( err )
     if( !o.throwing )
     {
@@ -4008,7 +4080,11 @@ function repositoryClone( o )
   if( _.git.isRepository({ localPath : o.localPath }) )
   return ready;
 
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+  let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+  let remoteVcsLongerPath = _.git.path.str( remoteVcsPathParsed );
+  remoteVcsLongerPath = _.git.path.nativize( remoteVcsLongerPath );
 
   if( !localProvider.fileExists( o.localPath ) )
   localProvider.dirMake( o.localPath );
@@ -4022,7 +4098,7 @@ function repositoryClone( o )
     ready,
   });
 
-  shell( `git clone ${parsed.remoteVcsLongerPath} . --config core.autocrlf=false` );
+  shell( `git clone ${ remoteVcsLongerPath } . --config core.autocrlf=false` );
 
   if( o.sync )
   {
@@ -4053,7 +4129,9 @@ function repositoryCheckout( o )
   _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
 
   let ready = new _.Consequence().take( null );
-  let parsed = _.git.pathParse( o.remotePath );
+  // let parsed = _.git.pathParse( o.remotePath );
+
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
 
   let shell = _.process.starter
   ({
@@ -4074,12 +4152,18 @@ function repositoryCheckout( o )
     });
 
     if( !repoHasTag )
-    throw _.err
-    (
-      `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
-      \nLocal path: ${_.color.strFormat( String( o.localPath ), 'path' )}\
-      \nRemote path: ${_.color.strFormat( String( parsed.remoteVcsPath ), 'path' )}`
-    );
+    {
+      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+      remoteVcsPath = _.git.path.nativize( remoteVcsPath );
+      throw _.err
+      (
+        `Specified tag: ${_.strQuote( parsed.tag )} doesn't exist in local and remote copy of the repository.\
+        \nLocal path: ${_.color.strFormat( String( o.localPath ), 'path' )}\
+        \nRemote path: ${_.color.strFormat( String( remoteVcsPath ), 'path' )}`
+      );
+    }
+
     return null;
   });
 
@@ -4234,7 +4318,8 @@ function prsGet( o )
   o = { remotePath : o }
   o = _.routineOptions( prsGet, o );
 
-  let parsed = this.objectsParse( o.remotePath );
+  // let parsed = this.objectsParse( o.remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
 
   ready
   .then( () =>
@@ -4315,10 +4400,10 @@ function prOpen( o )
   if( !o.token && o.throwing )
   throw _.errBrief( 'Cannot autorize user without user token.' )
 
-  let parsed = this.objectsParse( o.remotePath );
+  // let parsed = this.objectsParse( o.remotePath );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
 
-  ready
-  .then( () =>
+  ready.then( () =>
   {
     if( parsed.service === 'github.com' )
     return prOpenOnGithub();
@@ -4662,7 +4747,6 @@ function _stateParse( state )
 
   if( !_.longHas( statesSpecial, state ) )
   {
-    debugger;
     throw _.err( `Expects one of special states: ${statesSpecial}, but got: ${state}` );
   }
 
@@ -4691,6 +4775,7 @@ function diff( o )
   let ready = new _.Consequence().take( null );
   let result = Object.create( null );
   let state1 = self._stateParse( o.state1 );
+  debugger;
   let state2 = self._stateParse( o.state2 ); /* qqq : ! aaa: special tags now work in both states */
 
   let start = _.process.starter
