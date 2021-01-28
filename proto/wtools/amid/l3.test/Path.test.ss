@@ -3972,35 +3972,35 @@ function nativize( test )
   var srcPath = 'git+hd://Tools?out=out/wTools.out.will';
   var got = _.git.path.nativize( srcPath );
   var exp =
-  process.platform === 'win32' ? 'hd://Tools?out=out\\wTools.out.will' : 'hd:///Tools?out=out/wTools.out.will';
+  process.platform === 'win32' ? 'hd://Tools?out=out\\wTools.out.will' : 'hd://Tools?out=out/wTools.out.will';
   test.identical( got, exp );
 
   test.case = 'git+hd path with tag';
   var srcPath = 'git+hd://Tools?out=out/wTools.out.will!new';
   var got = _.git.path.nativize( srcPath );
   var exp =
-  process.platform === 'win32' ? 'hd://Tools?out=out\\wTools.out.will!new' : 'hd:///Tools?out=out/wTools.out.will!new';
+  process.platform === 'win32' ? 'hd://Tools?out=out\\wTools.out.will!new' : 'hd://Tools?out=out/wTools.out.will!new';
   test.identical( got, exp );
 
   test.case = 'git+hd path with tag after slash';
   var srcPath = 'git+hd://Tools?out=out/wTools.out.will/!new';
   var got = _.git.path.nativize( srcPath );
   var exp =
-  process.platform === 'win32' ? 'hd://Tools?out=out\\wTools.out.will\\!new' : 'hd:///Tools?out=out/wTools.out.will/!new';
+  process.platform === 'win32' ? 'hd://Tools?out=out\\wTools.out.will\\!new' : 'hd://Tools?out=out/wTools.out.will/!new';
   test.identical( got, exp );
 
   test.case = 'git+hd path with hash';
   var srcPath = 'git+hd://Tools?out=out/wTools.out.will#b6968a12';
   var got = _.git.path.nativize( srcPath );
   var exp =
-  process.platform === 'win32' ? 'hd://Tools?out=out\\wTools.out.will#b6968a12' : 'hd:///Tools?out=out/wTools.out.will#b6968a12';
+  process.platform === 'win32' ? 'hd://Tools?out=out\\wTools.out.will#b6968a12' : 'hd://Tools?out=out/wTools.out.will#b6968a12';
   test.identical( got, exp );
 
   test.case = 'git+hd path with hash after slash';
   var srcPath = 'git+hd://Tools?out=out/wTools.out.will/#b6968a12';
   var got = _.git.path.nativize( srcPath );
   var exp =
-  process.platform === 'win32' ? 'hd://Tools?out=out\\wTools.out.will\\#b6968a12' : 'hd:///Tools?out=out/wTools.out.will/#b6968a12';
+  process.platform === 'win32' ? 'hd://Tools?out=out\\wTools.out.will\\#b6968a12' : 'hd://Tools?out=out/wTools.out.will/#b6968a12';
   test.identical( got, exp );
 
   test.case = 'global git+hd path';
