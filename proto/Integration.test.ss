@@ -55,6 +55,9 @@ function production( test )
     return;
   }
 
+  if( process.env.GITHUB_WORKFLOW === 'publish' )
+  a.ready.delay( 60000 );
+
   console.log( `Event : ${process.env.GITHUB_EVENT_NAME}` );
   console.log( `Env :\n${_.toStr( _.mapBut( process.env, { WTOOLS_BOT_TOKEN : null } ) )}` );
 
@@ -107,31 +110,21 @@ function production( test )
 
   /* */
 
-  let timeOut = 0;
-  if( process.env.GITHUB_WORKFLOW === 'publish' )
-  timeOut = 60000;
-  return _.time.out( timeOut, () => testRun() );
+  a.shell( `npm i --production` )
+  .catch( handleDownloadingError )
+  .then( ( op ) =>
+  {
+    test.case = 'install module';
+    test.identical( op.exitCode, 0 );
+    return null;
+  });
+
+  run( 'Sample.s' );
+  run( 'Sample.ss' );
 
   /* */
 
-  function testRun()
-  {
-    a.ready.Try( () => a.shell( `npm i --production` ) )
-    .catch( handleDownloadingError )
-    .then( ( op ) =>
-    {
-      test.case = 'install module';
-      test.identical( op.exitCode, 0 );
-      return null;
-    });
-
-    run( 'Sample.s' );
-    run( 'Sample.ss' );
-
-    /* */
-
-    return a.ready;
-  }
+  return a.ready;
 
   /* */
 
