@@ -50,7 +50,7 @@ function production( test )
   let runList = [];
 
   if( process.env.GITHUB_WORKFLOW === 'publish' )
-  _.time.out( 60000 );
+  _.time.out( 60000 ).deasync();
 
   if( process.env.GITHUB_EVENT_NAME === 'pull_request' )
   {
