@@ -58,6 +58,8 @@ function production( test )
     return;
   }
 
+  console.log( `Event : ${process.env.GITHUB_EVENT_NAME}` );
+
   /* */
 
   let sampleDir = a.abs( __dirname, '../sample/trivial' );
