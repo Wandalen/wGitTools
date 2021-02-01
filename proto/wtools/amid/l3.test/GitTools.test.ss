@@ -16448,28 +16448,28 @@ function repositoryClone( test )
 
   /* - */
 
-  if( Config.debug )
-  {
-    begin();
-    a.shellNonThrowing( 'ssh -T git@github.com' )
-    .then( ( op ) =>
-    {
-      if( op.exitCode !== 0 && op.exitCode !== 1 ) /* github sends */
-      test.shouldThrowErrorSync( () =>
-      {
-        _.git.repositoryClone
-        ({
-          localPath : a.abs( 'wModuleForTesting1' ),
-          remotePath : 'git@github.com:Wandalen/wModuleForTesting1.git',
-          sync : 1,
-        });
-      });
-      else
-      test.true( true );
-      return null;
-    });
-
-  }
+  // if( Config.debug )
+  // {
+  //   begin();
+  //   a.shellNonThrowing( 'ssh -T git@github.com' )
+  //   .then( ( op ) =>
+  //   {
+  //     if( op.exitCode !== 0 && op.exitCode !== 1 ) /* github sends */
+  //     test.shouldThrowErrorSync( () =>
+  //     {
+  //       _.git.repositoryClone
+  //       ({
+  //         localPath : a.abs( 'wModuleForTesting1' ),
+  //         remotePath : 'git@github.com:Wandalen/wModuleForTesting1.git',
+  //         sync : 1,
+  //       });
+  //     });
+  //     else
+  //     test.true( true );
+  //     return null;
+  //   });
+  //
+  // }
 
   /* - */
 
