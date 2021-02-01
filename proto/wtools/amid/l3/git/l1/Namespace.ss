@@ -705,7 +705,7 @@ function versionRemoteLatestRetrive( o )
 
   // let parsed = _.git.pathParse( remotePath );
   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-  parsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+  parsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
   let remotePath = _.git.path.str( parsed );
   remotePath = _.git.path.nativize( remotePath );
 
@@ -1033,7 +1033,7 @@ function isUpToDate( o )
 
       if( !repositoryHasTag )
       {
-        let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+        let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
         let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
         throw _.err
         (
@@ -1172,7 +1172,7 @@ function hasRemote( o )
 
     // let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
     let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-    let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+    let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
     let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
     remoteVcsPath = _.git.path.nativize( remoteVcsPath );
 
@@ -1237,7 +1237,7 @@ function isRepository( o )
     {
       // remoteParsed = self.pathParse( o.remotePath ).remoteVcsPath;
       let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remoteParsed = _.git.path.nativize( remoteVcsPath );
     }
@@ -1492,9 +1492,9 @@ function sureHasOrigin( o )
 
   // let parsed = _.git.pathParse( o.remotePath );
   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-  let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+  let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
   let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
-  let remoteVcsParsed = _.git.path.nativize( remoteVcsPath );
+  let remoteVcsNativized = _.git.path.nativize( remoteVcsPath );
 
   let config = _.git.configRead( o.localPath );
 
@@ -1516,7 +1516,7 @@ function sureHasOrigin( o )
 
   _.sure
   (
-    _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( remoteVcsPath, '/' ) ),
+    _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( remoteVcsNativized, '/' ) ),
     () => 'GIT repository at directory ' + _.strQuote( o.localPath ) + '\n'
     + 'Has origin ' + _.strQuote( srcCurrentPath ) + '\n'
     + 'Should have ' + _.strQuote( remoteVcsPath )
@@ -4070,8 +4070,8 @@ function repositoryClone( o )
 {
   let localProvider = _.fileProvider;
 
-  _.routineOptions( repositoryClone, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
+  _.routineOptions( repositoryClone, o );
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
   _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
 
@@ -4082,7 +4082,7 @@ function repositoryClone( o )
 
   // let parsed = _.git.pathParse( o.remotePath );
   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-  let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+  let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
   let remoteVcsLongerPath = _.git.path.str( remoteVcsPathParsed );
   remoteVcsLongerPath = _.git.path.nativize( remoteVcsLongerPath );
 
@@ -4102,7 +4102,7 @@ function repositoryClone( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -4153,7 +4153,7 @@ function repositoryCheckout( o )
 
     if( !repoHasTag )
     {
-      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remoteVcsPath = _.git.path.nativize( remoteVcsPath );
       throw _.err
@@ -4197,7 +4197,7 @@ function repositoryCheckout( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -4245,7 +4245,7 @@ function repositoryStash( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -4295,7 +4295,7 @@ function repositoryMerge( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -5401,7 +5401,7 @@ function renormalize( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
