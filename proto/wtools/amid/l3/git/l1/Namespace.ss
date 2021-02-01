@@ -705,7 +705,7 @@ function versionRemoteLatestRetrive( o )
 
   // let parsed = _.git.pathParse( remotePath );
   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-  parsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+  parsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
   let remotePath = _.git.path.str( parsed );
   remotePath = _.git.path.nativize( remotePath );
 
@@ -1033,7 +1033,7 @@ function isUpToDate( o )
 
       if( !repositoryHasTag )
       {
-        let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+        let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
         let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
         throw _.err
         (
@@ -1172,7 +1172,7 @@ function hasRemote( o )
 
     // let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
     let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-    let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+    let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
     let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
     remoteVcsPath = _.git.path.nativize( remoteVcsPath );
 
@@ -1237,7 +1237,7 @@ function isRepository( o )
     {
       // remoteParsed = self.pathParse( o.remotePath ).remoteVcsPath;
       let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remoteParsed = _.git.path.nativize( remoteVcsPath );
     }
@@ -4153,7 +4153,7 @@ function repositoryCheckout( o )
 
     if( !repoHasTag )
     {
-      let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+      let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remoteVcsPath = _.git.path.nativize( remoteVcsPath );
       throw _.err
