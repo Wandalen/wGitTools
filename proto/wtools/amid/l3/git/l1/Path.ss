@@ -291,6 +291,8 @@ function nativize( srcPath )
   parsed.protocol = parsed.protocol.replace( /^git\+(\w+)/, '$1' );
   if( !parsed.protocol || parsed.protocol === 'git' )
   parsed.protocol = '';
+  if( _.longHas( _.fileProvider.protocols, parsed.protocol ) )
+  parsed.protocol = '';
   // parsed.protocol = 'git';
 
   parsed.longPath = _.uri.normalize( parsed.longPath );
