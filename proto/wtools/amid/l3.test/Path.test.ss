@@ -4053,7 +4053,7 @@ function nativize( test )
   test.identical( got, 'https://github.com//someorg/somerepo.git/' );
 
   test.case = 'local hd path with double slashes and dots';
-  var srcPath = '../wModuleForTesting1/out/./wModuleForTesting1.out.will!dev1';
+  var srcPath = 'hd://../wModuleForTesting1/out/./wModuleForTesting1.out.will!dev1';
   var got = _.git.path.nativize( srcPath );
   var exp = '../wModuleForTesting1/out/wModuleForTesting1.out.will!dev1'
   if( process.platform === 'win32' )
@@ -4061,7 +4061,7 @@ function nativize( test )
   test.identical( got, exp );
 
   test.case = 'global hd path with double slashes and dots';
-  var srcPath = '/../wModuleForTesting1/out/./wModuleForTesting1.out.will!dev1';
+  var srcPath = 'hd:///../wModuleForTesting1/out/./wModuleForTesting1.out.will!dev1';
   var got = _.git.path.nativize( srcPath );
   var exp = '/../wModuleForTesting1/out/wModuleForTesting1.out.will!dev1'
   if( process.platform === 'win32' )
