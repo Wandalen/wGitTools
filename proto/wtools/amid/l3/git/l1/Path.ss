@@ -289,8 +289,9 @@ function nativize( srcPath )
 
   if( parsed.protocol )
   parsed.protocol = parsed.protocol.replace( /^git\+(\w+)/, '$1' );
-  else
-  parsed.protocol = 'git';
+  if( !parsed.protocol || parsed.protocol === 'git' )
+  parsed.protocol = '';
+  // parsed.protocol = 'git';
 
   parsed.longPath = _.uri.normalize( parsed.longPath );
 
