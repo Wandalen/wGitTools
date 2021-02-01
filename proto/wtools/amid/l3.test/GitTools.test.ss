@@ -16448,28 +16448,86 @@ function repositoryClone( test )
 
   /* - */
 
-  // if( Config.debug )
-  // {
-  //   begin();
-  //   a.shellNonThrowing( 'ssh -T git@github.com' )
-  //   .then( ( op ) =>
-  //   {
-  //     if( op.exitCode !== 0 && op.exitCode !== 1 ) /* github sends */
-  //     test.shouldThrowErrorSync( () =>
-  //     {
-  //       _.git.repositoryClone
-  //       ({
-  //         localPath : a.abs( 'wModuleForTesting1' ),
-  //         remotePath : 'git@github.com:Wandalen/wModuleForTesting1.git',
-  //         sync : 1,
-  //       });
-  //     });
-  //     else
-  //     test.true( true );
-  //     return null;
-  //   });
-  //
-  // }
+  if( Config.debug )
+  {
+    begin().then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.repositoryClone() );
+
+      test.case = 'extra arguments';
+      var o = { localPath : a.abs( 'wModuleForTesting1' ), remotePath : 'https://github.com/Wandalen/wGitTools' };
+      test.shouldThrowErrorSync( () => _.git.repositoryClone( o, o ) );
+
+      test.case = 'wrong type of options map o';
+      var o = [ a.abs( 'wModuleForTesting1' ), 'https://github.com/Wandalen/wGitTools' ];
+      test.shouldThrowErrorSync( () => _.git.repositoryClone( o ) );
+
+      test.case = 'unknown option in options map o';
+      var o = { localPath : a.abs( 'wModuleForTesting1' ), remotePath : 'https://github.com/Wandalen/wGitTools', unknown : 1 };
+      test.shouldThrowErrorSync( () => _.git.repositoryClone( o ) );
+
+      test.case = 'o.localPath is not defined string';
+      var o = { localPath : '', remotePath : 'https://github.com/Wandalen/wGitTools' };
+      test.shouldThrowErrorSync( () => _.git.repositoryClone( o ) );
+
+      test.case = 'wrong type of o.localPath';
+      var o =
+      {
+        localPath : _.git.path.parse( a.abs( 'wModuleForTesting1' ) ),
+        remotePath : 'https://github.com/Wandalen/wGitTools'
+      };
+      test.shouldThrowErrorSync( () => _.git.repositoryClone( o ) );
+
+      test.case = 'o.remotePath is not defined string';
+      var o = { localPath : a.abs( 'wModuleForTesting1' ), remotePath : '' };
+      test.shouldThrowErrorSync( () => _.git.repositoryClone( o ) );
+
+      test.case = 'wrong type of o.remotePath';
+      var o = { localPath : a.abs( 'wModuleForTesting1' ), remotePath : [ 'https://github.com/Wandalen/wGitTools' ] };
+      test.shouldThrowErrorSync( () => _.git.repositoryClone( o ) );
+
+      return null;
+    });
+
+    /* */
+
+    begin();
+    a.shellNonThrowing( 'ssh -T git@github.com' )
+    .then( ( op ) =>
+    {
+      if( op.exitCode !== 0 && op.exitCode !== 1 ) /* github sends */
+      {
+        test.case = 'ssh protocol with implicit declaration';
+        test.shouldThrowErrorSync( () =>
+        {
+          _.git.repositoryClone
+          ({
+            localPath : a.abs( 'wModuleForTesting1' ),
+            remotePath : 'git@github.com:Wandalen/wModuleForTesting1.git',
+            sync : 1,
+          });
+        });
+
+        test.case = 'ssh protocol with explicit declaration ';
+        test.shouldThrowErrorSync( () =>
+        {
+          _.git.repositoryClone
+          ({
+            localPath : a.abs( 'wModuleForTesting1' ),
+            remotePath : 'ssh://git@github.com/Wandalen/wModuleForTesting1.git',
+            sync : 1,
+          });
+        });
+      }
+      else
+      {
+        test.true( true );
+      }
+      return null;
+    });
+
+  }
 
   /* - */
 

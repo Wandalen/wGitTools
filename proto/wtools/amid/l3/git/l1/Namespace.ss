@@ -4070,8 +4070,8 @@ function repositoryClone( o )
 {
   let localProvider = _.fileProvider;
 
-  _.routineOptions( repositoryClone, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
+  _.routineOptions( repositoryClone, o );
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
   _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
 
