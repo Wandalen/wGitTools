@@ -16423,6 +16423,74 @@ function repositoryInit( test )
 
 //
 
+function repositoryClone( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.fileProvider.dirMake( a.abs( '.' ) );
+
+  /* */
+
+  begin().then( () =>
+  {
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.true( _.git.isRepository({ localPath : a.abs( 'wModuleForTesting1' ) }) );
+    return null;
+  });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    begin();
+    a.shellNonThrowing( 'ssh -T git@github.com' )
+    .then( ( op ) =>
+    {
+      if( op.exitCode !== 0 && op.exitCode !== 1 ) /* github sends */
+      test.shouldThrowErrorAsync( () =>
+      {
+        _.git.repositoryClone
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          remotePath : 'git@github.com:Wandalen/wModuleForTesting1.git',
+        });
+      });
+      else
+      test.true( true );
+      return null;
+    });
+
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
+      return null;
+    });
+    return a.ready;
+  }
+}
+
+repositoryClone.timeOut = 30000;
+
+//
+
 function repositoryCheckout( test )
 {
   let context = this;
@@ -23924,6 +23992,7 @@ var Proto =
     // top
 
     repositoryInit,
+    repositoryClone,
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,
     prOpen,
