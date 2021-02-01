@@ -4102,7 +4102,7 @@ function repositoryClone( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -4197,7 +4197,7 @@ function repositoryCheckout( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -4245,7 +4245,7 @@ function repositoryStash( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -4295,7 +4295,7 @@ function repositoryMerge( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
@@ -5401,7 +5401,7 @@ function renormalize( o )
 
   if( o.sync )
   {
-    ready.deasyncWait();
+    ready.deasync();
     return ready.sync();
   }
 
