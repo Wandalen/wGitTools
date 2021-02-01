@@ -1494,7 +1494,7 @@ function sureHasOrigin( o )
   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
   let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
   let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
-  let remoteVcsParsed = _.git.path.nativize( remoteVcsPath );
+  let remoteVcsNativized = _.git.path.nativize( remoteVcsPath );
 
   let config = _.git.configRead( o.localPath );
 
@@ -1516,7 +1516,7 @@ function sureHasOrigin( o )
 
   _.sure
   (
-    _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( remoteVcsPath, '/' ) ),
+    _.strEnds( _.strRemoveEnd( srcCurrentPath, '/' ), _.strRemoveEnd( remoteVcsNativized, '/' ) ),
     () => 'GIT repository at directory ' + _.strQuote( o.localPath ) + '\n'
     + 'Has origin ' + _.strQuote( srcCurrentPath ) + '\n'
     + 'Should have ' + _.strQuote( remoteVcsPath )
