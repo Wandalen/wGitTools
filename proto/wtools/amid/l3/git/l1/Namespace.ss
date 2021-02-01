@@ -1492,7 +1492,7 @@ function sureHasOrigin( o )
 
   // let parsed = _.git.pathParse( o.remotePath );
   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-  let remoteVcsPathParsed = _.mapBut_( parsed, { tag : null, hash : null, query : null } );
+  let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
   let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
   let remoteVcsNativized = _.git.path.nativize( remoteVcsPath );
 
