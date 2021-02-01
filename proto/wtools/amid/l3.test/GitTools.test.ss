@@ -16455,12 +16455,13 @@ function repositoryClone( test )
     .then( ( op ) =>
     {
       if( op.exitCode !== 0 && op.exitCode !== 1 ) /* github sends */
-      test.shouldThrowErrorAsync( () =>
+      test.shouldThrowErrorSync( () =>
       {
         _.git.repositoryClone
         ({
           localPath : a.abs( 'wModuleForTesting1' ),
           remotePath : 'git@github.com:Wandalen/wModuleForTesting1.git',
+          sync : 1,
         });
       });
       else
