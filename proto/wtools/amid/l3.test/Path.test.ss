@@ -3772,27 +3772,27 @@ function nativize( test )
   test.case = 'path without protocol';
   var srcPath = 'git@github.com:someorg/somerepo.git';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git' );
 
   test.case = 'path without protocol with tag';
   var srcPath = 'git@github.com:someorg/somerepo.git!new';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git!new' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git!new' );
 
   test.case = 'path without protocol with tag after slash';
   var srcPath = 'git@github.com:someorg/somerepo.git/!new';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git/!new' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git/!new' );
 
   test.case = 'path without protocol with hash';
   var srcPath = 'git@github.com:someorg/somerepo.git#b6968a12';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git#b6968a12' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git#b6968a12' );
 
   test.case = 'path without protocol with hash after slash';
   var srcPath = 'git@github.com:someorg/somerepo.git/#b6968a12';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git/#b6968a12' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git/#b6968a12' );
 
   test.close( 'without protocol' );
 
@@ -3803,52 +3803,52 @@ function nativize( test )
   test.case = 'git path';
   var srcPath = 'git://git@github.com:someorg/somerepo.git';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git' );
 
   test.case = 'git path with tag';
   var srcPath = 'git://git@github.com:someorg/somerepo.git!new';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git!new' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git!new' );
 
   test.case = 'git path with tag after slash';
   var srcPath = 'git://git@github.com:someorg/somerepo.git/!new';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git/!new' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git/!new' );
 
   test.case = 'git path with hash';
   var srcPath = 'git://git@github.com:someorg/somerepo.git#b6968a12';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git#b6968a12' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git#b6968a12' );
 
   test.case = 'git path with hash after slash';
   var srcPath = 'git://git@github.com:someorg/somerepo.git/#b6968a12';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git/#b6968a12' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git/#b6968a12' );
 
   test.case = 'global git path';
   var srcPath = 'git:///git@github.com:someorg/somerepo.git';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git' );
 
   test.case = 'global git path with tag';
   var srcPath = 'git:///git@github.com:someorg/somerepo.git!new';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git!new' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git!new' );
 
   test.case = 'global git path with tag after slash';
   var srcPath = 'git:///git@github.com:someorg/somerepo.git/!new';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git/!new' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git/!new' );
 
   test.case = 'global git path with hash';
   var srcPath = 'git:///git@github.com:someorg/somerepo.git#b6968a12';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git#b6968a12' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git#b6968a12' );
 
   test.case = 'global git path with hash after slash';
   var srcPath = 'git:///git@github.com:someorg/somerepo.git/#b6968a12';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'git://git@github.com:someorg/somerepo.git/#b6968a12' );
+  test.identical( got, 'git@github.com:someorg/somerepo.git/#b6968a12' );
 
   test.close( 'git' );
 
