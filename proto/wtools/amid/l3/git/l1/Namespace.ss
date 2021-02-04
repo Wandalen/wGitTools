@@ -1934,11 +1934,7 @@ function statusLocal_body( o )
     {
       tags = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
       _.assert( tags.length );
-      return start
-      ({
-        execPath : 'git ls-remote --tags --refs',
-        ready : null
-      })
+      return remoteTagsGet();
     })
     .then( ( got ) =>
     {
@@ -1954,6 +1950,42 @@ function statusLocal_body( o )
       result.unpushedTags += unpushedTags.join( '\n' );
 
       return result.unpushedTags;
+    })
+  }
+
+  /* */
+
+  function remoteTagsGet()
+  {
+    let result;
+    for( let i = 0 ; i < o.attempt ; i++ )
+    {
+      result = remoteTagsGetSync();
+      console.log( result );
+
+      if( result.exitCode === 0 );
+      return result;
+
+      if( _.strHas( result.output, /(C|c)ould not resolve hostname/ ) )
+      _.time.out( o.attemptDelay );
+      else
+      throw _.errOnce( result.error );
+    }
+  }
+
+  /* */
+
+  function remoteTagsGetSync()
+  {
+    return _.process.start
+    ({
+      execPath : 'git ls-remote --tags --refs',
+      currentPath : o.localPath,
+      mode : 'spawn',
+      sync : 1,
+      throwingExitCode : 0,
+      outputCollecting : 1,
+      verbosity : o.verbosity - 1,
     })
   }
 
@@ -2053,6 +2085,8 @@ var defaults = statusLocal_body.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.sync = 1;
 defaults.verbosity = 0;
+defaults.attempt = 2;
+defaults.attemptDelay = 250;
 
 defaults.uncommitted = null;
 defaults.uncommittedUntracked = null;
