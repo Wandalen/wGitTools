@@ -1955,22 +1955,26 @@ function statusLocal_body( o )
 
   /* */
 
+  function retry()
+  {
+    o.attempt -= 1;
+    return _.time.out( o.attemptDelay, () => remoteTagsGet() );
+  }
+
+  /* */
+
   function remoteTagsGet()
   {
-    let result;
-    for( let i = 0 ; i < o.attempt ; i++ )
-    {
-      result = remoteTagsGetSync();
-      console.log( result );
+    _.assert( o.attempt >= 1, 'Expects defined number of attempts {-o.attempt-}' );
 
-      if( result.exitCode === 0 );
-      return result;
+    let result = remoteTagsGetSync();
+    if( result.exitCode === 0 )
+    return result;
 
-      if( _.strHas( result.output, /(C|c)ould not resolve hostname/ ) )
-      _.time.out( o.attemptDelay );
-      else
-      throw _.errOnce( result.error );
-    }
+    if( _.strHas( result.output, /(C|c)ould not resolve hostname/ ) && o.attempt > 1 )
+    return retry();
+    else
+    throw _.errOnce( `Exit code : ${result.exitCode}\n`, result.output );
   }
 
   /* */
