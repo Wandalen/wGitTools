@@ -1991,7 +1991,7 @@ function statusLocal_body( o )
     if( result.exitCode === 0 )
     return result;
 
-    if( _.strHas( result.output, /(C|c)ould not resolve hostname/ ) && o.attempt > 1 )
+    if( _.strHas( result.output, /(C|c)ould not resolve host/ ) && o.attempt > 1 )
     return retry();
     else
     throw _.errOnce( `Exit code : ${result.exitCode}\n`, result.output );
