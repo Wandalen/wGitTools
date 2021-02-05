@@ -7076,8 +7076,8 @@ function statusLocalWithAttempts( test )
     {
       test.true( _.errIs( err ) );
       test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, 'fatal' ), 1 );
       test.identical( _.strCount( err.message, 'Could not resolve host' ), 1 );
-      test.identical( _.strCount( err.message, 'Please make sure you have' ), 1 );
     };
     var before = _.time.now();
     test.shouldThrowErrorSync( () => _.git.statusLocal( o ), errCallback );
@@ -7105,8 +7105,8 @@ function statusLocalWithAttempts( test )
     {
       test.true( _.errIs( err ) );
       test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, 'fatal' ), 1 );
       test.identical( _.strCount( err.message, 'Could not resolve host' ), 1 );
-      test.identical( _.strCount( err.message, 'Please make sure you have' ), 1 );
     };
     var before = _.time.now();
     test.shouldThrowErrorSync( () => _.git.statusLocal( o ), errCallback );
