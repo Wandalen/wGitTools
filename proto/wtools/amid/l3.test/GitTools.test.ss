@@ -7046,7 +7046,7 @@ function statusLocalWithAttempts( test )
   let a = test.assetFor( 'basic' );
   a.fileProvider.dirMake( a.abs( '.' ) )
 
-  if( process.platform === 'win32' || !_.process.insideTestContainer() )
+  if( process.platform === 'win32' || process.platform === 'darwin' || !_.process.insideTestContainer() )
   {
     test.true( true );
     return;
@@ -7076,7 +7076,7 @@ function statusLocalWithAttempts( test )
     {
       test.true( _.errIs( err ) );
       test.identical( arg, undefined );
-      test.identical( _.strCount( err.message, 'Could not resolve hostname' ), 1 );
+      test.identical( _.strCount( err.message, 'Could not resolve host' ), 1 );
       test.identical( _.strCount( err.message, 'Please make sure you have' ), 1 );
     };
     var before = _.time.now();
@@ -7105,7 +7105,7 @@ function statusLocalWithAttempts( test )
     {
       test.true( _.errIs( err ) );
       test.identical( arg, undefined );
-      test.identical( _.strCount( err.message, 'Could not resolve hostname' ), 1 );
+      test.identical( _.strCount( err.message, 'Could not resolve host' ), 1 );
       test.identical( _.strCount( err.message, 'Please make sure you have' ), 1 );
     };
     var before = _.time.now();
