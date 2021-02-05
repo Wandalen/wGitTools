@@ -7040,6 +7040,128 @@ statusLocalExtended.timeOut = 60000;
 
 //
 
+function statusLocalWithDelays( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.fileProvider.dirMake( a.abs( '.' ) )
+
+  if( process.platform === 'win32' || !_.process.insideTestContainer() )
+  {
+    test.true( true );
+    return;
+  }
+
+  /* */
+
+  let netInterface = netInterfaceGet();
+  begin();
+  netInterfaceDown( netInterface );
+
+  /* */
+  a.ready.then( () =>
+  {
+    test.case = 'increase attemptDelay';
+    var o =
+    {
+      localPath : a.abs( '.' ),
+      unpushed : 0,
+      unpushedTags : 1,
+      uncommitted : 0,
+      detailing : 1,
+      explaining : 1,
+      attemptDelay : 5000,
+    };
+    var errCallback = ( err, arg ) =>
+    {
+      test.true( _.errIs( err ) );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, 'Could not resolve hostname' ), 1 );
+      test.identical( _.strCount( err.message, 'Please make sure you have' ), 1 );
+    };
+    var before = _.time.now();
+    test.shouldThrowErrorSync( () => _.git.statusLocal( o ), errCallback );
+    var spent = _.time.now() - before;
+    test.ge( spent, 5000 );
+
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.case = 'increase number of attempts and attemptDelay';
+    var o =
+    {
+      localPath : a.abs( '.' ),
+      unpushed : 0,
+      unpushedTags : 1,
+      uncommitted : 0,
+      detailing : 1,
+      explaining : 1,
+      attempt : 3,
+      attemptDelay : 5000,
+    };
+    var errCallback = ( err, arg ) =>
+    {
+      test.true( _.errIs( err ) );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, 'Could not resolve hostname' ), 1 );
+      test.identical( _.strCount( err.message, 'Please make sure you have' ), 1 );
+    };
+    var before = _.time.now();
+    test.shouldThrowErrorSync( () => _.git.statusLocal( o ), errCallback );
+    var spent = _.time.now() - before;
+    test.ge( spent, 10000 );
+
+    return null;
+  });
+
+  /* */
+
+  netInterfaceUp( netInterface );
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function netInterfaceGet()
+  {
+    a.shell( 'ip a | awk \'/state UP/{print $2}\'' );
+    a.ready.then( ( op ) => op.output.replace( /(.*):/, '$1' ) );
+    a.ready.deasync();
+    return a.ready.sync();
+  }
+
+  /* */
+
+  function netInterfaceDown( interfaceName )
+  {
+    return a.shell( `ip link set ${ interfaceName } down` );
+  }
+
+  /* */
+
+  function netInterfaceUp( interfaceName )
+  {
+    return a.shell( `ip link set ${ interfaceName } up` );
+  }
+
+  /* */
+
+  function begin()
+  {
+    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git .' );
+    a.shell( 'git tag new_tag' );
+    return a.ready;
+  }
+}
+
+statusLocalWithDelays.timeOut = 30000;
+
+//
+
 function statusRemote( test )
 {
   let context = this;
@@ -24013,6 +24135,7 @@ var Proto =
     statusLocalAsync,
     statusLocalExplainingTrivial,
     statusLocalExtended,
+    statusLocalWithDelays,
     statusRemote,
     statusRemoteTags,
     statusRemoteVersionOption,
