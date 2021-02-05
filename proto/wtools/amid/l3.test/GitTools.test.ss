@@ -7040,7 +7040,7 @@ statusLocalExtended.timeOut = 60000;
 
 //
 
-function statusLocalWithDelays( test )
+function statusLocalWithAttempts( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
@@ -7138,14 +7138,14 @@ function statusLocalWithDelays( test )
 
   function netInterfaceDown( interfaceName )
   {
-    return a.shell( `ip link set ${ interfaceName } down` );
+    return a.shell( `sudo ip link set ${ interfaceName } down` );
   }
 
   /* */
 
   function netInterfaceUp( interfaceName )
   {
-    return a.shell( `ip link set ${ interfaceName } up` );
+    return a.shell( `sudo ip link set ${ interfaceName } up` );
   }
 
   /* */
@@ -7158,7 +7158,7 @@ function statusLocalWithDelays( test )
   }
 }
 
-statusLocalWithDelays.timeOut = 30000;
+statusLocalWithAttempts.timeOut = 30000;
 
 //
 
@@ -24136,7 +24136,7 @@ var Proto =
     statusLocalAsync,
     statusLocalExplainingTrivial,
     statusLocalExtended,
-    statusLocalWithDelays,
+    statusLocalWithAttempts,
     statusRemote,
     statusRemoteTags,
     statusRemoteVersionOption,
