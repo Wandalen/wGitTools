@@ -7054,9 +7054,9 @@ function statusLocalWithAttempts( test )
 
   /* */
 
-  let netInterface = netInterfaceGet();
+  let netInterfaces = netInterfacesGet();
   begin();
-  netInterfaceDown( netInterface );
+  netInterfaceDown( netInterfaces );
 
   /* */
   a.ready.then( () =>
@@ -7118,7 +7118,7 @@ function statusLocalWithAttempts( test )
 
   /* */
 
-  netInterfaceUp( netInterface );
+  netInterfaceUp( netInterfaces );
 
   /* - */
 
@@ -7126,26 +7126,40 @@ function statusLocalWithAttempts( test )
 
   /* */
 
-  function netInterfaceGet()
+  function netInterfacesGet()
   {
     a.shell( 'ip a | awk \'/state UP/{print $2}\'' );
-    a.ready.then( ( op ) => op.output.replace( /(.*):/, '$1' ) );
+    a.ready.then( ( op ) =>
+    {
+      let result = op.output.split( '\n' );
+      for( let i = 0; i < result.length; i++ )
+      {
+        result[ i ] = result[ i ].replace( /(.*):/, '$1' );
+        if( result[ i ] === '' )
+        result.splice( i, 1 );
+      }
+      return result;
+    });
     a.ready.deasync();
     return a.ready.sync();
   }
 
   /* */
 
-  function netInterfaceDown( interfaceName )
+  function netInterfaceDown( interfaceNames )
   {
-    return a.shell( `sudo ip link set ${ interfaceName } down` );
+    for( let i = 0 ; i < interfaceNames.length ; i++ )
+    a.shell( `sudo ip link set ${ interfaceNames[ i ] } down` );
+    return a.ready;
   }
 
   /* */
 
-  function netInterfaceUp( interfaceName )
+  function netInterfaceUp( interfaceNames )
   {
-    return a.shell( `sudo ip link set ${ interfaceName } up` );
+    for( let i = 0 ; i < interfaceNames.length ; i++ )
+    a.shell( `sudo ip link set ${ interfaceNames[ i ] } up` );
+    return a.ready;
   }
 
   /* */
