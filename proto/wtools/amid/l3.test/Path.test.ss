@@ -3007,7 +3007,7 @@ function parseObjects( test )
 
 //
 
-function str( test )
+function strWithSimpleProtocols( test )
 {
   test.open( 'empty protocol - git or ssh syntax, full' );
 
@@ -3207,7 +3207,6 @@ function str( test )
   test.case = 'global git path';
   var remotePath = 'git:///git@github.com:someorg/somerepo.git';
   var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
-  debugger;
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
@@ -3244,249 +3243,479 @@ function str( test )
 
   /* - */
 
-  test.open( 'complex protocol, full' );
+  test.open( 'ssh, full' );
 
-  test.case = 'simple git path';
+  test.case = 'simple ssh path';
+  var remotePath = 'ssh://git@github.com/someorg/somerepo.git';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'ssh path with tag';
+  var remotePath = 'ssh://git@github.com/someorg/somerepo.git!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'ssh path with tag after slash';
+  var remotePath = 'ssh://git@github.com/someorg/somerepo.git/!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'ssh://git@github.com/someorg/somerepo.git/!new';
+  test.identical( got, expected );
+
+  test.case = 'ssh path with hash';
+  var remotePath = 'ssh://git@github.com/someorg/somerepo.git#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'ssh path with hash after slash';
+  var remotePath = 'ssh://git@github.com/someorg/somerepo.git/#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'ssh://git@github.com/someorg/somerepo.git/#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global ssh path';
+  var remotePath = 'ssh:///git@github.com/someorg/somerepo.git';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global ssh path with tag';
+  var remotePath = 'ssh:///git@github.com/someorg/somerepo.git!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global ssh path with tag after slash';
+  var remotePath = 'ssh:///git@github.com/someorg/somerepo.git/!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'ssh:///git@github.com/someorg/somerepo.git/!new';
+  test.identical( got, expected );
+
+  test.case = 'global ssh path with hash';
+  var remotePath = 'ssh:///git@github.com/someorg/somerepo.git#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global ssh path with hash after slash';
+  var remotePath = 'ssh:///git@github.com/someorg/somerepo.git/#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'ssh:///git@github.com/someorg/somerepo.git/#b6968a12';
+  test.identical( got, expected );
+
+  test.close( 'ssh, full' );
+
+  /* - */
+
+  test.open( 'ssh, atomic' );
+
+  test.case = 'simple ssh path';
+  var remotePath = 'ssh://git@github.com/someorg/somerepo.git';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'ssh path with tag';
+  var remotePath = 'ssh://git@github.com/someorg/somerepo.git!new';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'ssh path with tag after slash';
+  var remotePath = 'ssh://git@github.com/someorg/somerepo.git/!new';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = 'ssh://git@github.com/someorg/somerepo.git!new';
+  test.identical( got, expected );
+
+  test.case = 'ssh path with hash';
+  var remotePath = 'ssh://git@github.com/someorg/somerepo.git#b6968a12';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'ssh path with hash after slash';
+  var remotePath = 'ssh://git@github.com/someorg/somerepo.git/#b6968a12';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = 'ssh://git@github.com/someorg/somerepo.git#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global ssh path';
+  var remotePath = 'ssh:///git@github.com/someorg/somerepo.git';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global ssh path with tag';
+  var remotePath = 'ssh:///git@github.com/someorg/somerepo.git!new';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global ssh path with tag after slash';
+  var remotePath = 'ssh:///git@github.com/someorg/somerepo.git/!new';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = 'ssh:///git@github.com/someorg/somerepo.git!new';
+  test.identical( got, expected );
+
+  test.case = 'global ssh path with hash';
+  var remotePath = 'ssh:///git@github.com/someorg/somerepo.git#b6968a12';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global ssh path with hash after slash';
+  var remotePath = 'ssh:///git@github.com/someorg/somerepo.git/#b6968a12';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = 'ssh:///git@github.com/someorg/somerepo.git#b6968a12';
+  test.identical( got, expected );
+
+  test.close( 'ssh, atomic' );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'without arguments';
+  test.shouldThrowErrorSync( () => _.git.path.str() );
+
+  test.case = 'extra arguments';
+  var parsed = _.git.path.parse( 'git@github.com:someorg/somerepo.git/!new' )
+  test.shouldThrowErrorSync( () => _.git.path.str( parsed, parsed ) );
+
+  test.case = 'map has only objects';
+  var remotePath = 'git@github.com:someorg/somerepo.git/!new';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 0, objects : 1 });
+  test.shouldThrowErrorSync( () => _.git.path.str( parsed, parsed ) );
+}
+
+//
+
+function strWithComplexProtocols( test )
+{
+  test.open( 'git+https, full' );
+
+  test.case = 'simple git+https path';
   var remotePath = 'git+https://github.com/someorg/somerepo.git';
   var parsed = _.git.path.parse( remotePath );
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.case = 'git path with tag';
+  test.case = 'git+https path with tag';
   var remotePath = 'git+https://github.com/someorg/somerepo.git!new';
   var parsed = _.git.path.parse( remotePath );
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.case = 'git path with tag after slash';
+  test.case = 'git+https path with tag after slash';
   var remotePath = 'git+https://github.com/someorg/somerepo.git/!new';
   var parsed = _.git.path.parse( remotePath );
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.case = 'git path with hash';
+  test.case = 'git+https path with hash';
   var remotePath = 'git+https://github.com/someorg/somerepo.git#b6968a12';
   var parsed = _.git.path.parse( remotePath );
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.case = 'git path with hash after slash';
+  test.case = 'git+https path with hash after slash';
   var remotePath = 'git+https://github.com/someorg/somerepo.git/#b6968a12';
   var parsed = _.git.path.parse( remotePath );
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.close( 'complex protocol, full' );
-
-  /* - */
-
-  test.open( 'complex protocol, atomic' );
-
-  test.case = 'simple git path';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git';
-  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
-  var got = _.git.path.str( parsed );
-  var expected = remotePath;
-  test.identical( got, expected );
-
-  test.case = 'git path with tag';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git!new';
-  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
-  var got = _.git.path.str( parsed );
-  var expected = remotePath;
-  test.identical( got, expected );
-
-  test.case = 'git path with tag after slash';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git/!new';
-  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
-  var got = _.git.path.str( parsed );
-  var expected = 'git+https://github.com/someorg/somerepo.git!new';
-  test.identical( got, expected );
-
-  test.case = 'git path with hash';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git#b6968a12';
-  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
-  var got = _.git.path.str( parsed );
-  var expected = remotePath;
-  test.identical( got, expected );
-
-  test.case = 'git path with hash after slash';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git/#b6968a12';
-  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
-  var got = _.git.path.str( parsed );
-  var expected = 'git+https://github.com/someorg/somerepo.git#b6968a12';
-  test.identical( got, expected );
-
-  test.close( 'complex protocol, atomic' );
-
-  /* - */
-
-  test.open( 'complex protocol, full' );
-
-  test.case = 'simple git path';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git';
-  var parsed = _.git.path.parse( remotePath );
-  var got = _.git.path.str( parsed );
-  var expected = remotePath;
-  test.identical( got, expected );
-
-  test.case = 'git path with tag';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git!new';
-  var parsed = _.git.path.parse( remotePath );
-  var got = _.git.path.str( parsed );
-  var expected = remotePath;
-  test.identical( got, expected );
-
-  test.case = 'git path with tag after slash';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git/!new';
-  var parsed = _.git.path.parse( remotePath );
-  var got = _.git.path.str( parsed );
-  var expected = remotePath;
-  test.identical( got, expected );
-
-  test.case = 'git path with hash';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git#b6968a12';
-  var parsed = _.git.path.parse( remotePath );
-  var got = _.git.path.str( parsed );
-  var expected = remotePath;
-  test.identical( got, expected );
-
-  test.case = 'git path with hash after slash';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git/#b6968a12';
-  var parsed = _.git.path.parse( remotePath );
-  var got = _.git.path.str( parsed );
-  var expected = remotePath;
-  test.identical( got, expected );
-
-  test.close( 'complex protocol, full' );
-
-  /* - */
-
-  test.open( 'complex protocol, atomic' );
-
-  test.case = 'simple git path';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git';
-  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
-  var got = _.git.path.str( parsed );
-  var expected = remotePath;
-  test.identical( got, expected );
-
-  test.case = 'git path with tag';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git!new';
-  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
-  var got = _.git.path.str( parsed );
-  var expected = remotePath;
-  test.identical( got, expected );
-
-  test.case = 'git path with tag after slash';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git/!new';
-  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
-  var got = _.git.path.str( parsed );
-  var expected = 'git+https://github.com/someorg/somerepo.git!new';
-  test.identical( got, expected );
-
-  test.case = 'git path with hash';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git#b6968a12';
-  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
-  var got = _.git.path.str( parsed );
-  var expected = remotePath;
-  test.identical( got, expected );
-
-  test.case = 'git path with hash after slash';
-  var remotePath = 'git+https://github.com/someorg/somerepo.git/#b6968a12';
-  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
-  var got = _.git.path.str( parsed );
-  var expected = 'git+https://github.com/someorg/somerepo.git#b6968a12';
-  test.identical( got, expected );
-
-  test.close( 'complex protocol, atomic' );
-
-  /* - */
-
-  test.open( 'complex protocol, global, full' );
-
-  test.case = 'simple git path';
+  test.case = 'global git+https path';
   var remotePath = 'git+https:///github.com/someorg/somerepo.git';
   var parsed = _.git.path.parse( remotePath );
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.case = 'git path with tag';
+  test.case = 'global git+https path with tag';
   var remotePath = 'git+https:///github.com/someorg/somerepo.git!new';
   var parsed = _.git.path.parse( remotePath );
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.case = 'git path with tag after slash';
+  test.case = 'global git+https path with tag after slash';
   var remotePath = 'git+https:///github.com/someorg/somerepo.git/!new';
   var parsed = _.git.path.parse( remotePath );
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.case = 'git path with hash';
+  test.case = 'global git+https path with hash';
   var remotePath = 'git+https:///github.com/someorg/somerepo.git#b6968a12';
   var parsed = _.git.path.parse( remotePath );
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.case = 'git path with hash after slash';
+  test.case = 'global git path with hash after slash';
   var remotePath = 'git+https:///github.com/someorg/somerepo.git/#b6968a12';
   var parsed = _.git.path.parse( remotePath );
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.close( 'complex protocol, global, full' );
+  test.close( 'git+https, full' );
 
   /* - */
 
-  test.open( 'complex protocol, global, atomic' );
+  test.open( 'git+https, atomic' );
 
-  test.case = 'simple git path';
+  test.case = 'simple git+https path';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'git+https path with tag';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git!new';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'git+https path with tag after slash';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git/!new';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git!new';
+  test.identical( got, expected );
+
+  test.case = 'git+https path with hash';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git#b6968a12';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'git+https path with hash after slash';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git/#b6968a12';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global git+httsp path';
   var remotePath = 'git+https:///github.com/someorg/somerepo.git';
   var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.case = 'git path with tag';
+  test.case = 'global git+httsp path with tag';
   var remotePath = 'git+https:///github.com/someorg/somerepo.git!new';
   var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.case = 'git path with tag after slash';
+  test.case = 'global git+httsp path with tag after slash';
   var remotePath = 'git+https:///github.com/someorg/somerepo.git/!new';
   var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
   var got = _.git.path.str( parsed );
   var expected = 'git+https:///github.com/someorg/somerepo.git!new';
   test.identical( got, expected );
 
-  test.case = 'git path with hash';
+  test.case = 'global git+httsp path with hash';
   var remotePath = 'git+https:///github.com/someorg/somerepo.git#b6968a12';
   var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
   var got = _.git.path.str( parsed );
   var expected = remotePath;
   test.identical( got, expected );
 
-  test.case = 'git path with hash after slash';
+  test.case = 'global git+httsp path with hash after slash';
   var remotePath = 'git+https:///github.com/someorg/somerepo.git/#b6968a12';
   var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
   var got = _.git.path.str( parsed );
   var expected = 'git+https:///github.com/someorg/somerepo.git#b6968a12';
   test.identical( got, expected );
 
-  test.close( 'complex protocol, global, atomic' );
+  test.close( 'git+https, atomic' );
+
+  /* - */
+
+  test.open( 'git+ssh, full' );
+
+  test.case = 'simple git+ssh path';
+  var remotePath = 'git+ssh://git@github.com/someorg/somerepo.git';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with tag';
+  var remotePath = 'git+ssh://git@github.com/someorg/somerepo.git!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with tag after slash';
+  var remotePath = 'git+ssh://git@github.com/someorg/somerepo.git/!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+ssh://git@github.com/someorg/somerepo.git/!new';
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with hash';
+  var remotePath = 'git+ssh://git@github.com/someorg/somerepo.git#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with hash after slash';
+  var remotePath = 'git+ssh://git@github.com/someorg/somerepo.git/#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+ssh://git@github.com/someorg/somerepo.git/#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global git+httsp path';
+  var remotePath = 'git+ssh:///git@github.com/someorg/somerepo.git';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global git+httsp path with tag';
+  var remotePath = 'git+ssh:///git@github.com/someorg/somerepo.git!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global git+httsp path with tag after slash';
+  var remotePath = 'git+ssh:///git@github.com/someorg/somerepo.git/!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+ssh:///git@github.com/someorg/somerepo.git/!new';
+  test.identical( got, expected );
+
+  test.case = 'global git+httsp path with hash';
+  var remotePath = 'git+ssh:///git@github.com/someorg/somerepo.git#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global git+httsp path with hash after slash';
+  var remotePath = 'git+ssh:///git@github.com/someorg/somerepo.git/#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+ssh:///git@github.com/someorg/somerepo.git/#b6968a12';
+  test.identical( got, expected );
+
+  test.close( 'git+ssh, full' );
+
+  /* - */
+
+  test.open( 'git+ssh, atomic' );
+
+  test.case = 'simple git+ssh path';
+  var remotePath = 'git+ssh://git@github.com/someorg/somerepo.git';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with tag';
+  var remotePath = 'git+ssh://git@github.com/someorg/somerepo.git!new';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with tag after slash';
+  var remotePath = 'git+ssh://git@github.com/someorg/somerepo.git/!new';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = 'git+ssh://git@github.com/someorg/somerepo.git!new';
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with hash';
+  var remotePath = 'git+ssh://git@github.com/someorg/somerepo.git#b6968a12';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'git+ssh path with hash after slash';
+  var remotePath = 'git+ssh://git@github.com/someorg/somerepo.git/#b6968a12';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = 'git+ssh://git@github.com/someorg/somerepo.git#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global git+httsp path';
+  var remotePath = 'git+ssh:///git@github.com/someorg/somerepo.git';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global git+httsp path with tag';
+  var remotePath = 'git+ssh:///git@github.com/someorg/somerepo.git!new';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global git+httsp path with tag after slash';
+  var remotePath = 'git+ssh:///git@github.com/someorg/somerepo.git/!new';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = 'git+ssh:///git@github.com/someorg/somerepo.git!new';
+  test.identical( got, expected );
+
+  test.case = 'global git+httsp path with hash';
+  var remotePath = 'git+ssh:///git@github.com/someorg/somerepo.git#b6968a12';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = remotePath;
+  test.identical( got, expected );
+
+  test.case = 'global git+httsp path with hash after slash';
+  var remotePath = 'git+ssh:///git@github.com/someorg/somerepo.git/#b6968a12';
+  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 1 });
+  var got = _.git.path.str( parsed );
+  var expected = 'git+ssh:///git@github.com/someorg/somerepo.git#b6968a12';
+  test.identical( got, expected );
+
+  test.close( 'git+ssh, atomic' );
 
   /* - */
 
@@ -3679,23 +3908,6 @@ function str( test )
   test.identical( got, expected );
 
   test.close( 'git+hd, atomic' );
-
-  /* - */
-
-  if( !Config.debug )
-  return;
-
-  test.case = 'without arguments';
-  test.shouldThrowErrorSync( () => _.git.path.str() );
-
-  test.case = 'extra arguments';
-  var parsed = _.git.path.parse( 'git@github.com:someorg/somerepo.git/!new' )
-  test.shouldThrowErrorSync( () => _.git.path.str( parsed, parsed ) );
-
-  test.case = 'map has only objects';
-  var remotePath = 'git@github.com:someorg/somerepo.git/!new';
-  var parsed = _.git.path.parse({ remotePath, full : 0, atomic : 0, objects : 1 });
-  test.shouldThrowErrorSync( () => _.git.path.str( parsed, parsed ) );
 }
 
 //
@@ -4650,7 +4862,8 @@ var Proto =
 
     //
 
-    str,
+    strWithSimpleProtocols,
+    strWithComplexProtocols,
 
     normalize,
     nativize,
