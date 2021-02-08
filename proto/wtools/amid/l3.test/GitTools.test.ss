@@ -16468,8 +16468,8 @@ function repositoryClone( test )
 
   a.ready.then( () =>
   {
-    a.fileProvider.dirMake( a.abs( process.end.HOME, '.ssh' ) );
-    let filePath = a.abs( process.end.HOME, '.ssh', 'private.key' );
+    a.fileProvider.dirMake( a.abs( process.env.HOME, '.ssh' ) );
+    let filePath = a.abs( process.env.HOME, '.ssh', 'private.key' );
     a.fileProvider.fileWrite( filePath, process.env.SSH_PRIVATE_KEY );
     a.fileProvider.rightsWrite({ filePath, setRights : 0o600 });
     return null;
