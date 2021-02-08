@@ -16468,9 +16468,10 @@ function repositoryClone( test )
       a.fileProvider.dirMake( a.abs( process.env.HOME, '.ssh' ) );
       let filePath = a.abs( process.env.HOME, '.ssh', 'private.key' );
       a.fileProvider.fileWrite( filePath, process.env.SSH_PRIVATE_KEY );
-      a.fileProvider.rightsWrite({ filePath, setRights : 0o600 });
+      // a.fileProvider.rightsWrite({ filePath, setRights : 0o600 });
       return null;
     });
+    a.shell( 'chmod 600 ~/.ssh/private.key' )
     a.shell( 'eval `ssh-agent -s`' );
     a.shell( 'ssh-add ~/.ssh/private.key' );
 
