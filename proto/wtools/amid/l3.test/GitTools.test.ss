@@ -16433,10 +16433,169 @@ function repositoryClone( test )
 
   begin().then( () =>
   {
+    test.case = 'clone repository with https protocol, local';
     return _.git.repositoryClone
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.true( _.git.isRepository({ localPath : a.abs( 'wModuleForTesting1' ) }) );
+    return null;
+  });
+
+  begin().then( () =>
+  {
+    test.case = 'clone repository with https protocol, global';
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https:///github.com/Wandalen/wModuleForTesting1.git',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.true( _.git.isRepository({ localPath : a.abs( 'wModuleForTesting1' ) }) );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'clone repository with git protocol, local';
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'git://git@github.com:Wandalen/wModuleForTesting1.git',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.true( _.git.isRepository({ localPath : a.abs( 'wModuleForTesting1' ) }) );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'clone repository with git protocol, global';
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'git:///git@github.com:Wandalen/wModuleForTesting1.git',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.true( _.git.isRepository({ localPath : a.abs( 'wModuleForTesting1' ) }) );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'clone repository with ssh protocol, local';
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'ssh://git@github.com/Wandalen/wModuleForTesting1.git',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.true( _.git.isRepository({ localPath : a.abs( 'wModuleForTesting1' ) }) );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'clone repository with ssh protocol, global';
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'ssh:///git@github.com/Wandalen/wModuleForTesting1.git',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.true( _.git.isRepository({ localPath : a.abs( 'wModuleForTesting1' ) }) );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'clone repository with git+https protocol, local';
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'git+https://github.com/Wandalen/wModuleForTesting1.git',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.true( _.git.isRepository({ localPath : a.abs( 'wModuleForTesting1' ) }) );
+    return null;
+  });
+
+  begin().then( () =>
+  {
+    test.case = 'clone repository with git+https protocol, global';
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting1.git',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.true( _.git.isRepository({ localPath : a.abs( 'wModuleForTesting1' ) }) );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'clone repository with git+ssh protocol, local';
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'git+ssh://git@github.com/Wandalen/wModuleForTesting1.git',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.true( _.git.isRepository({ localPath : a.abs( 'wModuleForTesting1' ) }) );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'clone repository with git+ssh protocol, global';
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'git+ssh:///git@github.com/Wandalen/wModuleForTesting1.git',
     });
   });
   a.ready.then( ( op ) =>
@@ -16546,7 +16705,7 @@ function repositoryClone( test )
   }
 }
 
-repositoryClone.timeOut = 30000;
+repositoryClone.timeOut = 60000;
 
 //
 
