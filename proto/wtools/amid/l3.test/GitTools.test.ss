@@ -10082,14 +10082,10 @@ function statusEveryCheck( test )
 
     shell( 'git clone ' + a.path.nativize( a.abs( 'repo' ) ) + ' secondary' )
 
-    if( !annotated )
-    {
-      shell( 'git -C secondary tag ' + tag )
-    }
+    if( annotated )
+    shell( `git -C secondary tag -a ${tag} -m "sometag"` )
     else
-    {
-      shell( `git -C secondary tag -a ${tag} -m "sometag"` )
-    }
+    shell( 'git -C secondary tag ' + tag )
 
     shell( 'git -C secondary push --tags' )
 
@@ -16700,7 +16696,6 @@ function repositoryClone( test )
       }
       return null;
     });
-
   }
 
   /* - */
