@@ -16471,6 +16471,7 @@ function repositoryClone( test )
       a.fileProvider.rightsWrite({ filePath, setRights : 0o600 });
       return null;
     });
+    a.shell( 'eval `ssh-agent -s`' );
     a.shell( 'ssh-add ~/.ssh/private.key' );
 
     /* */
