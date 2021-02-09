@@ -16800,12 +16800,18 @@ function repositoryClone( test )
 
     /* */
 
-    begin();
-    a.shellNonThrowing( 'ssh -T git@github.com' )
-    .then( ( op ) =>
+    if( process.platform !== 'win32' )
     {
-      if( op.exitCode !== 0 && op.exitCode !== 1 ) /* github sends */
+      begin();
+      a.shellNonThrowing( 'ssh-add -D' )
+      .then( ( op ) =>
       {
+        if( op.exitCode !== 0 )
+        {
+          test.true( true );
+          return null;
+        }
+
         test.case = 'ssh protocol with implicit declaration';
         test.shouldThrowErrorSync( () =>
         {
@@ -16827,13 +16833,9 @@ function repositoryClone( test )
             sync : 1,
           });
         });
-      }
-      else
-      {
-        test.true( true );
-      }
-      return null;
-    });
+        return null;
+      });
+    }
   }
 
   /* - */
