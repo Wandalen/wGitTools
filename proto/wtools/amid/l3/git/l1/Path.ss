@@ -207,7 +207,7 @@ function str( srcPath )
 
   if( isParsedAtomic )
   {
-    if( srcPath.protocol )
+    if( srcPath.protocol && srcPath.protocol !== 'git' && !_.strHas( srcPath.protocol, 'ssh' ) )
     {
       if( srcPath.service )
       result += srcPath.isGlobal ? '/' + srcPath.service : srcPath.service;
@@ -216,8 +216,10 @@ function str( srcPath )
     }
     else
     {
+      let prefix = srcPath.isGlobal ? '/' : ''
+      let postfix = ( srcPath.protocol && _.strHas( srcPath.protocol, 'ssh' ) ) ? '/' : ':'
       if( srcPath.service )
-      result += `git@${ srcPath.service }:`;
+      result += `${ prefix }git@${ srcPath.service }${ postfix }`;
       if( srcPath.user )
       result += srcPath.user;
     }
