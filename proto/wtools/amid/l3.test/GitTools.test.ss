@@ -16461,7 +16461,7 @@ function repositoryClone( test )
 
   /* setup ssh agent */
 
-  if( process.platform !== 'win32' )
+  if( process.platform !== 'win32' && _.process.insideTestContainer() && process.env.GITHUB_EVENT_NAME !== 'pull_request' )
   {
     a.ready.then( () =>
     {
