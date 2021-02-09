@@ -16463,17 +16463,10 @@ function repositoryClone( test )
 
   if( process.platform !== 'win32' && _.process.insideTestContainer() && process.env.GITHUB_EVENT_NAME !== 'pull_request' )
   {
-    a.ready.then( () =>
-    {
-      a.fileProvider.dirMake( a.abs( process.env.HOME, '.ssh' ) );
-      let filePath = a.abs( process.env.HOME, '.ssh', 'private.key' );
-      a.fileProvider.fileWrite( filePath, process.env.SSH_PRIVATE_KEY );
-      // a.fileProvider.rightsWrite({ filePath, setRights : 0o600 });
-      return null;
-    });
-    a.shell( 'chmod 600 ~/.ssh/private.key' )
-    a.shell( 'eval `ssh-agent -s`' );
-    a.shell( 'ssh-add ~/.ssh/private.key' );
+    a.ready.then( writeConfigs );
+    a.shell( 'ssh-agent' );
+    a.ready.then( setupSshAgent );
+    a.shell( `ssh-add ${ a.abs( process.env.HOME, '.ssh', 'private.key') }` );
 
     /* */
 
@@ -16714,6 +16707,36 @@ function repositoryClone( test )
       return null;
     });
     return a.ready;
+  }
+
+  /* */
+
+  function writeConfigs()
+  {
+    a.fileProvider.dirMake( a.abs( process.env.HOME, '.ssh' ) );
+    let keyPath = a.abs( process.env.HOME, '.ssh', 'private.key' );
+    let keyData = process.env.SSH_PRIVATE_KEY;
+    a.fileProvider.fileWrite( keyPath, keyData );
+    a.fileProvider.rightsWrite({ keyPath, setRights : 0o600 });
+    let hostsPath = a.abs( process.env.HOME, '.ssh', 'known_hosts' );
+    let hostsData =
+`\ngithub.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==\n\ngithub.com ssh-dss AAAAB3NzaC1kc3MAAACBANGFW2P9xlGU3zWrymJgI/lKo//ZW2WfVtmbsUZJ5uyKArtlQOT2+WRhcg4979aFxgKdcsqAYW3/LS1T2km3jYW/vr4Uzn+dXWODVk5VlUiZ1HFOHf6s6ITcZvjvdbp6ZbpM+DuJT7Bw+h5Fx8Qt8I16oCZYmAPJRtu46o9C2zk1AAAAFQC4gdFGcSbp5Gr0Wd5Ay/jtcldMewAAAIATTgn4sY4Nem/FQE+XJlyUQptPWMem5fwOcWtSXiTKaaN0lkk2p2snz+EJvAGXGq9dTSWHyLJSM2W6ZdQDqWJ1k+cL8CARAqL+UMwF84CR0m3hj+wtVGD/J4G5kW2DBAf4/bqzP4469lT+dF2FRQ2L9JKXrCWcnhMtJUvua8dvnwAAAIB6C4nQfAA7x8oLta6tT+oCk2WQcydNsyugE8vLrHlogoWEicla6cWPk7oXSspbzUcfkjN3Qa6e74PhRkc7JdSdAlFzU3m7LMkXo1MHgkqNX8glxWNVqBSc0YRdbFdTkL0C6gtpklilhvuHQCdbgB3LBAikcRkDp+FCVkUgPC/7Rw==\n`;
+    a.fileProvider.fileAppend( hostsPath, hostsData );
+    return null;
+  }
+
+  /* */
+
+  function setupSshAgent( op )
+  {
+    let lines = op.output.split( '\n' );
+    for( let i = 0 ; i < lines.length ; i++ )
+    {
+      let matches = /^(SSH_AUTH_SOCK|SSH_AGENT_PID)=(.*); export \1/.exec( lines[ i ] );
+      if( matches && matches.length > 0 )
+      process.env[ matches[ 1 ] ] = String( matches[ 2 ] );
+    }
+    return null;
   }
 }
 
