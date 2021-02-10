@@ -17653,9 +17653,10 @@ function prOpenRemote( test )
   let a = test.assetFor( 'basic' );
   let repository = `https://github.com/wtools-bot/New-${ _.idWithDateAndTime() }`;
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let validEnvironments = process.env.GITHUB_EVENT_NAME !== 'pull_request' && process.env.WTOOLS_BOT_TOKEN !== undefined;
   let insideTestContainer = _.process.insideTestContainer();
 
-  if( !validPlatform || !insideTestContainer || process.env.GITHUB_EVENT_NAME === 'pull_request' )
+  if( !validPlatform || !insideTestContainer || !validEnvironments )
   {
     test.true( true );
     return;
