@@ -61,7 +61,7 @@ function production( test )
 
   let eventName = process.env.GITHUB_EVENT_NAME ? process.env.GITHUB_EVENT_NAME : 'push';
   console.log( `Event : ${eventName}` );
-  console.log( `Env :\n${_.toStr( _.mapBut( process.env, { WTOOLS_BOT_TOKEN : null } ) )}` );
+  console.log( `Env :\n${_.toStr( _.mapBut( process.env, { WTOOLS_BOT_TOKEN : null, SSH_PRIVATE_KEY : null } ) )}` );
 
   /* */
 
