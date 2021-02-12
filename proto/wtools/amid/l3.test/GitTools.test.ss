@@ -7043,22 +7043,24 @@ statusLocalExtended.timeOut = 60000;
 function statusLocalWithAttempts( test )
 {
   let context = this;
+  let testing = _globals_.testing.wTools;
+
   let a = test.assetFor( 'basic' );
   a.fileProvider.dirMake( a.abs( '.' ) )
 
-  if( process.platform === 'win32' || process.platform === 'darwin' || !_.process.insideTestContainer() )
-  {
-    test.true( true );
-    return;
-  }
+  // if( process.platform === 'win32' || process.platform === 'darwin' || !_.process.insideTestContainer() )
+  // {
+  //   test.true( true );
+  //   return;
+  // }
 
   /* */
 
-  let netInterfaces = netInterfacesGet();
-  begin();
-  netInterfaceDown( netInterfaces );
+  let netInterfaces = testing.test.netInterfacesGet({ activeInterfaces : 1, sync : 1 });
+  begin().then( () => testing.test.netInterfacesDown({ interfaces : netInterfaces }) );
 
   /* */
+
   a.ready.then( () =>
   {
     test.case = 'increase attemptDelay';
@@ -7118,49 +7120,11 @@ function statusLocalWithAttempts( test )
 
   /* */
 
-  netInterfaceUp( netInterfaces );
+  a.ready.finally( () => testing.test.netInterfacesUp({ interfaces : netInterfaces }) );
 
   /* - */
 
   return a.ready;
-
-  /* */
-
-  function netInterfacesGet()
-  {
-    a.shell( 'ip a | awk \'/state UP/{print $2}\'' );
-    a.ready.then( ( op ) =>
-    {
-      let result = op.output.split( '\n' );
-      for( let i = 0; i < result.length; i++ )
-      {
-        result[ i ] = result[ i ].replace( /(.*):/, '$1' );
-        if( result[ i ] === '' )
-        result.splice( i, 1 );
-      }
-      return result;
-    });
-    a.ready.deasync();
-    return a.ready.sync();
-  }
-
-  /* */
-
-  function netInterfaceDown( interfaceNames )
-  {
-    for( let i = 0 ; i < interfaceNames.length ; i++ )
-    a.shell( `sudo ip link set ${ interfaceNames[ i ] } down` );
-    return a.ready;
-  }
-
-  /* */
-
-  function netInterfaceUp( interfaceNames )
-  {
-    for( let i = 0 ; i < interfaceNames.length ; i++ )
-    a.shell( `sudo ip link set ${ interfaceNames[ i ] } up` );
-    return a.ready;
-  }
 
   /* */
 
