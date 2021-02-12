@@ -539,7 +539,11 @@ function tagLocalRetrive( o )
   let r = /^ref: refs\/heads\/(.+)\s*$/;
 
   let found = r.exec( currentTag );
-  if( !found )
+  if( found )
+  {
+    currentTag = found[ 1 ].trim();
+  }
+  else
   {
     let tag = _.git.repositoryVersionToTag
     ({
@@ -549,15 +553,31 @@ function tagLocalRetrive( o )
       remote : 0,
     });
 
-    if( !tag.length )
-    currentTag = '';
-    else
+    if( tag.length )
     currentTag = _.strIs( tag ) ? tag : tag[ 0 ];
+    else
+    currentTag = '';
   }
-  else
-  {
-    currentTag = found[ 1 ].trim();
-  }
+
+  // if( !found )
+  // {
+  //   let tag = _.git.repositoryVersionToTag
+  //   ({
+  //     localPath : o.localPath,
+  //     version : currentTag.trim(),
+  //     local : 1,
+  //     remote : 0,
+  //   });
+  //
+  //   if( !tag.length )
+  //   currentTag = '';
+  //   else
+  //   currentTag = _.strIs( tag ) ? tag : tag[ 0 ];
+  // }
+  // else
+  // {
+  //   currentTag = found[ 1 ].trim();
+  // }
 
   if( o.detailing )
   {
@@ -1934,11 +1954,7 @@ function statusLocal_body( o )
     {
       tags = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
       _.assert( tags.length );
-      return start
-      ({
-        execPath : 'git ls-remote --tags --refs',
-        ready : null
-      })
+      return remoteTagsGet();
     })
     .then( ( got ) =>
     {
@@ -1954,6 +1970,46 @@ function statusLocal_body( o )
       result.unpushedTags += unpushedTags.join( '\n' );
 
       return result.unpushedTags;
+    })
+  }
+
+  /* */
+
+  function retry()
+  {
+    o.attempt -= 1;
+    return _.time.out( o.attemptDelay, () => remoteTagsGet() );
+  }
+
+  /* */
+
+  function remoteTagsGet()
+  {
+    _.assert( o.attempt >= 1, 'Expects defined number of attempts {-o.attempt-}' );
+
+    let result = remoteTagsGetSync();
+    if( result.exitCode === 0 )
+    return result;
+
+    if( _.strHas( result.output, /(C|c)ould not resolve host/ ) && o.attempt > 1 )
+    return retry();
+    else
+    throw _.errOnce( `Exit code : ${result.exitCode}\n`, result.output );
+  }
+
+  /* */
+
+  function remoteTagsGetSync()
+  {
+    return _.process.start
+    ({
+      execPath : 'git ls-remote --tags --refs',
+      currentPath : o.localPath,
+      mode : 'spawn',
+      sync : 1,
+      throwingExitCode : 0,
+      outputCollecting : 1,
+      verbosity : o.verbosity - 1,
     })
   }
 
@@ -2053,6 +2109,8 @@ var defaults = statusLocal_body.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.sync = 1;
 defaults.verbosity = 0;
+defaults.attempt = 2;
+defaults.attemptDelay = 250;
 
 defaults.uncommitted = null;
 defaults.uncommittedUntracked = null;
@@ -2546,19 +2604,36 @@ function statusFull( o )
     }
 
     if( prs && prs.length )
-    if( !o.explaining )
     {
-      result.status = true;
-    }
-    else
-    {
-      let prsExplanation= `Has ${prs.length} opened pull request(s)`;
+      if( o.explaining )
+      {
+        let prsExplanation= `Has ${prs.length} opened pull request(s)`;
 
-      if( !result.status )
-      result.status = prsExplanation;
+        if( result.status )
+        result.status += '\n' + prsExplanation;
+        else
+        result.status = prsExplanation;
+
+      }
       else
-      result.status += '\n' + prsExplanation;
+      {
+        result.status = true;
+      }
     }
+
+    // if( !o.explaining )
+    // {
+    //   result.status = true;
+    // }
+    // else
+    // {
+    //   let prsExplanation= `Has ${prs.length} opened pull request(s)`;
+    //
+    //   if( !result.status )
+    //   result.status = prsExplanation;
+    //   else
+    //   result.status += '\n' + prsExplanation;
+    // }
 
     return result;
   }
@@ -3738,14 +3813,22 @@ function repositoryInit( o )
   .finally( ( err, arg ) =>
   {
     if( err )
-    if( !o.throwing )
     {
+      if( o.throwing )
+      throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+
       _.errAttend( err );
       return null;
-    }
-    else
-    {
-      throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+
+      // if( !o.throwing )
+      // {
+      //   _.errAttend( err );
+      //   return null;
+      // }
+      // else
+      // {
+      //   throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+      // }
     }
     return arg;
   });
@@ -3980,22 +4063,29 @@ function repositoryDelete( o )
   if( !remoteExists )
   return false;
 
-  ready
-  .then( () =>
+  ready.then( () =>
   {
     return remove();
   })
   .finally( ( err, arg ) =>
   {
     if( err )
-    if( !o.throwing )
     {
+      if( o.throwing )
+      throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+
       _.errAttend( err );
       return null;
-    }
-    else
-    {
-      throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+
+      // if( !o.throwing )
+      // {
+      //   _.errAttend( err );
+      //   return null;
+      // }
+      // else
+      // {
+      //   throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+      // }
     }
     return arg;
   });
@@ -4086,10 +4176,15 @@ function repositoryClone( o )
   let remoteVcsLongerPath = _.git.path.str( remoteVcsPathParsed );
   remoteVcsLongerPath = _.git.path.nativize( remoteVcsLongerPath );
 
-  if( !localProvider.fileExists( o.localPath ) )
-  localProvider.dirMake( o.localPath );
-  else
+  if( localProvider.fileExists( o.localPath ) )
   _.sure( localProvider.dirIsEmpty( o.localPath ) );
+  else
+  localProvider.dirMake( o.localPath );
+
+  // if( !localProvider.fileExists( o.localPath ) )
+  // localProvider.dirMake( o.localPath );
+  // else
+  // _.sure( localProvider.dirIsEmpty( o.localPath ) );
 
   let shell = _.process.starter
   ({
@@ -4190,7 +4285,13 @@ function repositoryCheckout( o )
     if( !_.strHasAny( checkoutOptions.output, [ 'fatal: reference', 'error: pathspec' ] ) )
     throw _.err( err );
 
-    err = _.err( 'Failed to checkout, branch/commit: ' + _.strQuote( parsed.hash || parsed.tag ) + ' doesn\'t exist in repository at ' + _.strQuote( o.localPath ) );
+    err = _.err
+    (
+      'Failed to checkout, branch/commit: '
+      + _.strQuote( parsed.hash || parsed.tag )
+      + ' doesn\'t exist in repository at '
+      + _.strQuote( o.localPath )
+    );
     err.reason = 'git';
     throw err;
   })
@@ -4335,14 +4436,22 @@ function prsGet( o )
     if( !err && !prs && o.throwing )
     err = _.err( 'Failed' );
     if( err )
-    if( !o.throwing )
     {
+      if( o.throwing )
+      throw _.err( err, '\nFailed to get list of pull requests' );
+
       _.errAttend( err );
       return null;
-    }
-    else
-    {
-      throw _.err( err, '\nFailed to get list of pull requests' );
+
+      // if( !o.throwing )
+      // {
+      //   _.errAttend( err );
+      //   return null;
+      // }
+      // else
+      // {
+      //   throw _.err( err, '\nFailed to get list of pull requests' );
+      // }
     }
     return prs;
   });
@@ -4414,14 +4523,22 @@ function prOpen( o )
   .finally( ( err, pr ) =>
   {
     if( err )
-    if( !o.throwing )
     {
+      if( o.throwing )
+      throw _.err( err, '\nFailed to open pull request' );
+
       _.errAttend( err );
       return null;
-    }
-    else
-    {
-      throw _.err( err, '\nFailed to open pull request' );
+
+      // if( !o.throwing )
+      // {
+      //   _.errAttend( err );
+      //   return null;
+      // }
+      // else
+      // {
+      //   throw _.err( err, '\nFailed to open pull request' );
+      // }
     }
     return pr;
   });
@@ -5326,10 +5443,15 @@ function renormalize( o )
 
   let ready = new _.Consequence();
 
-  if( !_.git.isRepository({ localPath : o.localPath }) )
-  ready.error( _.err( `Provided path is not a git repository:${o.localPath}` ) );
-  else
+  if( _.git.isRepository({ localPath : o.localPath }) )
   ready.take( null );
+  else
+  ready.error( _.err( `Provided path is not a git repository:${o.localPath}` ) );
+
+  // if( !_.git.isRepository({ localPath : o.localPath }) )
+  // ready.error( _.err( `Provided path is not a git repository:${o.localPath}` ) );
+  // else
+  // ready.take( null );
 
   if( o.safe )
   ready.then( () =>

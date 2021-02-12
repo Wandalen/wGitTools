@@ -60,8 +60,14 @@ function production( test )
   if( trigger === 'publish' )
   a.ready.delay( 60000 );
 
+<<<<<<< HEAD
   console.log( `Event : ${trigger}` );
   console.log( `Env :\n${_.toStr( _.mapBut( process.env, { WTOOLS_BOT_TOKEN : null } ) )}` );
+=======
+  let eventName = process.env.GITHUB_EVENT_NAME ? process.env.GITHUB_EVENT_NAME : 'push';
+  console.log( `Event : ${eventName}` );
+  console.log( `Env :\n${_.toStr( _.mapBut( process.env, { WTOOLS_BOT_TOKEN : null, SSH_PRIVATE_KEY : null } ) )}` );
+>>>>>>> 8ccfc0a547b6fae3d0fc9915118f18fccc0f2d7b
 
   /* */
 
