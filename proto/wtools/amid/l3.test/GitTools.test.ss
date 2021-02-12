@@ -7040,6 +7040,106 @@ statusLocalExtended.timeOut = 60000;
 
 //
 
+function statusLocalWithAttempts( test )
+{
+  let context = this;
+  let testing = _globals_.testing.wTools;
+
+  let a = test.assetFor( 'basic' );
+  a.fileProvider.dirMake( a.abs( '.' ) )
+
+  // if( process.platform === 'win32' || process.platform === 'darwin' || !_.process.insideTestContainer() )
+  // {
+  //   test.true( true );
+  //   return;
+  // }
+
+  /* */
+
+  let netInterfaces = testing.test.netInterfacesGet({ activeInterfaces : 1, sync : 1 });
+  begin().then( () => testing.test.netInterfacesDown({ interfaces : netInterfaces }) );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'increase attemptDelay';
+    var o =
+    {
+      localPath : a.abs( '.' ),
+      unpushed : 0,
+      unpushedTags : 1,
+      uncommitted : 0,
+      detailing : 1,
+      explaining : 1,
+      attemptDelay : 5000,
+    };
+    var errCallback = ( err, arg ) =>
+    {
+      test.true( _.errIs( err ) );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, 'fatal' ), 1 );
+      test.identical( _.strCount( err.message, 'Could not resolve host' ), 1 );
+    };
+    var before = _.time.now();
+    test.shouldThrowErrorSync( () => _.git.statusLocal( o ), errCallback );
+    var spent = _.time.now() - before;
+    test.ge( spent, 5000 );
+
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.case = 'increase number of attempts and attemptDelay';
+    var o =
+    {
+      localPath : a.abs( '.' ),
+      unpushed : 0,
+      unpushedTags : 1,
+      uncommitted : 0,
+      detailing : 1,
+      explaining : 1,
+      attempt : 3,
+      attemptDelay : 5000,
+    };
+    var errCallback = ( err, arg ) =>
+    {
+      test.true( _.errIs( err ) );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, 'fatal' ), 1 );
+      test.identical( _.strCount( err.message, 'Could not resolve host' ), 1 );
+    };
+    var before = _.time.now();
+    test.shouldThrowErrorSync( () => _.git.statusLocal( o ), errCallback );
+    var spent = _.time.now() - before;
+    test.ge( spent, 10000 );
+
+    return null;
+  });
+
+  /* */
+
+  a.ready.finally( () => testing.test.netInterfacesUp({ interfaces : netInterfaces }) );
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git .' );
+    a.shell( 'git tag new_tag' );
+    return a.ready;
+  }
+}
+
+statusLocalWithAttempts.timeOut = 30000;
+
+//
+
 function statusRemote( test )
 {
   let context = this;
@@ -10083,9 +10183,9 @@ function statusEveryCheck( test )
     shell( 'git clone ' + a.path.nativize( a.abs( 'repo' ) ) + ' secondary' )
 
     if( annotated )
-    shell( `git -C secondary tag -a ${tag} -m "sometag"` )
+    shell( `git -C secondary tag -a ${tag} -m "sometag"` );
     else
-    shell( 'git -C secondary tag ' + tag )
+    shell( `git -C secondary tag ${ tag }` );
 
     shell( 'git -C secondary push --tags' )
 
@@ -16664,12 +16764,18 @@ function repositoryClone( test )
 
     /* */
 
-    begin();
-    a.shellNonThrowing( 'ssh -T git@github.com' )
-    .then( ( op ) =>
+    if( process.platform !== 'win32' )
     {
-      if( op.exitCode !== 0 && op.exitCode !== 1 ) /* github sends */
+      begin();
+      a.shellNonThrowing( 'ssh-add -D' )
+      .then( ( op ) =>
       {
+        if( op.exitCode !== 0 )
+        {
+          test.true( true );
+          return null;
+        }
+
         test.case = 'ssh protocol with implicit declaration';
         test.shouldThrowErrorSync( () =>
         {
@@ -16691,13 +16797,9 @@ function repositoryClone( test )
             sync : 1,
           });
         });
-      }
-      else
-      {
-        test.true( true );
-      }
-      return null;
-    });
+        return null;
+      });
+    }
   }
 
   /* - */
@@ -17515,9 +17617,10 @@ function prOpenRemote( test )
   let a = test.assetFor( 'basic' );
   let repository = `https://github.com/wtools-bot/New-${ _.idWithDateAndTime() }`;
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let validEnvironments = process.env.GITHUB_EVENT_NAME !== 'pull_request' && process.env.WTOOLS_BOT_TOKEN !== undefined;
   let insideTestContainer = _.process.insideTestContainer();
 
-  if( !validPlatform || !insideTestContainer || process.env.GITHUB_EVENT_NAME === 'pull_request' )
+  if( !validPlatform || !insideTestContainer || !validEnvironments )
   {
     test.true( true );
     return;
@@ -24184,6 +24287,7 @@ var Proto =
     statusLocalAsync,
     statusLocalExplainingTrivial,
     statusLocalExtended,
+    statusLocalWithAttempts,
     statusRemote,
     statusRemoteTags,
     statusRemoteVersionOption,
