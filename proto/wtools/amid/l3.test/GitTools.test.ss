@@ -16561,19 +16561,12 @@ function repositoryClone( test )
 
   /* setup ssh agent */
 
-  if( process.platform !== 'win32' )
+  if( process.platform !== 'win32' && _.process.insideTestContainer() && process.env.GITHUB_EVENT_NAME !== 'pull_request' )
   {
-    a.ready.then( () =>
-    {
-      a.fileProvider.dirMake( a.abs( process.env.HOME, '.ssh' ) );
-      let filePath = a.abs( process.env.HOME, '.ssh', 'private.key' );
-      a.fileProvider.fileWrite( filePath, process.env.SSH_PRIVATE_KEY );
-      // a.fileProvider.rightsWrite({ filePath, setRights : 0o600 });
-      return null;
-    });
-    a.shell( 'chmod 600 ~/.ssh/private.key' )
-    a.shell( 'eval `ssh-agent -s`' );
-    a.shell( 'ssh-add ~/.ssh/private.key' );
+    a.ready.then( writeConfigs );
+    a.shell( 'ssh-agent' );
+    a.ready.then( setupSshAgent );
+    a.shell( `ssh-add ${ a.abs( process.env.HOME, '.ssh', 'private.key') }` );
 
     /* */
 
@@ -16816,6 +16809,33 @@ function repositoryClone( test )
       return null;
     });
     return a.ready;
+  }
+
+  /* */
+
+  function writeConfigs()
+  {
+    a.fileProvider.dirMake( a.abs( process.env.HOME, '.ssh' ) );
+    let keyPath = a.abs( process.env.HOME, '.ssh', 'private.key' );
+    let keyData = process.env.SSH_PRIVATE_KEY;
+    a.fileProvider.fileWrite( keyPath, keyData );
+    a.fileProvider.rightsWrite({ keyPath, setRights : 0o600 });
+    let hostsPath = a.abs( process.env.HOME, '.ssh', 'known_hosts' );
+    return null;
+  }
+
+  /* */
+
+  function setupSshAgent( op )
+  {
+    let lines = op.output.split( '\n' );
+    for( let i = 0 ; i < lines.length ; i++ )
+    {
+      let matches = /^(SSH_AUTH_SOCK|SSH_AGENT_PID)=(.*); export \1/.exec( lines[ i ] );
+      if( matches && matches.length > 0 )
+      process.env[ matches[ 1 ] ] = String( matches[ 2 ] );
+    }
+    return null;
   }
 }
 
