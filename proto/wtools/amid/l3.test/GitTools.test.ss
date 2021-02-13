@@ -7048,11 +7048,11 @@ function statusLocalWithAttempts( test )
   let a = test.assetFor( 'basic' );
   a.fileProvider.dirMake( a.abs( '.' ) )
 
-  // if( process.platform === 'win32' || process.platform === 'darwin' || !_.process.insideTestContainer() )
-  // {
-  //   test.true( true );
-  //   return;
-  // }
+  if( process.platform === 'win32' || process.platform === 'darwin' || !_.process.insideTestContainer() )
+  {
+    test.true( true );
+    return;
+  }
 
   /* */
 
