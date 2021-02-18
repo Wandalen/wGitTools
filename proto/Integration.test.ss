@@ -64,8 +64,8 @@ function production( test )
   a.ready.delay( 60000 );
 
   console.log( `Event : ${trigger}` );
-  let but = { WTOOLS_BOT_TOKEN : null, PRIVATE_WTOOLS_BOT_TOKEN : null, PRIVATE_WTOOLS_BOT_SSH_KEY : null };
-  console.log( `Env :\n${_.toStr( _.mapBut( process.env,  ) )}` );
+  let but = { PRIVATE_WTOOLS_BOT_TOKEN : null, PRIVATE_WTOOLS_BOT_SSH_KEY : null };
+  console.log( `Env :\n${_.toStr( _.mapBut( process.env, but ) )}` );
 
   /* */
 
