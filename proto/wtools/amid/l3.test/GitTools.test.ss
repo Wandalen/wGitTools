@@ -25,7 +25,7 @@ function onSuiteBegin( test )
   let context = this;
   context.provider = _.fileProvider;
   let path = context.provider.path;
-  context.suiteTempPath = context.provider.path.tempOpen( path.join( __dirname, '../..'  ), 'GitTools' );
+  context.suiteTempPath = context.provider.path.tempOpen( path.join( __dirname, '../..' ), 'GitTools' );
   context.assetsOriginalPath = _.path.join( __dirname, '_asset' );
 }
 
@@ -6245,7 +6245,7 @@ function statusLocalEmptyWithOrigin( test )
     a.ready.then( () =>
     {
       test.case = 'init fresh repo';
-      a.fileProvider.filesDelete(  a.abs( 'clone' ) );
+      a.fileProvider.filesDelete( a.abs( 'clone' ) );
       a.fileProvider.dirMake( a.abs( 'clone' ) );
       return _.process.start
       ({
@@ -9929,7 +9929,7 @@ function statusEveryCheck( test )
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.true(  !!status.status.match( line ) )
+      test.true( !!status.status.match( line ) )
     })
 
     test.identical( status.conflicts, false );
@@ -9972,7 +9972,7 @@ function statusEveryCheck( test )
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.true(  !!status.status.match( line ) )
+      test.true( !!status.status.match( line ) )
     })
 
     return null;
@@ -10033,7 +10033,7 @@ function statusEveryCheck( test )
     _.each( expectedStatus, ( line ) =>
     {
       test.case = 'status has line: ' + _.strQuote( line )
-      test.true(  !!status.status.match( line ) )
+      test.true( !!status.status.match( line ) )
     })
 
     return null;
@@ -11624,7 +11624,7 @@ function hasLocalChanges( test )
     test.case = 'check after fresh clone'
     var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, false );
     return null;
   })
@@ -11638,7 +11638,7 @@ function hasLocalChanges( test )
     a.fileProvider.fileWrite( a.abs( 'clone', 'newFile' ), a.abs( 'clone', 'newFile' ) );
     var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, true );
     return null;
   })
@@ -11649,7 +11649,7 @@ function hasLocalChanges( test )
     test.true( a.fileProvider.fileExists( a.abs( 'clone', 'newFile' ) ) );
     var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, true );
     return null;
   })
@@ -11663,7 +11663,7 @@ function hasLocalChanges( test )
     a.fileProvider.fileWrite( a.abs( 'clone', 'README' ), a.abs( 'clone', 'README' ) );
     var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, true );
     return null;
   })
@@ -11673,7 +11673,7 @@ function hasLocalChanges( test )
     test.case = 'unstaged change in existing file'
     var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, true );
     return null;
   })
@@ -11687,7 +11687,7 @@ function hasLocalChanges( test )
     test.case = 'remote has new commit';
     var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, false );
     return null;
   })
@@ -11702,7 +11702,7 @@ function hasLocalChanges( test )
     test.case = 'remote has new commit, local executed fetch without merge';
     var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, false );
     return null;
   })
@@ -11712,7 +11712,7 @@ function hasLocalChanges( test )
     test.case = 'merge after fetch, remote had new commit';
     var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : 0 });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : 1  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : 1 });
     test.identical( got, false );
     return null;
   })
@@ -11724,7 +11724,7 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'new local commit'
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false });
     test.identical( got, false );
     test.case = 'new local commit'
     var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true });
@@ -11740,9 +11740,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'local and remote has has new commit';
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true });
     test.identical( got, true );
     return null;
   })
@@ -11757,9 +11757,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local executed fetch without merge';
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true });
     test.identical( got, false );
     return null;
   })
@@ -11776,9 +11776,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local has commit to master,fetch without merge';
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true });
     test.identical( got, true );
     return null;
   })
@@ -11793,9 +11793,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'local has unpushed tag';
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false });
     test.identical( got, true );
     return null;
   })
@@ -11803,9 +11803,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'local has pushed tag';
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false });
     test.identical( got, false );
     return null;
   })
@@ -11820,9 +11820,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'local has unpushed annotated tag';
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false });
     test.identical( got, true );
     return null;
   })
@@ -11830,9 +11830,9 @@ function hasLocalChanges( test )
   .then( () =>
   {
     test.case = 'local has pushed annotated tag';
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false });
     test.identical( got, false );
-    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false  });
+    var got = _.git.hasLocalChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false });
     test.identical( got, false );
     return null;
   })
@@ -12498,7 +12498,7 @@ function hasChanges( test )
     test.case = 'check after fresh clone'
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, false );
     return null;
   })
@@ -12512,7 +12512,7 @@ function hasChanges( test )
     a.fileProvider.fileWrite( a.abs( 'clone', 'newFile' ), a.abs( 'clone', 'newFile' ) );
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, true );
     return null;
   })
@@ -12523,7 +12523,7 @@ function hasChanges( test )
     test.true( a.fileProvider.fileExists( a.abs( 'clone', 'newFile' ) ) );
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, true );
     return null;
   })
@@ -12537,7 +12537,7 @@ function hasChanges( test )
     a.fileProvider.fileWrite( a.abs( 'clone', 'README' ), a.abs( 'clone', 'README' ) );
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, true );
     return null;
   })
@@ -12547,7 +12547,7 @@ function hasChanges( test )
     test.case = 'unstaged change in existing file'
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1 });
     test.identical( got, true );
     return null;
   })
@@ -12595,11 +12595,11 @@ function hasChanges( test )
     test.case = 'remote has new commit, local executed fetch without merge';
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 0, remote : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1, remote : 0 });
     test.identical( got, false );
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 0, remote : 1 });
     test.identical( got, true );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1, remote : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), uncommitted : 1, remote : 1 });
     test.identical( got, true );
     return null;
   })
@@ -12609,7 +12609,7 @@ function hasChanges( test )
     test.case = 'merge after fetch, remote had new commit';
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : 1 });
     test.identical( got, false );
     return null;
   })
@@ -12621,7 +12621,7 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'new local commit'
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false });
     test.identical( got, false );
     test.case = 'new local commit'
     var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true });
@@ -12637,13 +12637,13 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'local and remote has has new commit';
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 0 });
     test.identical( got, true );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 1 });
     test.identical( got, true );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 1 });
     test.identical( got, true );
     return null;
   })
@@ -12658,13 +12658,13 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local executed fetch without merge';
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 1 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 1 });
     test.identical( got, false );
     return null;
   })
@@ -12673,13 +12673,13 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local executed fetch without merge';
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 1 });
     test.identical( got, true );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 1 });
     test.identical( got, true );
     return null;
   })
@@ -12696,13 +12696,13 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local has commit to master,fetch without merge,branch is not downloaded';
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 0 });
     test.identical( got, true );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 1 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 1 });
     test.identical( got, true );
     return null;
   })
@@ -12711,13 +12711,13 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'remote has commit to other branch, local has commit to master,fetch without merge, branch downloaded';
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 0 });
     test.identical( got, true );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : false, remote : 1 });
     test.identical( got, true );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 1  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedCommits : true, remote : 1 });
     test.identical( got, true );
     return null;
   })
@@ -12732,9 +12732,9 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'local has unpushed tag';
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false });
     test.identical( got, true );
     return null;
   })
@@ -12742,9 +12742,9 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'local has pushed tag';
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false });
     test.identical( got, false );
     return null;
   })
@@ -12759,9 +12759,9 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'local has unpushed annotated tag';
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false });
     test.identical( got, true );
     return null;
   })
@@ -12769,9 +12769,9 @@ function hasChanges( test )
   .then( () =>
   {
     test.case = 'local has pushed annotated tag';
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : false, unpushedCommits : false, remote : 0 });
     test.identical( got, false );
-    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false, remote : 0  });
+    var got = _.git.hasChanges({ localPath : a.abs( 'clone' ), unpushedTags : true, unpushedCommits : false, remote : 0 });
     test.identical( got, false );
     return null;
   })
@@ -16263,7 +16263,7 @@ function hookTrivial( test )
   a.shell( 'git init' )
   .then( () =>
   {
-    let sourceCode = '#!/usr/bin/env node\n' +  'process.exit( 1 )';
+    let sourceCode = '#!/usr/bin/env node\n' + 'process.exit( 1 )';
     let tempPath = _.process.tempOpen({ sourceCode });
     _.git.hookRegister
     ({
@@ -24146,7 +24146,7 @@ function renormalizeAudit( test )
     .then( ( op ) =>
     {
       test.identical( op.exitCode, 0 );
-      test.true( _.strHas( op.output, 'contains lines that can affect the result of EOL normalization'  ) );
+      test.true( _.strHas( op.output, 'contains lines that can affect the result of EOL normalization' ) );
 
       return null;
     });
