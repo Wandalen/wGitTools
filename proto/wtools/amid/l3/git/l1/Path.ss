@@ -229,7 +229,7 @@ function str( srcPath )
   }
 
   if( srcPath.query )
-  result +=  _.uri.queryToken + srcPath.query;
+  result += _.uri.queryToken + srcPath.query;
   if( srcPath.tag )
   result += srcPath.tag === 'master' ? '' : _.uri.tagToken + srcPath.tag;
   if( srcPath.hash )
