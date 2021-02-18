@@ -32,5 +32,5 @@ jobs :
     - name : npm test
       run : npm test
       env :
-        WTOOLS_BOT_TOKEN : ${{ secrets.WTOOLS_BOT_TOKEN }}
-        SSH_PRIVATE_KEY : ${{ secrets.SSH_PRIVATE_KEY }}
+        PRIVATE_WTOOLS_BOT_TOKEN : ${{ secrets.PRIVATE_WTOOLS_BOT_TOKEN }}
+        PRIVATE_WTOOLS_BOT_SSH_KEY : ${{ secrets.PRIVATE_WTOOLS_BOT_SSH_KEY }}
