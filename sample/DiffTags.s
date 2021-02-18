@@ -2,11 +2,13 @@
 require( 'wgittools' );
 let _ = wTools;
 
-var got =  _.git.diff
+/* Diff local tag 0.3.48 with tag v0.3.36 on remote "origin" */
+
+var got = _.git.diff
 ({
   localPath : _.path.join( __dirname, '..' ),
-  state1 : 'working',
-  state2 : 'HEAD~1',
+  state1 : '!0.3.48',
+  state2 : '!origin/v0.3.36',
   generatingPatch : 0,
   detailing : 1,
   explaining : 1,

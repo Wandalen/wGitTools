@@ -17,10 +17,10 @@ submodule :
     path : npm:///wprocess
     enabled : 0 # submodule
   ini :
-    path : npm:///ini
+    path : npm:///ini#2.0.0
     enabled : 0 # submodule
   octonode :
-    path : npm:///octonode
+    path : npm:///octonode#0.10.0
     enabled : 0 # submodule
   wgittools :
     path : hd://.
@@ -29,6 +29,11 @@ submodule :
       development : 1
   wTesting :
     path : npm:///wTesting
+    enabled : 0 # submodule
+    criterion :
+      development : 1
+  eslint :
+    path : npm:///eslint#7.1.0
     enabled : 0 # submodule
     criterion :
       development : 1
@@ -72,7 +77,7 @@ path :
       content : prime
 
   entry.proto.no.tests :
-    path : proto/wtools/amid/l3/git/entry/Include.s
+    path : proto/wtools/amid/l3/git/entry/GitTools.ss
     criterion :
       tests : 'no.tests'
   entry.proto.only.tests :
@@ -84,7 +89,7 @@ path :
   # npm.files : proto
 
   entry.out.raw.debug :
-    path : '{path::out.*=1}/source/wtools/amid/l3/git/entry/Include.s'
+    path : '{path::out.*=1}/source/wtools/amid/l3/git/entry/GitTools.ss'
     criterion :
       debug : [ debug, release ]
       raw : raw

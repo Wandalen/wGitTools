@@ -18,7 +18,7 @@ about :
   - 'Kostiantyn Wandalen <wanalen@01.school>'
   npm.name : 'wgittools'
   npm.scripts :
-    test : 'wtest .run proto/**'
+    test : wtest .run proto/** rapidity:-3
     docgen : 'wdocgen .build proto'
 
 path :

@@ -1,4 +1,5 @@
-( function _Mid_s_( ) {
+( function _Base_s_()
+{
 
 'use strict';
 
@@ -8,8 +9,9 @@ if( typeof module !== 'undefined' )
 {
   let _ = require( '../../../../../wtools/Tools.s' );
 
-  require( './Base.s' );
-  require( '../l1/Tools.s' );
+  _.include( 'wCopyable' );
+  _.include( 'wProcess' );
+  _.include( 'wFiles' );
 
   module[ 'exports' ] = _global_.wTools;
 }

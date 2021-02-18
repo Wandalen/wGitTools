@@ -1,12 +1,12 @@
 {
   "name" : "wgittools",
-  "version" : "0.3.181",
+  "version" : "0.3.256",
   "description" : "Collection of tools to use git programmatically.",
   "author" : "Kostiantyn Wandalen <wanalen@01.school>",
   "license" : "MIT",
-  "main" : "proto/wtools/amid/l3/git/entry/Include.s",
+  "main" : "proto/wtools/amid/l3/git/entry/GitTools.ss",
   "files" : [ "proto/wtools/amid/l3/git", "proto/wtools/Tools.s", "out" ],
-  "scripts" : { "test" : "wtest .run 'proto/**' rapidity:-1", "docgen" : "wdocgen proto" },
+  "scripts" : { "test" : "wtest .run 'proto/**' rapidity:-3", "docgen" : "wdocgen proto" },
   "repository" :
   {
     "type" : "git",
@@ -23,9 +23,9 @@
     "wFiles" : "",
     "wfilesarchive" : "",
     "wprocess" : "",
-    "ini" : "",
-    "octonode" : "0.9.5"
+    "ini" : "=2.0.0",
+    "octonode" : "=0.10.0"
   },
-  "devDependencies" : { "wTesting" : "" },
+  "devDependencies" : { "wTesting" : "", "wgittools" : "file:.", "eslint" : "7.1.0" },
   "keywords" : [ "wTools" ]
 }
