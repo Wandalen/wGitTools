@@ -1131,7 +1131,7 @@ function hasFiles( o )
   _.routineOptions( hasFiles, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  if( !localProvider.isDir( o.localPath  ) )
+  if( !localProvider.isDir( o.localPath ) )
   return false;
   if( !localProvider.dirIsEmpty( o.localPath ) )
   return true;
@@ -1620,7 +1620,7 @@ function statusLocal_head( routine, args )
     o[ k ] = o.unpushed;
   })
 
-  for( let k in o  )
+  for( let k in o )
   if( o[ k ] === null )
   o[ k ] = true;
 
@@ -1646,7 +1646,7 @@ function statusLocal_body( o )
 
   let result = resultPrepare();
 
-  let optimizingCheck = o.uncommittedUntracked  && o.uncommittedAdded
+  let optimizingCheck = o.uncommittedUntracked && o.uncommittedAdded
                         && o.uncommittedChanged && o.uncommittedDeleted
                         && o.uncommittedRenamed && o.uncommittedCopied
                         && !o.detailing;
@@ -2155,7 +2155,7 @@ function statusRemote_head( routine, args )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.version ) || o.version === _.all || o.version === null, 'Expects {-o.version-} to be: null/str/_.all, but got:', o.version );
 
-  for( let k in o  )
+  for( let k in o )
   if( o[ k ] === null && k !== 'version' )
   //qqq Vova: should we just use something else for version instead of null?
   o[ k ] = true;
@@ -2931,7 +2931,7 @@ function repositoryHasVersion( o )
 
     ready.then( ( got ) =>
     {
-      if( _.strHas( got.output, /.+\.\..+/  ) )
+      if( _.strHas( got.output, /.+\.\..+/ ) )
       throw _.err( `Local repository at ${o.localPath} is not up-to-date with remote. Please run "git fetch" and try again.` )
       return true;
     })
@@ -3409,7 +3409,7 @@ function hookRegister( o )
 
       let originalHandlerPathDst = originalHandlerPath + '.was';
       if( provider.fileExists( originalHandlerPathDst ) )
-      throw _.err( 'Can\'t rename original git hook file:', originalHandlerPath, '. Path :', originalHandlerPathDst, 'already exists.'  );
+      throw _.err( 'Can\'t rename original git hook file:', originalHandlerPath, '. Path :', originalHandlerPathDst, 'already exists.' );
       provider.fileRename( originalHandlerPathDst, originalHandlerPath );
     }
 
@@ -3560,7 +3560,7 @@ function hookPreservingHardLinksRegister( repoPath )
   _.sure( provider.fileExists( toolsPath ) );
   toolsPath = path.nativize( toolsPath );
 
-  let sourceCode = '#!/usr/bin/env node\n' +  restoreHardLinksCode();
+  let sourceCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
   let tempPath = _.process.tempOpen({ sourceCode });
   try
   {
@@ -3704,7 +3704,7 @@ function ignoreRemove( o )
   throw _.err( 'Provided .gitignore file doesn`t exist at:', _.strQuote( gitignorePath ) );
 
   if( !this.isTerminal( o.insidePath ) )
-  throw _.err( 'Provided .gitignore file:', _.strQuote( gitignorePath ),  'is not terminal' );
+  throw _.err( 'Provided .gitignore file:', _.strQuote( gitignorePath ), 'is not terminal' );
 
   let records = _.mapKeys( o.pathMap );
 
@@ -4884,7 +4884,7 @@ function diff( o )
   _.assert( _.strDefined( o.state1 ) || o.state1 === null );
   _.assert( _.strDefined( o.state2 ) );
   _.assert( _.strDefined( o.localPath ) );
-  _.assert( o.linesOfContext === null ||  _.numberIs( o.linesOfContext ) );
+  _.assert( o.linesOfContext === null || _.numberIs( o.linesOfContext ) );
 
   if( o.state1 === null ) /* qqq : discuss */
   o.state1 = 'HEAD';
