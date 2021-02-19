@@ -17609,7 +17609,7 @@ function prOpenRemote( test )
   let repository = `https://github.com/wtools-bot/New-${ _.idWithDateAndTime() }`;
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-  let validEnvironments = _globals_.testing.wTools.test.workflowTriggerGet( a.abs( '../../../..' ) ) !== 'pull_request' && token;
+  let validEnvironments = _globals_.testing.wTools.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
 
   if( !validPlatform || !insideTestContainer || !validEnvironments )
