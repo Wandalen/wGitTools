@@ -18,9 +18,10 @@ jobs :
         node-version : [ 10.x, 12.9.1, 13.x, 14.x, 15.x ]
     steps :
     - name : git config
-      run : git config --global core.autocrlf input
-      run : git config --global user.email "testing@testing.com"
-      run : git config --global user.name "Testing"
+      run : |
+        git config --global core.autocrlf input
+        git config --global user.email "testing@testing.com"
+        git config --global user.name "Testing"
     - uses : actions/checkout@v2
       with :
         fetch-depth: 2
