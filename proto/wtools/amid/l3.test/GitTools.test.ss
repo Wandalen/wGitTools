@@ -16561,7 +16561,7 @@ function repositoryClone( test )
 
   /* setup ssh agent */
 
-  if( process.env.PRIVATE_WTOOLS_BOT_SSH_KEY !== undefined )
+  if( process.env.PRIVATE_WTOOLS_BOT_SSH_KEY )
   if( process.platform !== 'win32' && _.process.insideTestContainer() && process.env.GITHUB_EVENT_NAME !== 'pull_request' )
   {
     a.ready.then( () => _globals_.testing.wTools.test.workflowSshAgentRun() );
@@ -17609,7 +17609,7 @@ function prOpenRemote( test )
   let repository = `https://github.com/wtools-bot/New-${ _.idWithDateAndTime() }`;
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-  let validEnvironments = process.env.GITHUB_EVENT_NAME !== 'pull_request' && token !== undefined;
+  let validEnvironments = process.env.GITHUB_EVENT_NAME !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
 
   if( !validPlatform || !insideTestContainer || !validEnvironments )
