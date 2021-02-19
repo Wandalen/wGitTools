@@ -17607,7 +17607,8 @@ function prOpenRemote( test )
   let a = test.assetFor( 'basic' );
   let repository = `https://github.com/wtools-bot/New-${ _.idWithDateAndTime() }`;
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = process.env.GITHUB_EVENT_NAME !== 'pull_request' && process.env.WTOOLS_BOT_TOKEN !== undefined;
+  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  let validEnvironments = process.env.GITHUB_EVENT_NAME !== 'pull_request' && token !== undefined;
   let insideTestContainer = _.process.insideTestContainer();
 
   if( !validPlatform || !insideTestContainer || !validEnvironments )
@@ -17641,7 +17642,7 @@ function prOpenRemote( test )
       verbosity : 0,
       dry : 0,
       description : 'Test',
-      token : process.env.WTOOLS_BOT_TOKEN,
+      token,
     })
   })
 
@@ -17649,7 +17650,7 @@ function prOpenRemote( test )
 
   a.shell
   (
-    `git config credential.helper '!f(){ echo "username=wtools-bot" && echo "password=${ process.env.WTOOLS_BOT_TOKEN }"; }; f'`
+    `git config credential.helper '!f(){ echo "username=wtools-bot" && echo "password=${ token }"; }; f'`
   );
   a.shell( 'git add --all' );
   a.shell( 'git commit -m first' );
@@ -17667,7 +17668,7 @@ function prOpenRemote( test )
   {
     return _.git.prOpen
     ({
-      token : process.env.WTOOLS_BOT_TOKEN,
+      token,
       remotePath : repository,
       title : 'new',
       srcBranch : 'new',
@@ -17700,7 +17701,7 @@ function prOpenRemote( test )
   {
     return _.git.prOpen
     ({
-      token : process.env.WTOOLS_BOT_TOKEN,
+      token,
       remotePath : repository,
       title : 'new2',
       body : 'Some description',
@@ -17735,7 +17736,7 @@ function prOpenRemote( test )
   {
     return _.git.prOpen
     ({
-      token : process.env.WTOOLS_BOT_TOKEN,
+      token,
       remotePath : repository,
       title : 'new3',
       srcBranch : 'wtools-bot:new3',
@@ -17777,7 +17778,7 @@ function prOpenRemote( test )
       sync : 1,
       verbosity : 1,
       dry : 0,
-      token : process.env.WTOOLS_BOT_TOKEN,
+      token,
     })
   }
 }
