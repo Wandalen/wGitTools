@@ -410,7 +410,7 @@ defaults.insidePath = null;
  * console.log( tag );
  * // log : 'test'
  *
- * @param { MapLike } o - Options map.
+ * @param { Aux } o - Options map.
  * @param { String } o.localPath - Path to git repository on hard drive.
  * @param { String } o.tag - Tag to switch on.
  * @param { Number } o.verbosity - Level of verbosity. Default is 0.
@@ -501,7 +501,7 @@ defaults.verbosity = 0;
  * //   isBranch : true,
  * // }
  *
- * @param { MapLike } o - Options map.
+ * @param { Aux } o - Options map.
  * @param { String } o.localPath - Path to git repository on hard drive.
  * @param { Number } o.verbosity - Level of verbosity. Default is 0.
  * @param { BoolLike } o.detailing - If {-o.detailing-} is true, result is map with tag description.
@@ -3240,14 +3240,14 @@ exists.defaults =
  *   description : 'version 0.1',
  * });
  *
- * @param { MapLike } o - Options map.
+ * @param { Aux } o - Options map.
  * @param { String } o.localPath - Path to git repository on hard drive.
  * @param { String } o.tag - Name of tag.
  * @param { String } o.description - Description of tag.
  * @param { BoolLike } o.light - Enable lightweight tags. Default is 0.
  * @param { BoolLike } o.deleting - Enable deleting of duplicated tags. Default is 1.
  * @param { BoolLike } o.sync - Enable synchronous execution of code. Default is 1.
- * @returns { Consequence|MapLike } - Returns map like object with results of Process execution
+ * @returns { Consequence|Aux } - Returns map like object with results of Process execution
  * or Consequence that handle such Process.
  * @function tagMake
  * @throws { Error } If arguments.length is not equal to 1.
