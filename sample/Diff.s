@@ -13,5 +13,5 @@ var got =  _.git.diff
   fetchTags : 1
 });
 
-console.log( _.toStr( got.status ) )
+console.log( _.entity.exportString( got.status ) )
 
