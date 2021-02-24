@@ -16,6 +16,6 @@ var got =  _.git.diff
   explaining : 1
 });
 
-console.log( `Status:${_.entity.exportString( got.status )}` )
-console.log( `Patch:${_.entity.exportString( got.patch )}` )
+console.log( `Status : ${ _.entity.exportString( got.status ) }` );
+console.log( `Patch : ${ _.entity.exportString( got.patch ) }` );
 
