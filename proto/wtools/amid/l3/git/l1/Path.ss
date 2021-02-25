@@ -198,7 +198,7 @@ function str( srcPath )
   let result = '';
   let isParsedAtomic = srcPath.isFixated === undefined && srcPath.protocols === undefined;
 
-  if( isParsedAtomic && srcPath.localVcsPath === undefined )
+  if( isParsedAtomic && srcPath.protocol === undefined && srcPath.localVcsPath === undefined )
   throw _.err( 'Cannot create path from objects. Not enough information about protocols' );
 
   if( srcPath.protocol )
@@ -291,6 +291,7 @@ function nativize( srcPath )
 
   let parsed = _.git.path.parse( srcPath );
 
+  debugger;
   _.assert( !!parsed.longPath );
 
   if( parsed.protocol )

@@ -4171,8 +4171,9 @@ function repositoryClone( o )
   return ready;
 
   // let parsed = _.git.pathParse( o.remotePath );
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-  let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+  parsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
+  let remoteVcsPathParsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
   let remoteVcsLongerPath = _.git.path.str( remoteVcsPathParsed );
   remoteVcsLongerPath = _.git.path.nativize( remoteVcsLongerPath );
 
