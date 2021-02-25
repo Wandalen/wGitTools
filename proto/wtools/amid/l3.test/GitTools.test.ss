@@ -16664,7 +16664,7 @@ function repositoryClone( test )
   /* setup ssh agent */
 
   if( process.env.PRIVATE_WTOOLS_BOT_SSH_KEY )
-  if( process.platform !== 'win32' && _.process.insideTestContainer() && process.env.GITHUB_EVENT_NAME !== 'pull_request' )
+  if( process.platform === 'linux' && _.process.insideTestContainer() && process.env.GITHUB_EVENT_NAME !== 'pull_request' )
   {
     a.ready.then( () => _globals_.testing.wTools.test.workflowSshAgentRun() );
 
