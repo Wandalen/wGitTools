@@ -724,8 +724,9 @@ function versionRemoteLatestRetrive( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   // let parsed = _.git.pathParse( remotePath );
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-  parsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+  parsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
+  parsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
   let remotePath = _.git.path.str( parsed );
   remotePath = _.git.path.nativize( remotePath );
 
@@ -1256,8 +1257,9 @@ function isRepository( o )
     if( path.isGlobal( o.remotePath ) )
     {
       // remoteParsed = self.pathParse( o.remotePath ).remoteVcsPath;
-      let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-      let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
+      let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+      let remoteVcsPathParsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
+      remoteVcsPathParsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remoteParsed = _.git.path.nativize( remoteVcsPath );
     }
@@ -1511,8 +1513,9 @@ function sureHasOrigin( o )
   throw _.err( `Provided path is not a git repository:${o.localPath}` );
 
   // let parsed = _.git.pathParse( o.remotePath );
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-  let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+  let remoteVcsPathParsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
+  remoteVcsPathParsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
   let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
   let remoteVcsNativized = _.git.path.nativize( remoteVcsPath );
 
@@ -2815,8 +2818,9 @@ function repositoryHasTag( o )
     let remotePath = 'origin';
     if( o.remotePath )
     {
-      let parsed = _.git.path.parse({ remotePath : o.remotePath });
-      let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
+      let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+      let remoteVcsPathParsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
+      remoteVcsPathParsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remotePath = _.git.path.nativize( remoteVcsPath );
     }
@@ -3051,8 +3055,9 @@ function repositoryVersionToTag( o )
     let remotePath = '';
     if( o.remotePath )
     {
-      let parsed = _.git.path.parse({ remotePath : o.remotePath });
-      let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
+      let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+      let remoteVcsPathParsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
+      remoteVcsPathParsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
       let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
       remotePath = _.git.path.nativize( remoteVcsPath );
     }
@@ -4171,8 +4176,9 @@ function repositoryClone( o )
   return ready;
 
   // let parsed = _.git.pathParse( o.remotePath );
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-  let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+  let remoteVcsPathParsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
+  remoteVcsPathParsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
   let remoteVcsLongerPath = _.git.path.str( remoteVcsPathParsed );
   remoteVcsLongerPath = _.git.path.nativize( remoteVcsLongerPath );
 
@@ -4226,7 +4232,7 @@ function repositoryCheckout( o )
   let ready = new _.Consequence().take( null );
   // let parsed = _.git.pathParse( o.remotePath );
 
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
 
   let shell = _.process.starter
   ({
