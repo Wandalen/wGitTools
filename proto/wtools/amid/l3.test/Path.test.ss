@@ -3289,6 +3289,28 @@ function parseObjects( test )
   var got = _.git.path.parse( o );
   test.identical( got, expected );
 
+  test.case = 'git path with local vcs path';
+  var o = { remotePath : 'git@github.com:someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'git path with local vcs path';
+  var o = { remotePath : 'git@github.com:someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
   test.close( 'empty protocol - git or ssh syntax' );
 
   /* - */
@@ -3396,6 +3418,28 @@ function parseObjects( test )
 
   test.case = 'global git path with hash after slash';
   var o = { remotePath : 'git:///git@github.com:someorg/somerepo.git/#b6968a12', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'git path with local vcs path';
+  var o = { remotePath : 'git://git@github.com:someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'global git path with local vcs path';
+  var o = { remotePath : 'git:///git@github.com:someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
   var expected =
   {
     'service' : 'github.com',
@@ -3521,6 +3565,28 @@ function parseObjects( test )
   var got = _.git.path.parse( o );
   test.identical( got, expected );
 
+  test.case = 'ssh path with local vcs path';
+  var o = { remotePath : 'ssh://git@github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'global ssh path with local vcs path';
+  var o = { remotePath : 'ssh:///git@github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
   test.close( 'ssh' );
 
   /* - */
@@ -3628,6 +3694,28 @@ function parseObjects( test )
 
   test.case = 'global https path with hash after slash';
   var o = { remotePath : 'https:///github.com/someorg/somerepo.git/#b6968a12', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'https path with local vcs path';
+  var o = { remotePath : 'https://github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'global https path with local vcs path';
+  var o = { remotePath : 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
   var expected =
   {
     'service' : 'github.com',
@@ -3753,6 +3841,28 @@ function parseObjects( test )
   var got = _.git.path.parse( o );
   test.identical( got, expected );
 
+  test.case = 'git+ssh path with local vcs path';
+  var o = { remotePath : 'git+ssh://git@github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'global git+ssh path with local vcs path';
+  var o = { remotePath : 'git+ssh:///git@github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
   test.close( 'git+ssh' );
 
   /* - */
@@ -3860,6 +3970,28 @@ function parseObjects( test )
 
   test.case = 'global git+https path with hash after slash';
   var o = { remotePath : 'git+https:///github.com/someorg/somerepo.git/#b6968a12', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'git+https path with local vcs path';
+  var o = { remotePath : 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
+  var expected =
+  {
+    'service' : 'github.com',
+    'user' : 'someorg',
+    'repo' : 'somerepo',
+  };
+  var got = _.git.path.parse( o );
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with local vcs path';
+  var o = { remotePath : 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 0, objects : 1 };
   var expected =
   {
     'service' : 'github.com',
