@@ -4911,6 +4911,395 @@ function strWithComplexProtocols( test )
 
 //
 
+function strPathsHaveLocalVcsPath( test )
+{
+  test.open( 'without protocol, full' );
+
+  test.case = 'simple git path';
+  var remotePath = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will';
+  test.identical( got, expected );
+
+  test.case = 'simple git path with tag';
+  var remotePath = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will!new';
+  test.identical( got, expected );
+
+  test.case = 'simple git path with tag and slash';
+  var remotePath = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will/!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will/!new';
+  test.identical( got, expected );
+
+  test.case = 'simple git path with hash';
+  var remotePath = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'simple git path with hash and slash';
+  var remotePath = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  test.identical( got, expected );
+
+  test.close( 'without protocol, full' );
+
+  /* - */
+
+  test.open( 'without protocol, atomic' );
+
+  test.case = 'simple git path';
+  var o = { remotePath : 'git@github.com:someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will';
+  test.identical( got, expected );
+
+  test.case = 'simple git path with tag';
+  var o = { remotePath : 'git@github.com:someorg/somerepo.git/out/somerepo.out.will!new', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will!new';
+  test.identical( got, expected );
+
+  test.case = 'simple git path with tag and slash';
+  var o = { remotePath : 'git@github.com:someorg/somerepo.git/out/somerepo.out.will/!new', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will/!new';
+  test.identical( got, expected );
+
+  test.case = 'simple git path with hash';
+  var o = { remotePath : 'git@github.com:someorg/somerepo.git/out/somerepo.out.will#b6968a12', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'simple git path with hash and slash';
+  var o = { remotePath : 'git@github.com:someorg/somerepo.git/out/somerepo.out.will/#b6968a12', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git@github.com:someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  test.identical( got, expected );
+
+  test.close( 'without protocol, atomic' );
+
+  /* - */
+
+  test.open( 'https, full' );
+
+  test.case = 'simple https path';
+  var remotePath = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will';
+  test.identical( got, expected );
+
+  test.case = 'simple https path with tag';
+  var remotePath = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  test.identical( got, expected );
+
+  test.case = 'simple https path with tag and slash';
+  var remotePath = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  test.identical( got, expected );
+
+  test.case = 'simple https path with hash';
+  var remotePath = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'simple https path with hash and slash';
+  var remotePath = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global https path';
+  var remotePath = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will';
+  test.identical( got, expected );
+
+  test.case = 'global https path with tag';
+  var remotePath = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  test.identical( got, expected );
+
+  test.case = 'global https path with tag and slash';
+  var remotePath = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  test.identical( got, expected );
+
+  test.case = 'global https path with hash';
+  var remotePath = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global https path with hash and slash';
+  var remotePath = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  test.identical( got, expected );
+
+  test.close( 'https, full' );
+
+  /* - */
+
+  test.open( 'https, atomic' );
+
+  test.case = 'simple https path';
+  var o = { remotePath : 'https://github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will';
+  test.identical( got, expected );
+
+  test.case = 'simple https path with tag';
+  var o = { remotePath : 'https://github.com/someorg/somerepo.git/out/somerepo.out.will!new', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  test.identical( got, expected );
+
+  test.case = 'simple https path with tag and slash';
+  var o = { remotePath : 'https://github.com/someorg/somerepo.git/out/somerepo.out.will/!new', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  test.identical( got, expected );
+
+  test.case = 'simple https path with hash';
+  var o = { remotePath : 'https://github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'simple https path with hash and slash';
+  var o = { remotePath : 'https://github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'https://github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global https path';
+  var o = { remotePath : 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will';
+  test.identical( got, expected );
+
+  test.case = 'global https path with tag';
+  var o = { remotePath : 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will!new', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  test.identical( got, expected );
+
+  test.case = 'global https path with tag and slash';
+  var o = { remotePath : 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will/!new', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  test.identical( got, expected );
+
+  test.case = 'global https path with hash';
+  var o = { remotePath : 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global https path with hash and slash';
+  var o = { remotePath : 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'https:///github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  test.identical( got, expected );
+
+  test.close( 'https, atomic' );
+
+  /* - */
+
+  test.open( 'git+https, full' );
+
+  test.case = 'simple git+https path';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will';
+  test.identical( got, expected );
+
+  test.case = 'simple git+https path with tag';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  test.identical( got, expected );
+
+  test.case = 'simple git+https path with tag and slash';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  test.identical( got, expected );
+
+  test.case = 'simple git+https path with hash';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'simple git+https path with hash and slash';
+  var remotePath = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global git+https path';
+  var remotePath = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will';
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with tag';
+  var remotePath = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with tag and slash';
+  var remotePath = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with hash';
+  var remotePath = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with hash and slash';
+  var remotePath = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  var parsed = _.git.path.parse( remotePath );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  test.identical( got, expected );
+
+  test.close( 'git+https, full' );
+
+  /* - */
+
+  test.open( 'git+https, atomic' );
+
+  test.case = 'simple git+https path';
+  var o = { remotePath : 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will';
+  test.identical( got, expected );
+
+  test.case = 'simple git+https path with tag';
+  var o = { remotePath : 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will!new', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  test.identical( got, expected );
+
+  test.case = 'simple git+https path with tag and slash';
+  var o = { remotePath : 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will/!new', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  test.identical( got, expected );
+
+  test.case = 'simple git+https path with hash';
+  var o = { remotePath : 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'simple git+https path with hash and slash';
+  var o = { remotePath : 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https://github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global git+https path';
+  var o = { remotePath : 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will';
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with tag';
+  var o = { remotePath : 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will!new', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will!new';
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with tag and slash';
+  var o = { remotePath : 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will/!new', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will/!new';
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with hash';
+  var o = { remotePath : 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will#b6968a12';
+  test.identical( got, expected );
+
+  test.case = 'global git+https path with hash and slash';
+  var o = { remotePath : 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12', full : 0, atomic : 1 };
+  var parsed = _.git.path.parse( o );
+  var got = _.git.path.str( parsed );
+  var expected = 'git+https:///github.com/someorg/somerepo.git/out/somerepo.out.will/#b6968a12';
+  test.identical( got, expected );
+
+  test.close( 'git+https, atomic' );
+}
+
+//
+
 function normalize( test )
 {
   test.open( 'without protocol' );
@@ -5171,12 +5560,12 @@ function normalize( test )
   test.case = 'https path with double slashes and dots';
   var srcPath = 'https://github.com//someorg/shoudBeSkiped/../somerepo.git//.';
   var got = _.git.path.normalize( srcPath );
-  test.identical( got, 'git+https:///github.com//someorg/somerepo.git//.' );
+  test.identical( got, 'git+https:///github.com//someorg/somerepo.git/.' );
 
   test.case = 'global https path with double slashes and dots';
   var srcPath = 'https:///github.com//someorg/shoudBeSkiped/../somerepo.git//.';
   var got = _.git.path.normalize( srcPath );
-  test.identical( got, 'git+https:///github.com//someorg/somerepo.git//.' );
+  test.identical( got, 'git+https:///github.com//someorg/somerepo.git/.' );
 
   test.case = 'local hd path with double slashes and dots';
   var srcPath = 'hd:///../wModuleForTesting1/out/./wModuleForTesting1.out.will!dev1';
@@ -5491,12 +5880,12 @@ function nativize( test )
   test.case = 'https path with double slashes and dots';
   var srcPath = 'https://github.com//someorg/shoudBeSkiped/../somerepo.git//.';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'https://github.com//someorg/somerepo.git//.' );
+  test.identical( got, 'https://github.com//someorg/somerepo.git/.' );
 
   test.case = 'global https path with double slashes and dots';
   var srcPath = 'https:///github.com//someorg/shoudBeSkiped/../somerepo.git//.';
   var got = _.git.path.nativize( srcPath );
-  test.identical( got, 'https://github.com//someorg/somerepo.git//.' );
+  test.identical( got, 'https://github.com//someorg/somerepo.git/.' );
 
   test.case = 'local hd path with double slashes and dots';
   var srcPath = 'hd://../wModuleForTesting1/out/./wModuleForTesting1.out.will!dev1';
@@ -5801,12 +6190,12 @@ function refine( test )
   test.case = 'https path with double slashes and dots';
   var srcPath = 'https://github.com//someorg/shoudBeKeeped/../somerepo.git//.';
   var got = _.git.path.refine( srcPath );
-  test.identical( got, 'https://github.com//someorg/shoudBeKeeped/../somerepo.git//.' );
+  test.identical( got, 'https://github.com//someorg/shoudBeKeeped/../somerepo.git/.' );
 
   test.case = 'global https path with double slashes and dots';
   var srcPath = 'https:///github.com//someorg/shoudBeKeeped/../somerepo.git//.';
   var got = _.git.path.refine( srcPath );
-  test.identical( got, 'https:///github.com//someorg/shoudBeKeeped/../somerepo.git//.' );
+  test.identical( got, 'https:///github.com//someorg/shoudBeKeeped/../somerepo.git/.' );
 
   test.case = 'local hd path with double slashes and dots';
   var srcPath = 'hd://..\\wModuleForTesting1\\out\\.\\wModuleForTesting1.out.will!dev1';
@@ -5865,6 +6254,7 @@ var Proto =
 
     strWithSimpleProtocols,
     strWithComplexProtocols,
+    strPathsHaveLocalVcsPath,
 
     normalize,
     nativize,
