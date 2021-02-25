@@ -69,6 +69,7 @@ function parse_body( o )
     _.assert( !result.tag || !result.hash, 'Remote path:', _.strQuote( remotePath ), 'should contain only hash or tag, but not both.' )
 
     let isolated = pathIsolateGlobalAndLocal( parsed1 );
+    result.longPath = isolated.globalPath;
     result.localVcsPath = isolated.localPath;
 
     if( !full )
@@ -129,7 +130,7 @@ function parse_body( o )
       splits[ 2 ] = _.uri.join( splits[ 2 ], query.out );
     }
     let globalPath = splits[ 0 ] + ( splits[ 1 ] || '' );
-    let localPath = splits[ 2 ] || './';
+    let localPath = _.strRemoveBegin( splits[ 2 ], _.path.rootToken ) || './';
     return { globalPath, localPath };
   }
 
@@ -228,6 +229,9 @@ function str( srcPath )
     result = _.uri.join( result, `${ srcPath.repo }.git` );
   }
 
+  if( srcPath.localVcsPath && srcPath.localVcsPath !== './' )
+  if( srcPath.query === undefined )
+  result += ( _.strEnds( result, '/' ) ? '' : '/' ) + srcPath.localVcsPath;
   if( srcPath.query )
   result += _.uri.queryToken + srcPath.query;
   if( srcPath.tag )
