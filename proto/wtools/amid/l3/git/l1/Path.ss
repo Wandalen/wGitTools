@@ -130,7 +130,7 @@ function parse_body( o )
       splits[ 2 ] = _.uri.join( splits[ 2 ], query.out );
     }
     let globalPath = splits[ 0 ] + ( splits[ 1 ] || '' );
-    let localPath = _.strRemoveBegin( splits[ 2 ], _.path.rootToken ) || './';
+    let localPath = _.strRemoveBegin( splits[ 2 ], _.uri.rootToken ) || './';
     return { globalPath, localPath };
   }
 
@@ -264,7 +264,7 @@ function normalize( srcPath )
     parsed.protocol = 'git';
   }
 
-  parsed.longPath = _.uri.join( _.path.rootToken, parsed.longPath );
+  parsed.longPath = _.uri.join( _.uri.rootToken, parsed.longPath );
   parsed.longPath = _.uri.normalize( parsed.longPath );
   return _.git.path.str( parsed );
 }
@@ -291,7 +291,6 @@ function nativize( srcPath )
 
   let parsed = _.git.path.parse( srcPath );
 
-  debugger;
   _.assert( !!parsed.longPath );
 
   if( parsed.protocol )
