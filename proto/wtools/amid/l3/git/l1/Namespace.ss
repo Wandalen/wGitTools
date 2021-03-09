@@ -1162,8 +1162,8 @@ function hasRemote( o )
   let localProvider = _.fileProvider;
   let path = localProvider.path;
 
-  _.routineOptions( hasRemote, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
+  _.routineOptions( hasRemote, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.remotePath ) );
 
@@ -1193,7 +1193,7 @@ function hasRemote( o )
 
     // let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
     let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
-    let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
+    let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null, localVcsPath : null } );
     let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
     remoteVcsPath = _.git.path.nativize( remoteVcsPath );
 
