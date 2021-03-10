@@ -2617,7 +2617,7 @@ function hasRemote( test )
       test.shouldThrowErrorSync( () => _.git.hasRemote( o ) );
 
       test.case = 'remotePath is not defined string';
-      var o = { remotePath : a.abs( 'clone' ), remotePath : '' };
+      var o = { localPath : a.abs( 'clone' ), remotePath : '' };
       test.shouldThrowErrorSync( () => _.git.hasRemote( o ) );
 
       test.case = 'options map o has unknown option';
