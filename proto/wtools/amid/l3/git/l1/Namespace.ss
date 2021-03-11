@@ -2516,8 +2516,10 @@ function status_body( o )
   return ready;
 }
 
-_.routineExtend( status_body, statusLocal )
-_.routineExtend( status_body, statusRemote )
+_.assert( _.routineIs( statusLocal.body ) );
+_.routineExtend( status_body, statusLocal.body )
+_.assert( _.routineIs( statusRemote.body ) );
+_.routineExtend( status_body, statusRemote.body )
 
 var defaults = status_body.defaults;
 defaults.localPath = null;
