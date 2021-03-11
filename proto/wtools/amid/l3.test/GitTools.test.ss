@@ -2396,58 +2396,237 @@ function hasRemote( test )
 
   a.shell.predefined.mode = 'spawn';
 
-  a.ready
-  .then( () =>
+  a.ready.then( () =>
   {
-    let got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting1.git' });
+    test.case = 'localPath does not exists';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting1.git' });
     test.identical( got.downloaded, false )
     test.identical( got.remoteIsValid, false )
     return null;
-  })
+  });
 
-  .then( () =>
+  /* */
+
+  a.ready.then( () =>
   {
-    test.case = 'setup';
     a.fileProvider.filesDelete( a.abs( 'clone' ) );
     a.fileProvider.dirMake( a.abs( 'clone' ) );
     return null;
-  })
+  });
 
-  a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'clone' )
+  a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git clone' );
 
-  .then( () =>
+  a.ready.then( () =>
   {
-    let got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting1.git' });
-    test.identical( got.downloaded, true )
-    test.identical( got.remoteIsValid, true )
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, local';
+    var remotePath = 'https://github.com/Wandalen/wModuleForTesting1.git';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, local';
+    var remotePath = 'git+https://github.com/Wandalen/wModuleForTesting1.git';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, global';
+    var remotePath = 'https:///github.com/Wandalen/wModuleForTesting1.git';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, global';
+    var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    /* */
+
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, local with tag';
+    var remotePath = 'https://github.com/Wandalen/wModuleForTesting1.git!alpha';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, local with tag';
+    var remotePath = 'git+https://github.com/Wandalen/wModuleForTesting1.git!alpha';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, global with tag';
+    var remotePath = 'https:///github.com/Wandalen/wModuleForTesting1.git!alpha';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, global with tag';
+    var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git!alpha';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    /* */
+
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, local with hash';
+    var remotePath = 'https://github.com/Wandalen/wModuleForTesting1.git#f546a27';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, local with hash';
+    var remotePath = 'git+https://github.com/Wandalen/wModuleForTesting1.git#f546a27';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, global with hash';
+    var remotePath = 'https:///github.com/Wandalen/wModuleForTesting1.git#f546a27';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, global with hash';
+    var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git#f546a27';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    /* */
+
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, local with localVcsPath';
+    var remotePath = 'https://github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, local with localVcsPath';
+    var remotePath = 'git+https://github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, global with localVcsPath';
+    var remotePath = 'https:///github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, global with localVcsPath';
+    var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    /* */
+
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, local with localVcsPath and tag';
+    var remotePath = 'https://github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml!alpha';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, local with localVcsPath and tag';
+    var remotePath = 'git+https://github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml!alpha';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, global with localVcsPath and tag';
+    var remotePath = 'https:///github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml!alpha';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, global with localVcsPath and tag';
+    var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml!alpha';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    /* */
+
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, local with localVcsPath and hash';
+    var remotePath = 'https://github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml#f546a27';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, local with localVcsPath and hash';
+    var remotePath = 'git+https://github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml#f546a27';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with simple protocol, global with localVcsPath and hash';
+    var remotePath = 'https:///github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml#f546a27';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    test.case = 'repository is cloned to localPath, valid remotePath with complex protocol, global with localVcsPath and hash';
+    var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/wModuleForTesting1.out.will.yml#f546a27';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, true );
+
+    /* */
+
+    test.case = 'repository is cloned to localPath, not valid remotePath';
+    var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting2.git';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true );
+    test.identical( got.remoteIsValid, false );
     return null;
-  })
+  });
 
-  .then( () =>
+  /* */
+
+  a.shell( 'git -C clone remote remove origin' );
+  a.ready.then( () =>
   {
-    let got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting2.git' });
+    test.case = 'repository has no origin, localPath and remotePath are valid';
+    var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
+    test.identical( got.downloaded, true )
+    test.identical( got.remoteIsValid, false )
+
+    test.case = 'repository has no origin, localPath is valid, remotePath is not valid';
+    var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting2.git';
+    var got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath });
     test.identical( got.downloaded, true )
     test.identical( got.remoteIsValid, false )
     return null;
-  })
+  });
 
-  a.shell( 'git -C ' + 'clone' + ' remote remove origin' )
-
-  .then( () =>
+  if( Config.debug )
   {
-    let got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting1.git' });
-    test.identical( got.downloaded, true )
-    test.identical( got.remoteIsValid, false )
-    return null;
-  })
+    a.ready.then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.hasRemote() );
 
-  .then( () =>
-  {
-    let got = _.git.hasRemote({ localPath : a.abs( 'clone' ), remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting2.git' });
-    test.identical( got.downloaded, true )
-    test.identical( got.remoteIsValid, false )
-    return null;
-  })
+      test.case = 'extra arguments';
+      var o = { localPath : a.abs( 'clone' ), remotePath : 'https://github.com/Wandalen/wModuleForTesting1' };
+      test.shouldThrowErrorSync( () => _.git.hasRemote( o, o ) );
+
+      test.case = 'localPath is not defined string';
+      var o = { localPath : '', remotePath : 'https://github.com/Wandalen/wModuleForTesting1' };
+      test.shouldThrowErrorSync( () => _.git.hasRemote( o ) );
+
+      test.case = 'remotePath is not defined string';
+      var o = { localPath : a.abs( 'clone' ), remotePath : '' };
+      test.shouldThrowErrorSync( () => _.git.hasRemote( o ) );
+
+      test.case = 'options map o has unknown option';
+      var o = { localPath : a.abs( 'clone' ), remotePath : 'https://github.com/Wandalen/wModuleForTesting1', unknown : 1 };
+      test.shouldThrowErrorSync( () => _.git.hasRemote( o ) );
+
+      return null;
+    });
+  }
 
   return a.ready;
 }
