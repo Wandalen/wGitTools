@@ -2351,6 +2351,50 @@ isUpToDateThrowing.timeOut = 60000;
 
 //
 
+function isUpToDateMissingTag( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  let con = new _.Consequence().take( null )
+
+  a.shell.predefined.mode = 'spawn';
+
+  con
+  .then( () =>
+  {
+    test.case = 'setup';
+    a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
+    a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
+    return a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1' )
+  })
+
+  .then( () =>
+  {
+    let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master2';
+    return test.shouldThrowErrorAsync
+    ( 
+      _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }), 
+      ( err ) =>
+      {
+        let exp = `doesn't exist in local and remote copy of the repository`;
+        test.true( _.strHas( err.originalMessage, exp ) );
+      }
+    )
+  })
+
+  return con;
+}
+
+isUpToDateMissingTag.rapidity = 1;
+isUpToDateMissingTag.routineTimeOut = 150000;
+isUpToDateMissingTag.description = 
+`
+Tag that is specified in the remotePath is not present.
+The routine isUpToDate should throw error with message about it.
+`
+
+//
+
 function hasFiles( test )
 {
   let context = this;
@@ -24549,6 +24593,7 @@ var Proto =
     isUpToDateRemotePathIsMap,
     isUpToDateExtended,
     isUpToDateThrowing,
+    isUpToDateMissingTag,
     hasFiles,
     hasRemote,
     isRepository,
