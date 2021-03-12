@@ -956,7 +956,9 @@ function isUpToDate( o )
 
   let srcCurrentPath;
   // let parsed = _.git.pathParse( o.remotePath );
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+  
+  /* Vova: used full:1 because repositoryHasTag expects remote path as full */
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, /* full : 0, atomic : 1 */ full : 1, atomic : 0 });
 
   let ready = _.Consequence();
 
