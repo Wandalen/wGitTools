@@ -2137,7 +2137,7 @@ defaults.conflicts = null;
 defaults.detailing = 0;
 defaults.explaining = 0;
 
-let statusLocal = _.routineUnite( statusLocal_head, statusLocal_body );
+let statusLocal = _.routine.uniteCloning_( statusLocal_head, statusLocal_body );
 
 //
 
@@ -2419,7 +2419,7 @@ defaults.sync = 1;
 
 //
 
-let statusRemote = _.routineUnite( statusRemote_head, statusRemote_body );
+let statusRemote = _.routine.uniteCloning_( statusRemote_head, statusRemote_body );
 
 //
 
@@ -2530,7 +2530,7 @@ defaults.local = 1;
 defaults.detailing = 0;
 defaults.explaining = 0;
 
-let status = _.routineUnite( status_head, status_body );
+let status = _.routine.uniteCloning_( status_head, status_body );
 
 //
 
