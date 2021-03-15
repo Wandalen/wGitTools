@@ -353,7 +353,7 @@ function eslint( test )
   })
   .then( ( op ) =>
   {
-    test.identical( op.exitCode, 0 ); debugger;
+    test.identical( op.exitCode, 0 );
     if( op.output.length < 1000 )
     logger.log( op.output );
     return null;
