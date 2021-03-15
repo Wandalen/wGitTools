@@ -2372,8 +2372,8 @@ function isUpToDateMissingTag( test )
   {
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master2';
     return test.shouldThrowErrorAsync
-    ( 
-      _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }), 
+    (
+      _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }),
       ( err ) =>
       {
         let exp = `doesn't exist in local and remote copy of the repository`;
@@ -2387,7 +2387,7 @@ function isUpToDateMissingTag( test )
 
 isUpToDateMissingTag.rapidity = 1;
 isUpToDateMissingTag.routineTimeOut = 150000;
-isUpToDateMissingTag.description = 
+isUpToDateMissingTag.description =
 `
 Tag that is specified in the remotePath is not present.
 The routine isUpToDate should throw error with message about it.
@@ -13621,7 +13621,6 @@ function repositoryHasTagRemotePathIsMap( test )
   begin().then( () =>
   {
     test.case = 'tag - master, local - 1, remote - 1';
-    debugger;
     var got = _.git.repositoryHasTag
     ({
       localPath : a.abs( 'wModuleForTesting1' ),

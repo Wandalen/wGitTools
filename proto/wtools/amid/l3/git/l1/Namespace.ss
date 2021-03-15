@@ -956,7 +956,7 @@ function isUpToDate( o )
 
   let srcCurrentPath;
   // let parsed = _.git.pathParse( o.remotePath );
-  
+
   /* Vova: used full:1 because repositoryHasTag expects remote path as full */
   let parsed = _.git.path.parse({ remotePath : o.remotePath, /* full : 0, atomic : 1 */ full : 1, atomic : 0 });
 
@@ -4902,7 +4902,6 @@ function diff( o )
   let ready = new _.Consequence().take( null );
   let result = Object.create( null );
   let state1 = self._stateParse( o.state1 );
-  debugger;
   let state2 = self._stateParse( o.state2 ); /* qqq : ! aaa: special tags now work in both states */
 
   let start = _.process.starter
