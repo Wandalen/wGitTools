@@ -2395,6 +2395,109 @@ The routine isUpToDate should throw error with message about it.
 
 //
 
+function isUptoDateDifferentiatingTags( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  
+  let repoPath = a.abs( 'repo' );
+  let clonePath = a.abs( 'clone' );
+
+  a.shellSync = _.process.starter
+  ({
+    currentPath : a.abs( '.' ),
+    ready : null,
+    sync : 1,
+    deasync : 1,
+    outputPiping : 1,
+    stdio : 'pipe'
+  })
+  
+  a.init = ()=>
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.reflect();
+      a.shellSync( 'git init repo' )
+      a.shellSync( 'git -C repo commit --allow-empty -m initial' )
+      a.shellSync( 'git -C repo tag tag1' )
+      a.shellSync( 'git clone repo clone' )
+      return null;
+    })
+    return a.ready;
+  }
+
+  a.init()
+  .then( () =>
+  {
+    let remotePath = `git+hd://${repoPath}/!tag1`;
+    return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 0 }) )
+    .then( ( got ) => 
+    {
+      test.identical( got, true );
+      return null;
+    })
+  })
+  .then( () =>
+  {
+    let remotePath = `git+hd://${repoPath}/!tag1`;
+    return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 1 }) )
+    .then( ( got ) => 
+    {
+      test.identical( got, false );
+      return null;
+    })
+  })
+  
+  /* */
+  
+  a.init()
+  .then( () => 
+  {
+    a.shellSync( 'git -C clone checkout tag1' )
+    return null;
+  })
+  .then( () =>
+  {
+    let remotePath = `git+hd://${repoPath}/!tag1`;
+    return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 0 }) )
+    .then( ( got ) => 
+    {
+      test.identical( got, true );
+      return null;
+    })
+  })
+  .then( () =>
+  {
+    let remotePath = `git+hd://${repoPath}/!tag1`;
+    return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 1 }) )
+    .then( ( got ) => 
+    {
+      test.identical( got, true );
+      return null;
+    })
+  })
+  
+  /* */
+
+  return a.ready;
+}
+
+isUptoDateDifferentiatingTags.rapidity = 1;
+isUptoDateDifferentiatingTags.routineTimeOut = 150000;
+isUptoDateDifferentiatingTags.description =
+`
+Tag that is specified in the remotePath is present.
+The routine isUpToDate should return:
+  - True if local repo head is on commit related to tag and differentiatingTags is disabled
+  - False if local repo head is on commit related to tag and differentiatingTags is enabled
+  - True if local repo head is on remote tag and differentiatingTags is disabled
+  - True if local repo head is on remote tag and differentiatingTags is enabled
+`
+
+//
+
 function hasFiles( test )
 {
   let context = this;
@@ -24593,6 +24696,7 @@ var Proto =
     isUpToDateExtended,
     isUpToDateThrowing,
     isUpToDateMissingTag,
+    isUptoDateDifferentiatingTags,
     hasFiles,
     hasRemote,
     isRepository,
