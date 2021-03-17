@@ -597,6 +597,91 @@ defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.detailing = 0;
 
+//
+
+function tagExplain( o )
+{
+  let localProvider = _.fileProvider;
+  let path = localProvider.path;
+
+  if( !_.mapIs( o ) )
+  o = { localPath : o };
+
+  _.routineOptions( tagExplain, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.strIs( o.tag ), 'Expects tag' );
+  _.assert( _.strIs( o.localPath ), 'Expects local path' );
+  _.assert( _.strIs( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
+
+  if( !_.git.isRepository({ localPath : o.localPath, verbosity : o.verbosity }) )
+  return false;
+
+  let start = _.process.starter
+  ({
+    verbosity : o.verbosity - 1,
+    sync : 1,
+    deasync : 0,
+    outputCollecting : 1,
+    currentPath : o.localPath,
+    throwingExitCode : 0
+  });
+
+  let remotePath = 'origin';
+  if( o.remotePath )
+  {
+    let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+    let remoteVcsPathParsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
+    remoteVcsPathParsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
+    let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+    remotePath = _.git.path.nativize( remoteVcsPath );
+  }
+
+  let result =
+  {
+    tag : o.tag,
+    isBranch : null,
+    isTag : null
+  }
+
+  if( o.remote )
+  {
+    let remoteCheck = `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}`;
+    if( check( remoteCheck ) )
+    return result;
+  }
+
+  if( o.local )
+  {
+    let localCheck = `git show-ref --tags --heads -- ${o.tag}`;
+    if( check( localCheck ) )
+    return result;
+  }
+
+  return false;
+
+  function check( command )
+  {
+    let got = start( command );
+
+    if( got.exitCode !== 0 && got.output )
+    throw _.errOnce( `Exit code : ${got.exitCode}\n`, got.output );
+
+    if( !got.output )
+    return false;
+    result.isTag = _.strHas( got.output, `refs/tags/${o.tag}` );
+    result.isBranch = _.strHas( got.output, `refs/heads/${o.tag}` );
+    return true;
+  }
+}
+
+var defaults = tagExplain.defaults = Object.create( null );
+defaults.localPath = null;
+defaults.remotePath = null;
+defaults.local = 1;
+defaults.remote = 1;
+defaults.tag = null;
+defaults.verbosity = 0;
+
 // --
 // version
 // --
@@ -1046,8 +1131,21 @@ function isUpToDate( o )
     });
 
     if( o.differentiatingTags )
-    if( result && parsed.tag ) //qqq Vova: check if repo is detached
-    result = !!detachedParsed;
+    if( result && parsed.tag )
+    {
+      /* Vova:
+        Local repo is up to date with "real" remote tag ( not a branch ) only when local repo is in detached state and heads are same
+        Next lines check last part of this rule.
+      */
+      let tagExplained = _.git.tagExplain
+      ({
+        localPath : o.localPath,
+        remotePath : parsed,
+        tag : parsed.tag
+      });
+      if( tagExplained.isTag )
+      result = !!detachedParsed;
+    }
 
     if( !result && parsed.tag )
     {
@@ -5637,6 +5735,7 @@ let Extension =
 
   tagLocalChange,
   tagLocalRetrive,
+  tagExplain,
 
   // version
 
