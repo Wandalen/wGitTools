@@ -1110,6 +1110,84 @@ tagLocalRetrive.timeOut = 20000;
 
 //
 
+function tagExplain( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  let repoPath = a.abs( 'repo' );
+  let clonePath = a.abs( 'clone' );
+
+  a.shellSync = _.process.starter
+  ({
+    currentPath : a.abs( '.' ),
+    ready : null,
+    sync : 1,
+    deasync : 1,
+    outputPiping : 1,
+    stdio : 'pipe'
+  })
+
+  a.init = () =>
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.reflect();
+      a.shellSync( 'git init repo' )
+      a.shellSync( 'git -C repo commit --allow-empty -m initial' )
+      a.shellSync( 'git -C repo tag tag1' )
+      a.shellSync( 'git clone repo clone' )
+      a.shellSync( 'git -C repo tag remoteTag' )
+      a.shellSync( 'git -C clone tag localTag' )
+      return null;
+    })
+    return a.ready;
+  }
+
+  a.init()
+  .then( () =>
+  {
+    let remotePath = `git+hd://${repoPath}`;
+
+    test.case = 'tag is branch'
+    var got = _.git.tagExplain({ localPath : clonePath, remotePath, tag : 'master' });
+    test.identical( got.tag, 'master' )
+    test.identical( got.isBranch, true )
+    test.identical( got.isTag, false )
+
+    test.case = 'tag is real tag'
+    var got = _.git.tagExplain({ localPath : clonePath, remotePath, tag : 'tag1' });
+    test.identical( got.tag, 'tag1' )
+    test.identical( got.isBranch, false )
+    test.identical( got.isTag, true )
+
+    test.case = 'tag is only present on remote'
+    var got = _.git.tagExplain({ localPath : clonePath, remotePath, tag : 'remoteTag' });
+    test.identical( got.tag, 'remoteTag' )
+    test.identical( got.isBranch, false )
+    test.identical( got.isTag, true )
+
+    test.case = 'tag is only present locally'
+    var got = _.git.tagExplain({ localPath : clonePath, remotePath, tag : 'localTag' });
+    test.identical( got.tag, 'localTag' )
+    test.identical( got.isBranch, false )
+    test.identical( got.isTag, true )
+
+    test.case = 'unknown tag'
+    var got = _.git.tagExplain({ localPath : clonePath, remotePath, tag : 'missing' });
+    test.identical( got, false );
+
+    return null;
+  })
+
+  return a.ready;
+
+}
+tagExplain.timeOut = 30000;
+
+//
+
 function versionsRemoteRetrive( test )
 {
   let context = this;
@@ -2391,6 +2469,113 @@ isUpToDateMissingTag.description =
 `
 Tag that is specified in the remotePath is not present.
 The routine isUpToDate should throw error with message about it.
+`
+
+//
+
+function isUptoDateDifferentiatingTags( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  let repoPath = a.abs( 'repo' );
+  let clonePath = a.abs( 'clone' );
+
+  a.shellSync = _.process.starter
+  ({
+    currentPath : a.abs( '.' ),
+    ready : null,
+    sync : 1,
+    deasync : 1,
+    outputPiping : 1,
+    stdio : 'pipe'
+  })
+
+  a.init = () =>
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.reflect();
+      a.shellSync( 'git init repo' )
+      a.shellSync( 'git -C repo commit --allow-empty -m initial' )
+      a.shellSync( 'git -C repo tag tag1' )
+      a.shellSync( 'git clone repo clone' )
+      return null;
+    })
+    return a.ready;
+  }
+
+  a.init()
+  .then( () =>
+  {
+    test.case = 'local repo head is on same commit as tag differentiatingTags:0'
+    let remotePath = `git+hd://${repoPath}/!tag1`;
+    return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 0 }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return null;
+    })
+  })
+  .then( () =>
+  {
+    test.case = 'local repo head is on same commit as tag differentiatingTags:1'
+    let remotePath = `git+hd://${repoPath}/!tag1`;
+    return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 1 }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, false );
+      return null;
+    })
+  })
+
+  /* */
+
+  a.init()
+  .then( () =>
+  {
+    a.shellSync( 'git -C clone checkout tag1' )
+    return null;
+  })
+  .then( () =>
+  {
+    test.case = 'local repo head is on tag( detached state ) differentiatingTags:0'
+    let remotePath = `git+hd://${repoPath}/!tag1`;
+    return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 0 }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return null;
+    })
+  })
+  .then( () =>
+  {
+    test.case = 'local repo head is on tag( detached state ) differentiatingTags:1'
+    let remotePath = `git+hd://${repoPath}/!tag1`;
+    return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 1 }) )
+    .then( ( got ) =>
+    {
+      test.identical( got, true );
+      return null;
+    })
+  })
+
+  /* */
+
+  return a.ready;
+}
+
+isUptoDateDifferentiatingTags.rapidity = 1;
+isUptoDateDifferentiatingTags.routineTimeOut = 150000;
+isUptoDateDifferentiatingTags.description =
+`
+Tag that is specified in the remotePath is present.
+The routine isUpToDate should return:
+  - True if local repo head is on commit related to tag and differentiatingTags is disabled
+  - False if local repo head is on commit related to tag and differentiatingTags is enabled
+  - True if local repo head is on remote tag and differentiatingTags is disabled
+  - True if local repo head is on remote tag and differentiatingTags is enabled
 `
 
 //
@@ -24579,6 +24764,7 @@ var Proto =
 
     tagLocalChange,
     tagLocalRetrive,
+    tagExplain,
 
     // version
 
@@ -24593,6 +24779,7 @@ var Proto =
     isUpToDateExtended,
     isUpToDateThrowing,
     isUpToDateMissingTag,
+    isUptoDateDifferentiatingTags,
     hasFiles,
     hasRemote,
     isRepository,
