@@ -1044,7 +1044,7 @@ function isUpToDate( o )
       tag : parsed.tag,
       hash : parsed.hash
     });
-    
+
     if( o.differentiatingTags )
     if( result && parsed.tag ) //qqq Vova: check if repo is detached
     result = !!detachedParsed;

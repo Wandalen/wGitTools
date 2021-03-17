@@ -2399,7 +2399,7 @@ function isUptoDateDifferentiatingTags( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
-  
+
   let repoPath = a.abs( 'repo' );
   let clonePath = a.abs( 'clone' );
 
@@ -2412,8 +2412,8 @@ function isUptoDateDifferentiatingTags( test )
     outputPiping : 1,
     stdio : 'pipe'
   })
-  
-  a.init = ()=>
+
+  a.init = () =>
   {
     a.ready.then( () =>
     {
@@ -2433,7 +2433,7 @@ function isUptoDateDifferentiatingTags( test )
   {
     let remotePath = `git+hd://${repoPath}/!tag1`;
     return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 0 }) )
-    .then( ( got ) => 
+    .then( ( got ) =>
     {
       test.identical( got, true );
       return null;
@@ -2443,17 +2443,17 @@ function isUptoDateDifferentiatingTags( test )
   {
     let remotePath = `git+hd://${repoPath}/!tag1`;
     return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 1 }) )
-    .then( ( got ) => 
+    .then( ( got ) =>
     {
       test.identical( got, false );
       return null;
     })
   })
-  
+
   /* */
-  
+
   a.init()
-  .then( () => 
+  .then( () =>
   {
     a.shellSync( 'git -C clone checkout tag1' )
     return null;
@@ -2462,7 +2462,7 @@ function isUptoDateDifferentiatingTags( test )
   {
     let remotePath = `git+hd://${repoPath}/!tag1`;
     return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 0 }) )
-    .then( ( got ) => 
+    .then( ( got ) =>
     {
       test.identical( got, true );
       return null;
@@ -2472,13 +2472,13 @@ function isUptoDateDifferentiatingTags( test )
   {
     let remotePath = `git+hd://${repoPath}/!tag1`;
     return _.Consequence.From( _.git.isUpToDate({ localPath : clonePath, remotePath, differentiatingTags : 1 }) )
-    .then( ( got ) => 
+    .then( ( got ) =>
     {
       test.identical( got, true );
       return null;
     })
   })
-  
+
   /* */
 
   return a.ready;
