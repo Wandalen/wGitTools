@@ -296,6 +296,85 @@ function pathParse( test )
   var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3!master';
   test.shouldThrowErrorSync( () => _.git.pathParse( remotePath ) );
 }
+
+//
+
+function remotePathFromLocal( test )
+{
+  let a = test.assetFor( 'basic' );
+
+  let repoPath = a.abs( 'repo' );
+  let clonePath = a.abs( 'clone' );
+
+  a.shellSync = _.process.starter
+  ({
+    currentPath : a.abs( '.' ),
+    ready : null,
+    sync : 1,
+    deasync : 1,
+    outputPiping : 1,
+    stdio : 'pipe'
+  })
+
+  a.init = ( o ) =>
+  {
+    o = o || {};
+
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.reflect();
+      return null;
+    })
+
+    _.assert( o.local || o.remote );
+    _.assert( !o.local || !o.remote );
+
+    if( o.local )
+    a.ready.then( () =>
+    {
+      a.shellSync( 'git init repo' )
+      a.shellSync( 'git -C repo commit --allow-empty -m initial' )
+      a.shellSync( 'git clone repo clone' )
+      return null;
+    })
+    else if( o.remote )
+    a.ready.then( () =>
+    {
+      a.shellSync( 'git clone https://github.com/Wandalen/wModuleForTesting1.git clone' )
+      return null;
+    })
+
+    return a.ready;
+  }
+
+  /* */
+
+  a.init({ local : 1 })
+  .then( () =>
+  {
+    let got = _.git.remotePathFromLocal({ localPath : clonePath });
+    let expected = `git+hd://${a.path.normalize( repoPath )}`
+    test.identical( got, expected );
+    return null;
+  })
+
+  /* */
+
+  a.init({ remote : 1 })
+  .then( () =>
+  {
+    let got = _.git.remotePathFromLocal({ localPath : clonePath });
+    let expected = `git+https:///github.com/Wandalen/wModuleForTesting1.git`
+    test.identical( got, expected );
+    return null;
+  })
+
+  /* */
+
+  return a.ready;
+}
+
 //
 
 function insideRepository( test )
@@ -24755,6 +24834,8 @@ var Proto =
     // path
 
     pathParse, /* qqq : check tests */
+
+    remotePathFromLocal,
 
     //
 
