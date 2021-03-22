@@ -5363,14 +5363,11 @@ pull.defaults =
 
 function push( o )
 {
-  let ready = new _.Consequence().take( null );
-
   _.assert( arguments.length === 1 );
   _.routineOptions( push, arguments );
   _.assert( _.strDefined( o.localPath ) );
 
-  if( o.dry )
-  return;
+  let ready = new _.Consequence().take( null );
 
   let start = _.process.starter
   ({
@@ -5385,9 +5382,15 @@ function push( o )
     ready,
   });
 
-  start( `git push -u origin --all` );
+  let dryRun = o.dry ? ' --dry-run' : '';
+  let force = o.force ? ' --force' : '';
+
+  start( `git push ${ dryRun } -u origin --all ${ force }` );
   if( o.withTags )
-  start( `git push --tags --force` );
+  start( `git push ${ dryRun } --tags ${ force }` );
+
+  if( o.dry )
+  return;
 
   if( o.sync )
   {
@@ -5401,6 +5404,7 @@ push.defaults =
 {
   localPath : null,
   withTags : 0,
+  force : 0,
   dry : 0,
   sync : 1,
   throwing : 0,
