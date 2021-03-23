@@ -14789,6 +14789,7 @@ function repositoryHasVersionWithLocalRemoteRepo( test )
     });
 
     a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone repo clone' });
+    a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git remote set-url origin ../repo' });
     a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit --allow-empty -m new' });
     a.ready.then( () =>
     {
