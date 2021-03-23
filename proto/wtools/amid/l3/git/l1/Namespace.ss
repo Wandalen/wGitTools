@@ -3050,7 +3050,12 @@ function repositoryHasVersion( o )
 
     ready.then( ( got ) =>
     {
-      if( _.strHas( got.output, /.+\.\..+/ ) )
+      // if( _.strHas( got.output, /.+\.\..+/ ) )
+      /*
+         Dmytro : the output has range of commits that will be fetched, it is more convienent regexp than the previous one.
+         The regexp does not include strings like : `From ../repo`
+      */
+      if( _.strHas( got.output, /[a-hA-H0-9]+\.\.[a-hA-H0-9]+/ ) )
       throw _.err( `Local repository at ${o.localPath} is not up-to-date with remote. Please run "git fetch" and try again.` )
       return true;
     })
