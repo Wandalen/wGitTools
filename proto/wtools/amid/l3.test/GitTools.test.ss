@@ -22494,7 +22494,7 @@ function pushTags( test )
 
   begin().then( () =>
   {
-    test.case = 'push tags without history';
+    test.case = 'push tags without history, history changed';
     return null;
   });
 
@@ -22512,8 +22512,13 @@ function pushTags( test )
   a.shell( 'git reset --hard HEAD~' );
   a.ready.then( () =>
   {
-    var got = _.git.push({ localPath : a.abs( 'repo' ), withTags : 1 });
-    test.identical( got.exitCode, 0 );
+    var errCallback = ( err, arg ) =>
+    {
+      test.true( _.errIs( err ) );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, /Repository at .* has different commit history on remote server/ ), 2 );
+    };
+    test.shouldThrowErrorSync( () => _.git.push({ localPath : a.abs( 'repo' ), withTags : 1 }), errCallback );
     return null;
   });
 
@@ -22522,8 +22527,7 @@ function pushTags( test )
   {
     test.description = 'after';
     test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, 'refs/tags/v000' ), 2 );
-    test.identical( _.strCount( op.output, 'refs/tags/v000^{}' ), 1 );
+    test.identical( _.strCount( op.output, 'refs/tags' ), 0 );
     return null;
   });
 
@@ -22531,7 +22535,7 @@ function pushTags( test )
 
   begin().then( () =>
   {
-    test.case = 'push tags with history, force - 1';
+    test.case = 'push tags with history, history changed, force - 1';
     return null;
   });
 
@@ -22549,8 +22553,13 @@ function pushTags( test )
   a.shell( 'git reset --hard HEAD~' );
   a.ready.then( () =>
   {
-    var got = _.git.push({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
-    test.identical( got.exitCode, 0 );
+    var errCallback = ( err, arg ) =>
+    {
+      test.true( _.errIs( err ) );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, /Repository at .* has different commit history on remote server/ ), 2 );
+    };
+    test.shouldThrowErrorSync( () => _.git.push({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 }), errCallback );
     return null;
   });
 
@@ -22559,8 +22568,151 @@ function pushTags( test )
   {
     test.description = 'after';
     test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, 'refs/tags/v000' ), 2 );
-    test.identical( _.strCount( op.output, 'refs/tags/v000^{}' ), 1 );
+    test.identical( _.strCount( op.output, 'refs/tags' ), 0 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'push tags without history, withHistory - 0';
+    return null;
+  });
+
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'before';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'refs/tags' ), 0 );
+    return null;
+  });
+
+  commitAdd();
+  tagAdd( 'v000' );
+  a.ready.then( () =>
+  {
+    var errCallback = ( err, arg ) =>
+    {
+      test.true( _.errIs( err ) );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, /Repository at .* has different commit history on remote server/ ), 2 );
+    };
+    test.shouldThrowErrorSync( () => _.git.push({ localPath : a.abs( 'repo' ), withTags : 1, withHistory : 0 }), errCallback );
+    return null;
+  });
+
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'after';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'refs/tags' ), 0 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'push tags with history, withHistory - 0, force - 1';
+    return null;
+  });
+
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'before';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'refs/tags' ), 0 );
+    return null;
+  });
+
+  commitAdd();
+  tagAdd( 'v000' );
+  a.ready.then( () =>
+  {
+    var errCallback = ( err, arg ) =>
+    {
+      test.true( _.errIs( err ) );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, /Repository at .* has different commit history on remote server/ ), 2 );
+    };
+    var o = { localPath : a.abs( 'repo' ), withTags : 1, withHistory : 0, force : 1 };
+    test.shouldThrowErrorSync( () => _.git.push( o ), errCallback );
+    return null;
+  });
+
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'after';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'refs/tags' ), 0 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'remote repository has same tags';
+    a.fileProvider.filesDelete( a.abs( 'clone' ) );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+  a.shell({ currentPath : a.abs( './clone/' ), execPath : 'git tag v000' });
+  a.shell({ currentPath : a.abs( './clone/' ), execPath : 'git push --tags' });
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'before';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    return null;
+  });
+
+  tagAdd( 'v000' );
+  a.ready.then( () =>
+  {
+    var errCallback = ( err, arg ) =>
+    {
+      test.true( _.errIs( err ) );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, /Remote repository of .* has the same tags as local repository/ ), 2 );
+    };
+    test.shouldThrowErrorSync( () => _.git.push({ localPath : a.abs( 'repo' ), withTags : 1 }), errCallback );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'remote repository has same tags, force - 1';
+    a.fileProvider.filesDelete( a.abs( 'clone' ) );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+  a.shell({ currentPath : a.abs( './clone/' ), execPath : 'git tag v000' });
+  a.shell({ currentPath : a.abs( './clone/' ), execPath : 'git push --tags' });
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'before';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    return null;
+  });
+
+  tagAdd( 'v000' );
+  a.ready.then( () =>
+  {
+    var got = _.git.push({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    test.identical( got.exitCode, 0 );
     return null;
   });
 
