@@ -5385,9 +5385,14 @@ function push( o )
   let dryRun = o.dry ? ' --dry-run' : '';
   let force = o.force ? ' --force' : '';
 
+  if( o.withHistory )
   start( `git push ${ dryRun } -u origin --all ${ force }` );
   if( o.withTags )
-  start( `git push ${ dryRun } --tags ${ force }` );
+  {
+    verifyRepositoryHasCommitHistory();
+    start( `git push ${ dryRun } --tags ${ force }` );
+  }
+
 
   if( o.dry )
   return;
@@ -5398,11 +5403,36 @@ function push( o )
     return ready.sync();
   }
   return ready;
+
+  /* */
+
+  function verifyRepositoryHasCommitHistory()
+  {
+    let currentVersion = _.git.versionLocalRetrive({ localPath : o.localPath });
+    if( !_.git.versionIsCommitHash({ localPath : o.localPath, version : currentVersion }) )
+    currentVersion = _.git.repositoryTagToVersion({ localPath : o.localPath, tag : currentVersion });
+    const repoHasHistory = _.git.repositoryHasVersion
+    ({
+      localPath : o.localPath,
+      version : currentVersion,
+      local : 0,
+      remote :1
+    });
+
+    if( !repoHasHistory )
+    throw _.err
+    (
+      `Repository at ${ o.localPath } has different commit history on remote server. `,
+      `Please, push history manually or enable option {-o.withHistory-}`
+    );
+    return true;
+  }
 }
 
 push.defaults =
 {
   localPath : null,
+  withHistory : 1,
   withTags : 0,
   force : 0,
   dry : 0,
