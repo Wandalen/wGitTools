@@ -22108,7 +22108,7 @@ function pushCheckOutput( test )
     outputCollecting : 1,
   });
 
-  /* */
+  /* - */
 
   begin().then( () =>
   {
@@ -22118,19 +22118,8 @@ function pushCheckOutput( test )
     return null;
   });
 
-  a.ready.then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
-    return null;
-  });
-
-  a.shell( 'git add .' );
-  a.shell( 'git commit -m init' );
-
-  a.ready.then( () =>
-  {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
-  });
+  commitAdd();
+  start();
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -22151,14 +22140,7 @@ function pushCheckOutput( test )
     return null;
   });
 
-  a.ready.then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
-    return null;
-  });
-
-  a.shell( 'git add .' );
-  a.shell( 'git commit -m init' );
+  commitAdd();
   a.shell( 'git push -u origin master' );
   a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
 
@@ -22170,10 +22152,7 @@ function pushCheckOutput( test )
   a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
   a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
 
-  a.ready.then( () =>
-  {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
-  });
+  start();
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -22195,23 +22174,9 @@ function pushCheckOutput( test )
     return null;
   });
 
-  a.ready.then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
-    return null;
-  });
-
-  a.shell( 'git add .' );
-  a.shell( 'git commit -m init' );
-
-  a.ready.then( () =>
-  {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
-  });
-  a.ready.then( () =>
-  {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
-  });
+  commitAdd();
+  start();
+  start();
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -22232,23 +22197,36 @@ function pushCheckOutput( test )
     return null;
   });
 
-  a.ready.then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
-    return null;
-  });
-
-  a.shell( 'git add .' );
-  a.shell( 'git commit -m init' );
-
-  a.ready.then( () =>
-  {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
-  });
+  commitAdd();
+  start();
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    test.identical( op.output, '' );
+    test.identical( _.strCount( op.output, 'git push --dry-run -u origin --all' ), 1 );
+    test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
+    test.identical( _.strCount( op.output, 'Would set upstream of \'master\' to \'master\' of \'origin\'' ), 1 );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'dry - 1, force - 1, push no changes';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ), dry : 1, force : 1 });
+    return null;
+  });
+
+  commitAdd();
+  start();
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'git push --dry-run -u origin --all' ), 1 );
+    test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
+    test.identical( _.strCount( op.output, 'Would set upstream of \'master\' to \'master\' of \'origin\'' ), 1 );
 
     return null;
   });
@@ -22263,23 +22241,36 @@ function pushCheckOutput( test )
     return null;
   });
 
-  a.ready.then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
-    return null;
-  });
-
-  a.shell( 'git add .' );
-  a.shell( 'git commit -m init' );
-
-  a.ready.then( () =>
-  {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
-  });
+  commitAdd();
+  start();
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
+    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
+    test.identical( _.strCount( op.output, />.*git push --tags/ ), 1 );
+    test.identical( _.strCount( op.output, 'Everything up-to-date' ), 1 );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'withTags - 1, force - 1, no unpushed tags exist';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    return null;
+  });
+
+  commitAdd();
+  start();
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, />.*git push -u origin --all --force/ ), 1 );
     test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
     test.identical( _.strCount( op.output, />.*git push --tags --force/ ), 1 );
@@ -22298,15 +22289,7 @@ function pushCheckOutput( test )
     return null;
   });
 
-  a.ready.then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
-    return null;
-  });
-
-  a.shell( 'git add .' );
-  a.shell( 'git commit -m init' );
-
+  commitAdd();
   a.ready.then( () =>
   {
     _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000' });
@@ -22314,10 +22297,38 @@ function pushCheckOutput( test )
     return null;
   });
 
+  start();
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
+    test.identical( _.strCount( op.output, />.*git push --tags/ ), 1 );
+    test.identical( _.strCount( op.output, /\* \[new tag\]\s+v000 -> v000/ ), 1 );
+    test.identical( _.strCount( op.output, /\* \[new tag\]\s+init -> init/ ), 1 );
+
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'withTags - 1, tags exist';
+    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
+    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    return null;
+  });
+
+  commitAdd();
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
+    _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000' });
+    _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init' });
+    return null;
   });
+
+  start();
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -22350,10 +22361,7 @@ function pushCheckOutput( test )
   a.shell( 'git add .' );
   a.shell( 'git commit -m init' );
 
-  a.ready.then( () =>
-  {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
-  });
+  start();
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -22447,9 +22455,171 @@ function pushCheckOutput( test )
     _.include( 'wGitTools' );
     return _.git.push( o );
   }
+
+  /* */
+
+  function start()
+  {
+    return a.ready.then( () => programShell( 'node ' + _.path.nativize( programPath ) ) );
+  }
+
+  /* */
+
+  function commitAdd()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+      return null;
+    });
+
+    a.shell( 'git add .' );
+    a.shell( 'git commit -m init' );
+    return a.ready;
+  }
 }
 
 pushCheckOutput.timeOut = 60000;
+
+//
+
+function pushTags( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.shell.predefined.outputCollecting = 1;
+  a.shell.predefined.currentPath = a.abs( 'repo' );
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'push tags without history';
+    return null;
+  });
+
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'before';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'refs/tags' ), 0 );
+    return null;
+  });
+
+  commitAdd();
+  tagAdd( 'v000' );
+  a.shell( 'git reset --hard HEAD~' );
+  a.ready.then( () =>
+  {
+    var got = _.git.push({ localPath : a.abs( 'repo' ), withTags : 1 });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'after';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'refs/tags/v000' ), 2 );
+    test.identical( _.strCount( op.output, 'refs/tags/v000^{}' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'push tags with history, force - 1';
+    return null;
+  });
+
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'before';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'refs/tags' ), 0 );
+    return null;
+  });
+
+  commitAdd();
+  tagAdd( 'v000' );
+  a.shell( 'git reset --hard HEAD~' );
+  a.ready.then( () =>
+  {
+    var got = _.git.push({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'after';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'refs/tags/v000' ), 2 );
+    test.identical( _.strCount( op.output, 'refs/tags/v000^{}' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( 'main' ) );
+      a.fileProvider.filesDelete( a.abs( 'repo' ) );
+      return null;
+    });
+
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( 'main' ) );
+      a.fileProvider.dirMake( a.abs( 'repo' ) );
+      return null;
+    });
+    a.shell({ currentPath : a.abs( 'main' ), execPath : `git init --bare` });
+
+    a.shell( `git init` );
+    a.shell( 'git remote add origin ../main' );
+    commitAdd();
+    a.shell( 'git push -u origin --all' );
+    return a.ready;
+  }
+
+  /* */
+
+  function commitAdd()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.fileAppend( a.abs( 'repo/file.txt' ), 'file.txt' );
+      return null;
+    });
+
+    a.shell( 'git add .' );
+    a.shell( 'git commit -m init' );
+    return a.ready;
+  }
+
+  /* */
+
+  function tagAdd( tag )
+  {
+    return a.ready.then( () =>
+    {
+      _.git.tagMake({ localPath : a.abs( 'repo' ), tag });
+      return null;
+    });
+  }
+}
 
 //
 
@@ -24934,6 +25104,7 @@ var Proto =
     pullCheckOutput,
     push,
     pushCheckOutput,
+    pushTags,
     reset,
     resetWithOptionRemovingUntracked,
     resetWithOptionRemovingSubrepositories,
