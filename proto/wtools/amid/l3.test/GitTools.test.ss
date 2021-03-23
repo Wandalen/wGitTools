@@ -14637,6 +14637,225 @@ repositoryHasVersion.timeOut = 60000;
 
 //
 
+function repositoryHasVersionWithLocalRemoteRepo( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.open( 'remote path is absolute path' );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    let version = getLatestCommit();
+
+    /* */
+
+    test.case = 'local - 1, remote - 0, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'repo' ),
+      version,
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'local - 0, remote - 1, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'repo' ),
+      version,
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'local - 1, remote - 0, not exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'repo' ),
+      version : 'aaaaaaaaaaaaa',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'local - 0, remote - 1, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'repo' ),
+      version : 'aaaaaaaaaaaaa',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.close( 'remote path is absolute path' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.open( 'remote path is relative path with two dots' );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git remote set-url origin ../main/' })
+
+  a.ready.then( () =>
+  {
+    let version = getLatestCommit();
+
+    /* */
+
+    test.case = 'local - 1, remote - 0, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'repo' ),
+      version,
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'local - 0, remote - 1, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'repo' ),
+      version,
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, true );
+
+    test.case = 'local - 1, remote - 0, not exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'repo' ),
+      version : 'aaaaaaaaaaaaa',
+      local : 1,
+      remote : 0,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    test.case = 'local - 0, remote - 1, exists';
+    var got = _.git.repositoryHasVersion
+    ({
+      localPath : a.abs( 'repo' ),
+      version : 'aaaaaaaaaaaaa',
+      local : 0,
+      remote : 1,
+      sync : 1
+    });
+    test.identical( got, false );
+
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.close( 'remote path is relative path with two dots' );
+    return null;
+  });
+
+  /* */
+
+  if( Config.debug )
+  {
+    begin().then( () =>
+    {
+      test.case = 'local - 0, remote - 1, remote repository is ahead, should throw error';
+      return null;
+    });
+
+    a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone repo clone' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit --allow-empty -m new' });
+    a.ready.then( () =>
+    {
+      var version = getLatestCommit();
+      var errCallback = ( err, arg ) =>
+      {
+        test.true( _.errIs( err ) );
+        test.identical( arg, undefined );
+        test.identical( _.strCount( err.message, /Local repository at .* is not up-to-date with remote./ ), 2 );
+      }
+      test.shouldThrowErrorSync( () =>
+      {
+        _.git.repositoryHasVersion
+        ({
+          localPath : a.abs( 'clone' ),
+          version,
+          local : 0,
+          remote : 1,
+          sync : 1
+        })
+      }, errCallback );
+      return null;
+    });
+
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( 'main' ) );
+      a.fileProvider.filesDelete( a.abs( 'repo' ) );
+      return null;
+    });
+
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( 'main' ) );
+      return null;
+    });
+    a.shell({ currentPath : a.abs( 'main' ), execPath : `git init --bare` });
+    a.shell( `git init` );
+    a.shell( 'git clone main repo' );
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit --allow-empty -m init' })
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git push -u origin --all' })
+    return a.ready;
+  }
+
+  /* */
+
+  function getLatestCommit()
+  {
+    let currentVersion = _.git.versionLocalRetrive({ localPath : a.abs( 'repo' ) });
+    if( !_.git.versionIsCommitHash({ localPath : a.abs( 'repo' ), version : currentVersion }) )
+    currentVersion = _.git.repositoryTagToVersion({ localPath : a.abs( 'repo' ), tag : currentVersion });
+    return currentVersion;
+  }
+}
+
+//
+
 function repositoryTagToVersion( test )
 {
   let context = this;
@@ -25217,6 +25436,7 @@ var Proto =
     repositoryHasTagRemotePathIsMap,
     repositoryHasTagWithOptionReturnVersion,
     repositoryHasVersion,
+    repositoryHasVersionWithLocalRemoteRepo,
     repositoryTagToVersion,
     repositoryVersionToTagWithOptionLocal,
     repositoryVersionToTagWithOptionRemote,
