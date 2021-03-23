@@ -22993,6 +22993,8 @@ function pushTags( test )
   }
 }
 
+pushTags.timeOut = 30000;
+
 //
 
 function reset( test )
