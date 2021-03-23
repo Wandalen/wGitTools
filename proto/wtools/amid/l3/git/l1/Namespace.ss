@@ -5394,7 +5394,9 @@ function push( o )
   start( `git push ${ dryRun } -u origin --all ${ force }` );
   if( o.withTags )
   {
-    verifyRepositoryHasCommitHistory();
+    verifyRemoteRepositoryHasCommitHistory();
+    if( !o.force )
+    verifyRemoteRepositoryHasNoTag();
     start( `git push ${ dryRun } --tags ${ force }` );
   }
 
@@ -5411,17 +5413,19 @@ function push( o )
 
   /* */
 
-  function verifyRepositoryHasCommitHistory()
+  function verifyRemoteRepositoryHasCommitHistory()
   {
-    let currentVersion = _.git.versionLocalRetrive({ localPath : o.localPath });
+    let currentVersion = start({ execPath : 'git rev-list --tags --max-count=1', sync : 1 }).output;
+    if( currentVersion === '' )
+    currentVersion = _.git.versionLocalRetrive({ localPath : o.localPath });
     if( !_.git.versionIsCommitHash({ localPath : o.localPath, version : currentVersion }) )
     currentVersion = _.git.repositoryTagToVersion({ localPath : o.localPath, tag : currentVersion });
     const repoHasHistory = _.git.repositoryHasVersion
     ({
       localPath : o.localPath,
-      version : currentVersion,
+      version : currentVersion.trim(),
       local : 0,
-      remote :1
+      remote : 1,
     });
 
     if( !repoHasHistory )
@@ -5430,6 +5434,29 @@ function push( o )
       `Repository at ${ o.localPath } has different commit history on remote server. `,
       `Please, push history manually or enable option {-o.withHistory-}`
     );
+    return true;
+  }
+
+  /* */
+
+  function verifyRemoteRepositoryHasNoTag()
+  {
+    let currentTag = start({ execPath : 'git describe --abbrev=0 --tags', sync : 1 }).output;
+    let repoHasTag = _.git.repositoryHasTag
+    ({
+      localPath : o.localPath,
+      tag : currentTag.trim(),
+      local : 0,
+      remote : 1,
+    });
+
+    if( repoHasTag )
+    throw _.err
+    (
+      `Remote repository of ${ o.localPath } has the same tags as local repository.`,
+      `Please, push tags manually or enable option {-o.force-} to rewrite tags`
+    );
+
     return true;
   }
 }
