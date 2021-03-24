@@ -5415,26 +5415,66 @@ function push( o )
 
   function verifyRemoteRepositoryHasCommitHistory()
   {
-    let currentVersion = start({ execPath : 'git rev-list --tags --max-count=1', sync : 1 }).output;
-    if( currentVersion === '' )
-    currentVersion = _.git.versionLocalRetrive({ localPath : o.localPath });
-    if( !_.git.versionIsCommitHash({ localPath : o.localPath, version : currentVersion }) )
-    currentVersion = _.git.repositoryTagToVersion({ localPath : o.localPath, tag : currentVersion });
-    const repoHasHistory = _.git.repositoryHasVersion
-    ({
-      localPath : o.localPath,
-      version : currentVersion.trim(),
-      local : 0,
-      remote : 1,
-    });
+    let unpushedTags = tagsUnpushedGet();
 
-    if( !repoHasHistory )
+    if( unpushedTags.length === 0 )
+    return true;
+
+    let commits = tagsCommitsGet( unpushedTags );
+
+    if( _.any( commits, remoteCommitNotExists ) )
     throw _.err
     (
       `Repository at ${ o.localPath } has different commit history on remote server. `,
       `Please, push history manually or enable option {-o.withHistory-}`
     );
     return true;
+  }
+
+  /* */
+
+  function tagsUnpushedGet()
+  {
+    let output = start
+    ({
+      execPath : 'git push --tags --dry-run',
+      sync : 1,
+      outputPiping : 0,
+      inputMirroring : 0,
+    }).output;
+    let tags = output.match( /(\S+)\s->/gm );
+    if( !tags )
+    return [];
+    for( let i = 0 ; i < tags.length ; i++ )
+    tags[ i ] = tags[ i ].split( ' ' )[ 0 ];
+    return tags;
+  }
+
+  /* */
+
+  function tagsCommitsGet( tags )
+  {
+    let result = _.arrayMake( tags );
+    for( let i = 0 ; i < tags.length ; i++ )
+    {
+      let commit = start({ execPath : `git show-ref -s ${ tags[ i ] }`, sync : 1 }).output;
+      result[ i ] = commit.trim();
+    }
+    return result;
+  }
+
+  /* */
+
+  function remoteCommitNotExists( commit )
+  {
+    let exists =_.git.repositoryHasVersion
+    ({
+      localPath : o.localPath,
+      version : commit.trim(),
+      local : 0,
+      remote : 1,
+    });
+    return !exists;
   }
 
   /* */

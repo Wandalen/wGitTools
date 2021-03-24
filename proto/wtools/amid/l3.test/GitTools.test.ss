@@ -22729,6 +22729,8 @@ function pushTags( test )
 
   commitAdd();
   tagAdd( 'v000' );
+  tagAdd( 'v001' );
+  tagAdd( 'v002' );
   a.shell( 'git reset --hard HEAD~' );
   a.ready.then( () =>
   {
