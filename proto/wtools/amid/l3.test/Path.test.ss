@@ -6228,7 +6228,7 @@ function refine( test )
 // declare
 // --
 
-var Proto =
+const Proto =
 {
 
   name : 'Tools.mid.GitTools.Path',

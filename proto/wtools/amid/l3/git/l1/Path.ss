@@ -4,7 +4,7 @@
 'use strict';
 
 const _ = _global_.wTools;
-let Parent = _.uri.path;
+const Parent = _.uri.path;
 const Self = _.git.path = _.git.path || Object.create( Parent );
 
 // --

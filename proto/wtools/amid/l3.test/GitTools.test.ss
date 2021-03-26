@@ -24804,7 +24804,7 @@ renormalizeAudit.timeOut = 15000;
 // declare
 // --
 
-var Proto =
+const Proto =
 {
 
   name : 'Tools.mid.GitTools',
