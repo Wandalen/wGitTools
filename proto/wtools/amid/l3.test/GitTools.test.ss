@@ -14,7 +14,8 @@ if( typeof module !== 'undefined' )
 
 //
 
-let _ = _global_.wTools;
+const _ = _global_.wTools;
+const __ = _globals_.testing.wTools;
 
 // --
 // context
@@ -17152,7 +17153,7 @@ function repositoryClone( test )
   if( process.env.PRIVATE_WTOOLS_BOT_SSH_KEY )
   if( process.platform === 'linux' && _.process.insideTestContainer() && process.env.GITHUB_EVENT_NAME !== 'pull_request' )
   {
-    a.ready.then( () => _globals_.testing.wTools.test.workflowSshAgentRun() );
+    a.ready.then( () => __.test.workflowSshAgentRun() );
 
     /* */
 
@@ -24950,7 +24951,7 @@ var Proto =
 
 //
 
-let Self = new wTestSuite( Proto )/* .inherit( Parent ); */
+const Self = wTestSuite( Proto )/* .inherit( Parent ); */
 if( typeof module !== 'undefined' && !module.parent )
 wTester.test( Self.name );
 

@@ -3,9 +3,9 @@
 
 'use strict';
 
-let _ = _global_.wTools;
+const _ = _global_.wTools;
 let Parent = _.uri.path;
-let Self = _.git.path = _.git.path || Object.create( Parent );
+const Self = _.git.path = _.git.path || Object.create( Parent );
 
 // --
 //

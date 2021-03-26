@@ -3,8 +3,8 @@
 
 'use strict';
 
-let _ = _global_.wTools;
-let Self = _.git = _.git || Object.create( null );
+const _ = _global_.wTools;
+const Self = _.git = _.git || Object.create( null );
 let Ini = null;
 
 // --
@@ -164,7 +164,7 @@ function pathParse( remotePath )
     query : null,
     longPath : null
   }
-  let parsed2 = _.mapBut( parsed1, ignoreComponents );
+  let parsed2 = _.mapBut_( null, parsed1, ignoreComponents );
   let protocols = parsed2.protocols = parsed1.protocol ? parsed1.protocol.split( '+' ) : [];
   let isHardDrive = false;
   let provider = _.fileProvider;
@@ -190,7 +190,7 @@ function pathParse( remotePath )
 
   /* remoteVcsLongerPath */
 
-  let parsed3 = _.mapBut( parsed1, ignoreComponents );
+  let parsed3 = _.mapBut_( null, parsed1, ignoreComponents );
   parsed3.longPath = parsed2.longPath;
   parsed3.protocols = parsed2.protocols.slice();
   result.remoteVcsLongerPath = path.str( parsed3 );
@@ -2570,12 +2570,12 @@ function status_body( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let localReady = null;
-  let o2 = _.mapOnly( o, self.statusLocal.defaults );
+  let o2 = _.mapOnly_( null, o, self.statusLocal.defaults );
   o2.sync = 0;
   localReady = self.statusLocal.call( this, o2 );
 
   let remoteReady = null;
-  let o3 = _.mapOnly( o, self.statusRemote.defaults );
+  let o3 = _.mapOnly_( null, o, self.statusRemote.defaults );
   o3.sync = 0;
   remoteReady = self.statusRemote.call( this, o3 );
 
@@ -2675,7 +2675,7 @@ function statusFull( o )
   let statusReady = new _.Consequence().take( null );
   if( o.remotePath )
   {
-    let o2 = _.mapOnly( o, status.defaults );
+    let o2 = _.mapOnly_( null, o, status.defaults );
     o2.sync = 0;
     statusReady = _.git.status( o2 )
   }
@@ -3005,7 +3005,7 @@ function repositoryHasVersion( o )
     if( !self.isRepository({ localPath : o.localPath }) )
     throw _.err( `Provided {-o.localPath-}: ${_.strQuote( o.localPath )} doesn't contain a git repository.` )
 
-    // if( !_.git.versionIsCommitHash( _.mapOnly( o, _.git.versionIsCommitHash.defaults )) ) /* Dmytro : the routine `versionIsCommitHash` searches a hash in local repository, but the hash can be on remote repository */
+    // if( !_.git.versionIsCommitHash( _.mapOnly_( null, o, _.git.versionIsCommitHash.defaults )) ) /* Dmytro : the routine `versionIsCommitHash` searches a hash in local repository, but the hash can be on remote repository */
     // throw _.err( `Provided version: ${_.strQuote( o.version ) } is not a commit hash.` )
 
     if( !_.git.stateIsHash( `#${ o.version }` ) )
