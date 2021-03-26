@@ -3050,7 +3050,12 @@ function repositoryHasVersion( o )
 
     ready.then( ( got ) =>
     {
-      if( _.strHas( got.output, /.+\.\..+/ ) )
+      // if( _.strHas( got.output, /.+\.\..+/ ) )
+      /*
+         Dmytro : the output has range of commits that will be fetched, it is more convienent regexp than the previous one.
+         The regexp does not include strings like : `From ../repo`
+      */
+      if( _.strHas( got.output, /[a-hA-H0-9]+\.\.[a-hA-H0-9]+/ ) )
       throw _.err( `Local repository at ${o.localPath} is not up-to-date with remote. Please run "git fetch" and try again.` )
       return true;
     })
@@ -5363,14 +5368,11 @@ pull.defaults =
 
 function push( o )
 {
-  let ready = new _.Consequence().take( null );
-
   _.assert( arguments.length === 1 );
   _.routineOptions( push, arguments );
   _.assert( _.strDefined( o.localPath ) );
 
-  if( o.dry )
-  return;
+  let ready = new _.Consequence().take( null );
 
   let start = _.process.starter
   ({
@@ -5385,9 +5387,22 @@ function push( o )
     ready,
   });
 
-  start( `git push -u origin --all` );
+  let dryRun = o.dry ? ' --dry-run' : '';
+  let force = o.force ? ' --force' : '';
+
+  if( o.withHistory )
+  start( `git push ${ dryRun } -u origin --all ${ force }` );
   if( o.withTags )
-  start( `git push --tags --force` );
+  {
+    verifyRemoteRepositoryHasCommitHistory();
+    if( !o.force )
+    verifyRemoteRepositoryHasNoTag();
+    start( `git push ${ dryRun } --tags ${ force }` );
+  }
+
+
+  if( o.dry )
+  return;
 
   if( o.sync )
   {
@@ -5395,12 +5410,103 @@ function push( o )
     return ready.sync();
   }
   return ready;
+
+  /* */
+
+  function verifyRemoteRepositoryHasCommitHistory()
+  {
+    let unpushedTags = tagsUnpushedGet();
+
+    if( unpushedTags.length === 0 )
+    return true;
+
+    let commits = tagsCommitsGet( unpushedTags );
+
+    if( _.any( commits, remoteCommitNotExists ) )
+    throw _.err
+    (
+      `Repository at ${ o.localPath } has different commit history on remote server. `,
+      `Please, push history manually or enable option {-o.withHistory-}`
+    );
+    return true;
+  }
+
+  /* */
+
+  function tagsUnpushedGet()
+  {
+    let output = start
+    ({
+      execPath : 'git push --tags --dry-run',
+      sync : 1,
+      outputPiping : 0,
+      inputMirroring : 0,
+    }).output;
+    let tags = output.match( /(\S+)\s->/gm );
+    if( !tags )
+    return [];
+    for( let i = 0 ; i < tags.length ; i++ )
+    tags[ i ] = tags[ i ].split( ' ' )[ 0 ];
+    return tags;
+  }
+
+  /* */
+
+  function tagsCommitsGet( tags )
+  {
+    let result = _.arrayMake( tags );
+    for( let i = 0 ; i < tags.length ; i++ )
+    {
+      let commit = start({ execPath : `git show-ref -s ${ tags[ i ] }`, sync : 1 }).output;
+      result[ i ] = commit.trim();
+    }
+    return result;
+  }
+
+  /* */
+
+  function remoteCommitNotExists( commit )
+  {
+    let exists =_.git.repositoryHasVersion
+    ({
+      localPath : o.localPath,
+      version : commit.trim(),
+      local : 0,
+      remote : 1,
+    });
+    return !exists;
+  }
+
+  /* */
+
+  function verifyRemoteRepositoryHasNoTag()
+  {
+    let currentTag = start({ execPath : 'git describe --abbrev=0 --tags', sync : 1 }).output;
+    let repoHasTag = _.git.repositoryHasTag
+    ({
+      localPath : o.localPath,
+      tag : currentTag.trim(),
+      local : 0,
+      remote : 1,
+    });
+
+    if( repoHasTag )
+    throw _.err
+    (
+      `Remote repository of ${ o.localPath } has the same tags as local repository.`,
+      `Please, push tags manually or enable option {-o.force-} to rewrite tags`
+    );
+
+    return true;
+  }
 }
 
 push.defaults =
 {
   localPath : null,
+  withHistory : 1,
   withTags : 0,
+  force : 0,
   dry : 0,
   sync : 1,
   throwing : 0,
