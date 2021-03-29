@@ -4741,8 +4741,8 @@ prOpen.defaults =
 
 function configRead( filePath )
 {
-  let fileProvider = _.fileProvider;
-  let path = fileProvider.path;
+  const fileProvider = _.fileProvider;
+  const path = fileProvider.path;
 
   _.assert( arguments.length === 1 );
   _.assert( _.strIs( filePath ) );
@@ -4765,8 +4765,8 @@ function configRead( filePath )
 
 function configSave( filePath, config )
 {
-  let fileProvider = _.fileProvider;
-  let path = fileProvider.path;
+  const fileProvider = _.fileProvider;
+  const path = fileProvider.path;
 
   _.assert( arguments.length === 2 );
   _.assert( _.strDefined( filePath ) );
