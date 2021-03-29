@@ -339,6 +339,7 @@ function remotePathFromLocal( o )
   // remotePath = this.remotePathNormalize( remotePath );
   if( remotePath )
   {
+    remotePath = _.git.path.trail( remotePath );
     if( !_.git.path.isGlobal( remotePath ) )
     {
       remotePath = _.git.path.parse( remotePath )

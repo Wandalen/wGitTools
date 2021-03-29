@@ -355,7 +355,7 @@ function remotePathFromLocal( test )
   .then( () =>
   {
     let got = _.git.remotePathFromLocal({ localPath : clonePath });
-    let expected = `git+hd://${a.path.normalize( repoPath )}`
+    let expected = `git+hd://${a.path.normalize( repoPath )}/`
     test.identical( got, expected );
     return null;
   })
@@ -366,7 +366,7 @@ function remotePathFromLocal( test )
   .then( () =>
   {
     let got = _.git.remotePathFromLocal({ localPath : clonePath });
-    let expected = `git+https:///github.com/Wandalen/wModuleForTesting1.git`
+    let expected = `git+https:///github.com/Wandalen/wModuleForTesting1.git/`
     test.identical( got, expected );
     return null;
   })
