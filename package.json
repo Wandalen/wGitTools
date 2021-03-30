@@ -1,6 +1,6 @@
 {
   "name": "wgittools",
-  "version": "0.3.283",
+  "version": "0.3.284",
   "description": "Collection of tools to use git programmatically.",
   "author": "Kostiantyn Wandalen <wanalen@01.school>",
   "license": "MIT",
@@ -8,7 +8,8 @@
   "files": [
     "proto/wtools/amid/l3/git",
     "proto/wtools/Tools.s",
-    "out"
+    "out",
+    "proto/node_modules"
   ],
   "scripts": {
     "test": "wtest .run 'proto/**' rapidity:-3",
@@ -32,8 +33,7 @@
   },
   "devDependencies": {
     "eslint": "7.1.0",
-    "wTesting": "delta",
-    "wgittools": "file:."
+    "wTesting": "delta"
   },
   "keywords": [
     "wTools"
