@@ -651,6 +651,13 @@ function tagExplain( o )
     isTag : null
   }
 
+  if( o.local )
+  {
+    let localCheck = `git show-ref --tags --heads -- ${o.tag}`;
+    if( check( localCheck ) )
+    return result;
+  }
+
   if( o.remote )
   {
     let remoteCheck = `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}`;
@@ -658,12 +665,20 @@ function tagExplain( o )
     return result;
   }
 
-  if( o.local )
-  {
-    let localCheck = `git show-ref --tags --heads -- ${o.tag}`;
-    if( check( localCheck ) )
-    return result;
-  }
+  /* Dmytro : change order in accordance to case where remote path is an hd path and simultaneously it is not a repository */
+  // if( o.remote )
+  // {
+  //   let remoteCheck = `git ls-remote --tags --refs --heads ${remotePath} -- ${o.tag}`;
+  //   if( check( remoteCheck ) )
+  //   return result;
+  // }
+  //
+  // if( o.local )
+  // {
+  //   let localCheck = `git show-ref --tags --heads -- ${o.tag}`;
+  //   if( check( localCheck ) )
+  //   return result;
+  // }
 
   return false;
 

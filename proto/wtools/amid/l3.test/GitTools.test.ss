@@ -1228,7 +1228,7 @@ function tagExplain( test )
   a.init()
   .then( () =>
   {
-    let remotePath = `git+hd://${repoPath}`;
+    var remotePath = `git+hd://${repoPath}`;
 
     test.case = 'tag is branch'
     var got = _.git.tagExplain({ localPath : clonePath, remotePath, tag : 'master' });
@@ -1257,6 +1257,15 @@ function tagExplain( test )
     test.case = 'unknown tag'
     var got = _.git.tagExplain({ localPath : clonePath, remotePath, tag : 'missing' });
     test.identical( got, false );
+
+    /* */
+
+    test.case = 'localPath - path to repository, remotePath - is not repository'
+    var remotePath = `git+hd://${repoPath}/out/`;
+    var got = _.git.tagExplain({ localPath : clonePath, remotePath, tag : 'master' });
+    test.identical( got.tag, 'master' )
+    test.identical( got.isBranch, true )
+    test.identical( got.isTag, false )
 
     return null;
   })
