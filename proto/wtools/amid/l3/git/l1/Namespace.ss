@@ -270,7 +270,7 @@ function pathFixate( o )
 
   // let parsed = _.git.pathParse( o.remotePath );
   let parsed = _.git.path.parse( o.remotePath );
-  let latestVersion = _.git.versionRemoteLatestRetrive
+  let latestVersion = _.git.remoteVersionLatest
   ({
     remotePath : o.remotePath,
     verbosity : o.verbosity,
@@ -702,7 +702,7 @@ function versionLocalChange( o )
   _.routineOptions( versionLocalChange, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let localVersion = _.git.versionLocalRetrive
+  let localVersion = _.git.localVersion
   ({
     localPath : o.localPath,
     verbosity : o.verbosity
@@ -744,7 +744,7 @@ defaults.verbosity = 0;
 
 //
 
-function versionLocalRetrive( o )
+function localVersion( o )
 {
   let localProvider = _.fileProvider;
   let path = localProvider.path;
@@ -752,7 +752,7 @@ function versionLocalRetrive( o )
   if( !_.mapIs( o ) )
   o = { localPath : o };
 
-  _.routineOptions( versionLocalRetrive, o );
+  _.routineOptions( localVersion, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
@@ -791,7 +791,7 @@ function versionLocalRetrive( o )
   return currentVersion;
 }
 
-var defaults = versionLocalRetrive.defaults = Object.create( null );
+var defaults = localVersion.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.verbosity = 0;
 defaults.detailing = 0;
@@ -803,17 +803,17 @@ defaults.detailing = 0;
  * @param {Object} o Options map.
  * @param {String} o.remotePath Remote path to git repository.
  * @param {Number} o.verbosity=0 Level of verbosity.
- * @function versionRemoteLatestRetrive
+ * @function remoteVersionLatest
  * @namespace wTools.git
  * @module Tools/mid/GitTools
  */
 
-function versionRemoteLatestRetrive( o )
+function remoteVersionLatest( o )
 {
   if( !_.mapIs( o ) )
   o = { remotePath : o }
 
-  _.routineOptions( versionRemoteLatestRetrive, o );
+  _.routineOptions( remoteVersionLatest, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   // let parsed = _.git.pathParse( remotePath );
@@ -842,7 +842,7 @@ function versionRemoteLatestRetrive( o )
   return latestVersion;
 }
 
-var defaults = versionRemoteLatestRetrive.defaults = Object.create( null );
+var defaults = remoteVersionLatest.defaults = Object.create( null );
 defaults.remotePath = null;
 defaults.verbosity = 0;
 
@@ -854,17 +854,17 @@ defaults.verbosity = 0;
  * @param {Object} o Options map.
  * @param {String} o.remotePath Remote path.
  * @param {Number} o.verbosity=0 Level of verbosity.
- * @function versionRemoteCurrentRetrive
+ * @function remoteVersionCurrent
  * @namespace wTools.git
  * @module Tools/mid/GitTools
  */
 
-function versionRemoteCurrentRetrive( o )
+function remoteVersionCurrent( o )
 {
   if( !_.mapIs( o ) )
   o = { remotePath : o }
 
-  _.routineOptions( versionRemoteCurrentRetrive, o );
+  _.routineOptions( remoteVersionCurrent, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   // let parsed = _.git.pathParse( o.remotePath );
@@ -872,10 +872,10 @@ function versionRemoteCurrentRetrive( o )
   if( parsed.isFixated )
   return parsed.hash;
 
-  return _.git.versionRemoteLatestRetrive( o );
+  return _.git.remoteVersionLatest( o );
 }
 
-var defaults = versionRemoteCurrentRetrive.defaults = Object.create( null );
+var defaults = remoteVersionCurrent.defaults = Object.create( null );
 defaults.remotePath = null;
 defaults.verbosity = 0;
 
@@ -5854,9 +5854,9 @@ let Extension =
   // version
 
   versionLocalChange,
-  versionLocalRetrive,
-  versionRemoteLatestRetrive,
-  versionRemoteCurrentRetrive,
+  localVersion,
+  remoteVersionLatest,
+  remoteVersionCurrent,
   versionIsCommitHash,
   versionsRemoteRetrive,
   versionsPull,

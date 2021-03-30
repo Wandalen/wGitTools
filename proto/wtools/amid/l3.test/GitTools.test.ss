@@ -14849,7 +14849,7 @@ function repositoryHasVersionWithLocalRemoteRepo( test )
 
   function getLatestCommit()
   {
-    let currentVersion = _.git.versionLocalRetrive({ localPath : a.abs( 'repo' ) });
+    let currentVersion = _.git.localVersion({ localPath : a.abs( 'repo' ) });
     if( !_.git.versionIsCommitHash({ localPath : a.abs( 'repo' ), version : currentVersion }) )
     currentVersion = _.git.repositoryTagToVersion({ localPath : a.abs( 'repo' ), tag : currentVersion });
     return currentVersion;
@@ -19102,7 +19102,7 @@ function diff( test )
   let context = this;
   let a = test.assetFor( 'basic' );
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
-  let latestCommit = _.git.versionRemoteLatestRetrive({ remotePath });
+  let latestCommit = _.git.remoteVersionLatest({ remotePath });
 
   a.fileProvider.dirMake( a.abs( '.' ) )
 

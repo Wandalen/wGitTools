@@ -382,7 +382,7 @@ function fixate( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let parsed = _.git.path.parse({ remotePath : o.remotePath });
-  let latestVersion = _.git.versionRemoteLatestRetrive
+  let latestVersion = _.git.remoteVersionLatest
   ({
     remotePath : o.remotePath,
     verbosity : o.verbosity,
