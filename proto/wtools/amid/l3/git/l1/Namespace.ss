@@ -339,7 +339,7 @@ function remotePathFromLocal( o )
   // remotePath = this.remotePathNormalize( remotePath );
   if( remotePath )
   {
-    if( !_.git.path.isGlobal( remotePath ) )
+    if( isLocalClone( remotePath ) )
     {
       remotePath = _.git.path.parse( remotePath )
       remotePath.protocol = 'hd';
@@ -349,6 +349,17 @@ function remotePathFromLocal( o )
   }
 
   return remotePath;
+
+  //
+
+  function isLocalClone( remotePath )
+  {
+    _.assert( _.strDefined( remotePath ) );
+    let parsed = _.uri.parse( remotePath );
+    if( parsed.user || parsed.protocols.length )
+    return false;
+    return !_.path.isGlobal( remotePath );
+  }
 }
 
 remotePathFromLocal.defaults =
