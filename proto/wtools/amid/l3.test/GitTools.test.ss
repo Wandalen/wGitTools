@@ -346,6 +346,13 @@ function remotePathFromLocal( test )
       return null;
     })
 
+    if( o.url )
+    {
+      a.shellSync( 'git -C clone remote remove origin' )
+      a.shellSync( 'git -C clone remote add origin ' + o.url )
+    }
+
+
     return a.ready;
   }
 
@@ -367,6 +374,17 @@ function remotePathFromLocal( test )
   {
     let got = _.git.remotePathFromLocal({ localPath : clonePath });
     let expected = `git+https:///github.com/Wandalen/wModuleForTesting1.git`
+    test.identical( got, expected );
+    return null;
+  })
+
+  /* */
+
+  a.init({ local : 1, url : 'git@github.com:Wandalen/wModuleForTesting1.git' })
+  .then( () =>
+  {
+    let got = _.git.remotePathFromLocal({ localPath : clonePath });
+    let expected = `git:///git@github.com:Wandalen/wModuleForTesting1.git`
     test.identical( got, expected );
     return null;
   })
