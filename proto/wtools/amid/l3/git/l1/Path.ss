@@ -4,7 +4,9 @@
 'use strict';
 
 const _ = _global_.wTools;
-const Parent = _.uri.path;
+// const Parent = _.uri.path;
+/* qqq : for Dmytro : bad */
+const Parent = _.uri;
 const Self = _.git.path = _.git.path || Object.create( Parent );
 
 // --
@@ -366,7 +368,7 @@ function isFixated( filePath )
  * @summary Changes hash in provided path `o.remotePath` to hash of latest commit available.
  * @param {Object} o Options map.
  * @param {String} o.remotePath Remote path.
- * @param {Number} o.verbosity=0 Level of verbosity.
+ * @param {Number} o.logger=0 Level of verbosity.
  * @function pathFixate
  * @namespace wTools.git
  * @module Tools/mid/GitTools
@@ -385,7 +387,7 @@ function fixate( o )
   let latestVersion = _.git.remoteVersionLatest
   ({
     remotePath : o.remotePath,
-    verbosity : o.verbosity,
+    logger : o.logger,
   });
 
   let result = path.str
@@ -400,7 +402,7 @@ function fixate( o )
 
 var defaults = fixate.defaults = Object.create( null );
 defaults.remotePath = null;
-defaults.verbosity = 0;
+defaults.logger = 0;
 
 // --
 // declare

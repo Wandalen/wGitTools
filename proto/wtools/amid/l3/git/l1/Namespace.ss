@@ -253,7 +253,7 @@ function pathIsFixated( filePath )
  * @summary Changes hash in provided path `o.remotePath` to hash of latest commit available.
  * @param {Object} o Options map.
  * @param {String} o.remotePath Remote path.
- * @param {Number} o.verbosity=0 Level of verbosity.
+ * @param {Number} o.logger=0 Level of verbosity.
  * @function pathFixate
  * @namespace wTools.git
  * @module Tools/mid/GitTools
@@ -273,7 +273,7 @@ function pathFixate( o )
   let latestVersion = _.git.remoteVersionLatest
   ({
     remotePath : o.remotePath,
-    verbosity : o.verbosity,
+    logger : o.logger,
   });
 
   let result = path.str
@@ -288,7 +288,7 @@ function pathFixate( o )
 
 var defaults = pathFixate.defaults = Object.create( null );
 defaults.remotePath = null;
-defaults.verbosity = 0;
+defaults.logger = 0;
 
 //
 
@@ -432,7 +432,7 @@ defaults.insidePath = null;
  * @param { Aux } o - Options map.
  * @param { String } o.localPath - Path to git repository on hard drive.
  * @param { String } o.tag - Tag to switch on.
- * @param { Number } o.verbosity - Level of verbosity. Default is 0.
+ * @param { Number } o.logger - Level of verbosity. Default is 0.
  * @returns { Boolean } - Returns true if HEAD switched to tag {-o.tag-}, otherwise, returns false.
  * @function tagLocalChange
  * @throws { Error } If arguments.length is not equal to 1.
@@ -453,7 +453,7 @@ function tagLocalChange( o )
   let localTag = _.git.tagLocalRetrive
   ({
     localPath : o.localPath,
-    verbosity : o.verbosity
+    logger : o.logger
   });
 
   if( localTag === false )
@@ -464,7 +464,8 @@ function tagLocalChange( o )
 
   let start = _.process.starter
   ({
-    verbosity : o.verbosity - 1,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     sync : 1,
     deasync : 0,
     outputCollecting : 1,
@@ -488,7 +489,7 @@ function tagLocalChange( o )
 var defaults = tagLocalChange.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.tag = null
-defaults.verbosity = 0;
+defaults.logger = 0;
 
 //
 
@@ -522,7 +523,7 @@ defaults.verbosity = 0;
  *
  * @param { Aux } o - Options map.
  * @param { String } o.localPath - Path to git repository on hard drive.
- * @param { Number } o.verbosity - Level of verbosity. Default is 0.
+ * @param { Number } o.logger - Level of verbosity. Default is 0.
  * @param { BoolLike } o.detailing - If {-o.detailing-} is true, result is map with tag description.
  * @returns { String|Map|Boolean } - Returns name of the tag or false if {-o.localPath-} is not a git repository.
  * If {-o.detailing-} is true, routine returns map with tag description.
@@ -546,7 +547,7 @@ function tagLocalRetrive( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
-  if( !_.git.isRepository({ localPath : o.localPath, verbosity : o.verbosity }) )
+  if( !_.git.isRepository({ localPath : o.localPath }) )
   return false;
 
   let gitPath = path.join( o.localPath, '.git' );
@@ -613,7 +614,7 @@ function tagLocalRetrive( o )
 
 var defaults = tagLocalRetrive.defaults = Object.create( null );
 defaults.localPath = null;
-defaults.verbosity = 0;
+defaults.logger = 0;
 defaults.detailing = 0;
 
 //
@@ -632,12 +633,13 @@ function tagExplain( o )
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
   _.assert( _.strIs( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
 
-  if( !_.git.isRepository({ localPath : o.localPath, verbosity : o.verbosity }) )
+  if( !_.git.isRepository({ localPath : o.localPath }) )
   return false;
 
   let start = _.process.starter
   ({
-    verbosity : o.verbosity - 1,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     sync : 1,
     deasync : 0,
     outputCollecting : 1,
@@ -714,7 +716,7 @@ defaults.remotePath = null;
 defaults.local = 1;
 defaults.remote = 1;
 defaults.tag = null;
-defaults.verbosity = 0;
+defaults.logger = 0;
 
 // --
 // version
@@ -731,7 +733,7 @@ function versionLocalChange( o )
   let localVersion = _.git.localVersion
   ({
     localPath : o.localPath,
-    verbosity : o.verbosity
+    logger : o.logger
   });
 
   if( !localVersion )
@@ -742,7 +744,8 @@ function versionLocalChange( o )
 
   let start = _.process.starter
   ({
-    verbosity : o.verbosity - 1,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     sync : 1,
     deasync : 0,
     outputCollecting : 1,
@@ -766,7 +769,7 @@ function versionLocalChange( o )
 var defaults = versionLocalChange.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.version = null
-defaults.verbosity = 0;
+defaults.logger = 0;
 
 //
 
@@ -782,7 +785,7 @@ function localVersion( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
-  if( !_.git.isRepository({ localPath : o.localPath, verbosity : o.verbosity }) )
+  if( !_.git.isRepository({ localPath : o.localPath }) )
   return '';
 
   let gitPath = path.join( o.localPath, '.git' );
@@ -819,7 +822,7 @@ function localVersion( o )
 
 var defaults = localVersion.defaults = Object.create( null );
 defaults.localPath = null;
-defaults.verbosity = 0;
+defaults.logger = 0;
 defaults.detailing = 0;
 
 //
@@ -828,7 +831,7 @@ defaults.detailing = 0;
  * @summary Returns hash of latest commit from git repository using its remote path `o.remotePath`.
  * @param {Object} o Options map.
  * @param {String} o.remotePath Remote path to git repository.
- * @param {Number} o.verbosity=0 Level of verbosity.
+ * @param {Number} o.logger=0 Level of verbosity.
  * @function remoteVersionLatest
  * @namespace wTools.git
  * @module Tools/mid/GitTools
@@ -851,7 +854,8 @@ function remoteVersionLatest( o )
 
   let start = _.process.starter
   ({
-    verbosity : o.verbosity - 1,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     sync : 1,
     deasync : 0,
     outputCollecting : 1,
@@ -870,7 +874,7 @@ function remoteVersionLatest( o )
 
 var defaults = remoteVersionLatest.defaults = Object.create( null );
 defaults.remotePath = null;
-defaults.verbosity = 0;
+defaults.logger = 0;
 
 //
 
@@ -879,7 +883,7 @@ defaults.verbosity = 0;
  * @description Returns hash of latest commit if no hash specified in remote path.
  * @param {Object} o Options map.
  * @param {String} o.remotePath Remote path.
- * @param {Number} o.verbosity=0 Level of verbosity.
+ * @param {Number} o.logger=0 Level of verbosity.
  * @function remoteVersionCurrent
  * @namespace wTools.git
  * @module Tools/mid/GitTools
@@ -903,7 +907,7 @@ function remoteVersionCurrent( o )
 
 var defaults = remoteVersionCurrent.defaults = Object.create( null );
 defaults.remotePath = null;
-defaults.verbosity = 0;
+defaults.logger = 0;
 
 //
 
@@ -1059,7 +1063,7 @@ defaults.localPath = null;
  * @param {Object} o Options map.
  * @param {String} o.localPath Local path to repository.
  * @param {String} o.remotePath Remote path to repository.
- * @param {Number} o.verbosity=0 Level of verbosity.
+ * @param {Number} o.logger=0 Level of verbosity.
  * @function isUpToDate
  * @namespace wTools.git
  * @module Tools/mid/GitTools
@@ -1081,16 +1085,20 @@ function isUpToDate( o )
 
   let ready = _.Consequence();
 
+  /* xxx : qqq : check mode. shell should be, probably */
   let start = _.process.starter
   ({
-    verbosity : o.verbosity - 1,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
     ready,
   });
 
+  /* xxx : qqq : check mode. shell should be, probably */
   let shell = _.process.starter
   ({
-    verbosity : o.verbosity - 1,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     ready,
     currentPath : o.localPath,
     throwingExitCode : 0,
@@ -1137,7 +1145,7 @@ function isUpToDate( o )
     let result = false;
     let detachedRegexp = /* /HEAD detached at (\w+)/ */ /HEAD detached at (.+)/;
     let detachedParsed = detachedRegexp.exec( got.output );
-    // let versionLocal = _.git.tagLocalRetrive({ localPath : o.localPath, verbosity : o.verbosity });
+    // let versionLocal = _.git.tagLocalRetrive({ localPath : o.localPath, logger : o.logger });
 
     // if( detachedParsed )
     // {
@@ -1206,8 +1214,8 @@ function isUpToDate( o )
     if( result && !detachedParsed )
     result = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
 
-    if( o.verbosity >= 1 )
-    logger.log( o.remotePath, result ? 'is up to date' : 'is not up to date' );
+    if( o.logger && o.logger.verbosity > 0 )
+    o.logger.log( o.remotePath, result ? 'is up to date' : 'is not up to date' );
 
     return result;
   });
@@ -1250,7 +1258,7 @@ var defaults = isUpToDate.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
 defaults.differentiatingTags = true;
-defaults.verbosity = 0;
+defaults.logger = 0;
 
 //
 
@@ -1258,7 +1266,7 @@ defaults.verbosity = 0;
  * @summary Returns true if path `o.localPath` contains a git repository.
  * @param {Object} o Options map.
  * @param {String} o.localPath Local path to package.
- * @param {Number} o.verbosity=0 Level of verbosity.
+ * @param {Number} o.logger=0 Level of verbosity.
  * @function hasFiles
  * @namespace wTools.git
  * @module Tools/mid/GitTools
@@ -1281,7 +1289,7 @@ function hasFiles( o )
 
 var defaults = hasFiles.defaults = Object.create( null );
 defaults.localPath = null;
-defaults.verbosity = 0;
+// defaults.verbosity = 0; /* qqq : for Dmytro : why?? */
 
 //
 
@@ -1290,7 +1298,7 @@ defaults.verbosity = 0;
  * @param {Object} o Options map.
  * @param {String} o.localPath Local path to package.
  * @param {String} o.remotePath Remote path to package.
- * @param {Number} o.verbosity=0 Level of verbosity.
+ * @param {Number} o.logger=0 Level of verbosity.
  * @function hasRemote
  * @namespace wTools.git
  * @module Tools/mid/GitTools
@@ -1365,7 +1373,7 @@ var defaults = hasRemote.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
 defaults.sync = 1;
-defaults.verbosity = 0;
+// defaults.verbosity = 0;
 
 //
 
@@ -1425,7 +1433,7 @@ function isRepository( o )
       return _.process.start
       ({
         execPath : 'git ls-remote ' + remoteParsed,
-        mode : 'shell',
+        mode : 'shell', /* qqq : for Dmytro : why? random?? */
         throwingExitCode : 0,
         outputPiping : 0,
         stdio : 'ignore',
@@ -1470,7 +1478,7 @@ var defaults = isRepository.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
 defaults.sync = 1;
-defaults.verbosity = 0;
+// defaults.verbosity = 0;
 
 //
 
@@ -1775,6 +1783,7 @@ function statusLocal_body( o )
 {
   _.assert( arguments.length === 1, 'Expects single argument' );
 
+  debugger;
   let start = _.process.starter
   ({
     currentPath : o.localPath,
@@ -1783,7 +1792,9 @@ function statusLocal_body( o )
     deasync : o.sync,
     throwingExitCode : 1,
     outputCollecting : 1,
-    verbosity : o.verbosity - 1,
+    // verbosity : o.verbosity - 1,
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
+    logger : _.logger.relative( o.logger, -1 ),
   });
 
   let result = resultPrepare();
@@ -1816,7 +1827,11 @@ function statusLocal_body( o )
 
   return ready;
 
-  /* - */
+  /* -
+
+
+  qqq : for Dmytro : list of subroutines?
+  */
 
   function end( err, got )
   {
@@ -2091,6 +2106,7 @@ function statusLocal_body( o )
 
     /* check tags */
 
+    debugger;
     return start( 'git for-each-ref */tags/* --format=%(refname:short)' )
     .then( ( got ) =>
     {
@@ -2151,7 +2167,9 @@ function statusLocal_body( o )
       sync : 1,
       throwingExitCode : 0,
       outputCollecting : 1,
-      verbosity : o.verbosity - 1,
+      // verbosity : o.verbosity - 1,
+      logger : _.logger.relative( o.logger, -1 ),
+      verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     })
   }
 
@@ -2250,7 +2268,7 @@ var defaults = statusLocal_body.defaults = Object.create( null );
 
 defaults.localPath = null;
 defaults.sync = 1;
-defaults.verbosity = 0;
+defaults.logger = 0;
 defaults.attempt = 2;
 defaults.attemptDelay = 250;
 
@@ -2311,6 +2329,7 @@ function statusRemote_body( o )
 {
   _.assert( arguments.length === 1, 'Expects single argument' );
 
+  debugger;
   let ready = new _.Consequence();
   let start =  _.process.starter
   ({
@@ -2323,7 +2342,8 @@ function statusRemote_body( o )
     outputPiping : 0,
     inputMirroring : 0,
     stdio : [ 'pipe', 'pipe', 'ignore' ],
-    verbosity : o.verbosity - 1,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     ready,
   });
 
@@ -2545,7 +2565,7 @@ function statusRemote_body( o )
 
 var defaults = statusRemote_body.defaults = Object.create( null );
 defaults.localPath = null;
-defaults.verbosity = 0;
+defaults.logger = 0;
 defaults.version = _.all;
 defaults.remoteCommits = null;
 defaults.remoteBranches = 0;
@@ -3938,7 +3958,8 @@ function repositoryInit( o )
 
   let start = _.process.starter
   ({
-    verbosity : o.verbosity - 1,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     sync : 0,
     deasync : 0,
     outputCollecting : 1,
@@ -4007,8 +4028,8 @@ function repositoryInit( o )
     .then( () =>
     {
 
-      if( o.verbosity )
-      logger.log( `Making remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+      if( o.logger && o.logger.verbosity > 0 )
+      o.logger.log( `Making remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
 
       if( o.dry )
       return true;
@@ -4076,8 +4097,8 @@ function repositoryInit( o )
 
   function localRepositoryNew()
   {
-    if( o.verbosity )
-    logger.log( `Making a new local repository at ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    if( o.logger && o.logger.verbosity > 0 )
+    o.logger.log( `Making a new local repository at ${_.color.strFormat( String( o.localPath ), 'path' )}` );
     if( o.dry )
     return null;
     _.fileProvider.dirMake( o.localPath );
@@ -4096,8 +4117,8 @@ function repositoryInit( o )
       throw _.err( `Repository at ${o.localPath} already exists, but has different origin ${wasRemotePath}` );
       return null;
     }
-    if( o.verbosity )
-    logger.log( `Adding origin ${_.color.strFormat( String( o.remotePath ), 'path' )} to local repository ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    if( o.logger )
+    o.logger.log( `Adding origin ${_.color.strFormat( String( o.remotePath ), 'path' )} to local repository ${_.color.strFormat( String( o.localPath ), 'path' )}` );
     if( o.dry )
     return null;
     // if( _.git.remotePathFromLocal( o.localPath ) )
@@ -4110,12 +4131,12 @@ function repositoryInit( o )
   function localRepositoryClone()
   {
 
-    if( o.verbosity )
+    if( o.logger && o.logger.verbosity > 0 )
     if( _.fileProvider.isDir( o.localPath ) )
-    logger.log( `Directory ${_.color.strFormat( String( o.localPath ), 'path' )} will be moved` );
+    o.logger.log( `Directory ${_.color.strFormat( String( o.localPath ), 'path' )} will be moved` );
 
-    if( o.verbosity )
-    logger.log( `Cloning repository from ${_.color.strFormat( String( o.remotePath ), 'path' )} to ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    if( o.logger && o.logger.verbosity > 0 )
+    o.logger.log( `Cloning repository from ${_.color.strFormat( String( o.remotePath ), 'path' )} to ${_.color.strFormat( String( o.localPath ), 'path' )}` );
 
     if( o.dry )
     return null;
@@ -4130,7 +4151,8 @@ function repositoryInit( o )
 
     let start = _.process.starter
     ({
-      verbosity : o.verbosity - 1,
+      logger : _.logger.relative( o.logger, -1 ),
+      verbosity : o.logger ? o.logger.verbosity - 1 : 0,
       sync : 0,
       deasync : 0,
       outputCollecting : 1,
@@ -4182,7 +4204,7 @@ repositoryInit.defaults =
   local : null,
   throwing : 1,
   sync : 1,
-  verbosity : 0,
+  logger : 0,
   dry : 0,
   description : null,
   token : null,
@@ -4264,8 +4286,8 @@ function repositoryDelete( o )
     .then( () =>
     {
 
-      if( o.verbosity )
-      logger.log( `Removing remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+      if( o.logger && o.logger.verbosity > 0 )
+      o.logger.log( `Removing remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
 
       if( o.dry )
       return true;
@@ -4300,7 +4322,7 @@ repositoryDelete.defaults =
   remotePath : null,
   throwing : 1,
   sync : 1,
-  verbosity : 1,
+  logger : 1,
   dry : 0,
   token : null,
 }
@@ -4340,7 +4362,8 @@ function repositoryClone( o )
 
   let shell = _.process.starter
   ({
-    verbosity : o.verbosity,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
     ready,
   });
@@ -4360,7 +4383,7 @@ repositoryClone.defaults =
 {
   remotePath : null,
   localPath : null,
-  verbosity : null,
+  logger : 0,
   sync : 0
 };
 
@@ -4382,7 +4405,9 @@ function repositoryCheckout( o )
 
   let shell = _.process.starter
   ({
-    verbosity : o.verbosity,
+    // verbosity : o.verbosity,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
     outputCollecting : 1,
     ready,
@@ -4461,7 +4486,7 @@ repositoryCheckout.defaults =
 {
   remotePath : null,
   localPath : null,
-  verbosity : null,
+  logger : 0,
   sync : 0
 };
 
@@ -4476,7 +4501,9 @@ function repositoryStash( o )
   let ready = new _.Consequence().take( null );
   let shell = _.process.starter
   ({
-    verbosity : o.verbosity,
+    // verbosity : o.verbosity,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
     outputCollecting : 1,
     ready,
@@ -4508,7 +4535,8 @@ function repositoryStash( o )
 repositoryStash.defaults =
 {
   localPath : null,
-  verbosity : null,
+  // verbosity : null,
+  logger : 0,
   pop : 0
 };
 
@@ -4523,7 +4551,9 @@ function repositoryMerge( o )
   let ready = new _.Consequence().take( null );
   let shell = _.process.starter
   ({
-    verbosity : o.verbosity,
+    // verbosity : o.verbosity,
+    logger : _.logger.relative( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
     outputCollecting : 1,
     ready,
@@ -4558,7 +4588,7 @@ function repositoryMerge( o )
 repositoryMerge.defaults =
 {
   localPath : null,
-  verbosity : null
+  logger : 0,
 };
 
 //
@@ -4658,6 +4688,8 @@ function prOpen( o )
   o = { remotePath : o }
   o = _.routineOptions( prOpen, o );
 
+  o.logger = _.logger.from( o.logger );
+
   if( !o.token && o.throwing )
   throw _.errBrief( 'Cannot autorize user without user token.' )
 
@@ -4730,10 +4762,10 @@ function prOpen( o )
       {
         if( args[ 0 ] )
         throw _.err( `Error code : ${ args[ 0 ].statusCode }. ${ args[ 0 ].message }` ); /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
-        if( o.verbosity >= 3 )
-        logger.log( args[ 1 ] );
-        else if( o.verbosity )
-        logger.log( `Succefully created pull request "${ o.title }" in ${ o.remotePath }.` )
+        if( o.logger && o.logger.verbosity >= 3 )
+        o.logger.log( args[ 1 ] );
+        else if( o.logger && o.logger.verbosity >= 1 )
+        o.logger.log( `Succefully created pull request "${ o.title }" in ${ o.remotePath }.` )
 
         return args[ 1 ];
       });
@@ -4752,7 +4784,8 @@ prOpen.defaults =
 {
   throwing : 1,
   sync : 1,
-  verbosity : 2,
+  // verbosity : 2,
+  logger : 2,
   token : null,
   remotePath : null,
   title : null,
@@ -5551,6 +5584,8 @@ function reset( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.longHas( [ null, 'all' ], o.preset ) );
 
+  o.logger = _.logger.from( o.logger );
+
   if( o.preset === 'all' )
   {
     _.assert( o.state2 === 'committed', 'Preset `all` resets all changes to latest commit' );
@@ -5654,20 +5689,21 @@ function reset( o )
     msgReset += status.uncommittedChanged ? `\n${ status.uncommittedChanged }` : ``;
     msgReset += status.uncommittedDeleted ? `\n${ status.uncommittedDeleted }` : ``;
     msgReset += status.uncommittedRenamed ? `\n${ status.uncommittedRenamed }` : ``;
-    logger.log( msgReset );
+    o.logger.log( msgReset );
 
     let msgClean = `Uncommitted changes, would be cleaned :`;
     msgClean += status.uncommittedUntracked ? `\n${ status.uncommittedUntracked }` : ``;
     msgClean += status.uncommittedAdded ? `\n${ status.uncommittedAdded }` : ``;
     msgClean += status.uncommittedCopied ? `\n${ status.uncommittedCopied }` : ``;
     msgClean += status.uncommittedIgnored ? `\n${ status.uncommittedIgnored }` : ``;
-    logger.log( msgClean );
+    o.logger.log( msgClean );
     return true;
   }
 }
 
 reset.defaults =
 {
+  logger : 1,
   state1 : 'working', /* 'working', 'staged', 'committed' some commit or tag */
   state2 : 'committed', /* 'working', 'staged', 'committed' some commit or tag */
   localPath : null,
@@ -5750,7 +5786,9 @@ function renormalize( o )
     let con = new _.Consequence().take( null )
     let start = _.process.starter
     ({
-      verbosity : o.verbosity - 1,
+      // verbosity : o.verbosity - 1,
+      logger : _.logger.relative( o.logger, -1 ),
+      verbosity : o.logger ? o.logger.verbosity - 1 : 0,
       outputCollecting : 1,
       currentPath : o.localPath,
       ready : con
@@ -5811,6 +5849,7 @@ function renormalize( o )
 
 renormalize.defaults =
 {
+  logger : 0,
   localPath : null,
   sync : 0,
   safe : 1,

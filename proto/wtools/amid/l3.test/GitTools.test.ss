@@ -421,9 +421,10 @@ function insideRepository( test )
   test.identical( got, true )
 
   test.case = 'outside of repo'
-  var insidePath = a.abs( __dirname, '../../../../..' );
+  var insidePath = a.abs( __dirname, process.platform === 'win32' ? '/c' : '/' );
   var got = _.git.insideRepository({ insidePath })
   test.identical( got, false )
+
 }
 
 //
@@ -2211,11 +2212,11 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   begin() /* qqq2 : ? */
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2225,7 +2226,7 @@ function isUpToDateExtended( test )
     return test.shouldThrowErrorAsync( con )
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2246,7 +2247,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2260,7 +2261,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2275,7 +2276,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2290,7 +2291,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2305,7 +2306,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2320,7 +2321,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2335,7 +2336,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2350,7 +2351,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2365,11 +2366,11 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   begin()
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2410,7 +2411,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   begin()
   .then( () =>
@@ -2426,7 +2427,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   begin()
   .then( () =>
@@ -2442,7 +2443,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -2457,7 +2458,7 @@ function isUpToDateExtended( test )
     })
   })
 
-  //
+  /* */
 
   return con;
 
@@ -3034,7 +3035,7 @@ function isRepository( test )
   //   test.identical( got, true );
   //   return null;
   // })
-  //
+  /* */
   // begin()
   // .then( () =>
   // {
@@ -3045,7 +3046,7 @@ function isRepository( test )
   //   test.identical( got, false );
   //   return null;
   // })
-  //
+  /* */
   // begin()
   // .then( () =>
   // {
@@ -3056,7 +3057,7 @@ function isRepository( test )
   //   test.identical( got, false );
   //   return null;
   // })
-  //
+  /* */
   // begin2()
   // .then( () =>
   // {
@@ -3067,7 +3068,7 @@ function isRepository( test )
   //   test.identical( got, true );
   //   return null;
   // })
-  //
+  /* */
   // begin2()
   // .then( () =>
   // {
@@ -3078,7 +3079,7 @@ function isRepository( test )
   //   test.identical( got, false );
   //   return null;
   // })
-  //
+  /* */
   // begin2()
   // .then( () =>
   // {
@@ -3089,7 +3090,7 @@ function isRepository( test )
   //   test.identical( got, true );
   //   return null;
   // })
-  //
+  /* */
   // begin2()
   // .then( () =>
   // {
@@ -3100,9 +3101,9 @@ function isRepository( test )
   //   test.identical( got, false );
   //   return null;
   // })
-  //
+  /* */
   // /* -async- */
-  //
+  /* */
   // begin2()
   // .then( () =>
   // {
@@ -3124,9 +3125,9 @@ function isRepository( test )
   //     return null;
   //   })
   // })
-  //
+  /* */
   // /* */
-  //
+  /* */
   // begin2()
   // .then( () =>
   // {
@@ -6037,7 +6038,7 @@ function statusLocalEmpty( test )
     return null;
   })
 
-  //
+  /* */
 
   initEmpty()
   .then( () =>
@@ -6088,7 +6089,7 @@ function statusLocalEmpty( test )
 
   })
 
-  //
+  /* */
 
   initEmpty()
   .then( () =>
@@ -6143,7 +6144,7 @@ function statusLocalEmpty( test )
     return null;
   })
 
-  //
+  /* */
 
   initEmpty()
   a.shell( 'git commit -m init --allow-empty' )
@@ -6195,7 +6196,7 @@ function statusLocalEmpty( test )
     return null;
   })
 
-  //
+  /* */
 
   initEmpty()
   a.shell( 'git checkout -b newbranch' )
@@ -6244,7 +6245,7 @@ function statusLocalEmpty( test )
     return null;
   })
 
-  //
+  /* */
 
   initEmpty()
   a.shell( 'git commit -m init --allow-empty' ) //no way to create tag in repo without commits
@@ -6483,7 +6484,7 @@ function statusLocalEmptyWithOrigin( test )
     return null;
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -6533,7 +6534,7 @@ function statusLocalEmptyWithOrigin( test )
 
   })
 
-  //
+  /* */
 
   .then( () =>
   {
@@ -6634,7 +6635,7 @@ function statusLocalEmptyWithOrigin( test )
     return null;
   })
 
-  //
+  /* */
 
   initEmptyWithOrigin()
   a.shell( 'git checkout -b newbranch' )
@@ -6683,7 +6684,7 @@ function statusLocalEmptyWithOrigin( test )
     return null;
   })
 
-  //
+  /* */
 
   initEmptyWithOrigin()
   a.shell( 'git commit -m init --allow-empty' ) //no way to create tag in repo without commits
@@ -7106,7 +7107,7 @@ function statusLocalExplainingTrivial( test )
     return null;
   })
 
-  //
+  /* */
 
   prepareRepo()
   repoNewCommit( 'init' )
@@ -7274,7 +7275,7 @@ function statusLocalExtended( test )
       detailing : 1,
       explaining : 1,
       unpushed : 1,
-      verbosity : 1,
+      logger : 1,
     });
     test.identical( !!got.status, true )
     test.identical( !!got.uncommittedUnstaged, true )
@@ -7309,7 +7310,7 @@ function statusLocalExtended( test )
       detailing : 1,
       explaining : 1,
       unpushed : 1,
-      verbosity : 1,
+      logger : 1,
     });
 
     test.identical( !!got.status, true )
@@ -7341,7 +7342,7 @@ function statusLocalExtended( test )
       detailing : 1,
       explaining : 1,
       unpushed : 1,
-      verbosity : 1,
+      logger : 1,
     });
     test.identical( !!got.uncommittedDeleted, true )
     test.identical( !!got.uncommittedAdded, true )
@@ -7377,7 +7378,7 @@ function statusLocalExtended( test )
       detailing : 1,
       explaining : 1,
       unpushed : 1,
-      verbosity : 1,
+      logger : 1,
     });
     test.identical( !!got.status, true )
     test.identical( !!got.uncommittedUnstaged, true )
@@ -7412,7 +7413,7 @@ function statusLocalExtended( test )
       detailing : 1,
       explaining : 1,
       unpushed : 1,
-      verbosity : 1,
+      logger : 1,
     });
     test.identical( !!got.status, true )
     test.identical( !!got.uncommittedUnstaged, true )
@@ -7442,7 +7443,7 @@ function statusLocalExtended( test )
       detailing : 1,
       explaining : 1,
       unpushed : 1,
-      verbosity : 1,
+      logger : 1,
     });
     test.identical( !!got.status, true )
     test.identical( !!got.uncommittedUnstaged, true )
@@ -7472,7 +7473,7 @@ function statusLocalExtended( test )
       detailing : 1,
       explaining : 1,
       unpushed : 1,
-      verbosity : 1,
+      logger : 1,
     });
     test.identical( !!got.status, true )
     test.identical( !!got.uncommittedUnstaged, true )
@@ -7871,7 +7872,7 @@ function statusRemote( test )
     return null;
   })
 
-  //
+  /* */
 
   prepareRepo()
   repoNewCommit( 'init' )
@@ -7925,7 +7926,7 @@ function statusRemote( test )
     return null;
   })
 
-  //
+  /* */
 
   prepareRepo()
   repoNewCommit( 'init' )
@@ -8913,7 +8914,7 @@ function statusRemoteVersionOption( test )
     return null;
   })
 
-  //
+  /* */
 
   prepareRepo()
   repoNewCommit( 'init' )
@@ -9047,7 +9048,7 @@ function statusRemoteVersionOption( test )
     return null;
   })
 
-  //
+  /* */
 
   prepareRepo()
   repoNewCommit( 'init' )
@@ -9456,7 +9457,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9497,7 +9498,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9538,7 +9539,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9579,7 +9580,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9620,7 +9621,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9661,7 +9662,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9702,7 +9703,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9743,7 +9744,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9784,7 +9785,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9825,7 +9826,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9870,7 +9871,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9914,7 +9915,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -9959,7 +9960,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -10003,7 +10004,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -10047,7 +10048,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -10091,7 +10092,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -10135,7 +10136,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -10179,7 +10180,7 @@ function status( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.status
     ({
@@ -10816,7 +10817,7 @@ function statusExplaining( test )
       remoteBranches : 0,
       sync : 1,
       uncommittedIgnored : 0,
-      verbosity : 1,
+      logger : 1,
     });
 
     test.identical( _.strCount( got.status, 'List of remote branches' ), 1 );
@@ -10922,7 +10923,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -10968,7 +10969,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11015,7 +11016,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11062,7 +11063,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11109,7 +11110,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11156,7 +11157,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11203,7 +11204,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11250,7 +11251,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11297,7 +11298,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11344,7 +11345,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11394,7 +11395,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11444,7 +11445,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11494,7 +11495,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11544,7 +11545,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11594,7 +11595,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11644,7 +11645,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11694,7 +11695,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11743,7 +11744,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -11794,7 +11795,7 @@ function statusFull( test )
     }
     test.identical( status, expected );
 
-    //
+    /* */
 
     var status = _.git.statusFull
     ({
@@ -12004,7 +12005,7 @@ function statusFullHalfStaged( test )
       unpushedCommits : null,
       unpushedTags : null,
       unpushedBranches : null,
-      verbosity : 1,
+      logger : 1,
       remoteCommits : null,
       remoteBranches : 0,
       remoteTags : null,
@@ -12782,7 +12783,7 @@ function hasRemoteChanges( test )
     return null;
   })
 
-  //
+  /* */
 
   prepareRepo()
   repoNewCommit( 'init' )
@@ -12808,7 +12809,7 @@ function hasRemoteChanges( test )
     return null;
   })
 
-  //
+  /* */
 
   prepareRepo()
   repoNewCommit( 'init' )
@@ -16361,7 +16362,7 @@ function gitHooksManager( test )
         rewriting : 0
       })
 
-      //
+      /* */
 
       _.git.hookRegister
       ({
@@ -16373,7 +16374,7 @@ function gitHooksManager( test )
         rewriting : 0
       })
 
-      //
+      /* */
 
       test.will = 'hook runner was created';
       test.true( a.fileProvider.fileExists( a.abs( 'repo', './.git/hooks', hookName ) ) );
@@ -17130,7 +17131,7 @@ function hookPreservingHardLinks( test )
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), 'dir', [ 'b', 'c' ] ) ), false );
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), 'dir', [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'a', 'dir/a' ] ) ), true );
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'a', 'dir/a' ] ) ), true ); /* qqq : for Dmytro : faile for me */
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'b', 'dir/b' ] ) ), true );
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'c', 'dir/c' ] ) ), false );
 
@@ -17191,7 +17192,7 @@ function hookPreservingHardLinks( test )
     return a.ready;
   }
 
-  //
+  /* */
 
   function prepareClone()
   {
@@ -17603,6 +17604,7 @@ function repositoryClone( test )
           return null;
         }
 
+        /* qqq : for Dmytro : does not throw error for me */
         test.case = 'ssh protocol with implicit declaration';
         test.shouldThrowErrorSync( () =>
         {
@@ -17614,6 +17616,7 @@ function repositoryClone( test )
           });
         });
 
+        /* qqq : for Dmytro : does not throw error for me */
         test.case = 'ssh protocol with explicit declaration ';
         test.shouldThrowErrorSync( () =>
         {
@@ -18066,6 +18069,10 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* - */
 
+  // qqq : for Dmytro : for Vova : fail!
+  //  > git branch --show-current
+  // error: unknown option `show-current'
+
   checkout().then( () =>
   {
     test.case = 'remotePath - simple http path, without hash or tag';
@@ -18477,7 +18484,7 @@ function prOpenRemote( test )
       localPath : a.routinePath,
       throwing : 1,
       sync : 1,
-      verbosity : 0,
+      logger : 0,
       dry : 0,
       description : 'Test',
       token,
@@ -18614,7 +18621,7 @@ function prOpenRemote( test )
       remotePath,
       throwing : 1,
       sync : 1,
-      verbosity : 1,
+      logger : 1,
       dry : 0,
       token,
     })
@@ -19938,7 +19945,7 @@ function diffSpecial( test )
     return null;
   })
 
-  //
+  /* */
 
   begin()
   .then( () =>
@@ -20057,7 +20064,7 @@ function diffSpecial( test )
     return null;
   })
 
-  //
+  /* */
 
   begin()
   .then( () =>
@@ -21135,7 +21142,7 @@ function diffSpecial( test )
     return null;
   })
 
-  //
+  /* */
 
   initBare()
   cloneBare()
@@ -21243,7 +21250,7 @@ function diffSpecial( test )
     return null;
   })
 
-  //
+  /* */
 
   initBare()
   cloneBare()
@@ -25385,6 +25392,7 @@ const Proto =
   silencing : 1,
   enabled : 1,
   verbosity : 4,
+  routineTimeOut : 30000,
 
   onSuiteBegin,
   onSuiteEnd,
@@ -25411,7 +25419,7 @@ const Proto =
 
     remotePathFromLocal,
 
-    //
+    /* */
 
     insideRepository,
 
@@ -25500,7 +25508,7 @@ const Proto =
     configResetWithOptionWithGlobal,
     configResetWithOptionsWithLocalWithGlobal,
 
-    //
+    /* */
 
     diff,
     diffSpecial,
