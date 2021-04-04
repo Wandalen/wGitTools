@@ -1783,7 +1783,6 @@ function statusLocal_body( o )
 {
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  debugger;
   let start = _.process.starter
   ({
     currentPath : o.localPath,
