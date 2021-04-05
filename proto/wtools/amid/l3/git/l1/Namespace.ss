@@ -4772,6 +4772,7 @@ function prOpen( o )
     return ready;
   }
 
+  /* qqq : for Dmytro : ?? */
   function onRequest( err, body, headers )
   {
     return _.time.begin( 0, () => ready2.take([ err, body ]) );
@@ -4787,10 +4788,10 @@ prOpen.defaults =
   logger : 2,
   token : null,
   remotePath : null,
-  title : null,
-  body : null,
-  srcBranch : null,
-  dstBranch : null,
+  title : null, /* qqq : for Dmytro : rename to descriptionHead */
+  body : null, /* qqq : for Dmytro : rename to descriptionBody */
+  srcBranch : null, /* qqq : for Dmytro : should get current by default */
+  dstBranch : null, /* qqq : for Dmytro : should get current by default */
 };
 
 // --

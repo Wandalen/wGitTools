@@ -95,8 +95,8 @@ path:
       raw: compiled
       content: prime
   npm.proto.entry:
-    - /pro/module/wGitTools/proto/wtools/amid/l3/git/entry/GitTools.ss
-    - /pro/module/wGitTools/proto/node_modules/wgittools
+    - proto/wtools/amid/l3/git/entry/GitTools.ss
+    - proto/node_modules/wgittools
 reflector:
   reflect.proto:
     inherit: predefined.*
