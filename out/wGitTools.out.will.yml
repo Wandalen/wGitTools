@@ -2,10 +2,13 @@ format: outwillfile-2.0
 root:
   - wGitTools.out
 consistency:
-  ../.ex.will.yml: &ref_0
+  wGitTools.out.will.yml: &ref_0
+    hash: 4667d6828a8aa300d08362f4859731eb
+    size: 40221
+  ../.ex.will.yml: &ref_1
     hash: 15f7123b7761b7eba6df2912328a70a6
     size: 1720
-  ../.im.will.yml: &ref_1
+  ../.im.will.yml: &ref_2
     hash: 73590607ef02914976205748b9d929a5
     size: 5341
 module:
@@ -16,19 +19,19 @@ module:
       description: Collection of tools to use git programmatically.
       enabled: 1
       version: 0.4.0
-      interpreters: &ref_2
+      interpreters:
         - njs >= 10.0.0
         - chrome >= 60.0.0
         - firefox >= 60.0.0
-      keywords: &ref_3
+      keywords:
         - wTools
         - graph
       license: MIT
       author: Kostiantyn Wandalen <wanalen@01.school>
-      contributors: &ref_4
+      contributors:
         - Kostiantyn Wandalen <wanalen@01.school>
       npm.name: wgittools
-      npm.scripts: &ref_5
+      npm.scripts:
         test: 'wtest .run proto/** rapidity:-3'
         docgen: wdocgen .build proto
     path:
@@ -159,9 +162,9 @@ module:
           - ../proto
           - ../proto/Integration.test.ss
           - ../proto/node_modules
+          - ../proto/node_modules/Tools
           - ../proto/node_modules/wgittools
           - ../proto/wtools
-          - ../proto/wtools/Tools.s
           - ../proto/wtools/abase
           - ../proto/wtools/amid
           - ../proto/wtools/amid/l3
@@ -172,8 +175,11 @@ module:
           - ../proto/wtools/amid/l3/git/include/Basic.ss
           - ../proto/wtools/amid/l3/git/include/Mid.ss
           - ../proto/wtools/amid/l3/git/l1
-          - ../proto/wtools/amid/l3/git/l1/Namespace.ss
+          - ../proto/wtools/amid/l3/git/l1/Git.ss
           - ../proto/wtools/amid/l3/git/l1/Path.ss
+          - ../proto/wtools/amid/l3/git/l1/Repo.s
+          - ../proto/wtools/amid/l3/git/l3_provider
+          - ../proto/wtools/amid/l3/git/l3_provider/Github.s
           - ../proto/wtools/amid/l3.test
           - ../proto/wtools/amid/l3.test/GitTools.test.ss
           - ../proto/wtools/amid/l3.test/Path.test.ss
@@ -735,6 +741,24 @@ module:
           content: prime
         inherit:
           - files.transpile
+      exported.proto.export:
+        opts:
+          filePath: 'reflector::exported.proto.export'
+        criterion:
+          generated: 1
+          content: proto
+          export: 1
+        inherit:
+          - files.reflect
+      exported.files.proto.export:
+        opts:
+          filePath: 'reflector::exported.files.proto.export'
+        criterion:
+          generated: 1
+          content: proto
+          export: 1
+        inherit:
+          - files.reflect
     build:
       proto.export:
         steps:
@@ -823,8 +847,9 @@ module:
           content: proto
           export: 1
     consistency:
-      ../.ex.will.yml: *ref_0
-      ../.im.will.yml: *ref_1
+      wGitTools.out.will.yml: *ref_0
+      ../.ex.will.yml: *ref_1
+      ../.im.will.yml: *ref_2
   ../:
     about:
       name: wGitTools
@@ -832,13 +857,21 @@ module:
       description: Collection of tools to use git programmatically.
       enabled: 1
       version: 0.4.0
-      interpreters: *ref_2
-      keywords: *ref_3
+      interpreters:
+        - njs >= 10.0.0
+        - chrome >= 60.0.0
+        - firefox >= 60.0.0
+      keywords:
+        - wTools
+        - graph
       license: MIT
       author: Kostiantyn Wandalen <wanalen@01.school>
-      contributors: *ref_4
+      contributors:
+        - Kostiantyn Wandalen <wanalen@01.school>
       npm.name: wgittools
-      npm.scripts: *ref_5
+      npm.scripts:
+        test: 'wtest .run proto/** rapidity:-3'
+        docgen: wdocgen .build proto
     path:
       module.willfiles:
         criterion:
@@ -1536,3 +1569,6 @@ module:
       ../.im.will.yml:
         hash: 73590607ef02914976205748b9d929a5
         size: 5341
+      wGitTools.out.will.yml:
+        hash: 4667d6828a8aa300d08362f4859731eb
+        size: 40221
