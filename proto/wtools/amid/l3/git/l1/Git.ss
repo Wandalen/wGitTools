@@ -2728,6 +2728,8 @@ function statusFull( o )
 
   let prsReady = _.take( null );
   if( o.prs )
+  debugger;
+  if( o.prs )
   prsReady = _.repo.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0, token : o.token });
 
   let ready = _.Consequence.AndKeep( statusReady, prsReady )
