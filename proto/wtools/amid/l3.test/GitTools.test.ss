@@ -5,7 +5,7 @@
 
 if( typeof module !== 'undefined' )
 {
-  let _ = require( '../../../node_modules/Tools' );
+  const _ = require( '../../../node_modules/Tools' );
 
   _.include( 'wTesting' );
 
@@ -19135,6 +19135,8 @@ function diff( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
+  /* qqq : bad : use test modules only */
+  /* qqq : for Dmytro : do properly */
   let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
   let latestCommit = _.git.remoteVersionLatest({ remotePath });
 
@@ -22042,7 +22044,7 @@ function pullCheckOutput( test )
 
   function testApp()
   {
-    let _ = require( toolsPath );
+    const _ = require( toolsPath );
     _.include( 'wGitTools' );
     return _.git.pull( o );
   }
@@ -22706,7 +22708,7 @@ function pushCheckOutput( test )
 
   function testApp()
   {
-    let _ = require( toolsPath );
+    const _ = require( toolsPath );
     _.include( 'wGitTools' );
     return _.git.push( o );
   }
@@ -24507,7 +24509,7 @@ function resetWithOptionDry( test )
 
   function testApp()
   {
-    let _ = require( toolsPath );
+    const _ = require( toolsPath );
     _.include( 'wGitTools' )
     _.git.reset( o );
   }
@@ -25372,7 +25374,7 @@ function renormalizeAudit( test )
 
   function program()
   {
-    let _ = require( GitToolsPath );
+    const _ = require( GitToolsPath );
     _.git.renormalize({ localPath : ClonePath, audit : 1 });
   }
 }

@@ -10,7 +10,7 @@
 
 if( typeof module !== 'undefined' )
 {
-  let _ = require( '../include/Mid.ss' );
+  const _ = require( '../include/Mid.ss' );
   module[ 'exports' ] = _global_.wTools;
 }
 
