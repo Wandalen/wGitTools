@@ -19,7 +19,7 @@
   "dependencies" :
   {
     "ini" : "=2.0.0",
-    "octonode" : "=0.10.0",
+    "octonode" : "=0.10.2",
     "wTools" : "delta",
     "wCopyable" : "delta",
     "wFiles" : "delta",

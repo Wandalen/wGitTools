@@ -94,201 +94,201 @@ function stateIsTag( src )
 // path
 // --
 
-function objectsParse( remotePath )
-{
-  let result = Object.create( null );
-  let gitHubRegexp = /\:\/\/\/github\.com\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/;
-  // let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
-  /* Dmytro : this regexp does not search dashes, maybe needs additional symbols */
-
-  // remotePath = this.remotePathNormalize( remotePath );
-  remotePath = _.git.path.normalize( remotePath );
-  let match = remotePath.match( gitHubRegexp );
-
-  if( match )
-  {
-    result.service = 'github.com';
-    result.user = match[ 1 ];
-    result.repo = _.strRemoveEnd( match[ 2 ], '.git' );
-  }
-
-  return result;
-}
-
+// function objectsParse( remotePath )
+// {
+//   let result = Object.create( null );
+//   let gitHubRegexp = /\:\/\/\/github\.com\/([a-zA-Z0-9-_.]+)\/([a-zA-Z0-9-_.]+)/;
+//   // let gitHubRegexp = /\:\/\/\/github\.com\/(\w+)\/(\w+)(\.git)?/;
+//   /* Dmytro : this regexp does not search dashes, maybe needs additional symbols */
 //
-
-/**
- * @typedef {Object} RemotePathComponents
- * @property {String} protocol
- * @property {String} hash
- * @property {String} longPath
- * @property {String} localVcsPath
- * @property {String} remoteVcsPath
- * @property {String} remoteVcsLongerPath
- * @namespace wTools.git
- * @module Tools/mid/GitTools
- */
-
-function pathParse( remotePath )
-{
-  let path = _.uri;
-  let result = Object.create( null );
-
-  if( _.mapIs( remotePath ) )
-  return remotePath;
-
-  _.assert( arguments.length === 1 );
-  _.assert( _.strIs( remotePath ) );
-  _.assert( path.isGlobal( remotePath ) )
-
-  /* */
-
-  let parsed1 = path.parseConsecutive( remotePath );
-  _.mapExtend( result, parsed1 );
-
-  if( !result.tag && !result.hash )
-  result.tag = 'master';
-
-  _.assert( !result.tag || !result.hash, 'Remote path:', _.strQuote( remotePath ), 'should contain only hash or tag, but not both.' )
-
-  let isolated = pathIsolateGlobalAndLocal();
-  result.localVcsPath = isolated.localPath;
-
-  /* remoteVcsPath */
-
-  let ignoreComponents =
-  {
-    hash : null,
-    tag : null,
-    protocol : null,
-    query : null,
-    longPath : null
-  }
-  let parsed2 = _.mapBut_( null, parsed1, ignoreComponents );
-  let protocols = parsed2.protocols = parsed1.protocol ? parsed1.protocol.split( '+' ) : [];
-  let isHardDrive = false;
-  let provider = _.fileProvider;
-
-  if( protocols.length )
-  {
-    isHardDrive = _.longHasAny( protocols, [ 'hd' ] );
-    if( protocols[ 0 ].toLowerCase() === 'git' )
-    protocols.shift();
-    if( protocols.length && protocols[ 0 ].toLowerCase() === 'hd' )
-    protocols.shift();
-  }
-
-  parsed2.longPath = isolated.globalPath;
-  if( !isHardDrive )
-  parsed2.longPath = _.strRemoveBegin( parsed2.longPath, '/' );
-  parsed2.longPath = _.strRemoveEnd( parsed2.longPath, '/' );
-
-  result.remoteVcsPath = path.str( parsed2 );
-
-  if( isHardDrive )
-  result.remoteVcsPath = provider.path.nativize( result.remoteVcsPath );
-
-  /* remoteVcsLongerPath */
-
-  let parsed3 = _.mapBut_( null, parsed1, ignoreComponents );
-  parsed3.longPath = parsed2.longPath;
-  parsed3.protocols = parsed2.protocols.slice();
-  result.remoteVcsLongerPath = path.str( parsed3 );
-
-  if( isHardDrive )
-  result.remoteVcsLongerPath = provider.path.nativize( result.remoteVcsLongerPath );
-
-  /* */
-
-  result.isFixated = _.git.path.isFixated( result );
-
-  _.assert( !_.boolLike( result.hash ) );
-  return result
-
-  /* */
-
-  function pathIsolateGlobalAndLocal()
-  {
-    let splits = _.strIsolateLeftOrAll( parsed1.longPath, '.git/' );
-    if( parsed1.query )
-    {
-      let query = _.strStructureParse
-      ({
-        src : parsed1.query,
-        keyValDelimeter : '=',
-        entryDelimeter : '&'
-      });
-      if( query.out )
-      splits[ 2 ] = path.join( splits[ 2 ], query.out );
-    }
-    let globalPath = splits[ 0 ] + ( splits[ 1 ] || '' );
-    let localPath = splits[ 2 ] || './';
-    return { globalPath, localPath };
-  }
-
-}
-
+//   // remotePath = this.remotePathNormalize( remotePath );
+//   remotePath = _.git.path.normalize( remotePath );
+//   let match = remotePath.match( gitHubRegexp );
 //
-
-function pathIsFixated( filePath )
-{
-  // let parsed = _.git.pathParse( filePath );
-  let parsed = _.git.path.parse({ remotePath : filePath, full : 0, atomic : 1 });
-
-  if( !parsed.hash )
-  return false;
-
-  if( parsed.hash.length < 7 )
-  return false;
-
-  if( !/[0-9a-f]+/.test( parsed.hash ) )
-  return false;
-
-  return true;
-}
-
+//   if( match )
+//   {
+//     result.service = 'github.com';
+//     result.user = match[ 1 ];
+//     result.repo = _.strRemoveEnd( match[ 2 ], '.git' );
+//   }
 //
+//   return result;
+// }
 
-/**
- * @summary Changes hash in provided path `o.remotePath` to hash of latest commit available.
- * @param {Object} o Options map.
- * @param {String} o.remotePath Remote path.
- * @param {Number} o.logger=0 Level of verbosity.
- * @function pathFixate
- * @namespace wTools.git
- * @module Tools/mid/GitTools
- */
-
-function pathFixate( o )
-{
-  let path = _.uri;
-
-  if( !_.mapIs( o ) )
-  o = { remotePath : o }
-  _.routineOptions( pathFixate, o );
-  _.assert( arguments.length === 1, 'Expects single argument' );
-
-  // let parsed = _.git.pathParse( o.remotePath );
-  let parsed = _.git.path.parse( o.remotePath );
-  let latestVersion = _.git.remoteVersionLatest
-  ({
-    remotePath : o.remotePath,
-    logger : o.logger,
-  });
-
-  let result = path.str
-  ({
-    protocol : parsed.protocol,
-    longPath : parsed.longPath,
-    hash : latestVersion,
-  });
-
-  return result;
-}
-
-var defaults = pathFixate.defaults = Object.create( null );
-defaults.remotePath = null;
-defaults.logger = 0;
+// //
+//
+// /**
+//  * @typedef {Object} RemotePathComponents
+//  * @property {String} protocol
+//  * @property {String} hash
+//  * @property {String} longPath
+//  * @property {String} localVcsPath
+//  * @property {String} remoteVcsPath
+//  * @property {String} remoteVcsLongerPath
+//  * @namespace wTools.git
+//  * @module Tools/mid/GitTools
+//  */
+//
+// function pathParse( remotePath )
+// {
+//   let path = _.uri;
+//   let result = Object.create( null );
+//
+//   if( _.mapIs( remotePath ) )
+//   return remotePath;
+//
+//   _.assert( arguments.length === 1 );
+//   _.assert( _.strIs( remotePath ) );
+//   _.assert( path.isGlobal( remotePath ) )
+//
+//   /* */
+//
+//   let parsed1 = path.parseConsecutive( remotePath );
+//   _.mapExtend( result, parsed1 );
+//
+//   if( !result.tag && !result.hash )
+//   result.tag = 'master';
+//
+//   _.assert( !result.tag || !result.hash, 'Remote path:', _.strQuote( remotePath ), 'should contain only hash or tag, but not both.' )
+//
+//   let isolated = pathIsolateGlobalAndLocal();
+//   result.localVcsPath = isolated.localPath;
+//
+//   /* remoteVcsPath */
+//
+//   let ignoreComponents =
+//   {
+//     hash : null,
+//     tag : null,
+//     protocol : null,
+//     query : null,
+//     longPath : null
+//   }
+//   let parsed2 = _.mapBut_( null, parsed1, ignoreComponents );
+//   let protocols = parsed2.protocols = parsed1.protocol ? parsed1.protocol.split( '+' ) : [];
+//   let isHardDrive = false;
+//   let provider = _.fileProvider;
+//
+//   if( protocols.length )
+//   {
+//     isHardDrive = _.longHasAny( protocols, [ 'hd' ] );
+//     if( protocols[ 0 ].toLowerCase() === 'git' )
+//     protocols.shift();
+//     if( protocols.length && protocols[ 0 ].toLowerCase() === 'hd' )
+//     protocols.shift();
+//   }
+//
+//   parsed2.longPath = isolated.globalPath;
+//   if( !isHardDrive )
+//   parsed2.longPath = _.strRemoveBegin( parsed2.longPath, '/' );
+//   parsed2.longPath = _.strRemoveEnd( parsed2.longPath, '/' );
+//
+//   result.remoteVcsPath = path.str( parsed2 );
+//
+//   if( isHardDrive )
+//   result.remoteVcsPath = provider.path.nativize( result.remoteVcsPath );
+//
+//   /* remoteVcsLongerPath */
+//
+//   let parsed3 = _.mapBut_( null, parsed1, ignoreComponents );
+//   parsed3.longPath = parsed2.longPath;
+//   parsed3.protocols = parsed2.protocols.slice();
+//   result.remoteVcsLongerPath = path.str( parsed3 );
+//
+//   if( isHardDrive )
+//   result.remoteVcsLongerPath = provider.path.nativize( result.remoteVcsLongerPath );
+//
+//   /* */
+//
+//   result.isFixated = _.git.path.isFixated( result );
+//
+//   _.assert( !_.boolLike( result.hash ) );
+//   return result
+//
+//   /* */
+//
+//   function pathIsolateGlobalAndLocal()
+//   {
+//     let splits = _.strIsolateLeftOrAll( parsed1.longPath, '.git/' );
+//     if( parsed1.query )
+//     {
+//       let query = _.strStructureParse
+//       ({
+//         src : parsed1.query,
+//         keyValDelimeter : '=',
+//         entryDelimeter : '&'
+//       });
+//       if( query.out )
+//       splits[ 2 ] = path.join( splits[ 2 ], query.out );
+//     }
+//     let globalPath = splits[ 0 ] + ( splits[ 1 ] || '' );
+//     let localPath = splits[ 2 ] || './';
+//     return { globalPath, localPath };
+//   }
+//
+// }
+//
+// //
+//
+// function pathIsFixated( filePath )
+// {
+//   // let parsed = _.git.pathParse( filePath );
+//   let parsed = _.git.path.parse({ remotePath : filePath, full : 0, atomic : 1 });
+//
+//   if( !parsed.hash )
+//   return false;
+//
+//   if( parsed.hash.length < 7 )
+//   return false;
+//
+//   if( !/[0-9a-f]+/.test( parsed.hash ) )
+//   return false;
+//
+//   return true;
+// }
+//
+// //
+//
+// /**
+//  * @summary Changes hash in provided path `o.remotePath` to hash of latest commit available.
+//  * @param {Object} o Options map.
+//  * @param {String} o.remotePath Remote path.
+//  * @param {Number} o.logger=0 Level of verbosity.
+//  * @function pathFixate
+//  * @namespace wTools.git
+//  * @module Tools/mid/GitTools
+//  */
+//
+// function pathFixate( o )
+// {
+//   let path = _.uri;
+//
+//   if( !_.mapIs( o ) )
+//   o = { remotePath : o }
+//   _.routineOptions( pathFixate, o );
+//   _.assert( arguments.length === 1, 'Expects single argument' );
+//
+//   // let parsed = _.git.pathParse( o.remotePath );
+//   let parsed = _.git.path.parse( o.remotePath );
+//   let latestVersion = _.git.remoteVersionLatest
+//   ({
+//     remotePath : o.remotePath,
+//     logger : o.logger,
+//   });
+//
+//   let result = path.str
+//   ({
+//     protocol : parsed.protocol,
+//     longPath : parsed.longPath,
+//     hash : latestVersion,
+//   });
+//
+//   return result;
+// }
+//
+// var defaults = pathFixate.defaults = Object.create( null );
+// defaults.remotePath = null;
+// defaults.logger = 0;
 
 //
 
@@ -935,7 +935,7 @@ function versionIsCommitHash( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.version ) );
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
   let start = _.process.starter
   ({
     sync : 0,
@@ -1038,7 +1038,7 @@ function versionsPull( o )
   {
     _.assert( _.arrayIs( versions ) && versions.length );
 
-    let ready = new _.Consequence().take( null );
+    let ready = _.take( null );
     let start = _.process.starter
     ({
       mode : 'shell',
@@ -1314,7 +1314,7 @@ function hasRemote( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.remotePath ) );
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
 
   ready.then( () =>
   {
@@ -1505,7 +1505,7 @@ function isHead( o )
   _.assert( o.tag || o.hash, 'Expects {-o.hash-} or {-o.tag-} to be defined.' )
   _.assert( !o.tag || !o.hash, 'Expects only {-o.hash-} or {-o.tag-}, but not both at same time.' )
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
 
   let shell = _.process.starter
   ({
@@ -1803,7 +1803,7 @@ function statusLocal_body( o )
                         && o.uncommittedRenamed && o.uncommittedCopied
                         && !o.detailing;
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
 
   ready.then( uncommittedCheck );
 
@@ -2105,7 +2105,6 @@ function statusLocal_body( o )
 
     /* check tags */
 
-    debugger;
     return start( 'git for-each-ref */tags/* --format=%(refname:short)' )
     .then( ( got ) =>
     {
@@ -2328,7 +2327,6 @@ function statusRemote_body( o )
 {
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  debugger;
   let ready = new _.Consequence();
   let start =  _.process.starter
   ({
@@ -2378,6 +2376,7 @@ function statusRemote_body( o )
     })
   }
 
+  /* qqq : for Dmytro : ask */
   start( 'git ls-remote' )//prints list of remote tags and branches
   ready.then( parse )
   start( 'git show-ref --heads --tags -d' )//prints list of local tags and branches
@@ -2428,6 +2427,7 @@ function statusRemote_body( o )
     remotes = remotes.map( ( src ) => _.strSplitNonPreserving({ src, delimeter : /\s+/ }) );
     remotes = remotes.slice( 1 );
 
+    /* qqq : for Dmytro : bad format of comments! */
     //remote heads
     heads = remotes.filter( ( r ) =>
     {
@@ -2479,7 +2479,7 @@ function statusRemote_body( o )
     if( !heads.length )
     return result.remoteCommits;
 
-    let con = new _.Consequence().take( null );
+    let con = _.take( null );
 
     _.each( heads, ( head ) =>
     {
@@ -2700,7 +2700,7 @@ function statusFull( o )
 
   o = _.routineOptions( statusFull, arguments );
 
-  result.isRepository = null;
+  result.isRepository = false;
   if( o.prs )
   o.prs = [];
 
@@ -2708,7 +2708,8 @@ function statusFull( o )
   o.localPath = _.git.localPathFromInside( o.insidePath );
 
   if( !o.localPath )
-  return o;
+  return result;
+  // return o;
 
   result.isRepository = true;
 
@@ -2717,7 +2718,7 @@ function statusFull( o )
   if( !o.remotePath )
   o.remotePath = _.git.remotePathFromLocal( o.localPath );
 
-  let statusReady = new _.Consequence().take( null );
+  let statusReady = _.take( null );
   if( o.remotePath )
   {
     let o2 = _.mapOnly_( null, o, status.defaults );
@@ -2725,9 +2726,9 @@ function statusFull( o )
     statusReady = _.git.status( o2 )
   }
 
-  let prsReady = new _.Consequence().take( null );
+  let prsReady = _.take( null );
   if( o.prs )
-  prsReady = _.git.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0, token : o.token });
+  prsReady = _.repo.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0, token : o.token });
 
   let ready = _.Consequence.AndKeep( statusReady, prsReady )
   .finally( ( err, arg ) =>
@@ -2818,7 +2819,6 @@ statusFull.defaults =
 }
 
 _.mapSupplement( statusFull.defaults, status.defaults );
-
 
 //
 
@@ -2911,7 +2911,7 @@ function repositoryHasTag( o )
   _.assert( o.remotePath === null || _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ) );
   _.assert( o.local || o.remote );
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
   let start = _.process.starter
   ({
     sync : 0,
@@ -3032,7 +3032,7 @@ function repositoryHasVersion( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.version ) );
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
   let start = _.process.starter
   ({
     sync : 0,
@@ -3089,7 +3089,7 @@ function repositoryHasVersion( o )
     if( result )
     return result;
 
-    let ready = _.Consequence().take( null );
+    let ready = _.take( null );
 
     start({ execPath : `git fetch -v -n --dry-run`, throwingExitCode : 1, ready })
 
@@ -3162,7 +3162,7 @@ function repositoryVersionToTag( o )
   _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
   _.assert( o.local || o.remote );
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
   let start = _.process.starter
   ({
     sync : 0,
@@ -3287,7 +3287,7 @@ function exists( o )
   _.assert( arguments.length === 1 );
   _.assert( _.strDefined( o.local ) || _.strDefined( o.remote ) );
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
 
   if( o.local )
   ready.then( checkLocal )
@@ -3470,7 +3470,7 @@ function tagMake( o )
   }
   else
   {
-    ready = new _.Consequence().take( null );
+    ready = _.take( null );
   }
 
   ready.then( () =>
@@ -3929,7 +3929,7 @@ defaults.insidePath = null;
 function repositoryInit( o )
 {
   let self = this;
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
 
   o = _.routineOptions( repositoryInit, o );
 
@@ -4022,7 +4022,7 @@ function repositoryInit( o )
       throw _.err( 'Requires an access token to create a repository on github.com' );
       return null;
     }
-    let ready = new _.Consequence().take( null );
+    let ready = _.take( null );
     ready
     .then( () =>
     {
@@ -4214,7 +4214,7 @@ repositoryInit.defaults =
 function repositoryDelete( o )
 {
   let self = this;
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
 
   o = _.routineOptions( repositoryDelete, o );
 
@@ -4280,7 +4280,7 @@ function repositoryDelete( o )
       throw _.err( 'Requires an access token to create a repository on github.com' );
       return null;
     }
-    let ready = new _.Consequence().take( null );
+    let ready = _.take( null );
     ready
     .then( () =>
     {
@@ -4337,7 +4337,7 @@ function repositoryClone( o )
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
   _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
 
   if( _.git.isRepository({ localPath : o.localPath }) )
   return ready;
@@ -4397,7 +4397,7 @@ function repositoryCheckout( o )
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
   _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
   // let parsed = _.git.pathParse( o.remotePath );
 
   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
@@ -4497,7 +4497,7 @@ function repositoryStash( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
   let shell = _.process.starter
   ({
     // verbosity : o.verbosity,
@@ -4547,7 +4547,7 @@ function repositoryMerge( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
   let shell = _.process.starter
   ({
     // verbosity : o.verbosity,
@@ -4590,212 +4590,212 @@ repositoryMerge.defaults =
   logger : 0,
 };
 
+// //
 //
-
-function prsGet( o )
-{
-  let ready = new _.Consequence().take( null );
-
-  if( _.strIs( o ) )
-  o = { remotePath : o }
-  o = _.routineOptions( prsGet, o );
-
-  // let parsed = this.objectsParse( o.remotePath );
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
-
-  ready
-  .then( () =>
-  {
-    if( parsed.service === 'github.com' )
-    return prsOnGithub();
-    if( o.throwing )
-    throw _.err( 'Unknown service' );
-    return null;
-  })
-  .finally( ( err, prs ) =>
-  {
-    if( !err && !prs && o.throwing )
-    err = _.err( 'Failed' );
-    if( err )
-    {
-      if( o.throwing )
-      throw _.err( err, '\nFailed to get list of pull requests' );
-
-      _.errAttend( err );
-      return null;
-
-      // if( !o.throwing )
-      // {
-      //   _.errAttend( err );
-      //   return null;
-      // }
-      // else
-      // {
-      //   throw _.err( err, '\nFailed to get list of pull requests' );
-      // }
-    }
-    return prs;
-  });
-
-  if( o.sync )
-  {
-    ready.deasync();
-    return ready.sync();
-  }
-
-  return ready;
-
-  /* */
-
-  function prsOnGithub()
-  {
-    let ready = new _.Consequence().take( null );
-    ready
-    .then( () =>
-    {
-      let github = require( 'octonode' );
-      // let client = github.client();
-      let client = o.token ? github.client( o.token ) : github.client();
-      let repo = client.repo( `${parsed.user}/${parsed.repo}` );
-      return repo.prsAsync();
-    })
-    .then( ( result ) =>
-    {
-      return result[ 0 ];
-    });
-    return ready;
-  }
-
-}
-
-prsGet.defaults =
-{
-  token : null,
-  remotePath : null,
-  throwing : 1,
-  sync : 1,
-}
-
+// function prsGet( o )
+// {
+//   let ready = _.take( null );
 //
-
-function prOpen( o )
-{
-  let ready = new _.Consequence().take( null );
-  let ready2 = new _.Consequence();
-
-  if( _.strIs( o ) )
-  o = { remotePath : o }
-  o = _.routineOptions( prOpen, o );
-
-  o.logger = _.logger.from( o.logger );
-
-  if( !o.token && o.throwing )
-  throw _.errBrief( 'Cannot autorize user without user token.' )
-
-  // let parsed = this.objectsParse( o.remotePath );
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
-
-  ready.then( () =>
-  {
-    if( parsed.service === 'github.com' )
-    return prOpenOnGithub();
-    if( o.throwing )
-    throw _.err( 'Unknown service' );
-    return null;
-  })
-  .finally( ( err, pr ) =>
-  {
-    if( err )
-    {
-      if( o.throwing )
-      throw _.err( err, '\nFailed to open pull request' );
-
-      _.errAttend( err );
-      return null;
-
-      // if( !o.throwing )
-      // {
-      //   _.errAttend( err );
-      //   return null;
-      // }
-      // else
-      // {
-      //   throw _.err( err, '\nFailed to open pull request' );
-      // }
-    }
-    return pr;
-  });
-
-  if( o.sync )
-  {
-    ready.deasync();
-    return ready.sync();
-  }
-
-  return ready;
-
-  /* */
-
-  function prOpenOnGithub()
-  {
-    let ready = new _.Consequence().take( null );
-    ready
-    .then( () =>
-    {
-      let github = require( 'octonode' );
-      let client = github.client( o.token );
-      let repo = client.repo( `${parsed.user}/${parsed.repo}` );
-      let o2 =
-      {
-        title : o.title,
-        body : o.body,
-        head : o.srcBranch,
-        base : o.dstBranch,
-      };
-      repo.pr( o2, onRequest );
-
-      /* */
-
-      return ready2
-      .then( ( args ) =>
-      {
-        if( args[ 0 ] )
-        throw _.err( `Error code : ${ args[ 0 ].statusCode }. ${ args[ 0 ].message }` ); /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
-        if( o.logger && o.logger.verbosity >= 3 )
-        o.logger.log( args[ 1 ] );
-        else if( o.logger && o.logger.verbosity >= 1 )
-        o.logger.log( `Succefully created pull request "${ o.title }" in ${ o.remotePath }.` )
-
-        return args[ 1 ];
-      });
-    });
-    return ready;
-  }
-
-  /* qqq : for Dmytro : ?? */
-  function onRequest( err, body, headers )
-  {
-    return _.time.begin( 0, () => ready2.take([ err, body ]) );
-  }
-
-}
-
-prOpen.defaults =
-{
-  throwing : 1,
-  sync : 1,
-  // verbosity : 2,
-  logger : 2,
-  token : null,
-  remotePath : null,
-  title : null, /* qqq : for Dmytro : rename to descriptionHead */
-  body : null, /* qqq : for Dmytro : rename to descriptionBody */
-  srcBranch : null, /* qqq : for Dmytro : should get current by default */
-  dstBranch : null, /* qqq : for Dmytro : should get current by default */
-};
+//   if( _.strIs( o ) )
+//   o = { remotePath : o }
+//   o = _.routineOptions( prsGet, o );
+//
+//   // let parsed = this.objectsParse( o.remotePath );
+//   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
+//
+//   ready
+//   .then( () =>
+//   {
+//     if( parsed.service === 'github.com' )
+//     return prsOnGithub();
+//     if( o.throwing )
+//     throw _.err( 'Unknown service' );
+//     return null;
+//   })
+//   .finally( ( err, prs ) =>
+//   {
+//     if( !err && !prs && o.throwing )
+//     err = _.err( 'Failed' );
+//     if( err )
+//     {
+//       if( o.throwing )
+//       throw _.err( err, '\nFailed to get list of pull requests' );
+//
+//       _.errAttend( err );
+//       return null;
+//
+//       // if( !o.throwing )
+//       // {
+//       //   _.errAttend( err );
+//       //   return null;
+//       // }
+//       // else
+//       // {
+//       //   throw _.err( err, '\nFailed to get list of pull requests' );
+//       // }
+//     }
+//     return prs;
+//   });
+//
+//   if( o.sync )
+//   {
+//     ready.deasync();
+//     return ready.sync();
+//   }
+//
+//   return ready;
+//
+//   /* */
+//
+//   function prsOnGithub()
+//   {
+//     let ready = _.take( null );
+//     ready
+//     .then( () =>
+//     {
+//       let github = require( 'octonode' );
+//       // let client = github.client();
+//       let client = o.token ? github.client( o.token ) : github.client();
+//       let repo = client.repo( `${parsed.user}/${parsed.repo}` );
+//       return repo.prsAsync();
+//     })
+//     .then( ( result ) =>
+//     {
+//       return result[ 0 ];
+//     });
+//     return ready;
+//   }
+//
+// }
+//
+// prsGet.defaults =
+// {
+//   token : null,
+//   remotePath : null,
+//   throwing : 1,
+//   sync : 1,
+// }
+//
+// //
+//
+// function prOpen( o )
+// {
+//   let ready = _.take( null );
+//   let ready2 = new _.Consequence();
+//
+//   if( _.strIs( o ) )
+//   o = { remotePath : o }
+//   o = _.routineOptions( prOpen, o );
+//
+//   o.logger = _.logger.from( o.logger );
+//
+//   if( !o.token && o.throwing )
+//   throw _.errBrief( 'Cannot autorize user without user token.' )
+//
+//   // let parsed = this.objectsParse( o.remotePath );
+//   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
+//
+//   ready.then( () =>
+//   {
+//     if( parsed.service === 'github.com' )
+//     return prOpenOnGithub();
+//     if( o.throwing )
+//     throw _.err( 'Unknown service' );
+//     return null;
+//   })
+//   .finally( ( err, pr ) =>
+//   {
+//     if( err )
+//     {
+//       if( o.throwing )
+//       throw _.err( err, '\nFailed to open pull request' );
+//
+//       _.errAttend( err );
+//       return null;
+//
+//       // if( !o.throwing )
+//       // {
+//       //   _.errAttend( err );
+//       //   return null;
+//       // }
+//       // else
+//       // {
+//       //   throw _.err( err, '\nFailed to open pull request' );
+//       // }
+//     }
+//     return pr;
+//   });
+//
+//   if( o.sync )
+//   {
+//     ready.deasync();
+//     return ready.sync();
+//   }
+//
+//   return ready;
+//
+//   /* */
+//
+//   function prOpenOnGithub()
+//   {
+//     let ready = _.take( null );
+//     ready
+//     .then( () =>
+//     {
+//       let github = require( 'octonode' );
+//       let client = github.client( o.token );
+//       let repo = client.repo( `${parsed.user}/${parsed.repo}` );
+//       let o2 =
+//       {
+//         title : o.title,
+//         body : o.body,
+//         head : o.srcBranch,
+//         base : o.dstBranch,
+//       };
+//       repo.pr( o2, onRequest );
+//
+//       /* */
+//
+//       return ready2
+//       .then( ( args ) =>
+//       {
+//         if( args[ 0 ] )
+//         throw _.err( `Error code : ${ args[ 0 ].statusCode }. ${ args[ 0 ].message }` ); /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
+//         if( o.logger && o.logger.verbosity >= 3 )
+//         o.logger.log( args[ 1 ] );
+//         else if( o.logger && o.logger.verbosity >= 1 )
+//         o.logger.log( `Succefully created pull request "${ o.title }" in ${ o.remotePath }.` )
+//
+//         return args[ 1 ];
+//       });
+//     });
+//     return ready;
+//   }
+//
+//   /* qqq : for Dmytro : ?? */
+//   function onRequest( err, body, headers )
+//   {
+//     return _.time.begin( 0, () => ready2.take([ err, body ]) );
+//   }
+//
+// }
+//
+// prOpen.defaults =
+// {
+//   throwing : 1,
+//   sync : 1,
+//   // verbosity : 2,
+//   logger : 2,
+//   token : null,
+//   remotePath : null,
+//   title : null, /* qqq : for Dmytro : rename to descriptionHead */
+//   body : null, /* qqq : for Dmytro : rename to descriptionBody */
+//   srcBranch : null, /* qqq : for Dmytro : should get current by default */
+//   dstBranch : null, /* qqq : for Dmytro : should get current by default */
+// };
 
 // --
-// etc
+// config
 // --
 
 function configRead( filePath )
@@ -4964,7 +4964,6 @@ configReset.defaults =
 {
   localPath : null,
   sync : 0,
-
   preset : 'recommended', /* [ recommended, standard ] */
   withGlobal : 0,
   withLocal : 1,
@@ -5074,7 +5073,7 @@ function diff( o )
   if( o.state1 === null ) /* qqq : discuss */
   o.state1 = 'HEAD';
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
   let result = Object.create( null );
   let state1 = self._stateParse( o.state1 );
   let state2 = self._stateParse( o.state2 ); /* qqq : ! aaa: special tags now work in both states */
@@ -5111,7 +5110,7 @@ function diff( o )
 
   function checkStates()
   {
-    let ready = _.Consequence().take( null )
+    let ready = _.take( null )
     ready.then( () => checkState( state1 ) )
     ready.then( () => checkState( state2 ) )
     ready.then( () =>
@@ -5139,7 +5138,7 @@ function diff( o )
     if( state.isSpecial )
     return null;
 
-    let con = _.Consequence().take( null )
+    let con = _.take( null )
 
     if( state.isVersion || state.isTag )
     {
@@ -5203,7 +5202,7 @@ function diff( o )
       return null;
     }
 
-    let ready = new _.Consequence().take( null );
+    let ready = _.take( null );
 
     let op =
     {
@@ -5383,7 +5382,7 @@ diff.defaults =
 
 function pull( o )
 {
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
 
   _.assert( arguments.length === 1 );
   _.routineOptions( pull, arguments );
@@ -5431,7 +5430,7 @@ function push( o )
   _.routineOptions( push, arguments );
   _.assert( _.strDefined( o.localPath ) );
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
 
   let start = _.process.starter
   ({
@@ -5601,7 +5600,7 @@ function reset( o )
 
   /* */
 
-  let ready = new _.Consequence().take( null );
+  let ready = _.take( null );
 
   let start = _.process.starter
   ({
@@ -5783,7 +5782,7 @@ function renormalize( o )
     if( skip )
     return true;
 
-    let con = new _.Consequence().take( null )
+    let con = _.take( null )
     let start = _.process.starter
     ({
       // verbosity : o.verbosity - 1,
@@ -5899,12 +5898,12 @@ let Extension =
 
   // path
 
-  objectsParse,
-  pathParse,
-  pathIsFixated,
-  pathFixate,
-  remotePathNormalize,
-  remotePathNativize,
+  // objectsParse,
+  // pathParse,
+  // pathIsFixated,
+  // pathFixate,
+  remotePathNormalize /* qqq : for Dmytro : ?? */,
+  remotePathNativize, /* qqq : for Dmytro : ?? */
 
   remotePathFromLocal,
   insideRepository,
@@ -5976,10 +5975,11 @@ let Extension =
   repositoryCheckout,
   repositoryStash,
   repositoryMerge,
-  prsGet,
-  prOpen,
 
-  // etc
+  // prsGet,
+  // prOpen,
+
+  // config
 
   configRead,
   configSave,

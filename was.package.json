@@ -5,7 +5,7 @@
   "author" : "Kostiantyn Wandalen <wanalen@01.school>",
   "license" : "MIT",
   "main" : "proto/node_modules/wgittools",
-  "files" : [ "proto/wtools/amid/l3/git", "proto/wtools/Tools.s", "out", "proto/node_modules" ],
+  "files" : [ "proto/wtools/amid/l3/git", "out", "proto/node_modules" ],
   "scripts" : { "test" : "wtest .run 'proto/**' rapidity:-3", "docgen" : "wdocgen proto" },
   "repository" :
   {
@@ -24,7 +24,7 @@
     "wfilesarchive" : "",
     "wprocess" : "",
     "ini" : "=2.0.0",
-    "octonode" : "=0.10.0"
+    "octonode" : "=0.10.2"
   },
   "devDependencies" : { "wTesting" : "", "eslint" : "7.1.0" },
   "keywords" : [ "wTools" ]

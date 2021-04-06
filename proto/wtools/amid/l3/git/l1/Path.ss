@@ -408,6 +408,8 @@ defaults.logger = 0;
 // declare
 // --
 
+/* qqq : for Dmytro : jsdoc */
+
 let Extension =
 {
 

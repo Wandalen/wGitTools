@@ -7,11 +7,13 @@
 
 if( typeof module !== 'undefined' )
 {
-  let _ = require( '../../../../../wtools/Tools.s' );
+  let _ = require( '../../../../../node_modules/Tools' );
 
   require( './Basic.ss' );
-  require( '../l1/Namespace.ss' );
+  require( '../l1/Git.ss' );
   require( '../l1/Path.ss' );
+  require( '../l1/Repo.s' );
+  require( '../l3_provider/Github.s' );
 
   module[ 'exports' ] = _global_.wTools;
 }
