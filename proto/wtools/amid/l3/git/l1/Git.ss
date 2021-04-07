@@ -289,32 +289,32 @@ function stateIsTag( src )
 // var defaults = pathFixate.defaults = Object.create( null );
 // defaults.remotePath = null;
 // defaults.logger = 0;
-
 //
-
-function remotePathNormalize( remotePath )
-{
-  if( remotePath === null )
-  return remotePath;
-
-  remotePath = remotePath.replace( /^(\w+):\/\//, 'git+$1://' );
-  remotePath = remotePath.replace( /:\/\/\b/, ':///' );
-
-  return remotePath;
-}
-
+// //
 //
-
-function remotePathNativize( remotePath )
-{
-  if( remotePath === null )
-  return remotePath;
-
-  remotePath = remotePath.replace( /^git\+(\w+):\/\//, '$1://' );
-  remotePath = remotePath.replace( /:\/\/\/\b/, '://' );
-
-  return remotePath;
-}
+// function remotePathNormalize( remotePath )
+// {
+//   if( remotePath === null )
+//   return remotePath;
+//
+//   remotePath = remotePath.replace( /^(\w+):\/\//, 'git+$1://' );
+//   remotePath = remotePath.replace( /:\/\/\b/, ':///' );
+//
+//   return remotePath;
+// }
+//
+// //
+//
+// function remotePathNativize( remotePath )
+// {
+//   if( remotePath === null )
+//   return remotePath;
+//
+//   remotePath = remotePath.replace( /^git\+(\w+):\/\//, '$1://' );
+//   remotePath = remotePath.replace( /:\/\/\/\b/, '://' );
+//
+//   return remotePath;
+// }
 
 //
 
@@ -5903,8 +5903,8 @@ let Extension =
   // pathParse,
   // pathIsFixated,
   // pathFixate,
-  remotePathNormalize /* qqq : for Dmytro : ?? */,
-  remotePathNativize, /* qqq : for Dmytro : ?? */
+  // remotePathNormalize /* aaa : for Dmytro : ?? */, /* Dmytro : commented, not used in module */
+  // remotePathNativize, /* aaa : for Dmytro : ?? */ /* Dmytro : commented, not used in module */
 
   remotePathFromLocal,
   insideRepository,
