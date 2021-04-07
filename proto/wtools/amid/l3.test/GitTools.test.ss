@@ -18069,16 +18069,17 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* - */
 
-  // qqq : for Dmytro : for Vova : fail!
+  // aaa : for Dmytro : for Vova : fail!
   //  > git branch --show-current
   // error: unknown option `show-current'
+  /* Dmytro : if version of Git < 2.22, then this option does not supports by utility */
 
   checkout().then( () =>
   {
     test.case = 'remotePath - simple http path, without hash or tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18097,7 +18098,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global http path, without hash or tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https:///github.com/Wandalen/wModuleForTesting1.git' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18116,7 +18117,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global path with several protocols, without hash or tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18137,7 +18138,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - simple http path, checkout to newly created local branch';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git!new' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git!new' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18158,7 +18159,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global http path, checkout to newly created local branch';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git!new' ),
+      remotePath : _.git.path.parse( 'https:///github.com/Wandalen/wModuleForTesting1.git!new' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18179,7 +18180,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global path with several protocols, checkout to newly created local branch';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!new' ),
+      remotePath : _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!new' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18198,7 +18199,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - simple http path, checkout to hash';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18217,7 +18218,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global http path, checkout to hash';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
+      remotePath : _.git.path.parse( 'https:///github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18236,7 +18237,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global path with several protocols, checkout to hash';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
+      remotePath : _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18255,7 +18256,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - simple http path, checkout to tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18274,7 +18275,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global http path, checkout to tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
+      remotePath : _.git.path.parse( 'https:///github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18293,7 +18294,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global path with several protocols, checkout to tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
+      remotePath : _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18312,7 +18313,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - simple http path, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git!dev1' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git!dev1' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18331,7 +18332,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global http path, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git!dev1' ),
+      remotePath : _.git.path.parse( 'https:///github.com/Wandalen/wModuleForTesting1.git!dev1' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18350,7 +18351,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global path with several protocols, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!dev1' ),
+      remotePath : _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!dev1' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
