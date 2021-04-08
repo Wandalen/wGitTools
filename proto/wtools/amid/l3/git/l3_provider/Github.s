@@ -28,7 +28,6 @@ function prsGetAct( o )
   })
   .then( ( result ) =>
   {
-    debugger;
     return result[ 0 ];
   });
   return ready;
