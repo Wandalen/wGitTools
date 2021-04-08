@@ -268,6 +268,40 @@ prOpen.defaults =
   dstBranch : null, /* qqq : for Dmytro : should get current by default */
 }
 
+//
+
+function vcsFor( o )
+{
+  if( !_.mapIs( o ) )
+  o = { filePath : o }
+
+  _.assert( arguments.length === 1 );
+  _.routineOptions( vcsFor, o );
+
+  if( _.arrayIs( o.filePath ) && o.filePath.length === 0 )
+  return null;
+
+  if( !o.filePath )
+  return null;
+
+  _.assert( _.strIs( o.filePath ) );
+  _.assert( _.uri.isGlobal( o.filePath ) );
+
+  let parsed = _.uri.parseFull( o.filePath );
+
+  if( _.git && _.longHasAny( parsed.protocols, _.git.protocols ) )
+  return _.git;
+  if( _.npm && _.longHasAny( parsed.protocols, _.npm.protocols ) )
+  return _.npm;
+
+  return null;
+}
+
+vcsFor.defaults =
+{
+  filePath : null,
+}
+
 // --
 // declare
 // --
@@ -282,6 +316,8 @@ let Extension =
   prsGet, /* qqq : for Dmytro : cover */
   // prOpenAct, /* qqq : for Dmytro : add */
   prOpen,
+
+  vcsFor
 
 }
 
