@@ -70,6 +70,37 @@ providerAmend.defaults =
 
 //
 
+function prIs( pr )
+{
+  if( !_.objectIs( pr ) )
+  return false;
+  return pr.id !== undefined && _.mapIs( pr.description ) ;
+}
+
+//
+
+function prExportString( pr, o )
+{
+
+  _.assert( _.repo.prIs( pr ) );
+  o = _.routineOptions( prExportString, o );
+
+  let colon = _.ct.format( ':', 'secondary' );
+  let from = _.ct.format( 'from', 'secondary' );
+  let to = _.ct.format( 'to', 'secondary' );
+  let result = `PR#${pr.id} ${colon} ${pr.description.head} ${from} ${pr.user.name} ${to} ${pr.to.tag}`;
+
+  return result;
+}
+
+prExportString.defaults =
+{
+  verbosity : 2,
+  it : null,
+}
+
+//
+
 let prsGetAct = Object.create( null );
 
 prsGetAct.defaults =
@@ -311,6 +342,9 @@ let Extension =
 
   providerForPath,
   providerAmend,
+
+  prIs,
+  prExportString,
 
   prsGetAct,
   prsGet, /* qqq : for Dmytro : cover */
