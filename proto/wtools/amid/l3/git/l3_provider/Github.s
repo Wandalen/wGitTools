@@ -24,17 +24,10 @@ function prsGetAct( o )
     Github = require( 'octonode' );
     let client = o.token ? Github.client( o.token ) : Github.client();
     _.debugger = 1;
-    debugger;
-    let r = client.repoAsync( `${o.remotePath.user}/${o.remotePath.repo}` );
-    return r;
-    // if( o.sync )
-    // return client.repo( `${o.remotePath.user}/${o.remotePath.repo}` );
-    // else
-    // return client.repoAsync( `${o.remotePath.user}/${o.remotePath.repo}` );
+    return client.repo( `${o.remotePath.user}/${o.remotePath.repo}` );
   })
   .then( ( repo ) =>
   {
-    debugger;
     if( o.sync )
     return repo.prs();
     else
@@ -42,7 +35,6 @@ function prsGetAct( o )
   })
   .then( ( response ) =>
   {
-    debugger;
     o.result = response[ 0 ].map( ( original ) =>
     {
       let r = Object.create( null );
