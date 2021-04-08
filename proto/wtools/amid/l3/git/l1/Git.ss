@@ -2709,7 +2709,6 @@ function statusFull( o )
 
   if( !o.localPath )
   return result;
-  // return o;
 
   result.isRepository = true;
 
@@ -2736,8 +2735,7 @@ function statusFull( o )
     if( err )
     throw _.err( err );
     let status = arg[ 0 ];
-    let prs = arg[ 1 ];
-    statusAdjust( status, prs );
+    statusAdjust( status, arg[ 1 ] ? result : null );
     return result;
   });
 
@@ -4591,210 +4589,6 @@ repositoryMerge.defaults =
   logger : 0,
 };
 
-// //
-//
-// function prsGet( o )
-// {
-//   let ready = _.take( null );
-//
-//   if( _.strIs( o ) )
-//   o = { remotePath : o }
-//   o = _.routineOptions( prsGet, o );
-//
-//   // let parsed = this.objectsParse( o.remotePath );
-//   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
-//
-//   ready
-//   .then( () =>
-//   {
-//     if( parsed.service === 'github.com' )
-//     return prsOnGithub();
-//     if( o.throwing )
-//     throw _.err( 'Unknown service' );
-//     return null;
-//   })
-//   .finally( ( err, prs ) =>
-//   {
-//     if( !err && !prs && o.throwing )
-//     err = _.err( 'Failed' );
-//     if( err )
-//     {
-//       if( o.throwing )
-//       throw _.err( err, '\nFailed to get list of pull requests' );
-//
-//       _.errAttend( err );
-//       return null;
-//
-//       // if( !o.throwing )
-//       // {
-//       //   _.errAttend( err );
-//       //   return null;
-//       // }
-//       // else
-//       // {
-//       //   throw _.err( err, '\nFailed to get list of pull requests' );
-//       // }
-//     }
-//     return prs;
-//   });
-//
-//   if( o.sync )
-//   {
-//     ready.deasync();
-//     return ready.sync();
-//   }
-//
-//   return ready;
-//
-//   /* */
-//
-//   function prsOnGithub()
-//   {
-//     let ready = _.take( null );
-//     ready
-//     .then( () =>
-//     {
-//       let github = require( 'octonode' );
-//       // let client = github.client();
-//       let client = o.token ? github.client( o.token ) : github.client();
-//       let repo = client.repo( `${parsed.user}/${parsed.repo}` );
-//       return repo.prsAsync();
-//     })
-//     .then( ( result ) =>
-//     {
-//       return result[ 0 ];
-//     });
-//     return ready;
-//   }
-//
-// }
-//
-// prsGet.defaults =
-// {
-//   token : null,
-//   remotePath : null,
-//   throwing : 1,
-//   sync : 1,
-// }
-//
-// //
-//
-// function prOpen( o )
-// {
-//   let ready = _.take( null );
-//   let ready2 = new _.Consequence();
-//
-//   if( _.strIs( o ) )
-//   o = { remotePath : o }
-//   o = _.routineOptions( prOpen, o );
-//
-//   o.logger = _.logger.from( o.logger );
-//
-//   if( !o.token && o.throwing )
-//   throw _.errBrief( 'Cannot autorize user without user token.' )
-//
-//   // let parsed = this.objectsParse( o.remotePath );
-//   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
-//
-//   ready.then( () =>
-//   {
-//     if( parsed.service === 'github.com' )
-//     return prOpenOnGithub();
-//     if( o.throwing )
-//     throw _.err( 'Unknown service' );
-//     return null;
-//   })
-//   .finally( ( err, pr ) =>
-//   {
-//     if( err )
-//     {
-//       if( o.throwing )
-//       throw _.err( err, '\nFailed to open pull request' );
-//
-//       _.errAttend( err );
-//       return null;
-//
-//       // if( !o.throwing )
-//       // {
-//       //   _.errAttend( err );
-//       //   return null;
-//       // }
-//       // else
-//       // {
-//       //   throw _.err( err, '\nFailed to open pull request' );
-//       // }
-//     }
-//     return pr;
-//   });
-//
-//   if( o.sync )
-//   {
-//     ready.deasync();
-//     return ready.sync();
-//   }
-//
-//   return ready;
-//
-//   /* */
-//
-//   function prOpenOnGithub()
-//   {
-//     let ready = _.take( null );
-//     ready
-//     .then( () =>
-//     {
-//       let github = require( 'octonode' );
-//       let client = github.client( o.token );
-//       let repo = client.repo( `${parsed.user}/${parsed.repo}` );
-//       let o2 =
-//       {
-//         title : o.title,
-//         body : o.body,
-//         head : o.srcBranch,
-//         base : o.dstBranch,
-//       };
-//       repo.pr( o2, onRequest );
-//
-//       /* */
-//
-//       return ready2
-//       .then( ( args ) =>
-//       {
-//         if( args[ 0 ] )
-//         throw _.err( `Error code : ${ args[ 0 ].statusCode }. ${ args[ 0 ].message }` ); /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
-//         if( o.logger && o.logger.verbosity >= 3 )
-//         o.logger.log( args[ 1 ] );
-//         else if( o.logger && o.logger.verbosity >= 1 )
-//         o.logger.log( `Succefully created pull request "${ o.title }" in ${ o.remotePath }.` )
-//
-//         return args[ 1 ];
-//       });
-//     });
-//     return ready;
-//   }
-//
-//   /* qqq : for Dmytro : ?? */
-//   function onRequest( err, body, headers )
-//   {
-//     return _.time.begin( 0, () => ready2.take([ err, body ]) );
-//   }
-//
-// }
-//
-// prOpen.defaults =
-// {
-//   throwing : 1,
-//   sync : 1,
-//   // verbosity : 2,
-//   logger : 2,
-//   token : null,
-//   remotePath : null,
-//   title : null, /* qqq : for Dmytro : rename to descriptionHead */
-//   body : null, /* qqq : for Dmytro : rename to descriptionBody */
-//   srcBranch : null, /* qqq : for Dmytro : should get current by default */
-//   dstBranch : null, /* qqq : for Dmytro : should get current by default */
-// };
-
 // --
 // config
 // --
@@ -5629,6 +5423,7 @@ function reset( o )
 
   if( state1.isVersion || state1.isTag )
   start( `git checkout ${ state1.value }` );
+  /* qqq : for Dmytro : ? */
 
   if( state2.value === 'committed' )
   start( `git reset --hard` );
@@ -5654,7 +5449,6 @@ function reset( o )
     ready.deasync();
     return ready.sync();
   }
-
   return ready;
 
   /* */
@@ -5976,9 +5770,6 @@ let Extension =
   repositoryCheckout,
   repositoryStash,
   repositoryMerge,
-
-  // prsGet,
-  // prOpen,
 
   // config
 

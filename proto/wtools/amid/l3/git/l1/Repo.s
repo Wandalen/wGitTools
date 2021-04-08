@@ -77,6 +77,8 @@ prsGetAct.defaults =
   token : null,
   remotePath : null,
   sync : 1,
+  withOpened : 1,
+  withClosed : 0,
 }
 
 //
@@ -109,9 +111,9 @@ function prsGet( o )
     }
     return provider.prsGetAct( o );
   })
-  .finally( ( err, prs ) =>
+  .finally( ( err, op ) =>
   {
-    if( !err && !prs && o.throwing )
+    if( !err && !op.result && o.throwing )
     err = _.err( 'Failed' );
     if( err )
     {
@@ -120,7 +122,7 @@ function prsGet( o )
       _.errAttend( err );
       return null;
     }
-    return prs;
+    return o;
   });
 
   if( o.sync )
@@ -128,6 +130,7 @@ function prsGet( o )
     ready.deasync();
     return ready.sync();
   }
+
   return ready;
 
   /* */
@@ -207,6 +210,7 @@ function prOpen( o )
 
   /* */
 
+  /* qqq : for Dmytro : move out to github provider */
   function prOpenOnGithub()
   {
     let ready = _.take( null );
@@ -276,6 +280,7 @@ let Extension =
 
   prsGetAct,
   prsGet, /* qqq : for Dmytro : cover */
+  // prOpenAct, /* qqq : for Dmytro : add */
   prOpen,
 
 }
