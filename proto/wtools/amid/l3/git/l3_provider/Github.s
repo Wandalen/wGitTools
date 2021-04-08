@@ -23,12 +23,15 @@ function prsGetAct( o )
     if( !Github )
     Github = require( 'octonode' );
     let client = o.token ? Github.client( o.token ) : Github.client();
+    // debugger;
     let repo = client.repo( `${o.remotePath.user}/${o.remotePath.repo}` );
+    // debugger;
     return repo.prsAsync();
   })
   .then( ( result ) =>
   {
-    return result[ 0 ];
+    o.result = result[ 0 ]
+    return o;
   });
   return ready;
 }
