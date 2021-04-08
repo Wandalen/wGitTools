@@ -1,5 +1,3 @@
-const { config } = require('octonode/lib/octonode/auth');
-
 ( function _Repo_test_ss_()
 {
 
