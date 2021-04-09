@@ -2,15 +2,12 @@ format: outwillfile-2.0
 root:
   - wGitTools.out
 consistency:
-  wGitTools.out.will.yml: &ref_0
-    hash: 4667d6828a8aa300d08362f4859731eb
-    size: 40221
-  ../.ex.will.yml: &ref_1
+  ../.ex.will.yml: &ref_0
     hash: 15f7123b7761b7eba6df2912328a70a6
     size: 1720
-  ../.im.will.yml: &ref_2
-    hash: 73590607ef02914976205748b9d929a5
-    size: 5341
+  ../.im.will.yml: &ref_1
+    hash: 02b5b1ff44480175ad24cb875bfe3374
+    size: 5347
 module:
   wGitTools.out:
     about:
@@ -19,19 +16,19 @@ module:
       description: Collection of tools to use git programmatically.
       enabled: 1
       version: 0.4.0
-      interpreters:
+      interpreters: &ref_2
         - njs >= 10.0.0
         - chrome >= 60.0.0
         - firefox >= 60.0.0
-      keywords:
+      keywords: &ref_3
         - wTools
         - graph
       license: MIT
       author: Kostiantyn Wandalen <wanalen@01.school>
-      contributors:
+      contributors: &ref_4
         - Kostiantyn Wandalen <wanalen@01.school>
       npm.name: wgittools
-      npm.scripts:
+      npm.scripts: &ref_5
         test: 'wtest .run proto/** rapidity:-3'
         docgen: wdocgen .build proto
     path:
@@ -214,7 +211,7 @@ module:
         autoExporting: 0
         enabled: 0
       octonode:
-        path: 'npm:///octonode#0.10.0'
+        path: 'npm:///@octokit/rest#=18.5.2'
         autoExporting: 0
         enabled: 0
       wgittools:
@@ -742,24 +739,6 @@ module:
           content: prime
         inherit:
           - files.transpile
-      exported.proto.export:
-        opts:
-          filePath: 'reflector::exported.proto.export'
-        criterion:
-          generated: 1
-          content: proto
-          export: 1
-        inherit:
-          - files.reflect
-      exported.files.proto.export:
-        opts:
-          filePath: 'reflector::exported.files.proto.export'
-        criterion:
-          generated: 1
-          content: proto
-          export: 1
-        inherit:
-          - files.reflect
     build:
       proto.export:
         steps:
@@ -848,9 +827,8 @@ module:
           content: proto
           export: 1
     consistency:
-      wGitTools.out.will.yml: *ref_0
-      ../.ex.will.yml: *ref_1
-      ../.im.will.yml: *ref_2
+      ../.ex.will.yml: *ref_0
+      ../.im.will.yml: *ref_1
   ../:
     about:
       name: wGitTools
@@ -858,21 +836,13 @@ module:
       description: Collection of tools to use git programmatically.
       enabled: 1
       version: 0.4.0
-      interpreters:
-        - njs >= 10.0.0
-        - chrome >= 60.0.0
-        - firefox >= 60.0.0
-      keywords:
-        - wTools
-        - graph
+      interpreters: *ref_2
+      keywords: *ref_3
       license: MIT
       author: Kostiantyn Wandalen <wanalen@01.school>
-      contributors:
-        - Kostiantyn Wandalen <wanalen@01.school>
+      contributors: *ref_4
       npm.name: wgittools
-      npm.scripts:
-        test: 'wtest .run proto/** rapidity:-3'
-        docgen: wdocgen .build proto
+      npm.scripts: *ref_5
     path:
       module.willfiles:
         criterion:
@@ -1012,7 +982,7 @@ module:
         autoExporting: 0
         enabled: 0
       octonode:
-        path: 'npm:///octonode#0.10.0'
+        path: 'npm:///@octokit/rest#=18.5.2'
         autoExporting: 0
         enabled: 0
       wgittools:
@@ -1568,6 +1538,5 @@ module:
         hash: 15f7123b7761b7eba6df2912328a70a6
         size: 1720
       ../.im.will.yml:
-        hash: 73590607ef02914976205748b9d929a5
-        size: 5341
-      wGitTools.out.will.yml: *ref_0
+        hash: 02b5b1ff44480175ad24cb875bfe3374
+        size: 5347
