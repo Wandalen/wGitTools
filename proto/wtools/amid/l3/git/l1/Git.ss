@@ -464,7 +464,7 @@ function tagLocalChange( o )
 
   let start = _.process.starter
   ({
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     sync : 1,
     deasync : 0,
@@ -638,7 +638,7 @@ function tagExplain( o )
 
   let start = _.process.starter
   ({
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     sync : 1,
     deasync : 0,
@@ -744,7 +744,7 @@ function versionLocalChange( o )
 
   let start = _.process.starter
   ({
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     sync : 1,
     deasync : 0,
@@ -854,7 +854,7 @@ function remoteVersionLatest( o )
 
   let start = _.process.starter
   ({
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     sync : 1,
     deasync : 0,
@@ -1088,7 +1088,7 @@ function isUpToDate( o )
   /* xxx : qqq : check mode. shell should be, probably */
   let start = _.process.starter
   ({
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
     ready,
@@ -1097,7 +1097,7 @@ function isUpToDate( o )
   /* xxx : qqq : check mode. shell should be, probably */
   let shell = _.process.starter
   ({
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     ready,
     currentPath : o.localPath,
@@ -1793,7 +1793,7 @@ function statusLocal_body( o )
     outputCollecting : 1,
     // verbosity : o.verbosity - 1,
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
   });
 
   let result = resultPrepare();
@@ -2166,7 +2166,7 @@ function statusLocal_body( o )
       throwingExitCode : 0,
       outputCollecting : 1,
       // verbosity : o.verbosity - 1,
-      logger : _.logger.relative( o.logger, -1 ),
+      logger : _.logger.relativeMaybe( o.logger, -1 ),
       verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     })
   }
@@ -2339,7 +2339,7 @@ function statusRemote_body( o )
     outputPiping : 0,
     inputMirroring : 0,
     stdio : [ 'pipe', 'pipe', 'ignore' ],
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     ready,
   });
@@ -2727,7 +2727,7 @@ function statusFull( o )
 
   let prsReady = _.take( null );
   if( o.prs )
-  prsReady = _.repo.prsGet({ remotePath : o.remotePath, throwing : 0, sync : 0, token : o.token });
+  prsReady = _.repo.pullList({ remotePath : o.remotePath, throwing : 0, sync : 0, token : o.token });
 
   let ready = _.Consequence.AndKeep( statusReady, prsReady )
   .finally( ( err, arg ) =>
@@ -3956,7 +3956,7 @@ function repositoryInit( o )
 
   let start = _.process.starter
   ({
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     sync : 0,
     deasync : 0,
@@ -4149,7 +4149,7 @@ function repositoryInit( o )
 
     let start = _.process.starter
     ({
-      logger : _.logger.relative( o.logger, -1 ),
+      logger : _.logger.relativeMaybe( o.logger, -1 ),
       verbosity : o.logger ? o.logger.verbosity - 1 : 0,
       sync : 0,
       deasync : 0,
@@ -4360,7 +4360,7 @@ function repositoryClone( o )
 
   let shell = _.process.starter
   ({
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
     ready,
@@ -4404,7 +4404,7 @@ function repositoryCheckout( o )
   let shell = _.process.starter
   ({
     // verbosity : o.verbosity,
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
     outputCollecting : 1,
@@ -4500,7 +4500,7 @@ function repositoryStash( o )
   let shell = _.process.starter
   ({
     // verbosity : o.verbosity,
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
     outputCollecting : 1,
@@ -4550,7 +4550,7 @@ function repositoryMerge( o )
   let shell = _.process.starter
   ({
     // verbosity : o.verbosity,
-    logger : _.logger.relative( o.logger, -1 ),
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
     outputCollecting : 1,
@@ -5378,7 +5378,7 @@ function reset( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.longHas( [ null, 'all' ], o.preset ) );
 
-  o.logger = _.logger.from( o.logger );
+  o.logger = _.logger.maybe( o.logger );
 
   if( o.preset === 'all' )
   {
@@ -5581,7 +5581,7 @@ function renormalize( o )
     let start = _.process.starter
     ({
       // verbosity : o.verbosity - 1,
-      logger : _.logger.relative( o.logger, -1 ),
+      logger : _.logger.relativeMaybe( o.logger, -1 ),
       verbosity : o.logger ? o.logger.verbosity - 1 : 0,
       outputCollecting : 1,
       currentPath : o.localPath,

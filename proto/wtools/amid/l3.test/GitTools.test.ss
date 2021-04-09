@@ -18378,7 +18378,7 @@ repositoryCheckoutRemotePathIsMap.timeOut = 30000;
 
 //
 
-function prOpen( test )
+function pullOpen( test )
 {
   if( !Config.debug )
   {
@@ -18389,7 +18389,7 @@ function prOpen( test )
   test.case = 'wrong git service';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.prOpen
+    _.git.pullOpen
     ({
       throwing : 1,
       sync : 1,
@@ -18405,7 +18405,7 @@ function prOpen( test )
   test.case = 'wrong token';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.prOpen
+    _.git.pullOpen
     ({
       throwing : 1,
       sync : 1,
@@ -18421,7 +18421,7 @@ function prOpen( test )
   test.case = 'without fields title, srcBranch';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.prOpen
+    _.git.pullOpen
     ({
       sync : 1,
       token : 'token',
@@ -18433,7 +18433,7 @@ function prOpen( test )
   test.case = 'without token';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.prOpen
+    _.git.pullOpen
     ({
       remotePath : 'https://github.com/user/NewRepo',
       title : 'master',
@@ -18446,7 +18446,7 @@ function prOpen( test )
 
 //
 
-function prOpenRemote( test )
+function pullOpenRemote( test )
 {
   let a = test.assetFor( 'basic' );
   let repository = `https://github.com/wtools-bot/New-${ _.idWithDateAndTime() }`;
@@ -18511,7 +18511,7 @@ function prOpenRemote( test )
 
   a.ready.then( () =>
   {
-    return _.git.prOpen
+    return _.git.pullOpen
     ({
       token,
       remotePath : repository,
@@ -18544,7 +18544,7 @@ function prOpenRemote( test )
 
   a.ready.then( () =>
   {
-    return _.git.prOpen
+    return _.git.pullOpen
     ({
       token,
       remotePath : repository,
@@ -18579,7 +18579,7 @@ function prOpenRemote( test )
 
   a.ready.then( () =>
   {
-    return _.git.prOpen
+    return _.git.pullOpen
     ({
       token,
       remotePath : repository,
@@ -18628,7 +18628,7 @@ function prOpenRemote( test )
   }
 }
 
-prOpenRemote.timeOut = 60000;
+pullOpenRemote.timeOut = 60000;
 
 //
 
@@ -25500,8 +25500,8 @@ const Proto =
     repositoryClone,
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,
-    prOpen,
-    prOpenRemote,
+    pullOpen,
+    pullOpenRemote,
 
     // etc
 

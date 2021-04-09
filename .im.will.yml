@@ -18,7 +18,7 @@ submodule:
     path: 'npm:///ini#2.0.0'
     enabled: 0
   octonode:
-    path: 'npm:///octonode#0.10.0'
+    path: 'npm:///@octokit/rest#=18.5.2'
     enabled: 0
   wgittools:
     path: 'hd://.'

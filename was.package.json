@@ -24,7 +24,7 @@
     "wfilesarchive" : "",
     "wprocess" : "",
     "ini" : "=2.0.0",
-    "octonode" : "=0.10.2"
+    "@octokit/rest" : "=18.5.2"
   },
   "devDependencies" : { "wTesting" : "", "eslint" : "7.1.0" },
   "keywords" : [ "wTools" ]
