@@ -86,6 +86,39 @@ repositoryInitAct.defaults =
 
 //
 
+function repositoryDeleteAct( o )
+{
+  const self = this;
+  _.map.assertHasAll( o, repositoryDeleteAct.defaults );
+  _.assert( _.aux.is( o.remotePath ) );
+  const ready = new _.Consequence();
+
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    return octokit.rest.repos.delete
+    ({
+      owner : o.remotePath.user,
+      repo : o.remotePath.repo,
+    });
+  })
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( `Error code : ${ err.statusCode }. ${ err.message }` );
+    return arg;
+  });
+}
+
+repositoryDeleteAct.defaults =
+{
+  token : null,
+  remotePath : null,
+};
+
+
+//
+
 function pullListAct( o )
 {
   let self = this;
@@ -292,6 +325,7 @@ const Self =
   _responseNormalize,
 
   repositoryInitAct,
+  repositoryDeleteAct,
 
   pullListAct,
   _pullListResponseNormalize,
