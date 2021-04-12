@@ -17220,10 +17220,7 @@ hookPreservingHardLinks.timeOut = 30000;
 function repositoryInit( test )
 {
   if( !Config.debug )
-  {
-    test.true( true );
-    return;
-  }
+  return test.true( true );
 
   test.shouldThrowErrorSync( () =>
   {
@@ -17236,7 +17233,7 @@ function repositoryInit( test )
       remote : 1,
       dry : 1,
     });
-  })
+  });
 
   test.shouldThrowErrorSync( () =>
   {
@@ -17249,7 +17246,182 @@ function repositoryInit( test )
       remote : 1,
       dry : 1,
     });
-  })
+  });
+}
+
+//
+
+function repositoryInitRemote( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  let user = 'dmvict';
+  // let user = 'wtools-bot';
+  let repository;
+  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+
+  // let testing = _globals_.testing.wTools;
+  // let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  // let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  // let insideTestContainer = _.process.insideTestContainer();
+  // if( !validPlatform || !insideTestContainer || !validEnvironments )
+  // return test.true( true );
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'create remote repository, dry - 1';
+    a.reflect();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+    return _.git.repositoryInit
+    ({
+      remotePath : repository,
+      localPath : a.routinePath,
+      throwing : 1,
+      sync : 1,
+      logger : 0,
+      dry : 1,
+      description : 'Test',
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, null );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'create remote repository, dry - 0, logger - 0';
+    a.reflect();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+    return _.git.repositoryInit
+    ({
+      remotePath : repository,
+      localPath : a.routinePath,
+      throwing : 1,
+      sync : 1,
+      logger : 0,
+      dry : 0,
+      description : 'Test',
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    test.true( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'create remote repository, dry - 0, logger - 2';
+    a.reflect();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+    return _.git.repositoryInit
+    ({
+      remotePath : repository,
+      localPath : a.routinePath,
+      throwing : 1,
+      sync : 1,
+      logger : 2,
+      dry : 0,
+      description : 'Test',
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    test.true( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'create remote repository, dry - 0, logger - _.logger, logger verbosity - 2';
+    a.reflect();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+    let logger = _global_.logger;
+    logger.verbosity = 2;
+    return _.git.repositoryInit
+    ({
+      remotePath : repository,
+      localPath : a.routinePath,
+      throwing : 1,
+      sync : 1,
+      logger,
+      dry : 0,
+      description : 'Test',
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    test.true( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function repositoryDelete( remotePath )
+  {
+    a.ready.Try( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath,
+        throwing : 1,
+        sync : 1,
+        logger : 1,
+        dry : 0,
+        token,
+      });
+    })
+    .catch( ( err ) =>
+    {
+      _.errAttend( err );
+      return null;
+    });
+    return a.ready;
+  }
 }
 
 //
@@ -25508,6 +25680,7 @@ const Proto =
     // top
 
     repositoryInit,
+    repositoryInitRemote,
     repositoryClone,
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,
