@@ -172,7 +172,7 @@ function _pullListResponseNormalize( o )
     r.to.tag = original.base.ref;
     r.to.hash = original.base.sha;
     r.from = Object.create( null );
-    r.from.name = original.head.xxx.login;
+    r.from.name = original.head.user.login;
     r.id = original.number;
     return r;
   });
