@@ -53,6 +53,39 @@ _responseNormalize.defaults =
 
 //
 
+function repositoryInitAct( o )
+{
+  const self = this;
+  _.map.assertHasAll( o, repositoryInitAct.defaults );
+  _.assert( _.aux.is( o.remotePath ) );
+  const ready = new _.Consequence();
+
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    return octokit.rest.repos.createForAuthenticatedUser
+    ({
+      name : o.remotePath.repo,
+      description : o.description || '',
+    });
+  })
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( `Error code : ${ err.statusCode }. ${ err.message }` );
+    return arg;
+  });
+}
+
+repositoryInitAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  description : null,
+};
+
+//
+
 function pullListAct( o )
 {
   let self = this;
@@ -144,7 +177,6 @@ function pullOpenAct( o )
   .finally( ( err, arg ) =>
   {
     if( err )
-    /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
     throw _.err( `Error code : ${ err.statusCode }. ${ err.message }` );
 
     if( o.logger && o.logger.verbosity >= 3 )
@@ -258,6 +290,8 @@ const Self =
 
   _open,
   _responseNormalize,
+
+  repositoryInitAct,
 
   pullListAct,
   _pullListResponseNormalize,
