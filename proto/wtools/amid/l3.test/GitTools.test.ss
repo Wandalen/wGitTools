@@ -18452,153 +18452,105 @@ function pullOpen( test )
 function pullOpenRemote( test )
 {
   let a = test.assetFor( 'basic' );
-  let repository = `https://github.com/wtools-bot/New-${ _.idWithDateAndTime() }`;
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let user = 'wtools-bot';
+  let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+
   let testing = _globals_.testing.wTools;
+  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
   let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
-
   if( !validPlatform || !insideTestContainer || !validEnvironments )
-  {
-    test.true( true );
-    return;
-  }
-
-  a.reflect();
-
-  /* */
-
-  a.ready.Try( () =>
-  {
-    return repositoryDelete( repository );
-  })
-  .catch( ( err ) =>
-  {
-    _.errAttend( err );
-    return null;
-  })
-
-  a.ready.then( () =>
-  {
-    return _.git.repositoryInit
-    ({
-      remotePath : repository,
-      localPath : a.routinePath,
-      throwing : 1,
-      sync : 1,
-      logger : 0,
-      dry : 0,
-      description : 'Test',
-      token,
-    })
-  })
+  return test.true( true );
 
   /* - */
 
-  a.shell
-  (
-    `git config credential.helper '!f(){ echo "username=wtools-bot" && echo "password=${ token }"; }; f'`
-  );
-  a.shell( 'git add --all' );
-  a.shell( 'git commit -m first' );
-  a.shell( 'git push -u origin master' );
-  a.shell( 'git checkout -b new' );
-  a.ready.then( () =>
+  a.reflect();
+  repositoryForm();
+
+  /* */
+
+  branchMake( 'new' ).then( () =>
   {
-    a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
+    test.case = 'opened pr only descriptionHead';
     return null;
   });
-  a.shell( 'git commit -am second' );
-  a.shell( 'git push -u origin new' );
-
   a.ready.then( () =>
   {
-    return _.git.pullOpen
+    return _.repo.pullOpen
     ({
       token,
       remotePath : repository,
-      title : 'new',
+      descriptionHead : 'new',
       srcBranch : 'new',
       dstBranch : 'master',
     });
   })
   a.ready.then( ( op ) =>
   {
-    test.case = 'opened pr only title';
-    test.identical( op.changed_files, 1 );
-    test.identical( op.state, 'open' );
-    test.identical( op.title, 'new' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New-.*\/pull\/\d/ ), 1 );
+    test.identical( op.data.changed_files, 1 );
+    test.identical( op.data.state, 'open' );
+    test.identical( op.data.title, 'new' );
+    test.identical( _.strCount( op.data.html_url, /https:\/\/github\.com\/.*\/New-.*\/pull\/\d/ ), 1 );
     return null;
   });
 
   /* */
 
   a.shell( 'git checkout master' );
-  a.shell( 'git checkout -b new2' );
-  a.ready.then( () =>
+  branchMake( 'new2' ).then( () =>
   {
-    a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
+    test.case = 'opened pr, sync : 0, srcBranch has user name';
     return null;
   });
-  a.shell( 'git commit -am second' );
-  a.shell( 'git push -u origin new2' );
-
   a.ready.then( () =>
   {
-    return _.git.pullOpen
+    return _.repo.pullOpen
     ({
       token,
       remotePath : repository,
-      title : 'new2',
-      body : 'Some description',
-      srcBranch : 'new2',
-      dstBranch : 'master',
-    });
-  })
-  a.ready.then( ( op ) =>
-  {
-    test.case = 'opened pr with body';
-    test.identical( op.body, 'Some description' );
-    test.identical( op.changed_files, 1 );
-    test.identical( op.state, 'open' );
-    test.identical( op.title, 'new2' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New-.*\/pull\/\d/ ), 1 );
-    return null;
-  });
-
-  /* */
-
-  a.shell( 'git checkout master' );
-  a.shell( 'git checkout -b new3' );
-  a.ready.then( () =>
-  {
-    a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
-    return null;
-  });
-  a.shell( 'git commit -am second' );
-  a.shell( 'git push -u origin new3' );
-
-  a.ready.then( () =>
-  {
-    return _.git.pullOpen
-    ({
-      token,
-      remotePath : repository,
-      title : 'new3',
-      srcBranch : 'wtools-bot:new3',
+      descriptionHead : 'new2',
+      srcBranch : `${ user }:new2`,
       dstBranch : 'master',
       sync : 0,
     });
   })
   a.ready.then( ( op ) =>
   {
-    test.case = 'opened pr, sync : 0, srcBranch has user name';
-    test.identical( op.changed_files, 1 );
-    test.identical( op.state, 'open' );
-    test.identical( op.title, 'new3' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New-.*\/pull\/\d/ ), 1 );
+    test.identical( op.data.changed_files, 1 );
+    test.identical( op.data.state, 'open' );
+    test.identical( op.data.title, 'new2' );
+    test.identical( _.strCount( op.data.html_url, /https:\/\/github\.com\/.*\/New-.*\/pull\/\d/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.shell( 'git checkout master' );
+  branchMake( 'new3' ).then( () =>
+  {
+    test.case = 'opened pr with descriptionBody';
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.repo.pullOpen
+    ({
+      token,
+      remotePath : repository,
+      descriptionHead : 'new3',
+      descriptionBody : 'Some description',
+      srcBranch : 'new3',
+      dstBranch : 'master',
+    });
+  })
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.data.body, 'Some description' );
+    test.identical( op.data.changed_files, 1 );
+    test.identical( op.data.state, 'open' );
+    test.identical( op.data.title, 'new3' );
+    test.identical( _.strCount( op.data.html_url, /https:\/\/github\.com\/.*\/New-.*\/pull\/\d/ ), 1 );
     return null;
   });
 
@@ -18611,9 +18563,50 @@ function pullOpenRemote( test )
     if( err )
     throw _.err( err, 'Repository should be deleted manually' );
     return null;
-  })
+  });
+
+  /* - */
 
   return a.ready;
+
+  /* */
+
+  function repositoryForm()
+  {
+    a.ready.Try( () =>
+    {
+      return repositoryDelete( repository );
+    })
+    .catch( ( err ) =>
+    {
+      _.errAttend( err );
+      return null;
+    })
+
+    a.ready.then( () =>
+    {
+      return _.git.repositoryInit
+      ({
+        remotePath : repository,
+        localPath : a.routinePath,
+        throwing : 1,
+        sync : 1,
+        logger : 0,
+        dry : 0,
+        description : 'Test',
+        token,
+      })
+    })
+
+    a.shell
+    (
+      `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`
+    );
+    a.shell( 'git add --all' );
+    a.shell( 'git commit -m first' );
+    a.shell( 'git push -u origin master' );
+    return a.ready;
+  }
 
   /* */
 
@@ -18627,7 +18620,22 @@ function pullOpenRemote( test )
       logger : 1,
       dry : 0,
       token,
-    })
+    });
+  }
+
+  /* */
+
+  function branchMake( branch )
+  {
+    a.shell( `git checkout -b ${ branch }` );
+    a.ready.then( () =>
+    {
+      a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
+      return null;
+    });
+    a.shell( 'git commit -am second' );
+    a.shell( `git push -u origin ${ branch }` );
+    return a.ready;
   }
 }
 
