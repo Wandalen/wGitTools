@@ -2783,20 +2783,6 @@ function statusFull( o )
       }
     }
 
-    // if( !o.explaining )
-    // {
-    //   result.status = true;
-    // }
-    // else
-    // {
-    //   let prsExplanation= `Has ${prs.length} opened pull request(s)`;
-    //
-    //   if( !result.status )
-    //   result.status = prsExplanation;
-    //   else
-    //   result.status += '\n' + prsExplanation;
-    // }
-
     return result;
   }
 
@@ -5752,7 +5738,7 @@ let Extension =
   status,
   statusFull,
 
-  hasLocalChanges,
+  hasLocalChanges, /* xxx : use instead of _.git.status* in git commands */
   hasRemoteChanges,
   hasChanges,
 
