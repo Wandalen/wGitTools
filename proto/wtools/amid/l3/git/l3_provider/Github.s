@@ -121,6 +121,54 @@ _pullListResponseNormalize.defaults =
 
 //
 
+function pullOpenAct( o )
+{
+  const self = this;
+  _.map.assertHasAll( o, pullOpenAct.defaults );
+  _.assert( _.aux.is( o.remotePath ) );
+  const ready = new _.Consequence();
+
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    return octokit.rest.pulls.create
+    ({
+      owner : o.remotePath.user,
+      repo : o.remotePath.repo,
+      title : o.descriptionHead || '',
+      body : o.descriptionBody || '',
+      head : o.srcBranch,
+      base : o.dstBranch,
+    });
+  })
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
+    throw _.err( `Error code : ${ err.statusCode }. ${ err.message }` );
+
+    if( o.logger && o.logger.verbosity >= 3 )
+    o.logger.log( arg );
+    else if( o.logger && o.logger.verbosity >= 1 )
+    o.logger.log( `Succefully created pull request "${ o.descriptionHead }" in ${ _.git.path.str( o.remotePath ) }.` );
+
+    return arg;
+  });
+}
+
+pullOpenAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  descriptionHead : null,
+  descriptionBody : null,
+  srcBranch : null,
+  dstBranch : null,
+  logger : null,
+};
+
+//
+
 function programListAct( o )
 {
   let self = this;
@@ -213,6 +261,8 @@ const Self =
 
   pullListAct,
   _pullListResponseNormalize,
+
+  pullOpenAct,
 
   programListAct,
   _programListResponseNormalize,
