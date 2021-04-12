@@ -4032,15 +4032,26 @@ function repositoryInit( o )
       if( o.dry )
       return true;
 
-      let github = require( 'octonode' );
-      let client = github.client( o.token );
-      let me = client.me();
 
-      return me.repoAsync
+      const Octokit = require( '@octokit/rest' ).Octokit;
+      const octokit = new Octokit
       ({
-        'name' : parsed.repo,
-        'description' : o.description || '',
+        auth : o.token,
       });
+      return octokit.rest.repos.createForAuthenticatedUser
+      ({
+        name : parsed.repo,
+        description : o.description || '',
+      });
+      // let github = require( 'octonode' );
+      // let client = github.client( o.token );
+      // let me = client.me();
+      //
+      // return me.repoAsync
+      // ({
+      //   'name' : parsed.repo,
+      //   'description' : o.description || '',
+      // });
     })
     .then( ( result ) =>
     {
@@ -4049,7 +4060,7 @@ function repositoryInit( o )
     return ready;
   }
 
-  /**/
+  /* */
 
   function remoteInit()
   {
@@ -4060,7 +4071,7 @@ function repositoryInit( o )
     return null;
   }
 
-  /**/
+  /* */
 
   function localInit()
   {
@@ -4091,7 +4102,7 @@ function repositoryInit( o )
     }
   }
 
-  /**/
+  /* */
 
   function localRepositoryNew()
   {
@@ -4104,7 +4115,7 @@ function repositoryInit( o )
     return start( `git remote add origin ${nativeRemotePath}` );
   }
 
-  /**/
+  /* */
 
   function localRepositoryRemoteAdd()
   {
@@ -4124,7 +4135,7 @@ function repositoryInit( o )
     return start( `git remote add origin ${nativeRemotePath}` );
   }
 
-  /**/
+  /* */
 
   function localRepositoryClone()
   {
@@ -4189,9 +4200,6 @@ function repositoryInit( o )
     });
 
   }
-
-  /**/
-
 }
 
 repositoryInit.defaults =
@@ -4302,7 +4310,7 @@ function repositoryDelete( o )
     return ready;
   }
 
-  /**/
+  /* */
 
   function remove()
   {
@@ -4312,7 +4320,6 @@ function repositoryDelete( o )
     throw _.err( `Cant remove remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
     return null;
   }
-
 }
 
 repositoryDelete.defaults =
