@@ -4057,7 +4057,8 @@ function repositoryInit( o )
     })
     .then( ( result ) =>
     {
-      return result[ 0 ] || null;
+      return result || null;
+      // return result[ 0 ] || null;
     });
     return ready;
   }
@@ -4300,16 +4301,10 @@ function repositoryDelete( o )
       if( o.dry )
       return true;
 
-      const Octokit = require( '@octokit/rest' ).Octokit;
-      const octokit = new Octokit
-      ({
-        auth : o.token,
-      });
-      return octokit.rest.repos.delete
-      ({
-        owner : parsed.user,
-        repo : parsed.repo,
-      });
+      const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+      let o2 = _.mapExtend( null, o );
+      o2.remotePath = parsed;
+      return provider.repositoryDeleteAct( o2 ); /* xxx : think how to refactor or reorganize it */
 
       // let github = require( 'octonode' );
       // let client = github.client( o.token );
@@ -4318,7 +4313,8 @@ function repositoryDelete( o )
     })
     .then( ( result ) =>
     {
-      return result[ 0 ] || null;
+      return result || null;
+      // return result[ 0 ] || null;
     });
     return ready;
   }
