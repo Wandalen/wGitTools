@@ -17425,6 +17425,86 @@ function repositoryInitRemote( test )
 
 //
 
+function repositoryDeleteRemote( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  let user = 'wtools-bot';
+  let repository;
+  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+
+  let testing = _globals_.testing.wTools;
+  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let insideTestContainer = _.process.insideTestContainer();
+  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  return test.true( true );
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'delete remote repository';
+    a.reflect();
+    return null;
+  });
+  repositoryForm();
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    test.true( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.git.repositoryDelete
+    ({
+      remotePath : repository,
+      throwing : 1,
+      sync : 1,
+      logger : 1,
+      dry : 0,
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.data, undefined );
+    test.identical( op.status, 204 );
+    test.false( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function repositoryForm()
+  {
+    a.ready.then( () =>
+    {
+      repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+      return _.git.repositoryInit
+      ({
+        remotePath : repository,
+        localPath : a.routinePath,
+        throwing : 1,
+        sync : 1,
+        logger : 0,
+        dry : 0,
+        description : 'Test',
+        token,
+      });
+    });
+    return a.ready;
+  }
+}
+
+//
+
 function repositoryClone( test )
 {
   let context = this;
@@ -25680,6 +25760,7 @@ const Proto =
 
     repositoryInit,
     repositoryInitRemote,
+    repositoryDeleteRemote,
     repositoryClone,
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,
