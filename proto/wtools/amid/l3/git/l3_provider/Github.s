@@ -3,7 +3,7 @@
 
 'use strict';
 
-let Github;
+let Github, Octokit;
 const _ = _global_.wTools;
 const Parent = _.repo;
 _.repo.provider = _.repo.provider || Object.create( null );
@@ -12,42 +12,211 @@ _.repo.provider = _.repo.provider || Object.create( null );
 // implement
 // --
 
-function prsGetAct( o )
+function _open( o )
 {
-  _.map.assertHasAll( o, prsGetAct.defaults );
+  _.map.assertHasAll( o, _open.defaults );
   _.assert( _.objectIs( o.remotePath ) );
   let ready = _.take( null );
   ready
   .then( () =>
   {
-    if( !Github )
-    Github = require( 'octonode' );
-    let client = o.token ? Github.client( o.token ) : Github.client();
-    let repo = client.repo( `${o.remotePath.user}/${o.remotePath.repo}` );
-    return repo.prsAsync();
+    if( !Octokit )
+    Octokit = require( '@octokit/rest' ).Octokit;
+    const octokit = new Octokit
+    ({
+      auth : o.token,
+    });
+    return octokit;
   })
-  .then( ( result ) =>
-  {
-    debugger;
-    return result[ 0 ];
-  });
   return ready;
 }
 
-prsGetAct.defaults =
+_open.defaults =
 {
-  ... Parent.prsGetAct.defaults,
+  token : null,
+}
+
+//
+
+function _responseNormalize()
+{
+  _.assert( 0, 'not implemented' );
+}
+_responseNormalize.defaults =
+{
+  requestCommand : null,
+  options : null,
+  fallingBack : 1,
+  response : null,
+  result : null,
+}
+
+//
+
+function pullListAct( o )
+{
+  let self = this;
+  let ready = _.take( null );
+  _.map.assertHasAll( o, pullListAct.defaults );
+  _.assert( _.objectIs( o.remotePath ) );
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    return octokit.rest.pulls.list
+    ({
+      owner : o.remotePath.user,
+      repo : o.remotePath.repo,
+    })
+  })
+  .then( ( response ) =>
+  {
+    o.result = self._pullListResponseNormalize
+    ({
+      requestCommand : 'octokit.rest.pulls.list',
+      options : o,
+      response,
+    })
+    return o;
+  });
+}
+
+pullListAct.defaults =
+{
+  ... Parent.pullListAct.defaults,
+}
+
+//
+
+function _pullListResponseNormalize( o )
+{
+  let result = o.result = o.result || Object.create( null );
+  let response = o.response;
+  result.total = response.data.total_count;
+  result.original = response;
+  result.type = 'repo.pull.collection';
+  result.elements = response.data.map( ( original ) =>
+  {
+    let r = Object.create( null );
+    r.original = original;
+    r.type = 'repo.pull';
+    r.description = Object.create( null );
+    r.description.head = original.title;
+    r.description.body = original.body;
+    r.to = Object.create( null );
+    r.to.tag = original.base.ref;
+    r.to.hash = original.base.sha;
+    r.from = Object.create( null );
+    r.from.name = original.head.xxx.login;
+    r.id = original.number;
+    return r;
+  });
+  return result;
+}
+
+_pullListResponseNormalize.defaults =
+{
+  ... _responseNormalize.defaults,
+  requestCommand : 'octokit.rest.pulls.list',
+}
+
+//
+
+function programListAct( o )
+{
+  let self = this;
+  let ready = _.take( null );
+  _.map.assertHasAll( o, programListAct.defaults );
+  _.assert( _.objectIs( o.remotePath ) );
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    return octokit.rest.actions.listRepoWorkflows
+    ({
+      owner : o.remotePath.user,
+      repo : o.remotePath.repo,
+      per_page : 100,
+    });
+  })
+  .then( ( response ) =>
+  {
+    o.result = self._programListResponseNormalize
+    ({
+      requestCommand : 'octokit.rest.actions.listRepoWorkflows',
+      options : o,
+      response,
+    });
+    return o;
+  });
+}
+
+programListAct.defaults =
+{
+  ... Parent.pullListAct.defaults,
+}
+
+//
+
+function _programListResponseNormalize( o )
+{
+  let result = o.result = o.result || Object.create( null );
+  let response = o.response;
+  result.total = response.data.total_count;
+  result.original = response;
+  result.type = 'repo.program.collection';
+  result.elements = response.data.workflows.map( ( original ) =>
+  {
+    let r = Object.create( null );
+    r.original = original;
+    r.type = 'repo.program';
+    r.name = original.name;
+    r.id = original.id;
+    r.state = original.state;
+    r.fileRelativePath = original.path;
+    r.fileGlobalPath = original.html_url;
+    r.service = 'github';
+    return r;
+  });
+  return result;
+}
+
+_programListResponseNormalize.defaults =
+{
+  ... _responseNormalize.defaults,
+  requestCommand : 'octokit.rest.actions.listRepoWorkflows',
 }
 
 // --
 // declare
 // --
 
+const _responseNormalizersMap =
+{
+
+  'octokit.rest.pulls.list' : pullListAct,
+  'octokit.rest.actions.listRepoWorkflows' : _programListResponseNormalize,
+
+}
+
+//
+
 const Self =
 {
+
   name : 'github',
   names : [ 'github', 'github.com' ],
-  prsGetAct,
+  _responseNormalizersMap,
+
+  //
+
+  _open,
+  _responseNormalize,
+
+  pullListAct,
+  _pullListResponseNormalize,
+
+  programListAct,
+  _programListResponseNormalize,
+
 }
 
 _.repo.providerAmend({ src : Self });

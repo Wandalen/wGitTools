@@ -8,12 +8,192 @@ const Self = _.repo = _.repo || Object.create( null );
 _.repo.provider = _.repo.provider || Object.create( null );
 
 // --
+// meta
+// --
+
+function _request_functor( fo )
+{
+
+  _.routine.options( _request_functor, fo );
+  _.assert( _.strDefined( fo.description ) );
+  _.assert( _.aux.is( fo.act ) );
+  _.assert( _.strDefined( fo.act.name ) );
+
+  const description = fo.description;
+  const actName = fo.act.name;
+
+  request_body.defaults =
+  {
+    logger : 0,
+    throwing : 1,
+    originalRemotePath : null,
+    ... fo.act.defaults,
+  }
+
+  const request = _.routine.unite( request_head, request_body );
+  return request;
+
+  function request_head( routine, args )
+  {
+    let o = args[ 0 ];
+    if( _.strIs( o ) )
+    o = { remotePath : o }
+    o = _.routine.options( request, o );
+    _.assert( args.length === 1 );
+    return o;
+  }
+
+  function request_body( o )
+  {
+    let ready = _.take( null );
+    let path = _.git.path;
+
+    _.map.assertHasAll( o, request.defaults );
+    o.logger = _.logger.maybe( o.logger );
+
+    o.originalRemotePath = o.originalRemotePath || o.remotePath;
+    if( _.strIs( o.remotePath ) )
+    o.remotePath = path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
+
+    ready
+    .then( () =>
+    {
+      let provider = _.repo.providerForPath({ remotePath : o.remotePath, throwing : o.throwing });
+      if( provider && !_.routineIs( provider[ actName ] ) )
+      {
+        if( o.throwing )
+        throw _.err( `Repo provider ${provider.name} does not support routine ${actName}` );
+        return null;
+      }
+      return provider[ actName ]( o );
+    })
+    .finally( ( err, op ) =>
+    {
+      if( !err && !op.result && o.throwing )
+      err = _.err( `Failed` );
+      if( err )
+      {
+        if( o.throwing )
+        throw _.err( err, `\nFailed to ${description} for ${path.str( o.originalRemotePath )}` );
+        _.errAttend( err );
+        return null;
+      }
+      return o;
+    });
+
+    if( o.sync )
+    {
+      ready.deasync();
+      return ready.sync();
+    }
+
+    return ready;
+  }
+
+}
+
+_request_functor.defaults =
+{
+  description : null,
+  act : null,
+}
+
 //
+
+function _collectionExportString_functor( fo )
+{
+
+  _.routine.options( _collectionExportString_functor, fo );
+  _.assert( arguments.length === 1 );
+  _.assert( _.routine.is( fo.elementExportRoutine ) );
+  _.assert( _.routine.is( fo.elementExportRoutine.body ) );
+  _.assert( _.aux.is( fo.elementExportRoutine.defaults ) );
+  _.assert( _.routine.is( fo.formatHeadRoutine ) || _.strDefined( fo.elementsString ) );
+  _.assert( _.routine.is( fo.formatHeadRoutine ) || fo.formatHeadRoutine === null );
+
+  const elementsString = fo.elementsString;
+  const elementExportRoutine = fo.elementExportRoutine;
+  const formatHeadRoutine = fo.formatHeadRoutine ? fo.formatHeadRoutine : formatHeadRoutineDefault;
+
+  elementArrayExportString_body.defaults =
+  {
+    ... fo.elementExportRoutine.defaults,
+    withHead : 1,
+    verbosity : 2,
+  }
+
+  elementArrayExportString_body.itDefaults =
+  {
+    tab : '',
+    dtab : '  ',
+  }
+
+  const elementArrayExportString = _.routine.unite( elementArrayExportString_head, elementArrayExportString_body );
+  return elementArrayExportString;
+
+  function elementArrayExportString_head( routine, args )
+  {
+    _.assert( 1 <= args.length && args.length <= 2 );
+    let o = args[ 1 ];
+    o = _.routine.options( routine, o );
+    o.it = o.it || _.mapExtend( null, routine.itDefaults );
+    return _.unrollFrom([ args[ 0 ], o ]);
+  }
+
+  function elementArrayExportString_body( object, o )
+  {
+
+    o.verbosity = _.logger.verbosityFrom( o.verbosity );
+
+    if( o.verbosity <= 0 )
+    return '';
+
+    if( o.verbosity === 1 )
+    {
+      if( !object.elements.length )
+      return ``;
+      return formatHeadRoutine( object, o );
+    }
+
+    let result = '';
+    object.elements.forEach( ( element ) =>
+    {
+      if( result.length )
+      result += '\n';
+      /* xxx : use _.stringer.itUp() */
+      result += o.it.tab + o.it.dtab + elementExportRoutine.body.call( _.repo, element, o );
+    });
+
+    if( result.length && o.withHead )
+    result = `${formatHeadRoutine( object, o )}\n${result}`;
+
+    return result;
+
+  }
+
+  function formatHeadRoutineDefault( object, o )
+  {
+    let prefix = _.ct.format( elementsString, o.secondaryStyle );
+    return `${o.it.tab}${object.elements.length} ${prefix}`;
+  }
+
+}
+
+_collectionExportString_functor.defaults =
+{
+  elementExportRoutine : null,
+  formatHeadRoutine : null,
+  elementsString : null
+}
+
+// --
+// provider
 // --
 
 function providerForPath( o )
 {
   _.routine.options( providerForPath, o );
+  o.originalRemotePath = o.originalRemotePath || o.remotePath;
   if( _.strIs( o.remotePath ) )
   o.remotePath = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
   let provider = _.repo.provider[ o.remotePath.service ];
@@ -24,6 +204,7 @@ function providerForPath( o )
 
 providerForPath.defaults =
 {
+  originalRemotePath : null,
   remotePath : null,
   throwing : 0,
 }
@@ -68,108 +249,93 @@ providerAmend.defaults =
   src : null,
 }
 
+// --
+// pr
+// --
+
+function pullIs( element )
+{
+  if( !_.objectIs( element ) )
+  return false;
+  return element.type === 'repo.pull';
+}
+
 //
 
-let prsGetAct = Object.create( null );
+function pullExportString_body( element, o )
+{
 
-prsGetAct.defaults =
+  _.assert( _.repo.pullIs( element ) );
+  o.verbosity = _.logger.verbosityFrom( o.verbosity );
+
+  if( o.verbosity <= 0 )
+  return '';
+
+  // let name = _.ct.format( `name::`, o.secondaryStyle ) + element.name;
+  // let id = `program#${element.id}`;
+  // let state = _.ct.format( `state::`, o.secondaryStyle ) + element.state;
+  // let service = _.ct.format( `service::`, o.secondaryStyle ) + element.service;
+  // let result = `${id} ${name} ${state} ${service}`;
+
+  let id = `pr#${element.id}`;
+  let from = _.ct.format( 'from::', o.secondaryStyle ) + element.from.name;
+  let to = _.ct.format( 'to::', o.secondaryStyle ) + element.to.tag;
+  let description = _.ct.format( 'description::', o.secondaryStyle ) + element.description.head;
+  let result = `${id} ${from} ${to} ${description} `;
+
+  return result;
+}
+
+pullExportString_body.defaults =
+{
+  secondaryStyle : 'tertiary',
+  verbosity : 1,
+  it : null,
+}
+
+let pullExportString = _.routine.unite( 1, pullExportString_body );
+
+//
+
+let pullCollectionExportString = _collectionExportString_functor
+({
+  elementExportRoutine : pullExportString,
+  elementsString : 'program(s)',
+});
+
+//
+
+let pullListAct = Object.create( null );
+
+pullListAct.name = 'pullListAct';
+pullListAct.defaults =
 {
   token : null,
   remotePath : null,
   sync : 1,
+  withOpened : 1,
+  withClosed : 0,
 }
 
 //
 
-function prsGet( o )
-{
-  let ready = _.take( null );
-
-  if( _.strIs( o ) )
-  o = { remotePath : o }
-  o = _.routineOptions( prsGet, o );
-  o.logger = _.logger.from( o.logger );
-
-  // let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
-
-  if( _.strIs( o.remotePath ) )
-  o.remotePath = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
-
-  ready
-  .then( () =>
-  {
-    // if( parsed.service === 'github.com' )
-    // return prsOnGithub();
-    let provider = _.repo.providerForPath({ remotePath : o.remotePath, throwing : o.throwing });
-    if( provider && !_.routineIs( provider.prsGetAct ) )
-    {
-      if( o.throwing )
-      throw _.err( `Repo provider ${provider.name} does not support routine prsGetAct` );
-      return null;
-    }
-    return provider.prsGetAct( o );
-  })
-  .finally( ( err, prs ) =>
-  {
-    if( !err && !prs && o.throwing )
-    err = _.err( 'Failed' );
-    if( err )
-    {
-      if( o.throwing )
-      throw _.err( err, '\nFailed to get list of pull requests' );
-      _.errAttend( err );
-      return null;
-    }
-    return prs;
-  });
-
-  if( o.sync )
-  {
-    ready.deasync();
-    return ready.sync();
-  }
-  return ready;
-
-  /* */
-
-  // function prsOnGithub()
-  // {
-  //   let ready = _.take( null );
-  //   ready
-  //   .then( () =>
-  //   {
-  //     let github = require( 'octonode' );
-  //     let client = o.token ? github.client( o.token ) : github.client();
-  //     let repo = client.repo( `${parsed.user}/${parsed.repo}` );
-  //     return repo.prsAsync();
-  //   })
-  //   .then( ( result ) =>
-  //   {
-  //     return result[ 0 ];
-  //   });
-  //   return ready;
-  // }
-
-}
-
-prsGet.defaults =
-{
-  logger : 0,
-  throwing : 1,
-  ... prsGetAct.defaults,
-}
+let pullList = _request_functor
+({
+  description : 'get list of pull requests',
+  act : pullListAct,
+})
 
 //
 
-function prOpen( o )
+function pullOpen( o )
 {
   let ready = _.take( null );
   let ready2 = new _.Consequence();
 
   if( _.strIs( o ) )
   o = { remotePath : o }
-  o = _.routineOptions( prOpen, o );
-  o.logger = _.logger.from( o.logger );
+  o = _.routine.options( pullOpen, o );
+  o.logger = _.logger.maybe( o.logger );
 
   if( !o.token && o.throwing )
   throw _.errBrief( 'Cannot autorize user without user token.' )
@@ -180,7 +346,7 @@ function prOpen( o )
   ready.then( () =>
   {
     if( parsed.service === 'github.com' )
-    return prOpenOnGithub();
+    return pullOpenOnGithub();
     if( o.throwing )
     throw _.err( 'Unknown service' );
     return null;
@@ -207,7 +373,8 @@ function prOpen( o )
 
   /* */
 
-  function prOpenOnGithub()
+  /* qqq : for Dmytro : move out to github provider */
+  function pullOpenOnGithub()
   {
     let ready = _.take( null );
     ready
@@ -251,7 +418,7 @@ function prOpen( o )
 
 }
 
-prOpen.defaults =
+pullOpen.defaults =
 {
   throwing : 1,
   sync : 1,
@@ -265,18 +432,152 @@ prOpen.defaults =
 }
 
 // --
+// program
+// --
+
+function programIs( object )
+{
+  if( !_.objectIs( object ) )
+  return false;
+  return object.type === 'repo.program';
+}
+
+//
+
+function programExportString_body( element, o )
+{
+
+  _.assert( _.repo.programIs( element ) );
+  o.verbosity = _.logger.verbosityFrom( o.verbosity );
+
+  if( o.verbosity <= 0 )
+  return '';
+
+  let name = _.ct.format( `name::`, o.secondaryStyle ) + element.name;
+  let id = `program#${element.id}`;
+  let state = _.ct.format( `state::`, o.secondaryStyle ) + element.state;
+  let service = _.ct.format( `service::`, o.secondaryStyle ) + element.service;
+  let result = `${id} ${name} ${state} ${service}`;
+
+  return result;
+}
+
+programExportString_body.defaults =
+{
+  secondaryStyle : 'tertiary',
+  verbosity : 1,
+  it : null,
+}
+
+let programExportString = _.routine.unite( 1, programExportString_body );
+
+//
+
+let programCollectionExportString = _collectionExportString_functor
+({
+  elementExportRoutine : programExportString,
+  elementsString : 'program(s)',
+});
+
+//
+
+let programListAct = Object.create( null );
+
+programListAct.name = 'programListAct';
+programListAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  sync : 1,
+  withOpened : 1,
+  withClosed : 0,
+}
+
+//
+
+let programList = _request_functor
+({
+  description : 'get list of programs',
+  act : programListAct,
+})
+
+// --
+// etc
+// --
+
+function vcsFor( o )
+{
+  if( !_.mapIs( o ) )
+  o = { filePath : o }
+
+  _.assert( arguments.length === 1 );
+  _.routine.options( vcsFor, o );
+
+  if( _.arrayIs( o.filePath ) && o.filePath.length === 0 )
+  return null;
+
+  if( !o.filePath )
+  return null;
+
+  _.assert( _.strIs( o.filePath ) );
+  _.assert( _.uri.isGlobal( o.filePath ) );
+
+  let parsed = _.uri.parseFull( o.filePath );
+
+  if( _.git && _.longHasAny( parsed.protocols, _.git.protocols ) )
+  return _.git;
+  if( _.npm && _.longHasAny( parsed.protocols, _.npm.protocols ) )
+  return _.npm;
+
+  return null;
+}
+
+vcsFor.defaults =
+{
+  filePath : null,
+}
+
+// --
 // declare
 // --
 
 let Extension =
 {
 
+  // meta
+
+  _request_functor,
+  _collectionExportString_functor,
+
+  // provider
+
   providerForPath,
   providerAmend,
 
-  prsGetAct,
-  prsGet, /* qqq : for Dmytro : cover */
-  prOpen,
+  // pr
+
+  pullIs,
+  pullExportString,
+  pullCollectionExportString,
+
+  pullListAct,
+  pullList, /* qqq : for Dmytro : cover */
+
+  // pullOpenAct, /* qqq : for Dmytro : add */
+  pullOpen,
+
+  // program
+
+  programIs,
+  programExportString,
+  programCollectionExportString,
+
+  programListAct,
+  programList,
+
+  // etc
+
+  vcsFor,
 
 }
 

@@ -3,14 +3,14 @@ root:
   - wGitTools.out
 consistency:
   wGitTools.out.will.yml: &ref_0
-    hash: 4667d6828a8aa300d08362f4859731eb
-    size: 40221
+    hash: 960392e84b584d5e190c1088802e13c6
+    size: 40448
   ../.ex.will.yml: &ref_1
     hash: 15f7123b7761b7eba6df2912328a70a6
     size: 1720
   ../.im.will.yml: &ref_2
-    hash: 73590607ef02914976205748b9d929a5
-    size: 5341
+    hash: 02b5b1ff44480175ad24cb875bfe3374
+    size: 5347
 module:
   wGitTools.out:
     about:
@@ -183,6 +183,7 @@ module:
           - ../proto/wtools/amid/l3.test
           - ../proto/wtools/amid/l3.test/GitTools.test.ss
           - ../proto/wtools/amid/l3.test/Path.test.ss
+          - ../proto/wtools/amid/l3.test/Repo.test.ss
           - ../proto/wtools/amid/l3.test/_asset
           - ../proto/wtools/amid/l3.test/_asset/basic
           - ../proto/wtools/amid/l3.test/_asset/basic/File.txt
@@ -213,7 +214,7 @@ module:
         autoExporting: 0
         enabled: 0
       octonode:
-        path: 'npm:///octonode#0.10.0'
+        path: 'npm:///@octokit/rest#=18.5.2'
         autoExporting: 0
         enabled: 0
       wgittools:
@@ -1011,7 +1012,7 @@ module:
         autoExporting: 0
         enabled: 0
       octonode:
-        path: 'npm:///octonode#0.10.0'
+        path: 'npm:///@octokit/rest#=18.5.2'
         autoExporting: 0
         enabled: 0
       wgittools:
@@ -1567,6 +1568,8 @@ module:
         hash: 15f7123b7761b7eba6df2912328a70a6
         size: 1720
       ../.im.will.yml:
-        hash: 73590607ef02914976205748b9d929a5
-        size: 5341
-      wGitTools.out.will.yml: *ref_0
+        hash: 02b5b1ff44480175ad24cb875bfe3374
+        size: 5347
+      wGitTools.out.will.yml:
+        hash: 960392e84b584d5e190c1088802e13c6
+        size: 40448
