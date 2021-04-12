@@ -53,6 +53,72 @@ _responseNormalize.defaults =
 
 //
 
+function repositoryInitAct( o )
+{
+  const self = this;
+  _.map.assertHasAll( o, repositoryInitAct.defaults );
+  _.assert( _.aux.is( o.remotePath ) );
+  const ready = new _.Consequence();
+
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    return octokit.rest.repos.createForAuthenticatedUser
+    ({
+      name : o.remotePath.repo,
+      description : o.description || '',
+    });
+  })
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( `Error code : ${ err.statusCode }. ${ err.message }` );
+    return arg;
+  });
+}
+
+repositoryInitAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  description : null,
+};
+
+//
+
+function repositoryDeleteAct( o )
+{
+  const self = this;
+  _.map.assertHasAll( o, repositoryDeleteAct.defaults );
+  _.assert( _.aux.is( o.remotePath ) );
+  const ready = new _.Consequence();
+
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    return octokit.rest.repos.delete
+    ({
+      owner : o.remotePath.user,
+      repo : o.remotePath.repo,
+    });
+  })
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( `Error code : ${ err.statusCode }. ${ err.message }` );
+    return arg;
+  });
+}
+
+repositoryDeleteAct.defaults =
+{
+  token : null,
+  remotePath : null,
+};
+
+
+//
+
 function pullListAct( o )
 {
   let self = this;
@@ -118,6 +184,53 @@ _pullListResponseNormalize.defaults =
   ... _responseNormalize.defaults,
   requestCommand : 'octokit.rest.pulls.list',
 }
+
+//
+
+function pullOpenAct( o )
+{
+  const self = this;
+  _.map.assertHasAll( o, pullOpenAct.defaults );
+  _.assert( _.aux.is( o.remotePath ) );
+  const ready = new _.Consequence();
+
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    return octokit.rest.pulls.create
+    ({
+      owner : o.remotePath.user,
+      repo : o.remotePath.repo,
+      title : o.descriptionHead || '',
+      body : o.descriptionBody || '',
+      head : o.srcBranch,
+      base : o.dstBranch,
+    });
+  })
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( `Error code : ${ err.statusCode }. ${ err.message }` );
+
+    if( o.logger && o.logger.verbosity >= 3 )
+    o.logger.log( arg );
+    else if( o.logger && o.logger.verbosity >= 1 )
+    o.logger.log( `Succefully created pull request "${ o.descriptionHead }" in ${ _.git.path.str( o.remotePath ) }.` );
+
+    return arg;
+  });
+}
+
+pullOpenAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  descriptionHead : null,
+  descriptionBody : null,
+  srcBranch : null,
+  dstBranch : null,
+  logger : null,
+};
 
 //
 
@@ -211,8 +324,13 @@ const Self =
   _open,
   _responseNormalize,
 
+  repositoryInitAct,
+  repositoryDeleteAct,
+
   pullListAct,
   _pullListResponseNormalize,
+
+  pullOpenAct,
 
   programListAct,
   _programListResponseNormalize,

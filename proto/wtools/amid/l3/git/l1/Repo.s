@@ -341,12 +341,12 @@ function pullOpen( o )
   throw _.errBrief( 'Cannot autorize user without user token.' )
 
   // let parsed = this.objectsParse( o.remotePath );
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
 
   ready.then( () =>
   {
     if( parsed.service === 'github.com' )
-    return pullOpenOnGithub();
+    return pullOpenOnRemoteServer();
     if( o.throwing )
     throw _.err( 'Unknown service' );
     return null;
@@ -373,48 +373,57 @@ function pullOpen( o )
 
   /* */
 
-  /* qqq : for Dmytro : move out to github provider */
-  function pullOpenOnGithub()
+  function pullOpenOnRemoteServer()
   {
-    let ready = _.take( null );
-    ready
-    .then( () =>
-    {
-      let github = require( 'octonode' );
-      let client = github.client( o.token );
-      let repo = client.repo( `${parsed.user}/${parsed.repo}` );
-      let o2 =
-      {
-        title : o.title,
-        body : o.body,
-        head : o.srcBranch,
-        base : o.dstBranch,
-      };
-      repo.pr( o2, onRequest );
-
-      /* */
-
-      return ready2
-      .then( ( args ) =>
-      {
-        if( args[ 0 ] )
-        throw _.err( `Error code : ${ args[ 0 ].statusCode }. ${ args[ 0 ].message }` ); /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
-        if( o.logger && o.logger.verbosity >= 3 )
-        o.logger.log( args[ 1 ] );
-        else if( o.logger && o.logger.verbosity >= 1 )
-        o.logger.log( `Succefully created pull request "${ o.title }" in ${ o.remotePath }.` )
-
-        return args[ 1 ];
-      });
-    });
-    return ready;
+    const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+    let o2 = _.mapExtend( null, o );
+    o2.remotePath = parsed;
+    return provider.pullOpenAct( o2 ); /* xxx : think how to refactor or reorganize it */
   }
 
-  /* qqq : for Dmytro : ?? */
-  function onRequest( err, body, headers )
-  {
-    return _.time.begin( 0, () => ready2.take([ err, body ]) );
-  }
+  // /* aaa : for Dmytro : move out to github provider */ /* Dmytro : moved to provider */
+  // function pullOpenOnGithub()
+  // {
+  //   let ready = _.take( null );
+  //   ready
+  //   .then( () =>
+  //   {
+  //     let github = require( 'octonode' );
+  //     let client = github.client( o.token );
+  //     let repo = client.repo( `${ parsed.user }/${ parsed.repo }` );
+  //     let o2 =
+  //     {
+  //       descriptionHead : o.descriptionHead,
+  //       descriptionBody : o.descriptionBody,
+  //       head : o.srcBranch,
+  //       base : o.dstBranch,
+  //     };
+  //     repo.pr( o2, onRequest );
+  //
+  //     /* */
+  //
+  //     return ready2
+  //     .then( ( args ) =>
+  //     {
+  //       if( args[ 0 ] )
+  //       throw _.err( `Error code : ${ args[ 0 ].statusCode }. ${ args[ 0 ].message }` ); /* Dmytro : the structure of HTTP error is : message, statusCode, headers, body */
+  //
+  //       if( o.logger && o.logger.verbosity >= 3 )
+  //       o.logger.log( args[ 1 ] );
+  //       else if( o.logger && o.logger.verbosity >= 1 )
+  //       o.logger.log( `Succefully created pull request "${ o.descriptionHead }" in ${ o.remotePath }.` )
+  //
+  //       return args[ 1 ];
+  //     });
+  //   });
+  //   return ready;
+  // }
+  //
+  // /* aaa : for Dmytro : ?? */ /* Dmytro : really strange code */
+  // function onRequest( err, body, headers )
+  // {
+  //   return _.time.begin( 0, () => ready2.take([ err, body ]) );
+  // }
 
 }
 
@@ -425,11 +434,13 @@ pullOpen.defaults =
   logger : 2,
   token : null,
   remotePath : null,
-  title : null, /* qqq : for Dmytro : rename to descriptionHead */
-  body : null, /* qqq : for Dmytro : rename to descriptionBody */
+  // title : null, /* aaa : for Dmytro : rename to descriptionHead */
+  // body : null, /* aaa : for Dmytro : rename to descriptionBody */
+  descriptionHead : null,
+  descriptionBody : null,
   srcBranch : null, /* qqq : for Dmytro : should get current by default */
   dstBranch : null, /* qqq : for Dmytro : should get current by default */
-}
+};
 
 // --
 // program

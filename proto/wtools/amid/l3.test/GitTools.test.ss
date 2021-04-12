@@ -146,157 +146,157 @@ function stateIsTag( test )
 
 //
 
-function pathParse( test )
-{
-  var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git';
-  var expected =
-  {
-    'protocol' : 'git',
-    'tag' : 'master',
-    'longPath' : '/git@bitbucket.org:someorg/somerepo.git',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
-    'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git/#master';
-  var expected =
-  {
-    'protocol' : 'git',
-    'hash' : 'master',
-    'longPath' : '/git@bitbucket.org:someorg/somerepo.git/',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
-    'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#041839a730fa104a7b6c7e4935b4751ad81b00e0';
-  var expected =
-  {
-    'protocol' : 'git+https',
-    'hash' : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
-    'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'isFixated' : true
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!0.0.37'
-  var expected =
-  {
-    'protocol' : 'git+https',
-    'tag' : '0.0.37',
-    'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master'
-  var expected =
-  {
-    'protocol' : 'git+https',
-    'tag' : 'master',
-    'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will!master'
-  var expected =
-  {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will',
-    'tag' : 'master',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will!v0.8.505'
-  var expected =
-  {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will',
-    'tag' : 'v0.8.505',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/!v0.8.505'
-  var expected =
-  {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will/',
-    'tag' : 'v0.8.505',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will/',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
-  var expected =
-  {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will',
-    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
-    'isFixated' : true
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
-  var expected =
-  {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will/',
-    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will/',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
-    'isFixated' : true
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  test.case = 'both hash and tag'
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3!master';
-  test.shouldThrowErrorSync( () => _.git.pathParse( remotePath ) );
-}
+// function pathParse( test )
+// {
+//   var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git';
+//   var expected =
+//   {
+//     'protocol' : 'git',
+//     'tag' : 'master',
+//     'longPath' : '/git@bitbucket.org:someorg/somerepo.git',
+//     'localVcsPath' : './',
+//     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
+//     'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git/#master';
+//   var expected =
+//   {
+//     'protocol' : 'git',
+//     'hash' : 'master',
+//     'longPath' : '/git@bitbucket.org:someorg/somerepo.git/',
+//     'localVcsPath' : './',
+//     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
+//     'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#041839a730fa104a7b6c7e4935b4751ad81b00e0';
+//   var expected =
+//   {
+//     'protocol' : 'git+https',
+//     'hash' : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
+//     'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
+//     'localVcsPath' : './',
+//     'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'isFixated' : true
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!0.0.37'
+//   var expected =
+//   {
+//     'protocol' : 'git+https',
+//     'tag' : '0.0.37',
+//     'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
+//     'localVcsPath' : './',
+//     'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master'
+//   var expected =
+//   {
+//     'protocol' : 'git+https',
+//     'tag' : 'master',
+//     'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
+//     'localVcsPath' : './',
+//     'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+hd://Tools?out=out/wTools.out.will!master'
+//   var expected =
+//   {
+//     'protocol' : 'git+hd',
+//     'query' : 'out=out/wTools.out.will',
+//     'tag' : 'master',
+//     'longPath' : 'Tools',
+//     'localVcsPath' : 'out/wTools.out.will',
+//     'remoteVcsPath' : 'Tools',
+//     'remoteVcsLongerPath' : 'Tools',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+hd://Tools?out=out/wTools.out.will!v0.8.505'
+//   var expected =
+//   {
+//     'protocol' : 'git+hd',
+//     'query' : 'out=out/wTools.out.will',
+//     'tag' : 'v0.8.505',
+//     'longPath' : 'Tools',
+//     'localVcsPath' : 'out/wTools.out.will',
+//     'remoteVcsPath' : 'Tools',
+//     'remoteVcsLongerPath' : 'Tools',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+hd://Tools?out=out/wTools.out.will/!v0.8.505'
+//   var expected =
+//   {
+//     'protocol' : 'git+hd',
+//     'query' : 'out=out/wTools.out.will/',
+//     'tag' : 'v0.8.505',
+//     'longPath' : 'Tools',
+//     'localVcsPath' : 'out/wTools.out.will/',
+//     'remoteVcsPath' : 'Tools',
+//     'remoteVcsLongerPath' : 'Tools',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+hd://Tools?out=out/wTools.out.will#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
+//   var expected =
+//   {
+//     'protocol' : 'git+hd',
+//     'query' : 'out=out/wTools.out.will',
+//     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+//     'longPath' : 'Tools',
+//     'localVcsPath' : 'out/wTools.out.will',
+//     'remoteVcsPath' : 'Tools',
+//     'remoteVcsLongerPath' : 'Tools',
+//     'isFixated' : true
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+hd://Tools?out=out/wTools.out.will/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
+//   var expected =
+//   {
+//     'protocol' : 'git+hd',
+//     'query' : 'out=out/wTools.out.will/',
+//     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+//     'longPath' : 'Tools',
+//     'localVcsPath' : 'out/wTools.out.will/',
+//     'remoteVcsPath' : 'Tools',
+//     'remoteVcsLongerPath' : 'Tools',
+//     'isFixated' : true
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   test.case = 'both hash and tag'
+//   var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3!master';
+//   test.shouldThrowErrorSync( () => _.git.pathParse( remotePath ) );
+// }
 
 //
 
@@ -17131,7 +17131,7 @@ function hookPreservingHardLinks( test )
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), 'dir', [ 'b', 'c' ] ) ), false );
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), 'dir', [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'a', 'dir/a' ] ) ), true ); /* qqq : for Dmytro : faile for me */
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'a', 'dir/a' ] ) ), true ); /* aaa : for Dmytro : faile for me */ /* Dmytro : it is more global problem with resolving of modules. See https://github.com/Wandalen/wTools/pull/526 */
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'b', 'dir/b' ] ) ), true );
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'c', 'dir/c' ] ) ), false );
 
@@ -17220,10 +17220,7 @@ hookPreservingHardLinks.timeOut = 30000;
 function repositoryInit( test )
 {
   if( !Config.debug )
-  {
-    test.true( true );
-    return;
-  }
+  return test.true( true );
 
   test.shouldThrowErrorSync( () =>
   {
@@ -17236,7 +17233,7 @@ function repositoryInit( test )
       remote : 1,
       dry : 1,
     });
-  })
+  });
 
   test.shouldThrowErrorSync( () =>
   {
@@ -17249,7 +17246,261 @@ function repositoryInit( test )
       remote : 1,
       dry : 1,
     });
-  })
+  });
+}
+
+//
+
+function repositoryInitRemote( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  let user = 'wtools-bot';
+  let repository;
+  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+
+  let testing = _globals_.testing.wTools;
+  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let insideTestContainer = _.process.insideTestContainer();
+  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  return test.true( true );
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'create remote repository, dry - 1';
+    a.reflect();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+    return _.git.repositoryInit
+    ({
+      remotePath : repository,
+      localPath : a.routinePath,
+      throwing : 1,
+      sync : 1,
+      logger : 0,
+      dry : 1,
+      description : 'Test',
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, null );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'create remote repository, dry - 0, logger - 0';
+    a.reflect();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+    return _.git.repositoryInit
+    ({
+      remotePath : repository,
+      localPath : a.routinePath,
+      throwing : 1,
+      sync : 1,
+      logger : 0,
+      dry : 0,
+      description : 'Test',
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    test.true( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'create remote repository, dry - 0, logger - 2';
+    a.reflect();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+    return _.git.repositoryInit
+    ({
+      remotePath : repository,
+      localPath : a.routinePath,
+      throwing : 1,
+      sync : 1,
+      logger : 2,
+      dry : 0,
+      description : 'Test',
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    test.true( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'create remote repository, dry - 0, logger - _.logger, logger verbosity - 2';
+    a.reflect();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+    let logger = _global_.logger;
+    logger.verbosity = 2;
+    return _.git.repositoryInit
+    ({
+      remotePath : repository,
+      localPath : a.routinePath,
+      throwing : 1,
+      sync : 1,
+      logger,
+      dry : 0,
+      description : 'Test',
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    test.true( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function repositoryDelete( remotePath )
+  {
+    a.ready.Try( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath,
+        throwing : 1,
+        sync : 1,
+        logger : 1,
+        dry : 0,
+        token,
+      });
+    })
+    .catch( ( err ) =>
+    {
+      _.errAttend( err );
+      return null;
+    });
+    return a.ready;
+  }
+}
+
+//
+
+function repositoryDeleteRemote( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  let user = 'wtools-bot';
+  let repository;
+  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+
+  let testing = _globals_.testing.wTools;
+  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let insideTestContainer = _.process.insideTestContainer();
+  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  return test.true( true );
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'delete remote repository';
+    a.reflect();
+    return null;
+  });
+  repositoryForm();
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    test.true( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.git.repositoryDelete
+    ({
+      remotePath : repository,
+      throwing : 1,
+      sync : 1,
+      logger : 1,
+      dry : 0,
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.data, undefined );
+    test.identical( op.status, 204 );
+    test.false( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function repositoryForm()
+  {
+    a.ready.then( () =>
+    {
+      repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+      return _.git.repositoryInit
+      ({
+        remotePath : repository,
+        localPath : a.routinePath,
+        throwing : 1,
+        sync : 1,
+        logger : 0,
+        dry : 0,
+        description : 'Test',
+        token,
+      });
+    });
+    return a.ready;
+  }
 }
 
 //
@@ -17604,7 +17855,8 @@ function repositoryClone( test )
           return null;
         }
 
-        /* qqq : for Dmytro : does not throw error for me */
+        /* aaa : for Dmytro : does not throw error for me */
+        /* Dmytro : it is special test case for not existed ssh-identity. Ssh-identity removed by command `ssh-add -D`. If some ssh-identity added after command, then test case should not throw error */
         test.case = 'ssh protocol with implicit declaration';
         test.shouldThrowErrorSync( () =>
         {
@@ -17616,7 +17868,8 @@ function repositoryClone( test )
           });
         });
 
-        /* qqq : for Dmytro : does not throw error for me */
+        /* aaa : for Dmytro : does not throw error for me */
+        /* Dmytro : it is special test case for not existed ssh-identity. Ssh-identity removed by command `ssh-add -D`. If some ssh-identity added after command, then test case should not throw error */
         test.case = 'ssh protocol with explicit declaration ';
         test.shouldThrowErrorSync( () =>
         {
@@ -18069,16 +18322,17 @@ function repositoryCheckoutRemotePathIsMap( test )
 
   /* - */
 
-  // qqq : for Dmytro : for Vova : fail!
+  // aaa : for Dmytro : for Vova : fail!
   //  > git branch --show-current
   // error: unknown option `show-current'
+  /* Dmytro : if version of Git < 2.22, then this option does not supports by utility */
 
   checkout().then( () =>
   {
     test.case = 'remotePath - simple http path, without hash or tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18097,7 +18351,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global http path, without hash or tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'https:///github.com/Wandalen/wModuleForTesting1.git' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18116,7 +18370,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global path with several protocols, without hash or tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' ),
+      remotePath : _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18137,7 +18391,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - simple http path, checkout to newly created local branch';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git!new' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git!new' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18158,7 +18412,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global http path, checkout to newly created local branch';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git!new' ),
+      remotePath : _.git.path.parse( 'https:///github.com/Wandalen/wModuleForTesting1.git!new' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18179,7 +18433,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global path with several protocols, checkout to newly created local branch';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!new' ),
+      remotePath : _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!new' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18198,7 +18452,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - simple http path, checkout to hash';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18217,7 +18471,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global http path, checkout to hash';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
+      remotePath : _.git.path.parse( 'https:///github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18236,7 +18490,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global path with several protocols, checkout to hash';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
+      remotePath : _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git#d7ef64cf6f3ff73eddba286961fa44e7748a14fc' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18255,7 +18509,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - simple http path, checkout to tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18274,7 +18528,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global http path, checkout to tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
+      remotePath : _.git.path.parse( 'https:///github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18293,7 +18547,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global path with several protocols, checkout to tag';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
+      remotePath : _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!v0.0.101' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18312,7 +18566,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - simple http path, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https://github.com/Wandalen/wModuleForTesting1.git!dev1' ),
+      remotePath : _.git.path.parse( 'https://github.com/Wandalen/wModuleForTesting1.git!dev1' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18331,7 +18585,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global http path, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'https:///github.com/Wandalen/wModuleForTesting1.git!dev1' ),
+      remotePath : _.git.path.parse( 'https:///github.com/Wandalen/wModuleForTesting1.git!dev1' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18350,7 +18604,7 @@ function repositoryCheckoutRemotePathIsMap( test )
     test.case = 'remotePath - global path with several protocols, checkout to branch which exists only on remote server';
     return _.git.repositoryCheckout
     ({
-      remotePath : _.git.pathParse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!dev1' ),
+      remotePath : _.git.path.parse( 'git+https:///github.com/Wandalen/wModuleForTesting1.git!dev1' ),
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
@@ -18449,153 +18703,105 @@ function pullOpen( test )
 function pullOpenRemote( test )
 {
   let a = test.assetFor( 'basic' );
-  let repository = `https://github.com/wtools-bot/New-${ _.idWithDateAndTime() }`;
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let user = 'wtools-bot';
+  let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+
   let testing = _globals_.testing.wTools;
+  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
   let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
-
   if( !validPlatform || !insideTestContainer || !validEnvironments )
-  {
-    test.true( true );
-    return;
-  }
-
-  a.reflect();
-
-  /* */
-
-  a.ready.Try( () =>
-  {
-    return repositoryDelete( repository );
-  })
-  .catch( ( err ) =>
-  {
-    _.errAttend( err );
-    return null;
-  })
-
-  a.ready.then( () =>
-  {
-    return _.git.repositoryInit
-    ({
-      remotePath : repository,
-      localPath : a.routinePath,
-      throwing : 1,
-      sync : 1,
-      logger : 0,
-      dry : 0,
-      description : 'Test',
-      token,
-    })
-  })
+  return test.true( true );
 
   /* - */
 
-  a.shell
-  (
-    `git config credential.helper '!f(){ echo "username=wtools-bot" && echo "password=${ token }"; }; f'`
-  );
-  a.shell( 'git add --all' );
-  a.shell( 'git commit -m first' );
-  a.shell( 'git push -u origin master' );
-  a.shell( 'git checkout -b new' );
-  a.ready.then( () =>
+  a.reflect();
+  repositoryForm();
+
+  /* */
+
+  branchMake( 'new' ).then( () =>
   {
-    a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
+    test.case = 'opened pr only descriptionHead';
     return null;
   });
-  a.shell( 'git commit -am second' );
-  a.shell( 'git push -u origin new' );
-
   a.ready.then( () =>
   {
-    return _.git.pullOpen
+    return _.repo.pullOpen
     ({
       token,
       remotePath : repository,
-      title : 'new',
+      descriptionHead : 'new',
       srcBranch : 'new',
       dstBranch : 'master',
     });
   })
   a.ready.then( ( op ) =>
   {
-    test.case = 'opened pr only title';
-    test.identical( op.changed_files, 1 );
-    test.identical( op.state, 'open' );
-    test.identical( op.title, 'new' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New-.*\/pull\/\d/ ), 1 );
+    test.identical( op.data.changed_files, 1 );
+    test.identical( op.data.state, 'open' );
+    test.identical( op.data.title, 'new' );
+    test.identical( _.strCount( op.data.html_url, /https:\/\/github\.com\/.*\/New-.*\/pull\/\d/ ), 1 );
     return null;
   });
 
   /* */
 
   a.shell( 'git checkout master' );
-  a.shell( 'git checkout -b new2' );
-  a.ready.then( () =>
+  branchMake( 'new2' ).then( () =>
   {
-    a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
+    test.case = 'opened pr, sync : 0, srcBranch has user name';
     return null;
   });
-  a.shell( 'git commit -am second' );
-  a.shell( 'git push -u origin new2' );
-
   a.ready.then( () =>
   {
-    return _.git.pullOpen
+    return _.repo.pullOpen
     ({
       token,
       remotePath : repository,
-      title : 'new2',
-      body : 'Some description',
-      srcBranch : 'new2',
-      dstBranch : 'master',
-    });
-  })
-  a.ready.then( ( op ) =>
-  {
-    test.case = 'opened pr with body';
-    test.identical( op.body, 'Some description' );
-    test.identical( op.changed_files, 1 );
-    test.identical( op.state, 'open' );
-    test.identical( op.title, 'new2' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New-.*\/pull\/\d/ ), 1 );
-    return null;
-  });
-
-  /* */
-
-  a.shell( 'git checkout master' );
-  a.shell( 'git checkout -b new3' );
-  a.ready.then( () =>
-  {
-    a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
-    return null;
-  });
-  a.shell( 'git commit -am second' );
-  a.shell( 'git push -u origin new3' );
-
-  a.ready.then( () =>
-  {
-    return _.git.pullOpen
-    ({
-      token,
-      remotePath : repository,
-      title : 'new3',
-      srcBranch : 'wtools-bot:new3',
+      descriptionHead : 'new2',
+      srcBranch : `${ user }:new2`,
       dstBranch : 'master',
       sync : 0,
     });
   })
   a.ready.then( ( op ) =>
   {
-    test.case = 'opened pr, sync : 0, srcBranch has user name';
-    test.identical( op.changed_files, 1 );
-    test.identical( op.state, 'open' );
-    test.identical( op.title, 'new3' );
-    test.identical( _.strCount( op.html_url, /https:\/\/github\.com\/wtools-bot\/New-.*\/pull\/\d/ ), 1 );
+    test.identical( op.data.changed_files, 1 );
+    test.identical( op.data.state, 'open' );
+    test.identical( op.data.title, 'new2' );
+    test.identical( _.strCount( op.data.html_url, /https:\/\/github\.com\/.*\/New-.*\/pull\/\d/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.shell( 'git checkout master' );
+  branchMake( 'new3' ).then( () =>
+  {
+    test.case = 'opened pr with descriptionBody';
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.repo.pullOpen
+    ({
+      token,
+      remotePath : repository,
+      descriptionHead : 'new3',
+      descriptionBody : 'Some description',
+      srcBranch : 'new3',
+      dstBranch : 'master',
+    });
+  })
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.data.body, 'Some description' );
+    test.identical( op.data.changed_files, 1 );
+    test.identical( op.data.state, 'open' );
+    test.identical( op.data.title, 'new3' );
+    test.identical( _.strCount( op.data.html_url, /https:\/\/github\.com\/.*\/New-.*\/pull\/\d/ ), 1 );
     return null;
   });
 
@@ -18608,9 +18814,50 @@ function pullOpenRemote( test )
     if( err )
     throw _.err( err, 'Repository should be deleted manually' );
     return null;
-  })
+  });
+
+  /* - */
 
   return a.ready;
+
+  /* */
+
+  function repositoryForm()
+  {
+    a.ready.Try( () =>
+    {
+      return repositoryDelete( repository );
+    })
+    .catch( ( err ) =>
+    {
+      _.errAttend( err );
+      return null;
+    })
+
+    a.ready.then( () =>
+    {
+      return _.git.repositoryInit
+      ({
+        remotePath : repository,
+        localPath : a.routinePath,
+        throwing : 1,
+        sync : 1,
+        logger : 0,
+        dry : 0,
+        description : 'Test',
+        token,
+      })
+    })
+
+    a.shell
+    (
+      `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`
+    );
+    a.shell( 'git add --all' );
+    a.shell( 'git commit -m first' );
+    a.shell( 'git push -u origin master' );
+    return a.ready;
+  }
 
   /* */
 
@@ -18624,7 +18871,22 @@ function pullOpenRemote( test )
       logger : 1,
       dry : 0,
       token,
-    })
+    });
+  }
+
+  /* */
+
+  function branchMake( branch )
+  {
+    a.shell( `git checkout -b ${ branch }` );
+    a.ready.then( () =>
+    {
+      a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
+      return null;
+    });
+    a.shell( 'git commit -am second' );
+    a.shell( `git push -u origin ${ branch }` );
+    return a.ready;
   }
 }
 
@@ -25417,7 +25679,7 @@ const Proto =
 
     // path
 
-    pathParse, /* qqq : check tests */
+    // pathParse, /* aaa : check tests */ /* Dmytro : it is not actual task, the routine is commented */
 
     remotePathFromLocal,
 
@@ -25497,6 +25759,8 @@ const Proto =
     // top
 
     repositoryInit,
+    repositoryInitRemote,
+    repositoryDeleteRemote,
     repositoryClone,
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,

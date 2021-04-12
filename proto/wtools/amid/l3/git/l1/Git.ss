@@ -289,32 +289,32 @@ function stateIsTag( src )
 // var defaults = pathFixate.defaults = Object.create( null );
 // defaults.remotePath = null;
 // defaults.logger = 0;
-
 //
-
-function remotePathNormalize( remotePath )
-{
-  if( remotePath === null )
-  return remotePath;
-
-  remotePath = remotePath.replace( /^(\w+):\/\//, 'git+$1://' );
-  remotePath = remotePath.replace( /:\/\/\b/, ':///' );
-
-  return remotePath;
-}
-
+// //
 //
-
-function remotePathNativize( remotePath )
-{
-  if( remotePath === null )
-  return remotePath;
-
-  remotePath = remotePath.replace( /^git\+(\w+):\/\//, '$1://' );
-  remotePath = remotePath.replace( /:\/\/\/\b/, '://' );
-
-  return remotePath;
-}
+// function remotePathNormalize( remotePath )
+// {
+//   if( remotePath === null )
+//   return remotePath;
+//
+//   remotePath = remotePath.replace( /^(\w+):\/\//, 'git+$1://' );
+//   remotePath = remotePath.replace( /:\/\/\b/, ':///' );
+//
+//   return remotePath;
+// }
+//
+// //
+//
+// function remotePathNativize( remotePath )
+// {
+//   if( remotePath === null )
+//   return remotePath;
+//
+//   remotePath = remotePath.replace( /^git\+(\w+):\/\//, '$1://' );
+//   remotePath = remotePath.replace( /:\/\/\/\b/, '://' );
+//
+//   return remotePath;
+// }
 
 //
 
@@ -3715,14 +3715,27 @@ function hookPreservingHardLinksRegister( repoPath )
   _.sure( provider.fileExists( toolsPath ) );
   toolsPath = path.nativize( toolsPath );
 
+  // let sourceCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
+  // let tempPath = _.process.tempOpen({ sourceCode });
   let sourceCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
-  let tempPath = _.process.tempOpen({ sourceCode });
+  let tempPath = path.tempOpen();
+  let name = 'archivePerform';
+  let filePath = path.join( tempPath, name );
+
+  _.program.write
+  ({
+    sourceCode,
+    name,
+    programPath : filePath,
+  });
+
   try
   {
     _.git.hookRegister
     ({
       repoPath,
-      filePath : tempPath,
+      filePath,
+      // filePath : tempPath,
       handlerName : 'post-merge.restoreHardLinks',
       hookName : 'post-merge',
       throwing : 1,
@@ -3735,7 +3748,7 @@ function hookPreservingHardLinksRegister( repoPath )
   }
   finally
   {
-    _.process.tempClose({ filePath : tempPath });
+    provider.filesDelete( tempPath );
   }
 
   return true;
@@ -3745,31 +3758,35 @@ function hookPreservingHardLinksRegister( repoPath )
   function restoreHardLinksCode()
   {
     let sourceCode =
-    `try
+    `
+    function archivePerform()
     {
       try
       {
-        var _ = require( "${ _.strEscape( toolsPath) }" );
+        try
+        {
+          var _ = require( "${ _.strEscape( toolsPath) }" );
+        }
+        catch( err )
+        {
+          var _ = require( 'wTools' );
+        }
+        _.include( 'wFilesArchive' );
       }
       catch( err )
       {
-        var _ = require( 'wTools' );
+        console.log( err, 'Git post pull hook fails to preserve hardlinks due missing dependency.' );
+        return;
       }
-      _.include( 'wFilesArchive' );
-    }
-    catch( err )
-    {
-      console.log( err, 'Git post pull hook fails to preserve hardlinks due missing dependency.' );
-      return;
-    }
 
-    let provider = _.FileFilter.Archive();
-    provider.archive.basePath = _.path.join( __dirname, '../..' );
-    provider.archive.fileMapAutosaving = 0;
-    provider.archive.filesUpdate();
-    provider.archive.filesLinkSame({ consideringFileName : 0 });
-    provider.finit();
-    provider.archive.finit();
+      let provider = _.FileFilter.Archive();
+      provider.archive.basePath = _.path.join( __dirname, '../..' );
+      provider.archive.fileMapAutosaving = 0;
+      provider.archive.filesUpdate();
+      provider.archive.filesLinkSame({ consideringFileName : 0 });
+      provider.finit();
+      provider.archive.finit();
+    }
     `
     return sourceCode;
   }
@@ -3975,16 +3992,6 @@ function repositoryInit( o )
 
       _.errAttend( err );
       return null;
-
-      // if( !o.throwing )
-      // {
-      //   _.errAttend( err );
-      //   return null;
-      // }
-      // else
-      // {
-      //   throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-      // }
     }
     return arg;
   });
@@ -4018,24 +4025,31 @@ function repositoryInit( o )
       if( o.dry )
       return true;
 
-      let github = require( 'octonode' );
-      let client = github.client( o.token );
-      let me = client.me();
+      const provider = _.repo.providerForPath({ remotePath : o.remotePath });
 
-      return me.repoAsync
-      ({
-        'name' : parsed.repo,
-        'description' : o.description || '',
-      });
+      let o2 = _.mapExtend( null, o );
+      o2.remotePath = parsed;
+      return provider.repositoryInitAct( o2 ); /* xxx : think how to refactor or reorganize it */
+
+      // let github = require( 'octonode' );
+      // let client = github.client( o.token );
+      // let me = client.me();
+      //
+      // return me.repoAsync
+      // ({
+      //   'name' : parsed.repo,
+      //   'description' : o.description || '',
+      // });
     })
     .then( ( result ) =>
     {
-      return result[ 0 ] || null;
+      return result || null;
+      // return result[ 0 ] || null;
     });
     return ready;
   }
 
-  /**/
+  /* */
 
   function remoteInit()
   {
@@ -4046,7 +4060,7 @@ function repositoryInit( o )
     return null;
   }
 
-  /**/
+  /* */
 
   function localInit()
   {
@@ -4077,7 +4091,7 @@ function repositoryInit( o )
     }
   }
 
-  /**/
+  /* */
 
   function localRepositoryNew()
   {
@@ -4090,7 +4104,7 @@ function repositoryInit( o )
     return start( `git remote add origin ${nativeRemotePath}` );
   }
 
-  /**/
+  /* */
 
   function localRepositoryRemoteAdd()
   {
@@ -4110,7 +4124,7 @@ function repositoryInit( o )
     return start( `git remote add origin ${nativeRemotePath}` );
   }
 
-  /**/
+  /* */
 
   function localRepositoryClone()
   {
@@ -4175,9 +4189,6 @@ function repositoryInit( o )
     });
 
   }
-
-  /**/
-
 }
 
 repositoryInit.defaults =
@@ -4192,7 +4203,7 @@ repositoryInit.defaults =
   dry : 0,
   description : null,
   token : null,
-}
+};
 
 //
 
@@ -4276,19 +4287,25 @@ function repositoryDelete( o )
       if( o.dry )
       return true;
 
-      let github = require( 'octonode' );
-      let client = github.client( o.token );
-      let repo = client.repo( `${parsed.user}/${parsed.repo}` );
-      return repo.destroyAsync();
+      const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+      let o2 = _.mapExtend( null, o );
+      o2.remotePath = parsed;
+      return provider.repositoryDeleteAct( o2 ); /* xxx : think how to refactor or reorganize it */
+
+      // let github = require( 'octonode' );
+      // let client = github.client( o.token );
+      // let repo = client.repo( `${parsed.user}/${parsed.repo}` );
+      // return repo.destroyAsync();
     })
     .then( ( result ) =>
     {
-      return result[ 0 ] || null;
+      return result || null;
+      // return result[ 0 ] || null;
     });
     return ready;
   }
 
-  /**/
+  /* */
 
   function remove()
   {
@@ -4298,7 +4315,6 @@ function repositoryDelete( o )
     throw _.err( `Cant remove remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
     return null;
   }
-
 }
 
 repositoryDelete.defaults =
@@ -5683,8 +5699,8 @@ let Extension =
   // pathParse,
   // pathIsFixated,
   // pathFixate,
-  remotePathNormalize /* qqq : for Dmytro : ?? */,
-  remotePathNativize, /* qqq : for Dmytro : ?? */
+  // remotePathNormalize /* aaa : for Dmytro : ?? */, /* Dmytro : commented, not used in module */
+  // remotePathNativize, /* aaa : for Dmytro : ?? */ /* Dmytro : commented, not used in module */
 
   remotePathFromLocal,
   insideRepository,
