@@ -3729,14 +3729,27 @@ function hookPreservingHardLinksRegister( repoPath )
   _.sure( provider.fileExists( toolsPath ) );
   toolsPath = path.nativize( toolsPath );
 
+  // let sourceCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
+  // let tempPath = _.process.tempOpen({ sourceCode });
   let sourceCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
-  let tempPath = _.process.tempOpen({ sourceCode });
+  let tempPath = path.tempOpen();
+  let name = 'archivePerform';
+  let filePath = path.join( tempPath, name );
+
+  _.program.write
+  ({
+    sourceCode,
+    name,
+    programPath : filePath,
+  });
+
   try
   {
     _.git.hookRegister
     ({
       repoPath,
-      filePath : tempPath,
+      filePath,
+      // filePath : tempPath,
       handlerName : 'post-merge.restoreHardLinks',
       hookName : 'post-merge',
       throwing : 1,
@@ -3749,7 +3762,7 @@ function hookPreservingHardLinksRegister( repoPath )
   }
   finally
   {
-    _.process.tempClose({ filePath : tempPath });
+    provider.filesDelete( tempPath );
   }
 
   return true;
@@ -3759,31 +3772,36 @@ function hookPreservingHardLinksRegister( repoPath )
   function restoreHardLinksCode()
   {
     let sourceCode =
-    `try
+    `
+    function archivePerform()
     {
       try
       {
-        var _ = require( "${ _.strEscape( toolsPath) }" );
+        try
+        {
+          var _ = require( "${ _.strEscape( toolsPath) }" );
+        }
+        catch( err )
+        {
+          var _ = require( 'wTools' );
+        }
+        debugger;
+        _.include( 'wFilesArchive' );
       }
       catch( err )
       {
-        var _ = require( 'wTools' );
+        console.log( err, 'Git post pull hook fails to preserve hardlinks due missing dependency.' );
+        return;
       }
-      _.include( 'wFilesArchive' );
-    }
-    catch( err )
-    {
-      console.log( err, 'Git post pull hook fails to preserve hardlinks due missing dependency.' );
-      return;
-    }
 
-    let provider = _.FileFilter.Archive();
-    provider.archive.basePath = _.path.join( __dirname, '../..' );
-    provider.archive.fileMapAutosaving = 0;
-    provider.archive.filesUpdate();
-    provider.archive.filesLinkSame({ consideringFileName : 0 });
-    provider.finit();
-    provider.archive.finit();
+      let provider = _.FileFilter.Archive();
+      provider.archive.basePath = _.path.join( __dirname, '../..' );
+      provider.archive.fileMapAutosaving = 0;
+      provider.archive.filesUpdate();
+      provider.archive.filesLinkSame({ consideringFileName : 0 });
+      provider.finit();
+      provider.archive.finit();
+    }
     `
     return sourceCode;
   }
@@ -4031,7 +4049,6 @@ function repositoryInit( o )
 
       if( o.dry )
       return true;
-
 
       const Octokit = require( '@octokit/rest' ).Octokit;
       const octokit = new Octokit
@@ -4298,13 +4315,25 @@ function repositoryDelete( o )
       if( o.dry )
       return true;
 
-      let github = require( 'octonode' );
-      let client = github.client( o.token );
-      let repo = client.repo( `${parsed.user}/${parsed.repo}` );
-      return repo.destroyAsync();
+      const Octokit = require( '@octokit/rest' ).Octokit;
+      const octokit = new Octokit
+      ({
+        auth : o.token,
+      });
+      return octokit.rest.repos.delete
+      ({
+        owner : parsed.user,
+        repo : parsed.repo,
+      });
+
+      // let github = require( 'octonode' );
+      // let client = github.client( o.token );
+      // let repo = client.repo( `${parsed.user}/${parsed.repo}` );
+      // return repo.destroyAsync();
     })
     .then( ( result ) =>
     {
+      debugger;
       return result[ 0 ] || null;
     });
     return ready;
