@@ -17131,7 +17131,7 @@ function hookPreservingHardLinks( test )
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), 'dir', [ 'b', 'c' ] ) ), false );
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), 'dir', [ 'a', 'b', 'c' ] ) ), false );
 
-    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'a', 'dir/a' ] ) ), true ); /* qqq : for Dmytro : faile for me */
+    test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'a', 'dir/a' ] ) ), true ); /* aaa : for Dmytro : faile for me */ /* Dmytro : it is more global problem with resolving of modules. See https://github.com/Wandalen/wTools/pull/526 */
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'b', 'dir/b' ] ) ), true );
     test.identical( a.fileProvider.areHardLinked( a.path.s.join( a.abs( 'clone' ), [ 'c', 'dir/c' ] ) ), false );
 
@@ -17604,7 +17604,8 @@ function repositoryClone( test )
           return null;
         }
 
-        /* qqq : for Dmytro : does not throw error for me */
+        /* aaa : for Dmytro : does not throw error for me */
+        /* Dmytro : it is special test case for not existed ssh-identity. Ssh-identity removed by command `ssh-add -D`. If some ssh-identity added after command, then test case should not throw error */
         test.case = 'ssh protocol with implicit declaration';
         test.shouldThrowErrorSync( () =>
         {
@@ -17616,7 +17617,8 @@ function repositoryClone( test )
           });
         });
 
-        /* qqq : for Dmytro : does not throw error for me */
+        /* aaa : for Dmytro : does not throw error for me */
+        /* Dmytro : it is special test case for not existed ssh-identity. Ssh-identity removed by command `ssh-add -D`. If some ssh-identity added after command, then test case should not throw error */
         test.case = 'ssh protocol with explicit declaration ';
         test.shouldThrowErrorSync( () =>
         {
