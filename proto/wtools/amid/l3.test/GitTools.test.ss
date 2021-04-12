@@ -146,157 +146,157 @@ function stateIsTag( test )
 
 //
 
-function pathParse( test )
-{
-  var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git';
-  var expected =
-  {
-    'protocol' : 'git',
-    'tag' : 'master',
-    'longPath' : '/git@bitbucket.org:someorg/somerepo.git',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
-    'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git/#master';
-  var expected =
-  {
-    'protocol' : 'git',
-    'hash' : 'master',
-    'longPath' : '/git@bitbucket.org:someorg/somerepo.git/',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
-    'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#041839a730fa104a7b6c7e4935b4751ad81b00e0';
-  var expected =
-  {
-    'protocol' : 'git+https',
-    'hash' : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
-    'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'isFixated' : true
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!0.0.37'
-  var expected =
-  {
-    'protocol' : 'git+https',
-    'tag' : '0.0.37',
-    'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master'
-  var expected =
-  {
-    'protocol' : 'git+https',
-    'tag' : 'master',
-    'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
-    'localVcsPath' : './',
-    'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will!master'
-  var expected =
-  {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will',
-    'tag' : 'master',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will!v0.8.505'
-  var expected =
-  {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will',
-    'tag' : 'v0.8.505',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/!v0.8.505'
-  var expected =
-  {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will/',
-    'tag' : 'v0.8.505',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will/',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
-    'isFixated' : false
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
-  var expected =
-  {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will',
-    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
-    'isFixated' : true
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  var remotePath = 'git+hd://Tools?out=out/wTools.out.will/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
-  var expected =
-  {
-    'protocol' : 'git+hd',
-    'query' : 'out=out/wTools.out.will/',
-    'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
-    'longPath' : 'Tools',
-    'localVcsPath' : 'out/wTools.out.will/',
-    'remoteVcsPath' : 'Tools',
-    'remoteVcsLongerPath' : 'Tools',
-    'isFixated' : true
-  }
-  var got = _.git.pathParse( remotePath );
-  test.identical( got, expected )
-
-  test.case = 'both hash and tag'
-  var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3!master';
-  test.shouldThrowErrorSync( () => _.git.pathParse( remotePath ) );
-}
+// function pathParse( test )
+// {
+//   var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git';
+//   var expected =
+//   {
+//     'protocol' : 'git',
+//     'tag' : 'master',
+//     'longPath' : '/git@bitbucket.org:someorg/somerepo.git',
+//     'localVcsPath' : './',
+//     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
+//     'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git:///git@bitbucket.org:someorg/somerepo.git/#master';
+//   var expected =
+//   {
+//     'protocol' : 'git',
+//     'hash' : 'master',
+//     'longPath' : '/git@bitbucket.org:someorg/somerepo.git/',
+//     'localVcsPath' : './',
+//     'remoteVcsPath' : 'git@bitbucket.org:someorg/somerepo.git',
+//     'remoteVcsLongerPath' : 'git@bitbucket.org:someorg/somerepo.git',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#041839a730fa104a7b6c7e4935b4751ad81b00e0';
+//   var expected =
+//   {
+//     'protocol' : 'git+https',
+//     'hash' : '041839a730fa104a7b6c7e4935b4751ad81b00e0',
+//     'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
+//     'localVcsPath' : './',
+//     'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'isFixated' : true
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!0.0.37'
+//   var expected =
+//   {
+//     'protocol' : 'git+https',
+//     'tag' : '0.0.37',
+//     'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
+//     'localVcsPath' : './',
+//     'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master'
+//   var expected =
+//   {
+//     'protocol' : 'git+https',
+//     'tag' : 'master',
+//     'longPath' : '/github.com/Wandalen/wModuleForTesting1.git/',
+//     'localVcsPath' : './',
+//     'remoteVcsPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'remoteVcsLongerPath' : 'https://github.com/Wandalen/wModuleForTesting1.git',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+hd://Tools?out=out/wTools.out.will!master'
+//   var expected =
+//   {
+//     'protocol' : 'git+hd',
+//     'query' : 'out=out/wTools.out.will',
+//     'tag' : 'master',
+//     'longPath' : 'Tools',
+//     'localVcsPath' : 'out/wTools.out.will',
+//     'remoteVcsPath' : 'Tools',
+//     'remoteVcsLongerPath' : 'Tools',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+hd://Tools?out=out/wTools.out.will!v0.8.505'
+//   var expected =
+//   {
+//     'protocol' : 'git+hd',
+//     'query' : 'out=out/wTools.out.will',
+//     'tag' : 'v0.8.505',
+//     'longPath' : 'Tools',
+//     'localVcsPath' : 'out/wTools.out.will',
+//     'remoteVcsPath' : 'Tools',
+//     'remoteVcsLongerPath' : 'Tools',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+hd://Tools?out=out/wTools.out.will/!v0.8.505'
+//   var expected =
+//   {
+//     'protocol' : 'git+hd',
+//     'query' : 'out=out/wTools.out.will/',
+//     'tag' : 'v0.8.505',
+//     'longPath' : 'Tools',
+//     'localVcsPath' : 'out/wTools.out.will/',
+//     'remoteVcsPath' : 'Tools',
+//     'remoteVcsLongerPath' : 'Tools',
+//     'isFixated' : false
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+hd://Tools?out=out/wTools.out.will#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
+//   var expected =
+//   {
+//     'protocol' : 'git+hd',
+//     'query' : 'out=out/wTools.out.will',
+//     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+//     'longPath' : 'Tools',
+//     'localVcsPath' : 'out/wTools.out.will',
+//     'remoteVcsPath' : 'Tools',
+//     'remoteVcsLongerPath' : 'Tools',
+//     'isFixated' : true
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   var remotePath = 'git+hd://Tools?out=out/wTools.out.will/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3'
+//   var expected =
+//   {
+//     'protocol' : 'git+hd',
+//     'query' : 'out=out/wTools.out.will/',
+//     'hash' : '8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3',
+//     'longPath' : 'Tools',
+//     'localVcsPath' : 'out/wTools.out.will/',
+//     'remoteVcsPath' : 'Tools',
+//     'remoteVcsLongerPath' : 'Tools',
+//     'isFixated' : true
+//   }
+//   var got = _.git.pathParse( remotePath );
+//   test.identical( got, expected )
+//
+//   test.case = 'both hash and tag'
+//   var remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#8b6968a12cb94da75d96bd85353fcfc8fd6cc2d3!master';
+//   test.shouldThrowErrorSync( () => _.git.pathParse( remotePath ) );
+// }
 
 //
 
@@ -25418,7 +25418,7 @@ const Proto =
 
     // path
 
-    pathParse, /* qqq : check tests */
+    // pathParse, /* aaa : check tests */ /* Dmytro : it is not actual task, the routine is commented */
 
     remotePathFromLocal,
 
