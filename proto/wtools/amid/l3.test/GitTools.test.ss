@@ -17255,17 +17255,16 @@ function repositoryInitRemote( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
-  let user = 'dmvict';
-  // let user = 'wtools-bot';
+  let user = 'wtools-bot';
   let repository;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
-  // let testing = _globals_.testing.wTools;
-  // let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  // let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  // let insideTestContainer = _.process.insideTestContainer();
-  // if( !validPlatform || !insideTestContainer || !validEnvironments )
-  // return test.true( true );
+  let testing = _globals_.testing.wTools;
+  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let insideTestContainer = _.process.insideTestContainer();
+  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  return test.true( true );
 
   /* - */
 

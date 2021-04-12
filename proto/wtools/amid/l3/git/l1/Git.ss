@@ -3785,7 +3785,6 @@ function hookPreservingHardLinksRegister( repoPath )
         {
           var _ = require( 'wTools' );
         }
-        debugger;
         _.include( 'wFilesArchive' );
       }
       catch( err )
@@ -4007,16 +4006,6 @@ function repositoryInit( o )
 
       _.errAttend( err );
       return null;
-
-      // if( !o.throwing )
-      // {
-      //   _.errAttend( err );
-      //   return null;
-      // }
-      // else
-      // {
-      //   throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-      // }
     }
     return arg;
   });
@@ -4050,16 +4039,12 @@ function repositoryInit( o )
       if( o.dry )
       return true;
 
-      const Octokit = require( '@octokit/rest' ).Octokit;
-      const octokit = new Octokit
-      ({
-        auth : o.token,
-      });
-      return octokit.rest.repos.createForAuthenticatedUser
-      ({
-        name : parsed.repo,
-        description : o.description || '',
-      });
+      const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+
+      let o2 = _.mapExtend( null, o );
+      o2.remotePath = parsed;
+      return provider.repositoryInitAct( o2 ); /* xxx : think how to refactor or reorganize it */
+
       // let github = require( 'octonode' );
       // let client = github.client( o.token );
       // let me = client.me();
@@ -4231,7 +4216,7 @@ repositoryInit.defaults =
   dry : 0,
   description : null,
   token : null,
-}
+};
 
 //
 
@@ -4333,7 +4318,6 @@ function repositoryDelete( o )
     })
     .then( ( result ) =>
     {
-      debugger;
       return result[ 0 ] || null;
     });
     return ready;
