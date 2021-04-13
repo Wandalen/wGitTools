@@ -17843,17 +17843,14 @@ function repositoryClone( test )
 
     /* */
 
-    if( process.platform !== 'win32' )
+    if( process.platform !== 'win32' && _.process.insideTestContainer() )
     {
       begin();
       a.shellNonThrowing( 'ssh-add -D' )
       .then( ( op ) =>
       {
         if( op.exitCode !== 0 )
-        {
-          test.true( true );
-          return null;
-        }
+        return test.true( true );
 
         /* aaa : for Dmytro : does not throw error for me */
         /* Dmytro : it is special test case for not existed ssh-identity. Ssh-identity removed by command `ssh-add -D`. If some ssh-identity added after command, then test case should not throw error */
