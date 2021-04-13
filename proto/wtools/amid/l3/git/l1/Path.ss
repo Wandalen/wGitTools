@@ -5,7 +5,7 @@
 
 const _ = _global_.wTools;
 // const Parent = _.uri.path;
-/* qqq : for Dmytro : bad */
+/* aaa : for Dmytro : bad */ /* Dmytro : fixed, not me */
 const Parent = _.uri;
 const Self = _.git.path = _.git.path || Object.create( Parent );
 

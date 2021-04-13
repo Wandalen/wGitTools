@@ -1085,21 +1085,23 @@ function isUpToDate( o )
 
   let ready = _.Consequence();
 
-  /* xxx : qqq : check mode. shell should be, probably */
+  /* xxx : aaa : check mode. shell should be, probably */ /* Dmytro : the default mode is `shell` and commands passed to functors are shell commands */
   let start = _.process.starter
   ({
     logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
+    mode : 'shell',
     ready,
   });
 
-  /* xxx : qqq : check mode. shell should be, probably */
+  /* xxx : aaa : check mode. shell should be, probably */ /* Dmytro : the default mode is `shell` and commands passed to functors are shell commands */
   let shell = _.process.starter
   ({
     logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     ready,
+    mode : 'shell',
     currentPath : o.localPath,
     throwingExitCode : 0,
     outputCollecting : 1,
@@ -1433,7 +1435,7 @@ function isRepository( o )
       return _.process.start
       ({
         execPath : 'git ls-remote ' + remoteParsed,
-        mode : 'shell', /* qqq : for Dmytro : why? random?? */
+        mode : 'shell', /* aaa : for Dmytro : why? random?? */ /* Dmytro : not random, we use `shell` for commands in all module, mode `spawn` has some old routines */
         throwingExitCode : 0,
         outputPiping : 0,
         stdio : 'ignore',
@@ -2325,7 +2327,7 @@ function statusRemote_head( routine, args )
 
   for( let k in o )
   if( o[ k ] === null && k !== 'version' )
-  //qqq Vova: should we just use something else for version instead of null?
+  // qqq Vova: should we just use something else for version instead of null?
   o[ k ] = true;
 
   return o;
@@ -2387,9 +2389,9 @@ function statusRemote_body( o )
   }
 
   /* qqq : for Dmytro : ask */
-  start( 'git ls-remote' ) //prints list of remote tags and branches
+  start( 'git ls-remote' ) // prints list of remote tags and branches
   ready.then( parse )
-  start( 'git show-ref --heads --tags -d' )//prints list of local tags and branches
+  start( 'git show-ref --heads --tags -d' ) // prints list of local tags and branches
   ready.then( ( got ) =>
   {
     output = got.output;
@@ -3091,7 +3093,7 @@ function repositoryHasVersion( o )
     {
       // if( _.strHas( got.output, /.+\.\..+/ ) )
       /*
-         Dmytro : the output has range of commits that will be fetched, it is more convienent regexp than the previous one.
+         Dmytro : the output has range of commits that will be fetched, it is more convenient regexp than the previous one.
          The regexp does not include strings like : `From ../repo`
       */
       if( _.strHas( got.output, /[a-hA-H0-9]+\.\.[a-hA-H0-9]+/ ) )
@@ -3361,12 +3363,11 @@ function exists( o )
     /* Dmytro : the first way is fetching of all commits and searching for desired ( implemented above )
 
       Also, it can be checked by specific API of git provider.
-      For example, for github.com we can use Rest API of Github or module `octonode` instead :
-      https://github.com/pksunkara/octonode#get-a-certain-commit-for-a-repository-get-repospksunkarahubcommits18293abcd72
+      For example, for github.com we can use Rest API of Github or module `@octokit/core` instead.
     */
-    _.assert( 0, 'Case remote:#version is not implemented' );
-
-    return true;
+    // _.assert( 0, 'Case remote:#version is not implemented' );
+    //
+    // return true;
   }
 
   /* - */
@@ -5433,14 +5434,23 @@ function reset( o )
   if( state2.value === 'working' || state2.value === 'staged' )
   return;
 
+  /* */
+
+  let commands = [];
+
   if( state1.isVersion || state1.isTag )
-  start( `git checkout ${ state1.value }` );
-  /* qqq : for Dmytro : ? */
+  commands.push( `git checkout ${ state1.value }` );
+  // start( `git checkout ${ state1.value }` );
+  /* aaa : for Dmytro : ? */ /* Dmytro : state1 define start point for resetting. If state is not tag or hash, then repository should not change this state */
 
   if( state2.value === 'committed' )
-  start( `git reset --hard` );
+  commands.push( `git reset --hard` );
   else if( state2.isVersion || state2.isTag )
-  start( `git reset --hard ${ state2.value }` );
+  commands.push( `git reset --hard ${ state2.value }` );
+  // if( state2.value === 'committed' )
+  // start( `git reset --hard` );
+  // else if( state2.isVersion || state2.isTag )
+  // start( `git reset --hard ${ state2.value }` );
 
   if( o.removingUntracked )
   {
@@ -5450,8 +5460,11 @@ function reset( o )
     if( o.removingIgnored )
     command += 'x';
 
-    start( command );
+    commands.push( command );
+    // start( command );
   }
+
+  start( commands );
 
   /* aaa : should be "git clean -dffx", but not by default */ /* Dmytro : implemented */
   /* aaa : cover each option */ /* Dmytro : covered */
