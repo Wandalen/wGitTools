@@ -18700,16 +18700,17 @@ function pullOpen( test )
 function pullOpenRemote( test )
 {
   let a = test.assetFor( 'basic' );
-  let user = 'wtools-bot';
+  // let user = 'wtools-bot';
+  let user = 'dmvict';
   let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
-  let testing = _globals_.testing.wTools;
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
-  if( !validPlatform || !insideTestContainer || !validEnvironments )
-  return test.true( true );
+  // let testing = _globals_.testing.wTools;
+  // let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  // let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  // let insideTestContainer = _.process.insideTestContainer();
+  // if( !validPlatform || !insideTestContainer || !validEnvironments )
+  // return test.true( true );
 
   /* - */
 
@@ -18798,6 +18799,37 @@ function pullOpenRemote( test )
     test.identical( op.data.changed_files, 1 );
     test.identical( op.data.state, 'open' );
     test.identical( op.data.title, 'new3' );
+    test.identical( _.strCount( op.data.html_url, /https:\/\/github\.com\/.*\/New-.*\/pull\/\d/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  a.shell( 'git checkout master' );
+  branchMake( 'new4' ).then( () =>
+  {
+    test.case = 'opened pr, dstBranch is not defined, should be master';
+    return null;
+  });
+  a.shell( 'git checkout master' );
+  a.ready.then( () =>
+  {
+    return _.repo.pullOpen
+    ({
+      token,
+      remotePath : repository,
+      descriptionHead : 'new4',
+      descriptionBody : 'Some description',
+      srcBranch : 'new4',
+      localPath : a.routinePath,
+    });
+  })
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.data.body, 'Some description' );
+    test.identical( op.data.changed_files, 1 );
+    test.identical( op.data.state, 'open' );
+    test.identical( op.data.title, 'new4' );
     test.identical( _.strCount( op.data.html_url, /https:\/\/github\.com\/.*\/New-.*\/pull\/\d/ ), 1 );
     return null;
   });
