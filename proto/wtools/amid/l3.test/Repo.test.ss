@@ -90,17 +90,16 @@ function vcsFor( test )
 function pullListRemote( test )
 {
   let a = test.assetFor( 'basic' );
-  // let user = 'wtools-bot';
-  let user = 'dmvict';
+  let user = 'wtools-bot';
   let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
-  // let testing = _globals_.testing.wTools;
-  // let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  // let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  // let insideTestContainer = _.process.insideTestContainer();
-  // if( !validPlatform || !insideTestContainer || !validEnvironments )
-  // return test.true( true );
+  let testing = _globals_.testing.wTools;
+  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let insideTestContainer = _.process.insideTestContainer();
+  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  return test.true( true );
 
   /* - */
 
