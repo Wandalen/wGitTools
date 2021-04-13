@@ -37,7 +37,7 @@ function _request_functor( fo )
   {
     let o = args[ 0 ];
     if( _.strIs( o ) )
-    o = { remotePath : o }
+    o = { remotePath : o };
     o = _.routine.options( request, o );
     _.assert( args.length === 1 );
     return o;
