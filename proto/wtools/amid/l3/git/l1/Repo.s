@@ -330,7 +330,7 @@ let pullList = _request_functor
 function pullOpen( o )
 {
   let ready = _.take( null );
-  let ready2 = new _.Consequence();
+  // let ready2 = new _.Consequence();
   let currentBranch;
 
   if( _.strIs( o ) )
@@ -601,7 +601,7 @@ let Extension =
   pullCollectionExportString,
 
   pullListAct,
-  pullList, /* qqq : for Dmytro : cover */
+  pullList, /* aaa : for Dmytro : cover */ /* Dmytro : covered */
 
   // pullOpenAct, /* qqq : for Dmytro : add */
   pullOpen,
