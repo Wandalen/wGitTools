@@ -2177,15 +2177,10 @@ function isUpToDateExtended( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
-  let con = new _.Consequence().take( null )
-
-  a.shell.predefined.mode = 'spawn';
-
-  begin()
 
   /* */
 
-  .then( () =>
+  begin().then( () =>
   {
     test.case = 'both on master, no changes';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master';
@@ -2194,17 +2189,17 @@ function isUpToDateExtended( test )
     {
       test.identical( got, true );
       return got;
-    })
+    });
   })
 
   /* */
 
+  a.shell( 'git -C wModuleForTesting1 reset --hard HEAD~1' )
   .then( () =>
   {
     test.case = 'both on master, local one commit behind';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master';
-    return a.shell( 'git -C wModuleForTesting1 reset --hard HEAD~1' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2212,13 +2207,11 @@ function isUpToDateExtended( test )
     })
   })
 
-  /* */
-
-  begin() /* qqq2 : ? */
+  // begin() /* aaa2 : ? */ /* Dmytro : the routine prepare repo to test, the previous case change repository hard */
 
   /* */
 
-  .then( () =>
+  begin().then( () =>
   {
     test.case = 'local on master, remote on other branch that does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!other';
@@ -2228,12 +2221,13 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout -b newbranch' );
+  a.ready.then( () =>
   {
     test.case = 'local on newbranch, remote on master';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master';
-    return a.shell( 'git -C wModuleForTesting1 checkout -b newbranch' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2243,13 +2237,14 @@ function isUpToDateExtended( test )
     {
       if( err )
       test.exceptionReport({ err });
-      return a.shell({ execPath : 'git -C wModuleForTesting1 checkout master', ready : null })
+      return null;
     })
   })
+  a.shell({ execPath : 'git -C wModuleForTesting1 checkout master' });
 
   /* */
 
-  .then( () =>
+  a.ready.then( () =>
   {
     test.case = 'local on master, remote on tag points to other commit';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!v0.0.70';
@@ -2262,13 +2257,12 @@ function isUpToDateExtended( test )
   })
 
   /* */
-
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' );
+  a.ready.then( () =>
   {
     test.case = 'local on same tag with remote';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!v0.0.70';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -2278,12 +2272,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.71' );
+  a.ready.then( () =>
   {
     test.case = 'local on different tag with remote';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!v0.0.70';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.71' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2293,12 +2287,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout 9a711ca350777586043fbb32cc33ccea267218af' );
+  a.ready.then( () =>
   {
     test.case = 'local on same commit as tag on remote';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!v0.0.70';
-    return a.shell( 'git -C wModuleForTesting1 checkout 9a711ca350777586043fbb32cc33ccea267218af' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -2308,12 +2302,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout fbfcc8e897be2b7df49dc60b9a35818af195e916' );
+  a.ready.then( () =>
   {
     test.case = 'local on different commit as tag on remote';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!v0.0.70';
-    return a.shell( 'git -C wModuleForTesting1 checkout fbfcc8e897be2b7df49dc60b9a35818af195e916' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2323,12 +2317,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.71' );
+  a.ready.then( () =>
   {
     test.case = 'local on tag, remote on master';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.71' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2338,12 +2332,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' );
+  a.ready.then( () =>
   {
     test.case = 'local on tag, remote on hash that local tag is pointing to';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#9a711ca350777586043fbb32cc33ccea267218af';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -2353,12 +2347,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' );
+  a.ready.then( () =>
   {
     test.case = 'local on tag, remote on different hash';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#fbfcc8e897be2b7df49dc60b9a35818af195e916';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2368,16 +2362,13 @@ function isUpToDateExtended( test )
 
   /* */
 
-  begin()
-
-  /* */
-
-  .then( () =>
+  begin();
+  a.shell( 'git -C wModuleForTesting1 checkout master' );
+  a.ready.then( () =>
   {
     test.case = 'local on master, remote is different';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting12.git/';
-    return a.shell( 'git -C wModuleForTesting1 checkout master' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2385,12 +2376,12 @@ function isUpToDateExtended( test )
     })
   })
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' );
+  a.ready.then( () =>
   {
     test.case = 'local on tag, remote is different';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting12.git/';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2398,12 +2389,12 @@ function isUpToDateExtended( test )
     })
   })
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout 9a711ca350777586043fbb32cc33ccea267218af' );
+  a.ready.then( () =>
   {
     test.case = 'local detached, remote is different';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting12.git/';
-    return a.shell( 'git -C wModuleForTesting1 checkout 9a711ca350777586043fbb32cc33ccea267218af' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2413,8 +2404,7 @@ function isUpToDateExtended( test )
 
   /* */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
     test.case = 'local does not have gitconfig';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/';
@@ -2429,13 +2419,13 @@ function isUpToDateExtended( test )
 
   /* */
 
-  begin()
-  .then( () =>
+  begin();
+  a.shell( 'git -C wModuleForTesting1 remote remove origin' );
+  a.ready.then( () =>
   {
     test.case = 'local does not have origin';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/';
-    return a.shell( 'git -C wModuleForTesting1 remote remove origin' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2445,7 +2435,7 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.ready.then( () =>
   {
     test.case = 'local does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/';
@@ -2460,20 +2450,20 @@ function isUpToDateExtended( test )
 
   /* */
 
-  return con;
+  return a.ready;
 
   /* */
 
   function begin()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
       a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
       a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
-      return a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1' )
-    })
-
-    return con;
+      return null;
+    });
+    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git wModuleForTesting1' );
+    return a.ready;
   }
 }
 
