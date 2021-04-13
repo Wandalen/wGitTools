@@ -1289,7 +1289,7 @@ function hasFiles( o )
 
 var defaults = hasFiles.defaults = Object.create( null );
 defaults.localPath = null;
-// defaults.verbosity = 0; /* qqq : for Dmytro : why?? */
+// defaults.verbosity = 0; /* aaa : for Dmytro : why?? */ /* Dmytro : I don't know. I saw not this code. */
 
 //
 
@@ -1826,10 +1826,20 @@ function statusLocal_body( o )
 
   return ready;
 
-  /* -
-
-
-  qqq : for Dmytro : list of subroutines?
+  /*
+    aaa : for Dmytro : list of subroutines? // Dmytro : list of subroutines is given below
+    statusMake
+    uncommittedCheck
+    optimizedCheck
+    detailedCheck
+    resultPrepare
+    uncommittedDetailedCheck
+    checkTags
+    retry
+    remoteTagsGet
+    remoteTagsGetSync
+    checkBranches
+    unpushedCommitsCheck
   */
 
   function end( err, got )
@@ -2377,7 +2387,7 @@ function statusRemote_body( o )
   }
 
   /* qqq : for Dmytro : ask */
-  start( 'git ls-remote' )//prints list of remote tags and branches
+  start( 'git ls-remote' ) //prints list of remote tags and branches
   ready.then( parse )
   start( 'git show-ref --heads --tags -d' )//prints list of local tags and branches
   ready.then( ( got ) =>
@@ -3718,7 +3728,7 @@ function hookPreservingHardLinksRegister( repoPath )
   // let sourceCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
   // let tempPath = _.process.tempOpen({ sourceCode });
   let sourceCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
-  let tempPath = path.tempOpen();
+  let tempPath = path.tempOpen(); /* xxx : review */
   let name = 'archivePerform';
   let filePath = path.join( tempPath, name );
 
@@ -5767,7 +5777,7 @@ let Extension =
   // top
 
   repositoryInit,
-  repositoryDelete, /* qqq : cover */
+  repositoryDelete, /* qqq : cover */ /* Dmytro : base coverage for remote repository added */
   repositoryClone,
   repositoryCheckout,
   repositoryStash,
@@ -5777,7 +5787,7 @@ let Extension =
 
   configRead,
   configSave,
-  configReset, /* qqq : implement routine _.git.configReset() */
+  configReset, /* aaa : implement routine _.git.configReset() */ /* Dmytro : implemented and covered */
 
   //
 
