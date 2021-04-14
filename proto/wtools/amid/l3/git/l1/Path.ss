@@ -535,21 +535,33 @@ function isFixated( srcPath )
 //
 
 /**
- * @summary Changes hash in provided path `o.remotePath` to hash of latest commit available.
- * @param {Object} o Options map.
- * @param {String} o.remotePath Remote path.
- * @param {Number} o.logger=0 Level of verbosity.
- * @function pathFixate
- * @namespace wTools.git
- * @module Tools/mid/GitTools
+ * Routine fixate() changes hash in provided path {-o.remotePath-} to hash of latest available commit.
+ *
+ * @example
+ * _.git.path.fixate( 'git+https:///github.com/user.repo.git' );
+ * // returns : 'git+https://github.com/user.repo.git#abc6e1da8be34f69d24af6f90f323816a9d83f3b'
+ *
+ * First parameter set :
+ * @param { String } srcPath - Path to fixate.
+ * Second parameter set :
+ * @param { Aux } o - Options map.
+ * @param { String|Aux } o.srcPath - Path to fixate.
+ * @param { Number } o.logger - Level of verbosity.
+ * @returns { String } - Returns fixated path.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @throws { Error } If options map {-o-} has incompatible type.
+ * @throws { Error } If options map {-o-} has unknown option.
+ * @function fixate 
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
  */
 
 function fixate( o )
 {
-  let path = _.uri;
-
   if( !_.mapIs( o ) )
-  o = { remotePath : o }
+  o = { remotePath : o };
+
   _.routineOptions( fixate, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
@@ -560,7 +572,7 @@ function fixate( o )
     logger : o.logger,
   });
 
-  let result = path.str
+  let result = _.git.path.str
   ({
     protocol : parsed.protocol,
     longPath : parsed.longPath,
@@ -578,7 +590,7 @@ defaults.logger = 0;
 // declare
 // --
 
-/* qqq : for Dmytro : jsdoc */
+/* aaa : for Dmytro : jsdoc */ /* Dmytro : documented */
 /* aaa for Dmytro : use namespace in module */ /* Dmytro : used */
 
 let Extension =
