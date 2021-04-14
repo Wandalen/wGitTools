@@ -5281,10 +5281,6 @@ function push( o )
     start( `git push ${ dryRun } --tags ${ force }` );
   }
 
-
-  if( o.dry )
-  return;
-
   if( o.sync )
   {
     ready.deasync();
