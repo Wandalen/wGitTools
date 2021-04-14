@@ -5436,7 +5436,7 @@ function reset_head( routine, args )
 
 //
 
-/* qqq : for Dmytro : use _.routine.unite */
+/* aaa : for Dmytro : use _.routine.unite */ /* Dmytro : done */
 
 function reset_body( o )
 {
@@ -5585,7 +5585,7 @@ reset_body.defaults =
   state1 : 'working', /* 'working', 'staged', 'committed' some commit or tag */
   state2 : 'committed', /* 'working', 'staged', 'committed' some commit or tag */
   localPath : null,
-  preset : null, /*[ null, 'all' ]*/ /* qqq : implement and cover option */ /* Dmytro : implemented trivial branch. Please, clarify the behavior of the option */
+  preset : null, /*[ null, 'all' ]*/ /* aaa : implement and cover option */ /* Dmytro : implemented, preset supplement options in reset_head */
   // removingUntracked : 1,
   // removingIgnored : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
   // removingSubrepositories : 1, /* aaa : implement and cover option. option -ffx of git command clean */ /* Dmytro : implemented, covered */

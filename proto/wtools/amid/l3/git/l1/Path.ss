@@ -189,6 +189,32 @@ let parse = _.routine.uniteCloning_( parse_head, parse_body );
 
 //
 
+/**
+ * Routine str() assembles path string from components.
+ *
+ * @example
+ * let parsed =
+ * {
+ *   protocol : 'git+https',
+ *   tag : 'alpha',
+ *   localVcsPath : './',
+ *   service : 'github.com',
+ *   user : 'user',
+ *   repo : 'repo',
+ *   isGlobal : true,
+ * };
+ * _.git.path.str( parsed );
+ * // returns : 'git+https:///github.com/user.repo.git!alpha'
+ *
+ * @param { Aux|String } srcPath - Map with parsed path components.
+ * @returns { String } - Returns path string.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @function str
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
+
 function str( srcPath )
 {
   _.assert( arguments.length === 1, 'Expects single argument {-srcPath-}' );
