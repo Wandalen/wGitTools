@@ -5395,14 +5395,13 @@ push.defaults =
 
 //
 
-/* qqq : for Dmytro : use _.routine.unite */
-
-function reset( o )
+function reset_head( routine, args )
 {
-  let self = this;
+  _.assert( arguments.length === 2 );
 
-  _.assert( arguments.length === 1 );
-  _.routineOptions( reset, arguments );
+  let o = args[ 0 ];
+  _.assert( args.length === 1 );
+  _.routine.options( routine, o );
   _.assert( _.strDefined( o.state1 ) );
   _.assert( _.strDefined( o.state2 ) );
   _.assert( _.strDefined( o.localPath ) );
@@ -5420,9 +5419,51 @@ function reset( o )
       removingSubrepositories : 1,
       removingIgnored : 1,
     };
-    // _.mapExtend( o, o2 ); /* aaa : for Dmytro : should supplement */ /* Dmytro : done */
-    _.mapSupplement( o, o2 );
+    _.mapSupplementNulls( o, o2 );
   }
+  else
+  {
+    let o2 =
+    {
+      removingUntracked : 1,
+      removingSubrepositories : 1,
+      removingIgnored : 0,
+    };
+    _.mapSupplementNulls( o, o2 );
+  }
+  return o;
+}
+
+//
+
+/* qqq : for Dmytro : use _.routine.unite */
+
+function reset_body( o )
+{
+  let self = this;
+
+  // _.assert( arguments.length === 1 );
+  // _.routineOptions( reset, arguments );
+  // _.assert( _.strDefined( o.state1 ) );
+  // _.assert( _.strDefined( o.state2 ) );
+  // _.assert( _.strDefined( o.localPath ) );
+  // _.assert( _.longHas( [ null, 'all' ], o.preset ) );
+  //
+  // o.logger = _.logger.maybe( o.logger );
+  //
+  // if( o.preset === 'all' )
+  // {
+  //   _.assert( o.state2 === 'committed', 'Preset `all` resets all changes to latest commit' );
+  //
+  //   let o2 =
+  //   {
+  //     removingUntracked : 1,
+  //     removingSubrepositories : 1,
+  //     removingIgnored : 1,
+  //   };
+  //   // _.mapExtend( o, o2 ); /* aaa : for Dmytro : should supplement */ /* Dmytro : done */
+  //   _.mapSupplement( o, o2 );
+  // }
 
   /* */
 
@@ -5538,19 +5579,26 @@ function reset( o )
   }
 }
 
-reset.defaults =
+reset_body.defaults =
 {
   logger : 1,
   state1 : 'working', /* 'working', 'staged', 'committed' some commit or tag */
   state2 : 'committed', /* 'working', 'staged', 'committed' some commit or tag */
   localPath : null,
   preset : null, /*[ null, 'all' ]*/ /* qqq : implement and cover option */ /* Dmytro : implemented trivial branch. Please, clarify the behavior of the option */
-  removingUntracked : 1,
-  removingIgnored : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
-  removingSubrepositories : 1, /* aaa : implement and cover option. option -ffx of git command clean */ /* Dmytro : implemented, covered */
+  // removingUntracked : 1,
+  // removingIgnored : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
+  // removingSubrepositories : 1, /* aaa : implement and cover option. option -ffx of git command clean */ /* Dmytro : implemented, covered */
+  removingUntracked : null,
+  removingIgnored : null,
+  removingSubrepositories : null,
   dry : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
   sync : 1,
-}
+};
+
+//
+
+const reset = _.routine.unite( reset_head, reset_body );
 
 //
 
