@@ -4779,8 +4779,7 @@ function configReset( o ) /* aaa : implement */ /* Dmytro : implemented */
   function standardGlobalConfigSet()
   {
     const provider = _.fileProvider;
-    const path = _.git.path;
-    // const path = provider.path;
+    const path = provider.path; /* Dmytro : should be provider path */
 
     const globalConfigPath = path.nativize( path.join( process.env.HOME, '.gitconfig' ) );
     /* by default global config has no settings */
