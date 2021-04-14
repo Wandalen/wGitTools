@@ -463,6 +463,24 @@ function nativize( srcPath )
 
 //
 
+/**
+ * Routine refine() transform provided string path {-srcPath-}.
+ * Routine refines up tokens in path.
+ * Works on local hard drive path.
+ *
+ * @example
+ * _.git.path.refine( 'hd:\\some\local\repo' );
+ * // returns : 'hd://some/local/repo'
+ *
+ * @param { String } srcPath - Path to refine.
+ * @returns { String } - Returns refined path.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @function normalize
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
+
 function refine( srcPath )
 {
   _.assert( arguments.length === 1, 'Expects single path {-srcPath-}' );
