@@ -552,7 +552,7 @@ function isFixated( srcPath )
  * @throws { Error } If {-srcPath-} has incompatible type.
  * @throws { Error } If options map {-o-} has incompatible type.
  * @throws { Error } If options map {-o-} has unknown option.
- * @function fixate 
+ * @function fixate
  * @module Tools/GitTools
  * @namespace Tools.git.path
  */

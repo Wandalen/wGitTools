@@ -3771,7 +3771,7 @@ function hookPreservingHardLinksRegister( repoPath )
   }
   finally
   {
-    provider.filesDelete( tempPath );
+    path.tempClose( tempPath );
   }
 
   return true;
