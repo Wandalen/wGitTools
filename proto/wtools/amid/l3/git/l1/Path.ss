@@ -476,7 +476,7 @@ function nativize( srcPath )
  * @returns { String } - Returns refined path.
  * @throws { Error } If arguments.length is not equal to 1.
  * @throws { Error } If {-srcPath-} has incompatible type.
- * @function normalize
+ * @function refine
  * @module Tools/GitTools
  * @namespace Tools.git.path
  */
@@ -493,9 +493,32 @@ function refine( srcPath )
 
 //
 
-function isFixated( filePath )
+/**
+ * Routine isFixated() checks that provided string path {-srcPath-} has a valid version ( hash ).
+ *
+ * @example
+ * _.git.path.isFixated( 'git+https:///github.com/user.repo.git' );
+ * // returns : false
+ *
+ * @example
+ * _.git.path.isFixated( 'git+https:///github.com/user.repo.git/!alpha' );
+ * // returns : false
+ *
+ * @example
+ * _.git.path.isFixated( 'git+https:///github.com/user.repo.git/#ab6h2c8' );
+ * // returns : true
+ *
+ * @param { String|Aux } srcPath - Path to check.
+ * @returns { Boolean } - Returns true if path has valid version, otherwise, returns false.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @function isFixated
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
+
+function isFixated( srcPath )
 {
-  let parsed = _.git.path.parse({ remotePath : filePath, full : 0, atomic : 1 });
+  let parsed = _.git.path.parse({ remotePath : srcPath, full : 0, atomic : 1 });
 
   if( !parsed.hash )
   return false;
