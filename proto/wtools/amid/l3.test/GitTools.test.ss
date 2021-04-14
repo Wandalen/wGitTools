@@ -19122,24 +19122,25 @@ function diff( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
-  /* qqq : bad : use test modules only */
-  /* qqq : for Dmytro : do properly */
-  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  /* aaa : bad : use test modules only */ /* Dmytro : done */
+  /* aaa : for Dmytro : do properly */ /* Dmytro : done */
+  let remotePath = 'https://github.com/Wandalen/wModuleForTesting1.git';
   let latestCommit = _.git.remoteVersionLatest({ remotePath });
 
   a.fileProvider.dirMake( a.abs( '.' ) )
 
-  /* */
+  /* - */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
-    test.case = 'compare two identical states of repo'
+    test.case = 'compare two identical states of repo';
+
+    test.description = 'detailing - 1, explaining - 1';
     var got = _.git.diff
     ({
       state1 : 'HEAD',
       state2 : `#${latestCommit}`,
-      localPath : a.abs( 'wPathBasic' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -19154,14 +19155,17 @@ function diff( test )
       copiedFiles : '',
       typechangedFiles : '',
       unmergedFiles : '',
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 1, explaining - 0';
     var got = _.git.diff
     ({
       state1 : 'HEAD',
       state2 : `#${latestCommit}`,
-      localPath : a.abs( 'wPathBasic' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -19176,14 +19180,17 @@ function diff( test )
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 1';
     var got = _.git.diff
     ({
       state1 : 'HEAD',
       state2 : `#${latestCommit}`,
-      localPath : a.abs( 'wPathBasic' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -19198,14 +19205,17 @@ function diff( test )
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 0';
     var got = _.git.diff
     ({
       state1 : 'HEAD',
       state2 : `#${latestCommit}`,
-      localPath : a.abs( 'wPathBasic' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 0,
       sync : 1
@@ -19220,74 +19230,61 @@ function diff( test )
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
-  })
+  });
 
-  begin()
-  .then( () =>
+  /* - */
+
+  begin().then( () =>
   {
+    test.case = 'compare two commits'
+
     var status =
 `modifiedFiles:
-  .im.will.yml
-  out/wPathBasic.out.will.yml
   package.json
-  was.package.json
-deletedFiles:
-  proto/dwtools/abase/l3.test/PathBasic.test.s
-addedFiles:
-  proto/dwtools/abase/l2.test/Path.test.s
-renamedFiles:
-  proto/dwtools/abase/l3.test/PathBasic.test.html
-  proto/dwtools/abase/l3/PathBasic.s
-  proto/dwtools/abase/l4.test/Paths.test.s
-  proto/dwtools/abase/l4/PathsBasic.s`
+  was.package.json`
 
     var statusOriginal =
-` .im.will.yml                                       |   10 +-
- out/wPathBasic.out.will.yml                        |   38 +-
- package.json                                       |   10 +-
- .../PathBasic.test.html => l2.test/Path.test.html} |    0
- proto/dwtools/abase/l2.test/Path.test.s            | 8570 ++++++++++++++++++
- proto/dwtools/abase/{l3 => l2}/PathBasic.s         | 1999 ++---
- proto/dwtools/abase/l3.test/PathBasic.test.s       | 9062 --------------------
- .../abase/{l4.test => l3.test}/Paths.test.s        | 1446 ++--
- proto/dwtools/abase/{l4 => l3}/PathsBasic.s        |  263 +-
- was.package.json                                   |    6 +-
- 10 files changed, 10676 insertions(+), 10728 deletions(-)
-`
+` package.json     | 2 +-
+ was.package.json | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+`;
 
-    test.case = 'compare two commits'
+
+    test.description = 'detailing - 1, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : `#faffd60916a71d772ffb9644bbad59152b9ed73e`,
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 1,
       sync : 1
     });
     var expected =
     {
-      modifiedFiles : '.im.will.yml\nout/wPathBasic.out.will.yml\npackage.json\nwas.package.json',
-      deletedFiles : 'proto/dwtools/abase/l3.test/PathBasic.test.s',
-      addedFiles : 'proto/dwtools/abase/l2.test/Path.test.s',
-      renamedFiles : 'proto/dwtools/abase/l3.test/PathBasic.test.html\nproto/dwtools/abase/l3/PathBasic.s\nproto/dwtools/abase/l4.test/Paths.test.s\nproto/dwtools/abase/l4/PathsBasic.s',
+      modifiedFiles : 'package.json\nwas.package.json',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
       copiedFiles : '',
       typechangedFiles : '',
       unmergedFiles : '',
-      status
+      status,
+    };
+    test.contains( got, expected );
 
-    }
-    test.contains( got, expected )
+    /* */
 
+    test.description = 'detailing - 1, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : `#faffd60916a71d772ffb9644bbad59152b9ed73e`,
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -19296,20 +19293,23 @@ renamedFiles:
     {
       status : true,
       modifiedFiles : true,
-      deletedFiles : true,
-      addedFiles : true,
-      renamedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : `#faffd60916a71d772ffb9644bbad59152b9ed73e`,
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -19324,14 +19324,17 @@ renamedFiles:
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : `#faffd60916a71d772ffb9644bbad59152b9ed73e`,
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 0,
       sync : 1
@@ -19346,92 +19349,94 @@ renamedFiles:
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
-  })
+  });
 
+  /* - */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
+    test.case = 'compare commit and tag';
+
     var status =
 `modifiedFiles:
-  .ex.will.yml
-  .gitattributes
+  .eslintrc.yml
+  .github/workflows/Publish.yml
+  .github/workflows/PullRequest.yml
+  .github/workflows/Push.yml
+  .gitignore
   .im.will.yml
-  .travis.yml
   LICENSE
   README.md
-  out/wPathBasic.out.will.yml
+  out/wModuleForTesting1.out.will.yml
   package.json
-  proto/dwtools/abase/l3.test/PathBasic.test.s
-  proto/dwtools/abase/l3/PathBasic.s
-  proto/dwtools/abase/l4.test/Paths.test.s
-deletedFiles:
+  proto/Integration.test.ss
+  proto/wtools/testing/Basic.s
+  proto/wtools/testing/l1.test/ModuleForTesting1.test.s
+  proto/wtools/testing/l1/Include.s
+  proto/wtools/testing/l1/ModuleForTesting1.s
   was.package.json
+deletedFiles:
+  sample/Sample.s
 addedFiles:
-  out/debug/dwtools/Tools.s
-  out/debug/dwtools/abase/l3.test/PathBasic.test.html
-  out/debug/dwtools/abase/l3.test/PathBasic.test.s
-  out/debug/dwtools/abase/l3/PathBasic.s
-  out/debug/dwtools/abase/l4.test/Paths.test.s
-  out/debug/dwtools/abase/l4/PathsBasic.s
-  out/wPathFundamentals.out.will.yml
-  package-old.json`
+  sample/trivial/Sample.s`;
 
     var statusOriginal =
-` .ex.will.yml                                       |   98 +-
- .gitattributes                                     |    1 +
- .im.will.yml                                       |  242 +-
- .travis.yml                                        |    2 +-
- LICENSE                                            |    3 +-
- README.md                                          |    8 -
- out/debug/dwtools/Tools.s                          |   24 +
- .../dwtools/abase/l3.test/PathBasic.test.html      |   45 +
- out/debug/dwtools/abase/l3.test/PathBasic.test.s   | 8438 ++++++++++++++++++++
- out/debug/dwtools/abase/l3/PathBasic.s             | 2855 +++++++
- out/debug/dwtools/abase/l4.test/Paths.test.s       | 1400 ++++
- out/debug/dwtools/abase/l4/PathsBasic.s            |  482 ++
- out/wPathBasic.out.will.yml                        | 1856 ++---
- out/wPathFundamentals.out.will.yml                 |  598 ++
- package-old.json                                   |   54 +
- package.json                                       |   83 +-
- proto/dwtools/abase/l3.test/PathBasic.test.s       | 1324 +--
- proto/dwtools/abase/l3/PathBasic.s                 |  689 +-
- proto/dwtools/abase/l4.test/Paths.test.s           |   70 +-
- was.package.json                                   |   30 -
- 20 files changed, 15281 insertions(+), 3021 deletions(-)
-`
-    test.case = 'compare commit and tag'
+` .eslintrc.yml                                      |  37 ++-
+ .github/workflows/Publish.yml                      |  27 +-
+ .github/workflows/PullRequest.yml                  |  26 +-
+ .github/workflows/Push.yml                         |  45 ++--
+ .gitignore                                         |  12 +-
+ .im.will.yml                                       |   5 +
+ LICENSE                                            |   2 +-
+ README.md                                          |   2 +-
+ out/wModuleForTesting1.out.will.yml                |  24 +-
+ package.json                                       |  63 +++--
+ proto/Integration.test.ss                          | 287 +++++++++++++++++++--
+ proto/wtools/testing/Basic.s                       |   4 +-
+ .../testing/l1.test/ModuleForTesting1.test.s       |  14 +-
+ proto/wtools/testing/l1/Include.s                  |  78 +++++-
+ proto/wtools/testing/l1/ModuleForTesting1.s        |   9 +-
+ sample/Sample.s                                    |   5 -
+ sample/trivial/Sample.s                            |   9 +
+ was.package.json                                   |   4 +-
+ 18 files changed, 537 insertions(+), 116 deletions(-)
+`;
+
+    test.description = 'detailing - 1, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `!v0.7.4`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : `!v0.0.100`,
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 1,
       sync : 1
     });
     var expected =
     {
-      modifiedFiles : '.ex.will.yml\n.gitattributes\n.im.will.yml\n.travis.yml\nLICENSE\nREADME.md\nout/wPathBasic.out.will.yml\npackage.json\nproto/dwtools/abase/l3.test/PathBasic.test.s\nproto/dwtools/abase/l3/PathBasic.s\nproto/dwtools/abase/l4.test/Paths.test.s',
-      deletedFiles : 'was.package.json',
-      addedFiles : 'out/debug/dwtools/Tools.s\nout/debug/dwtools/abase/l3.test/PathBasic.test.html\nout/debug/dwtools/abase/l3.test/PathBasic.test.s\nout/debug/dwtools/abase/l3/PathBasic.s\nout/debug/dwtools/abase/l4.test/Paths.test.s\nout/debug/dwtools/abase/l4/PathsBasic.s\nout/wPathFundamentals.out.will.yml\npackage-old.json',
+      modifiedFiles : '.eslintrc.yml\n.github/workflows/Publish.yml\n.github/workflows/PullRequest.yml\n.github/workflows/Push.yml\n.gitignore\n.im.will.yml\nLICENSE\nREADME.md\nout/wModuleForTesting1.out.will.yml\npackage.json\nproto/Integration.test.ss\nproto/wtools/testing/Basic.s\nproto/wtools/testing/l1.test/ModuleForTesting1.test.s\nproto/wtools/testing/l1/Include.s\nproto/wtools/testing/l1/ModuleForTesting1.s\nwas.package.json',
+      deletedFiles : 'sample/Sample.s',
+      addedFiles : 'sample/trivial/Sample.s',
       renamedFiles : '',
       copiedFiles : '',
       typechangedFiles : '',
       unmergedFiles : '',
       status
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 1, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `!v0.7.4`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : `!v0.0.100`,
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -19446,14 +19451,17 @@ addedFiles:
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `!v0.7.4`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : `!v0.0.100`,
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -19468,14 +19476,17 @@ addedFiles:
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `!v0.7.4`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : `!v0.0.100`,
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 0,
       sync : 1
@@ -19490,21 +19501,24 @@ addedFiles:
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
-  })
+  });
 
-  begin()
-  .then( () =>
+  /* - */
+
+  begin().then( () =>
   {
-    test.case = 'compare two identical commits'
+    test.case = 'compare two identical commits';
+
+    test.description = 'detailing - 1, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -19519,14 +19533,17 @@ addedFiles:
       copiedFiles : '',
       typechangedFiles : '',
       unmergedFiles : '',
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 1, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -19541,14 +19558,17 @@ addedFiles:
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -19563,14 +19583,17 @@ addedFiles:
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 0,
       sync : 1
@@ -19585,13 +19608,13 @@ addedFiles:
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
-  })
+  });
 
-  /* */
+  /* - */
 
   return a.ready;
 
@@ -19599,8 +19622,8 @@ addedFiles:
 
   function begin()
   {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wPathBasic' ) ))
-    a.shell( `git clone ${remotePath}` )
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ));
+    a.shell( `git clone ${ remotePath }` );
     return a.ready;
   }
 }
