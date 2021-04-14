@@ -2397,7 +2397,7 @@ function statusRemote_body( o )
     })
   }
 
-  /* qqq : for Dmytro : ask */
+  /* aaa : for Dmytro : ask */ /* Dmytro : asked, temporary mistakes */
   start( 'git ls-remote' ) /* prints list of remote tags and branches */
   ready.then( parse )
   start( 'git show-ref --heads --tags -d' ) /* prints list of local tags and branches */
@@ -2448,7 +2448,7 @@ function statusRemote_body( o )
     remotes = remotes.map( ( src ) => _.strSplitNonPreserving({ src, delimeter : /\s+/ }) );
     remotes = remotes.slice( 1 );
 
-    /* qqq : for Dmytro : bad format of comments! */
+    /* aaa : for Dmytro : bad format of comments! */ /* Dmytro : formatted */
     /* remote heads */
     heads = remotes.filter( ( r ) =>
     {
@@ -4833,6 +4833,7 @@ function _stateParse( state )
     isSpecial : false
   };
 
+  /* qqq : for Dmytro : should be no special states */
   if( _.strBegins( state, 'HEAD' ) )
   {
     result.isSpecial = true;
@@ -5147,7 +5148,7 @@ function diff( o )
     {
       'A' : 'addedFiles',
       // 'C' : 'copiedFiles',
-      'C' : 'copiedFiles', /* qqq : ? */
+      'C' : 'copiedFiles', /* aaa : ? */ /* Dmytro : fixed, not me, the task resolved in conversation */
       'D' : 'deletedFiles',
       'M' : 'modifiedFiles',
       'R' : 'renamedFiles',
@@ -5400,6 +5401,8 @@ push.defaults =
 
 //
 
+/* qqq : for Dmytro : use _.routine.unite */
+
 function reset( o )
 {
   let self = this;
@@ -5423,7 +5426,8 @@ function reset( o )
       removingSubrepositories : 1,
       removingIgnored : 1,
     };
-    _.mapExtend( o, o2 );
+    // _.mapExtend( o, o2 ); /* aaa : for Dmytro : should supplement */ /* Dmytro : done */
+    _.mapSupplement( o, o2 );
   }
 
   /* */
