@@ -22090,7 +22090,7 @@ new line`;
   a.ready.then( () =>
   {
     var got = _.git.push({ localPath : a.abs( 'repo' ), dry : 1 });
-    test.identical( got, undefined );
+    test.identical( got.exitCode, 0 );
     return null;
   });
 
