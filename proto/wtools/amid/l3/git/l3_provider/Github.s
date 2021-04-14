@@ -208,7 +208,10 @@ function pullOpenAct( o )
   .finally( ( err, arg ) =>
   {
     if( err )
-    throw _.err( `Error code : ${ err.statusCode }. ${ err.message }` );
+    {
+      _.errAttend( err );
+      throw _.err( `Error code : ${ err.status }. ${ err.message }` );
+    }
 
     if( o.logger && o.logger.verbosity >= 3 )
     o.logger.log( arg );
