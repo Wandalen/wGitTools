@@ -221,16 +221,10 @@ function pullOpenAct( o )
 
 pullOpenAct.defaults =
 {
-  token : null,
-  remotePath : null,
-  descriptionHead : null,
-  descriptionBody : null,
-  srcBranch : null,
-  dstBranch : null,
-  logger : null,
+  ... Parent.pullOpenAct.defaults,
 };
 
-/* qqq for Dmytro : should use parent defaults */
+/* aaa for Dmytro : should use parent defaults */ /* Dmytro : parent defaults is used */
 
 //
 
