@@ -1163,11 +1163,11 @@ function isUpToDate( o )
     //   result = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
     // }
 
-    //qqq: find better way to check if hash is not a branch name
+    /* qqq: find better way to check if hash is not a branch name */
     // if( parsed.hash && !parsed.isFixated )
     // throw _.err( `Remote path: ${_.color.strFormat( String( o.remotePath ), 'path' )} is fixated, but hash: ${_.color.strFormat( String( parsed.hash ), 'path' ) } doesn't look like commit hash.` )
 
-    // aaa: replace with versionIsCommitHash after testing /* Dmytro : replaced, the routine versionIsCommitHash is tested */
+    /* aaa: replace with versionIsCommitHash after testing */ /* Dmytro : replaced, the routine versionIsCommitHash is tested */
     // if( parsed.hash && !parsed.isFixated )
     if( parsed.hash && !_.git.versionIsCommitHash({ localPath : o.localPath, version : parsed.hash }) )
     throw _.err( `Remote path: ( ${_.color.strFormat( String( o.remotePath ), 'path' )} ) looks like path with tag, but defined as path with version. Please use ! instead of # to specify tag` );
@@ -1836,8 +1836,9 @@ function statusLocal_body( o )
 
   return ready;
 
+  /* aaa : for Dmytro : list of subroutines? */
   /*
-    aaa : for Dmytro : list of subroutines? // Dmytro : list of subroutines is given below
+    Dmytro : list of subroutines is given below
     statusMake
     uncommittedCheck
     optimizedCheck
@@ -2335,7 +2336,7 @@ function statusRemote_head( routine, args )
 
   for( let k in o )
   if( o[ k ] === null && k !== 'version' )
-  // qqq Vova: should we just use something else for version instead of null?
+  /* qqq Vova: should we just use something else for version instead of null? */
   o[ k ] = true;
 
   return o;
@@ -2397,9 +2398,9 @@ function statusRemote_body( o )
   }
 
   /* qqq : for Dmytro : ask */
-  start( 'git ls-remote' ) // prints list of remote tags and branches
+  start( 'git ls-remote' ) /* prints list of remote tags and branches */
   ready.then( parse )
-  start( 'git show-ref --heads --tags -d' ) // prints list of local tags and branches
+  start( 'git show-ref --heads --tags -d' ) /* prints list of local tags and branches */
   ready.then( ( got ) =>
   {
     output = got.output;
@@ -2448,7 +2449,7 @@ function statusRemote_body( o )
     remotes = remotes.slice( 1 );
 
     /* qqq : for Dmytro : bad format of comments! */
-    //remote heads
+    /* remote heads */
     heads = remotes.filter( ( r ) =>
     {
       if( version === _.all )
@@ -2456,7 +2457,7 @@ function statusRemote_body( o )
       return _.strBegins( r[ 1 ], `refs/heads/${version}` )
     });
 
-    //remote tags
+    /* remote tags */
     tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) )
 
     return null;
@@ -2470,7 +2471,7 @@ function statusRemote_body( o )
     {
       let ref = heads[ h ][ 1 ];
 
-      if( !_.strHas( output, ref ) )// looking for remote branch in list of local branches
+      if( !_.strHas( output, ref ) ) /* looking for remote branch in list of local branches */
       {
         if( result.remoteBranches )
         result.remoteBranches += '\n';
@@ -2508,7 +2509,7 @@ function statusRemote_body( o )
       // let execPath = `git branch --contains ${hash} --quiet --format=%(refname)`;
       let execPath = `git for-each-ref refs/heads --contains ${hash} --format=%(refname)`;
 
-      if( !_.strHas( output, ref ) ) // skip if branch is not downloaded
+      if( !_.strHas( output, ref ) ) /* skip if branch is not downloaded */
       return;
 
       con.then( () =>
@@ -2549,7 +2550,7 @@ function statusRemote_body( o )
     {
       let tag = tags[ h ][ 1 ];
 
-      if( !_.strHas( output, tag ) )// looking for remote tag in list of local tags
+      if( !_.strHas( output, tag ) ) /* looking for remote tag in list of local tags */
       {
         if( result.remoteTags )
         result.remoteTags += '\n';
