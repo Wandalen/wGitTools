@@ -327,6 +327,22 @@ let pullList = _request_functor
 
 //
 
+let pullOpenAct = Object.create( null );
+
+pullOpenAct.name = 'pullOpenAct';
+pullOpenAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  descriptionHead : null,
+  descriptionBody : null,
+  srcBranch : null,
+  dstBranch : null,
+  logger : null,
+};
+
+//
+
 function pullOpen( o )
 {
   let ready = _.take( null );
@@ -605,7 +621,7 @@ let Extension =
   pullListAct,
   pullList, /* aaa : for Dmytro : cover */ /* Dmytro : covered */
 
-  // pullOpenAct, /* qqq : for Dmytro : add */
+  pullOpenAct, /* aaa : for Dmytro : add */ /* Dmytro : added */
   pullOpen,
 
   // program
