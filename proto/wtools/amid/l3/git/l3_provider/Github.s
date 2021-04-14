@@ -232,6 +232,8 @@ pullOpenAct.defaults =
   logger : null,
 };
 
+/* qqq for Dmytro : should use parent defaults */
+
 //
 
 function programListAct( o )

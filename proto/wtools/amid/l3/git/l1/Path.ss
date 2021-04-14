@@ -6,6 +6,7 @@
 const _ = _global_.wTools;
 // const Parent = _.uri.path;
 /* aaa : for Dmytro : bad */ /* Dmytro : fixed, not me */
+/* qqq for Dmytro : check NpmTools */
 const Parent = _.uri;
 const Self = _.git.path = _.git.path || Object.create( Parent );
 
@@ -200,8 +201,8 @@ function str( srcPath )
   let result = '';
   let isParsedAtomic = srcPath.isFixated === undefined && srcPath.protocols === undefined;
 
-  if( isParsedAtomic && srcPath.protocol === undefined && srcPath.localVcsPath === undefined )
-  throw _.err( 'Cannot create path from objects. Not enough information about protocols' );
+  // if( isParsedAtomic && srcPath.protocol === undefined && srcPath.localVcsPath === undefined )
+  // throw _.err( 'Cannot create path from objects. Not enough information about protocols' );
 
   if( srcPath.protocol )
   result += srcPath.protocol + '://';
@@ -409,6 +410,7 @@ defaults.logger = 0;
 // --
 
 /* qqq : for Dmytro : jsdoc */
+/* aaa for Dmytro : use namespace in module */ /* Dmytro : used */
 
 let Extension =
 {

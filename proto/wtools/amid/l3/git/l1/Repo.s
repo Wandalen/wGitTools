@@ -560,9 +560,11 @@ function vcsFor( o )
   return null;
 
   _.assert( _.strIs( o.filePath ) );
-  _.assert( _.uri.isGlobal( o.filePath ) );
+  _.assert( _.git.path.isGlobal( o.filePath ) );
+  // _.assert( _.uri.isGlobal( o.filePath ) );
 
-  let parsed = _.uri.parseFull( o.filePath );
+  let parsed = _.git.path.parse( o.filePath );
+  // let parsed = _.uri.parseFull( o.filePath );
 
   if( _.git && _.longHasAny( parsed.protocols, _.git.protocols ) )
   return _.git;

@@ -355,10 +355,12 @@ function remotePathFromLocal( o )
   function isLocalClone( remotePath )
   {
     _.assert( _.strDefined( remotePath ) );
-    let parsed = _.uri.parse( remotePath );
+    let parsed = _.git.path.parse( remotePath );
+    // let parsed = _.uri.parse( remotePath );
     if( parsed.user || parsed.protocols.length )
     return false;
-    return !_.path.isGlobal( remotePath );
+    return !_.git.path.isGlobal( remotePath );
+    // return !_.path.isGlobal( remotePath );
   }
 }
 
@@ -382,10 +384,10 @@ defaults.insidePath = null;
 function localPathFromInside( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = localProvider.path; /* Dmytro : should be local provider path */
 
   if( _.strIs( arguments[ 0 ] ) )
-  o = { insidePath : o }
+  o = { insidePath : o };
 
   _.routineOptions( localPathFromInside, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
@@ -538,7 +540,8 @@ defaults.logger = 0;
 function tagLocalRetrive( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   if( !_.mapIs( o ) )
   o = { localPath : o };
@@ -622,7 +625,8 @@ defaults.detailing = 0;
 function tagExplain( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   if( !_.mapIs( o ) )
   o = { localPath : o };
@@ -776,7 +780,8 @@ defaults.logger = 0;
 function localVersion( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   if( !_.mapIs( o ) )
   o = { localPath : o };
@@ -1309,7 +1314,8 @@ defaults.localPath = null;
 function hasRemote( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.routineOptions( hasRemote, o );
@@ -1382,7 +1388,8 @@ defaults.sync = 1;
 function isRepository( o )
 {
   let self = this;
-  let path = _.uri;
+  let path = _.git.path;
+  // let path = _.uri;
 
   _.routineOptions( isRepository, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
@@ -1499,7 +1506,8 @@ defaults.sync = 1;
 function isHead( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   _.routineOptions( isHead, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
@@ -2091,7 +2099,7 @@ function statusLocal_body( o )
 
     /* Nothing to check if there no tags*/
 
-    let tagsDirPath = _.path.join( o.localPath, '.git/refs/tags' );
+    let tagsDirPath = _.git.path.join( o.localPath, '.git/refs/tags' );
     let tags = _.fileProvider.dirRead({ filePath : tagsDirPath, throwing : 0 })
     if( !tags || !tags.length )
     {
@@ -3505,7 +3513,8 @@ tagMake.defaults =
 function hookRegister( o )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = _.git.path;
+  // let path = provider.path;
 
   _.assert( arguments.length === 1 );
   _.routineOptions( hookRegister, o );
@@ -3633,7 +3642,8 @@ function hookRegister( o )
 
     const files = provider.filesFind
     ({
-      filePath : provider.path.join( o.repoPath, '.git/hooks' ),
+      filePath : _.git.path.join( o.repoPath, '.git/hooks' ),
+      // filePath : provider.path.join( o.repoPath, '.git/hooks' ),
       outputFormat : 'absolute',
     });
     _.each( files, ( filePath ) => provider.rightsWrite({ filePath, setRights : 0o754 }) );
@@ -3665,7 +3675,8 @@ hookRegister.defaults =
 function hookUnregister( o )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = _.git.path;
+  // let path = provider.path;
 
   _.assert( arguments.length === 1 );
   _.routineOptions( hookUnregister, o );
@@ -3716,7 +3727,7 @@ hookUnregister.defaults =
 function hookPreservingHardLinksRegister( repoPath )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = provider.path; /* Dmytro : should be provider path */
 
   _.assert( arguments.length === 1 );
   _.assert( _.strDefined( repoPath ) );
@@ -3826,7 +3837,8 @@ function hookPreservingHardLinksUnregister( repoPath )
 function ignoreAdd( o )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = _.git.path;
+  // let path = provider.path;
 
   if( arguments.length === 2 )
   o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
@@ -3873,7 +3885,8 @@ defaults.pathMap = null;
 function ignoreRemove( o )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = _.git.path;
+  // let path = provider.path;
 
   if( arguments.length === 2 )
   o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
@@ -3917,7 +3930,8 @@ _.routineExtend( ignoreRemove, ignoreAdd );
 function ignoreRemoveAll( o )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = _.git.path;
+  // let path = provider.path;
 
   if( !_.objectIs( o ) )
   o = { insidePath : arguments[ 0 ] }
@@ -4075,9 +4089,11 @@ function repositoryInit( o )
 
   function localInit()
   {
-    _.assert( _.uri.is( o.localPath ) && !_.uri.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    _.assert( _.git.path.is( o.localPath ) && !_.git.path.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    // _.assert( _.uri.is( o.localPath ) && !_.uri.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
 
-    o.localPath = _.path.canonize( o.localPath );
+    o.localPath = _.git.path.canonize( o.localPath );
+    // o.localPath = _.path.canonize( o.localPath );
 
     if( _.fileProvider.fileExists( o.localPath ) && !_.fileProvider.isDir( o.localPath ) )
     throw _.err( `Cant clone repository to ${_.color.strFormat( String( o.localPath ), 'path' )}. It is occupied by non-directory.` );
@@ -4153,7 +4169,8 @@ function repositoryInit( o )
     let downloadPath = o.localPath;
     if( _.fileProvider.isDir( o.localPath ) )
     {
-      downloadPath = _.path.join( o.localPath + '-' + _.idWithGuid() );
+      downloadPath = _.git.path.join( o.localPath + '-' + _.idWithGuid() );
+      // downloadPath = _.path.join( o.localPath + '-' + _.idWithGuid() );
     }
 
     _.fileProvider.dirMake( downloadPath );
@@ -4609,7 +4626,8 @@ repositoryMerge.defaults =
 function configRead( filePath )
 {
   const fileProvider = _.fileProvider;
-  const path = fileProvider.path;
+  const path = _.git.path;
+  // const path = fileProvider.path;
 
   _.assert( arguments.length === 1 );
   _.assert( _.strIs( filePath ) );
@@ -4633,7 +4651,8 @@ function configRead( filePath )
 function configSave( filePath, config )
 {
   const fileProvider = _.fileProvider;
-  const path = fileProvider.path;
+  const path = _.git.path;
+  // const path = fileProvider.path;
 
   _.assert( arguments.length === 2 );
   _.assert( _.strDefined( filePath ) );
@@ -4760,7 +4779,8 @@ function configReset( o ) /* aaa : implement */ /* Dmytro : implemented */
   function standardGlobalConfigSet()
   {
     const provider = _.fileProvider;
-    const path = provider.path;
+    const path = _.git.path;
+    // const path = provider.path;
 
     const globalConfigPath = path.nativize( path.join( process.env.HOME, '.gitconfig' ) );
     /* by default global config has no settings */
@@ -5539,7 +5559,8 @@ reset.defaults =
 function renormalize( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   if( !_.mapIs( o ) )
   o = { localPath : o }
