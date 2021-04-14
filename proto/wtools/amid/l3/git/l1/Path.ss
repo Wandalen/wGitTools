@@ -338,6 +338,25 @@ function str( srcPath )
 
 //
 
+/**
+ * Routine normalize() transform provided string path {-srcPath-} to normalized form.
+ * Normalized form is global git path with protocols included part `git`.
+ * For remote path it looks like:
+ * git[+protocol]:///[service]/[user]/[repo]/[query][tag|hash]
+ *
+ * @example
+ * _.git.path.normalize( 'https://github.com/user.repo.git/!alpha' );
+ * // returns : 'git+https:///github.com/user.repo.git/!alpha'
+ *
+ * @param { String } srcPath - Path to normalize.
+ * @returns { String } - Returns normalized path.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @function normalize
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
+
 function normalize( srcPath )
 {
   _.assert( arguments.length === 1 );
