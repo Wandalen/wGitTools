@@ -4833,17 +4833,16 @@ function _stateParse( state )
     isSpecial : false
   };
 
-  /* qqq : for Dmytro : should be no special states */
-  if( _.strBegins( state, 'HEAD' ) )
-  {
-    result.isSpecial = true;
-    return result;
-  }
+  /* aaa : for Dmytro : should be no such special states */ /* Dmytro : done */
+
+  // if( _.strBegins( state, 'HEAD' ) )
+  // {
+  //   result.isSpecial = true;
+  //   return result;
+  // }
 
   if( _.strBegins( state, statesBegin ) )
   {
-    // result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
-    // result.isTag = _.strBegins( state, statesBegin[ 1 ] );
     result.isVersion = _.git.stateIsHash( state );
     result.isTag = _.git.stateIsTag( state );
     result.value = _.strRemoveBegin( state, statesBegin );
@@ -4872,13 +4871,8 @@ function _stateParse( state )
     return result;
   }
 
-  // if( !allowSpecial )
-  // throw _.err( `Expects state in one of formats:${statesBegin}, but got: ${state}` );
-
   if( !_.longHas( statesSpecial, state ) )
-  {
-    throw _.err( `Expects one of special states: ${statesSpecial}, but got: ${state}` );
-  }
+  throw _.err( `Expects one of special states: ${statesSpecial}, but got: ${state}` );
 
   result.isSpecial = true;
 

@@ -19138,7 +19138,7 @@ function diff( test )
     test.description = 'detailing - 1, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : 'HEAD',
+      state1 : 'committed',
       state2 : `#${latestCommit}`,
       localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
@@ -19163,7 +19163,7 @@ function diff( test )
     test.description = 'detailing - 1, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : 'HEAD',
+      state1 : 'committed',
       state2 : `#${latestCommit}`,
       localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
@@ -19188,7 +19188,7 @@ function diff( test )
     test.description = 'detailing - 0, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : 'HEAD',
+      state1 : 'committed',
       state2 : `#${latestCommit}`,
       localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
@@ -19213,7 +19213,7 @@ function diff( test )
     test.description = 'detailing - 0, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : 'HEAD',
+      state1 : 'committed',
       state2 : `#${latestCommit}`,
       localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
@@ -19669,7 +19669,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -19691,7 +19691,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -19713,7 +19713,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -19736,7 +19736,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -20210,7 +20210,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -20226,13 +20226,13 @@ function diffSpecial( test )
       copiedFiles : '',
       typechangedFiles : '',
       unmergedFiles : '',
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -20248,13 +20248,13 @@ function diffSpecial( test )
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -20271,13 +20271,13 @@ function diffSpecial( test )
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -20293,8 +20293,8 @@ function diffSpecial( test )
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
   })
@@ -20756,7 +20756,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -20772,13 +20772,13 @@ function diffSpecial( test )
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -20795,13 +20795,13 @@ function diffSpecial( test )
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -20817,8 +20817,8 @@ function diffSpecial( test )
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
   })
@@ -20915,118 +20915,6 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `!init`,
-      localPath : a.abs( 'repo' ),
-      detailing : 0,
-      explaining : 0,
-      sync : 1
-    });
-    var expected =
-    {
-      status : true,
-      modifiedFiles : _.maybe,
-      deletedFiles : _.maybe,
-      addedFiles : _.maybe,
-      renamedFiles : _.maybe,
-      copiedFiles : _.maybe,
-      typechangedFiles : _.maybe,
-      unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
-
-    return null;
-  })
-
-  /* */
-
-  begin()
-  .then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' )
-    return null;
-  })
-  a.shell( 'git add file' )
-  a.shell( 'git commit -m init' )
-  .then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'datadata' )
-    return null;
-  })
-  a.shell( 'git add file' )
-  a.shell( 'git commit -m change' )
-  .then( () =>
-  {
-    test.case = 'committed..HEAD^'
-    var got = _.git.diff
-    ({
-      state1 : 'committed',
-      state2 : `HEAD^`,
-      localPath : a.abs( 'repo' ),
-      detailing : 1,
-      explaining : 1,
-      sync : 1
-    });
-    var expected =
-    {
-      status : 'modifiedFiles:\n  file',
-      modifiedFiles : 'file',
-      deletedFiles : '',
-      addedFiles : '',
-      renamedFiles : '',
-      copiedFiles : '',
-      typechangedFiles : '',
-      unmergedFiles : '',
-    }
-    test.contains( got, expected )
-
-    var got = _.git.diff
-    ({
-      state1 : 'committed',
-      state2 : `HEAD^`,
-      localPath : a.abs( 'repo' ),
-      detailing : 1,
-      explaining : 0,
-      sync : 1
-    });
-    var expected =
-    {
-      status : true,
-      modifiedFiles : true,
-      deletedFiles : false,
-      addedFiles : false,
-      renamedFiles : false,
-      copiedFiles : false,
-      typechangedFiles : false,
-      unmergedFiles : false,
-    }
-    test.contains( got, expected )
-
-    var got = _.git.diff
-    ({
-      state1 : 'committed',
-      state2 : `HEAD^`,
-      localPath : a.abs( 'repo' ),
-      detailing : 0,
-      explaining : 1,
-      sync : 1
-    });
-    var expected =
-    {
-      status :
-      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
-      modifiedFiles : _.maybe,
-      deletedFiles : _.maybe,
-      addedFiles : _.maybe,
-      renamedFiles : _.maybe,
-      copiedFiles : _.maybe,
-      typechangedFiles : _.maybe,
-      unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
-
-    var got = _.git.diff
-    ({
-      state1 : 'committed',
-      state2 : `HEAD^`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
