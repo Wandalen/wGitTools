@@ -14,6 +14,71 @@ const Self = _.git.path = _.git.path || Object.create( Parent );
 //
 // --
 
+/**
+ * Routine parse() parse string path into components.
+ * Routine supports three modes of parsing : full, atomic, objects.
+ * By default mode `full` is used.
+ *
+ * @example
+ * var srcPath = 'git+https:///github.com/user.repo.git/!alpha';
+ * _.git.path.parse( srcPath );
+ * // returns
+ * // {
+ * //   protocol : 'git+https',
+ * //   longPath : '/github.com/user/repo.git/',
+ * //   tag : 'alpha',
+ * //   localVcsPath : './',
+ * //   protocols : [ 'git', 'https' ],
+ * //   isFixated : false,
+ * //   service : 'github.com',
+ * //   user : 'user',
+ * //   repo : 'repo',
+ * // };
+ *
+ * @example
+ * var srcPath = 'git+https:///github.com/user.repo.git/!alpha';
+ * _.git.path.parse({ remotePath : srcPath, full : 0, atomic : 1 });
+ * // returns
+ * // {
+ * //   protocol : 'git+https',
+ * //   tag : 'alpha',
+ * //   localVcsPath : './',
+ * //   service : 'github.com',
+ * //   user : 'user',
+ * //   repo : 'repo',
+ * //   isGlobal : true,
+ * // };
+ *
+ * @example
+ * var srcPath = 'git+https:///github.com/user.repo.git/!alpha';
+ * _.git.path.parse({ remotePath : srcPath, full : 0, atomic : 0, objects : 1 });
+ * // returns
+ * // {
+ * //   service : 'github.com',
+ * //   user : 'user',
+ * //   repo : 'repo',
+ * // };
+ *
+ * First parameter set :
+ * @param { String } remotePath - String path.
+ * Second parameter set :
+ * @param { Aux } o - Options map.
+ * @param { String|Aux } o.remotePath - Path to parse.
+ * @param { BoolLike } o.full - Enables full parsing. Default is 1.
+ * @param { BoolLike } o.full - Enables atomic parsing. Default is 0.
+ * @param { BoolLike } o.objects - Enables parsing of objects. Default is 1.
+ * @returns { Map } - Returns map with parsed path.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-remotePath-} has incompatible type.
+ * @throws { Error } If options map {-o-} has incompatible type.
+ * @throws { Error } If options map {-o-} has unknown option.
+ * @throws { Error } If options map {-o-} has conflicting options or no options for parsing.
+ * @throws { Error } If {-remotePath-} has tag and version simultaneously.
+ * @function parse
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
+
 function parse_head( routine, args )
 {
   let o = args[ 0 ];
