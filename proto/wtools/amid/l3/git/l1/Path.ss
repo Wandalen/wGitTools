@@ -397,6 +397,24 @@ function normalize( srcPath )
 
 //
 
+/**
+ * Routine nativize() transform provided string path {-srcPath-} to nativized for utility Git form.
+ * For remote path it looks like:
+ * [protocol]://[service]/[user]/[repo]
+ *
+ * @example
+ * _.git.path.nativize( 'git+https:///github.com/user.repo.git/!alpha' );
+ * // returns : 'https://github.com/user.repo.git'
+ *
+ * @param { String } srcPath - Path to nativize.
+ * @returns { String } - Returns nativized path.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @function nativize
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
+
 function nativize( srcPath )
 {
   _.assert( arguments.length === 1 );
