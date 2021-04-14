@@ -58,7 +58,6 @@ function repositoryInitAct( o )
   const self = this;
   _.map.assertHasAll( o, repositoryInitAct.defaults );
   _.assert( _.aux.is( o.remotePath ) );
-  const ready = new _.Consequence();
 
   return this._open( o )
   .then( ( octokit ) =>
@@ -91,7 +90,6 @@ function repositoryDeleteAct( o )
   const self = this;
   _.map.assertHasAll( o, repositoryDeleteAct.defaults );
   _.assert( _.aux.is( o.remotePath ) );
-  const ready = new _.Consequence();
 
   return this._open( o )
   .then( ( octokit ) =>
