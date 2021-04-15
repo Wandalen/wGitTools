@@ -2336,7 +2336,7 @@ function statusRemote_head( routine, args )
 
   for( let k in o )
   if( o[ k ] === null && k !== 'version' )
-  /* qqq Vova: should we just use something else for version instead of null? */
+  /* aaa Vova: should we just use something else for version instead of null? */ /* Dmytro : resolved in common conversation */
   o[ k ] = true;
 
   return o;
@@ -3435,56 +3435,70 @@ exists.defaults =
 
 function tagMake( o )
 {
-  let ready;
-
   _.assert( arguments.length === 1, 'Expects options map {-o-}' );
-  _.routineOptions( tagMake, arguments );
+  _.routine.options( tagMake, o );
 
+  let ready = _.take( null );
   let start = _.process.starter
   ({
-    sync : 0,
-    deasync : 0,
-    outputCollecting : 1,
-    mode : 'shell',
     currentPath : o.localPath,
+    deasync : 0,
+    sync : 0,
+    mode : 'shell',
+    ready,
+    outputCollecting : 1,
     throwingExitCode : 1,
     inputMirroring : 0,
     outputPiping : 0,
   });
 
-  if( o.deleting )
-  {
+  // if( o.deleting )
+  // {
+  //
+  //   ready = _.git.repositoryHasTag
+  //   ({
+  //     localPath : o.localPath,
+  //     tag : o.tag,
+  //     local : 1,
+  //     remote : 0,
+  //     sync : 0,
+  //   });
+  //
+  //   ready.then( ( has ) =>
+  //   {
+  //     if( has )
+  //     return start( `git tag -d ${o.tag}` );
+  //     return has;
+  //   })
+  //
+  // }
+  // else
+  // {
+  //   ready = _.take( null );
+  // }
+  //
+  // ready.then( () =>
+  // {
 
-    ready = _.git.repositoryHasTag
-    ({
-      localPath : o.localPath,
-      tag : o.tag,
-      local : 1,
-      remote : 0,
-      sync : 0,
-    });
+  // let command = 'git tag';
+  // if( o.force )
+  // command += ' -f';
+  // if( !o.toVersion )
+  // o.toVersion = '';
 
-    ready.then( ( has ) =>
-    {
-      if( has )
-      return start( `git tag -d ${o.tag}` );
-      return has;
-    })
+  // if( o.light )
+  // return start( `git tag ${o.tag}` );
+  // else
+  // return start( `git tag -a ${o.tag} -m "${o.description}"` );
 
-  }
-  else
-  {
-    ready = _.take( null );
-  }
+  let tag = o.light ? o.tag : `-a ${ o.tag } -m '${ o.description }'`;
+  let force = o.force ? '-f' : '';
+  let toVersion = o.toVersion ? o.toVersion : '';
 
-  ready.then( () =>
-  {
-    if( o.light )
-    return start( `git tag ${o.tag}` );
-    else
-    return start( `git tag -a ${o.tag} -m "${o.description}"` );
-  });
+  start( `git tag ${ force } ${ tag } ${ toVersion }` );
 
+  // });
+  //
   // if( got.exitCode !== 0 || got.output && _.strHas( got.output, 'refs/' ) )
   // return false;
 
@@ -3501,11 +3515,11 @@ tagMake.defaults =
 {
   localPath : null,
   tag : null,
-  // toVersion : null, /* qqq : for Dmytro : realize option, cover */
-  // force : null, /* qqq : for Dmytro : realize option, cover */
+  toVersion : null, /* aaa : for Dmytro : implement option, cover */ /* Dmytro : implemented and covered */
+  force : 1, /* aaa : for Dmytro : implement option and use it instead of option deleting, cover */ /* Dmytro : implemented and covered */
   description : '',
   light : 0,
-  deleting : 1,
+  // deleting : 1,
   sync : 1,
 };
 
