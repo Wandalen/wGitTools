@@ -3501,11 +3501,16 @@ tagMake.defaults =
 {
   localPath : null,
   tag : null,
+  // toVersion : null, /* qqq : for Dmytro : realize option, cover */
+  // force : null, /* qqq : for Dmytro : realize option, cover */
   description : '',
   light : 0,
   deleting : 1,
   sync : 1,
 };
+
+/* qqq : for Dmytro : implement tagDelete - 2 routines for branch and ref tag, cover */
+/* qqq : for Dmytro : implement tagList, cover */
 
 // --
 // hook
