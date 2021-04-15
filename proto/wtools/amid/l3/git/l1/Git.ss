@@ -5491,6 +5491,38 @@ const reset = _.routine.unite( reset_head, reset_body );
 
 //
 
+function tagList( o )
+{
+  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
+  _.routine.options( tagList, o );
+
+  let start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    sync : 1,
+    mode : 'shell',
+    outputCollecting : 1,
+    throwingExitCode : 1,
+    inputMirroring : 0,
+    outputPiping : 0,
+  });
+
+  let listOptions = o.onlyNames ? '-l' : `-ln`;
+  let lines = o.onlyNames ? '' : o.lines;
+  let result = start( `git tag ${ listOptions }${ lines }` );
+
+  return result.output;
+}
+
+tagList.defaults =
+{
+  localPath : null,
+  withDescription : 1,
+  lines : 1,
+};
+
+//
+
 /**
  * Routine tagMake() makes tag for some commit version of repository {-o.toVersion-}.
  * If {-o.toVersion-} is not defined, then tag adds to current HEAD commit.
@@ -5615,7 +5647,6 @@ tagMake.defaults =
 };
 
 /* qqq : for Dmytro : implement tagDelete - 2 routines for branch and ref tag, cover */
-/* qqq : for Dmytro : implement tagList, cover */
 
 //
 
@@ -5892,6 +5923,7 @@ let Extension =
   pull,
   push,
   reset,
+  tagList,
   tagMake, /* aaa : cover */ /* Dmytro : covered */
 
   renormalize,
