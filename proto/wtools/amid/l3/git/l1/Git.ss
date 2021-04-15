@@ -3400,134 +3400,6 @@ exists.defaults =
   sync : 1
 }
 
-//
-
-/**
- * Routine tagMake() makes tag for some commit version of repository {-o.toVersion-}. 
- * If {-o.toVersion-} is not defined, then tag adds to current HEAD commit. 
- *
- * @example
- * // make tag `v0.1` if script run in git repository
- * let tag = _.git.tagMake
- * ({
- *   localPath : _.path.current(),
- *   tag : 'v0.1',
- *   description : 'version 0.1',
- * });
- *
- * @param { Aux } o - Options map.
- * @param { String } o.localPath - Path to git repository on hard drive.
- * @param { String } o.tag - Name of tag.
- * @param { String } o.description - Description of tag.
- * @param { String } o.toVersion - Commit version to add tag. Default is current HEAD commit.
- * @param { BoolLike } o.light - Enable lightweight tags. Default is 0.
- * @param { BoolLike } o.force - Enable force creation of tags, it allows to rewrite tags with same name. Default is 1.
- * @param { BoolLike } o.sync - Enable synchronous execution of code. Default is 1.
- * @returns { Consequence|Aux } - Returns map like object with results of Process execution.
- * or Consequence that handle such Process.
- * @function tagMake
- * @throws { Error } If arguments.length is not equal to 1.
- * @throws { Error } If options map {-o-} has extra options.
- * @throws { Error } If {-o.localPath-} is not a String with defined length.
- * @throws { Error } If {-o.tag-} is not a String with defined length.
- * @throws { Error } If added two tags with identical names to single commit and {-o.deleting-} is false.
- * @namespace wTools.git
- * @module Tools/mid/GitTools
- */
-
-function tagMake( o )
-{
-  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
-  _.routine.options( tagMake, o );
-
-  let ready = _.take( null );
-  let start = _.process.starter
-  ({
-    currentPath : o.localPath,
-    deasync : 0,
-    sync : 0,
-    mode : 'shell',
-    ready,
-    outputCollecting : 1,
-    throwingExitCode : 1,
-    inputMirroring : 0,
-    outputPiping : 0,
-  });
-
-  // if( o.deleting )
-  // {
-  //
-  //   ready = _.git.repositoryHasTag
-  //   ({
-  //     localPath : o.localPath,
-  //     tag : o.tag,
-  //     local : 1,
-  //     remote : 0,
-  //     sync : 0,
-  //   });
-  //
-  //   ready.then( ( has ) =>
-  //   {
-  //     if( has )
-  //     return start( `git tag -d ${o.tag}` );
-  //     return has;
-  //   })
-  //
-  // }
-  // else
-  // {
-  //   ready = _.take( null );
-  // }
-  //
-  // ready.then( () =>
-  // {
-
-  // let command = 'git tag';
-  // if( o.force )
-  // command += ' -f';
-  // if( !o.toVersion )
-  // o.toVersion = '';
-
-  // if( o.light )
-  // return start( `git tag ${o.tag}` );
-  // else
-  // return start( `git tag -a ${o.tag} -m "${o.description}"` );
-
-  let tag = o.light ? o.tag : `-a ${ o.tag } -m '${ o.description }'`;
-  let force = o.force ? '-f' : '';
-  let toVersion = o.toVersion ? o.toVersion : '';
-
-  start( `git tag ${ force } ${ tag } ${ toVersion }` );
-
-  // });
-  //
-  // if( got.exitCode !== 0 || got.output && _.strHas( got.output, 'refs/' ) )
-  // return false;
-
-  if( o.sync )
-  {
-    ready.deasync();
-    return ready.sync();
-  }
-
-  return ready;
-}
-
-tagMake.defaults =
-{
-  localPath : null,
-  tag : null,
-  toVersion : null, /* aaa : for Dmytro : implement option, cover */ /* Dmytro : implemented and covered */
-  force : 1, /* aaa : for Dmytro : implement option and use it instead of option deleting, cover */ /* Dmytro : implemented and covered */
-  description : '',
-  light : 0,
-  // deleting : 1,
-  sync : 1,
-};
-
-/* qqq : for Dmytro : implement tagDelete - 2 routines for branch and ref tag, cover */
-/* qqq : for Dmytro : implement tagList, cover */
-
 // --
 // hook
 // --
@@ -5619,6 +5491,134 @@ const reset = _.routine.unite( reset_head, reset_body );
 
 //
 
+/**
+ * Routine tagMake() makes tag for some commit version of repository {-o.toVersion-}.
+ * If {-o.toVersion-} is not defined, then tag adds to current HEAD commit.
+ *
+ * @example
+ * // make tag `v0.1` if script run in git repository
+ * let tag = _.git.tagMake
+ * ({
+ *   localPath : _.path.current(),
+ *   tag : 'v0.1',
+ *   description : 'version 0.1',
+ * });
+ *
+ * @param { Aux } o - Options map.
+ * @param { String } o.localPath - Path to git repository on hard drive.
+ * @param { String } o.tag - Name of tag.
+ * @param { String } o.description - Description of tag.
+ * @param { String } o.toVersion - Commit version to add tag. Default is current HEAD commit.
+ * @param { BoolLike } o.light - Enable lightweight tags. Default is 0.
+ * @param { BoolLike } o.force - Enable force creation of tags, it allows to rewrite tags with same name. Default is 1.
+ * @param { BoolLike } o.sync - Enable synchronous execution of code. Default is 1.
+ * @returns { Consequence|Aux } - Returns map like object with results of Process execution.
+ * or Consequence that handle such Process.
+ * @function tagMake
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If options map {-o-} has extra options.
+ * @throws { Error } If {-o.localPath-} is not a String with defined length.
+ * @throws { Error } If {-o.tag-} is not a String with defined length.
+ * @throws { Error } If added two tags with identical names to single commit and {-o.deleting-} is false.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
+ */
+
+function tagMake( o )
+{
+  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
+  _.routine.options( tagMake, o );
+
+  let ready = _.take( null );
+  let start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    deasync : 0,
+    sync : 0,
+    mode : 'shell',
+    ready,
+    outputCollecting : 1,
+    throwingExitCode : 1,
+    inputMirroring : 0,
+    outputPiping : 0,
+  });
+
+  // if( o.deleting )
+  // {
+  //
+  //   ready = _.git.repositoryHasTag
+  //   ({
+  //     localPath : o.localPath,
+  //     tag : o.tag,
+  //     local : 1,
+  //     remote : 0,
+  //     sync : 0,
+  //   });
+  //
+  //   ready.then( ( has ) =>
+  //   {
+  //     if( has )
+  //     return start( `git tag -d ${o.tag}` );
+  //     return has;
+  //   })
+  //
+  // }
+  // else
+  // {
+  //   ready = _.take( null );
+  // }
+  //
+  // ready.then( () =>
+  // {
+
+  // let command = 'git tag';
+  // if( o.force )
+  // command += ' -f';
+  // if( !o.toVersion )
+  // o.toVersion = '';
+
+  // if( o.light )
+  // return start( `git tag ${o.tag}` );
+  // else
+  // return start( `git tag -a ${o.tag} -m "${o.description}"` );
+
+  let tag = o.light ? o.tag : `-a ${ o.tag } -m '${ o.description }'`;
+  let force = o.force ? '-f' : '';
+  let toVersion = o.toVersion ? o.toVersion : '';
+
+  start( `git tag ${ force } ${ tag } ${ toVersion }` );
+
+  // });
+  //
+  // if( got.exitCode !== 0 || got.output && _.strHas( got.output, 'refs/' ) )
+  // return false;
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+tagMake.defaults =
+{
+  localPath : null,
+  tag : null,
+  toVersion : null, /* aaa : for Dmytro : implement option, cover */ /* Dmytro : implemented and covered */
+  force : 1, /* aaa : for Dmytro : implement option and use it instead of option deleting, cover */ /* Dmytro : implemented and covered */
+  description : '',
+  light : 0,
+  // deleting : 1,
+  sync : 1,
+};
+
+/* qqq : for Dmytro : implement tagDelete - 2 routines for branch and ref tag, cover */
+/* qqq : for Dmytro : implement tagList, cover */
+
+//
+
 function renormalize( o )
 {
   let localProvider = _.fileProvider;
@@ -5856,7 +5856,6 @@ let Extension =
   repositoryTagToVersion, /* aaa : cover */ /* Dmytro : covered */
   repositoryVersionToTag, /* aaa : cover */ /* Dmytro : covered */
   exists,
-  tagMake, /* aaa : cover */ /* Dmytro : covered */
 
   // hook
 
@@ -5893,6 +5892,8 @@ let Extension =
   pull,
   push,
   reset,
+  tagMake, /* aaa : cover */ /* Dmytro : covered */
+
   renormalize,
 
 }
