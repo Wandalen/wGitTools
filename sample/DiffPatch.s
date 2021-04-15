@@ -7,8 +7,8 @@ let _ = wTools;
 var got =  _.git.diff
 ({
   localPath : _.path.join( __dirname, '..' ),
-  state1 : 'working',
-  state2 : 'HEAD~1',
+  state1 : '#abc6e1da8be34f69d24af6f90f323816a9d83f3b',
+  state2 : '!v0.3.306',
   generatingPatch : 1,
   coloredPatch : 1,
   linesOfContext : 0,

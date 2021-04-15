@@ -355,10 +355,12 @@ function remotePathFromLocal( o )
   function isLocalClone( remotePath )
   {
     _.assert( _.strDefined( remotePath ) );
-    let parsed = _.uri.parse( remotePath );
+    let parsed = _.git.path.parse( remotePath );
+    // let parsed = _.uri.parse( remotePath );
     if( parsed.user || parsed.protocols.length )
     return false;
-    return !_.path.isGlobal( remotePath );
+    return !_.git.path.isGlobal( remotePath );
+    // return !_.path.isGlobal( remotePath );
   }
 }
 
@@ -382,10 +384,10 @@ defaults.insidePath = null;
 function localPathFromInside( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = localProvider.path; /* Dmytro : should be local provider path */
 
   if( _.strIs( arguments[ 0 ] ) )
-  o = { insidePath : o }
+  o = { insidePath : o };
 
   _.routineOptions( localPathFromInside, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
@@ -538,7 +540,8 @@ defaults.logger = 0;
 function tagLocalRetrive( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   if( !_.mapIs( o ) )
   o = { localPath : o };
@@ -622,7 +625,8 @@ defaults.detailing = 0;
 function tagExplain( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   if( !_.mapIs( o ) )
   o = { localPath : o };
@@ -776,7 +780,8 @@ defaults.logger = 0;
 function localVersion( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   if( !_.mapIs( o ) )
   o = { localPath : o };
@@ -1085,21 +1090,23 @@ function isUpToDate( o )
 
   let ready = _.Consequence();
 
-  /* xxx : qqq : check mode. shell should be, probably */
+  /* xxx : aaa : check mode. shell should be, probably */ /* Dmytro : the default mode is `shell` and commands passed to functors are shell commands */
   let start = _.process.starter
   ({
     logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
+    mode : 'shell',
     ready,
   });
 
-  /* xxx : qqq : check mode. shell should be, probably */
+  /* xxx : aaa : check mode. shell should be, probably */ /* Dmytro : the default mode is `shell` and commands passed to functors are shell commands */
   let shell = _.process.starter
   ({
     logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     ready,
+    mode : 'shell',
     currentPath : o.localPath,
     throwingExitCode : 0,
     outputCollecting : 1,
@@ -1156,11 +1163,11 @@ function isUpToDate( o )
     //   result = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
     // }
 
-    //qqq: find better way to check if hash is not a branch name
+    /* qqq: find better way to check if hash is not a branch name */
     // if( parsed.hash && !parsed.isFixated )
     // throw _.err( `Remote path: ${_.color.strFormat( String( o.remotePath ), 'path' )} is fixated, but hash: ${_.color.strFormat( String( parsed.hash ), 'path' ) } doesn't look like commit hash.` )
 
-    // aaa: replace with versionIsCommitHash after testing /* Dmytro : replaced, the routine versionIsCommitHash is tested */
+    /* aaa: replace with versionIsCommitHash after testing */ /* Dmytro : replaced, the routine versionIsCommitHash is tested */
     // if( parsed.hash && !parsed.isFixated )
     if( parsed.hash && !_.git.versionIsCommitHash({ localPath : o.localPath, version : parsed.hash }) )
     throw _.err( `Remote path: ( ${_.color.strFormat( String( o.remotePath ), 'path' )} ) looks like path with tag, but defined as path with version. Please use ! instead of # to specify tag` );
@@ -1307,7 +1314,8 @@ defaults.localPath = null;
 function hasRemote( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.routineOptions( hasRemote, o );
@@ -1380,7 +1388,8 @@ defaults.sync = 1;
 function isRepository( o )
 {
   let self = this;
-  let path = _.uri;
+  let path = _.git.path;
+  // let path = _.uri;
 
   _.routineOptions( isRepository, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
@@ -1433,7 +1442,7 @@ function isRepository( o )
       return _.process.start
       ({
         execPath : 'git ls-remote ' + remoteParsed,
-        mode : 'shell', /* qqq : for Dmytro : why? random?? */
+        mode : 'shell', /* aaa : for Dmytro : why? random?? */ /* Dmytro : not random, we use `shell` for commands in all module, mode `spawn` has some old routines */
         throwingExitCode : 0,
         outputPiping : 0,
         stdio : 'ignore',
@@ -1497,7 +1506,8 @@ defaults.sync = 1;
 function isHead( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   _.routineOptions( isHead, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
@@ -1826,8 +1836,9 @@ function statusLocal_body( o )
 
   return ready;
 
+  /* aaa : for Dmytro : list of subroutines? */
   /*
-    aaa : for Dmytro : list of subroutines? // Dmytro : list of subroutines is given below
+    Dmytro : list of subroutines is given below
     statusMake
     uncommittedCheck
     optimizedCheck
@@ -2089,7 +2100,7 @@ function statusLocal_body( o )
 
     /* Nothing to check if there no tags*/
 
-    let tagsDirPath = _.path.join( o.localPath, '.git/refs/tags' );
+    let tagsDirPath = _.git.path.join( o.localPath, '.git/refs/tags' );
     let tags = _.fileProvider.dirRead({ filePath : tagsDirPath, throwing : 0 })
     if( !tags || !tags.length )
     {
@@ -2325,7 +2336,7 @@ function statusRemote_head( routine, args )
 
   for( let k in o )
   if( o[ k ] === null && k !== 'version' )
-  //qqq Vova: should we just use something else for version instead of null?
+  /* aaa Vova: should we just use something else for version instead of null? */ /* Dmytro : resolved in common conversation */
   o[ k ] = true;
 
   return o;
@@ -2386,10 +2397,10 @@ function statusRemote_body( o )
     })
   }
 
-  /* qqq : for Dmytro : ask */
-  start( 'git ls-remote' ) //prints list of remote tags and branches
+  /* aaa : for Dmytro : ask */ /* Dmytro : asked, temporary mistakes */
+  start( 'git ls-remote' ) /* prints list of remote tags and branches */
   ready.then( parse )
-  start( 'git show-ref --heads --tags -d' )//prints list of local tags and branches
+  start( 'git show-ref --heads --tags -d' ) /* prints list of local tags and branches */
   ready.then( ( got ) =>
   {
     output = got.output;
@@ -2437,8 +2448,8 @@ function statusRemote_body( o )
     remotes = remotes.map( ( src ) => _.strSplitNonPreserving({ src, delimeter : /\s+/ }) );
     remotes = remotes.slice( 1 );
 
-    /* qqq : for Dmytro : bad format of comments! */
-    //remote heads
+    /* aaa : for Dmytro : bad format of comments! */ /* Dmytro : formatted */
+    /* remote heads */
     heads = remotes.filter( ( r ) =>
     {
       if( version === _.all )
@@ -2446,7 +2457,7 @@ function statusRemote_body( o )
       return _.strBegins( r[ 1 ], `refs/heads/${version}` )
     });
 
-    //remote tags
+    /* remote tags */
     tags = remotes.filter( ( r ) => _.strBegins( r[ 1 ], 'refs/tags' ) )
 
     return null;
@@ -2460,7 +2471,7 @@ function statusRemote_body( o )
     {
       let ref = heads[ h ][ 1 ];
 
-      if( !_.strHas( output, ref ) )// looking for remote branch in list of local branches
+      if( !_.strHas( output, ref ) ) /* looking for remote branch in list of local branches */
       {
         if( result.remoteBranches )
         result.remoteBranches += '\n';
@@ -2498,7 +2509,7 @@ function statusRemote_body( o )
       // let execPath = `git branch --contains ${hash} --quiet --format=%(refname)`;
       let execPath = `git for-each-ref refs/heads --contains ${hash} --format=%(refname)`;
 
-      if( !_.strHas( output, ref ) ) // skip if branch is not downloaded
+      if( !_.strHas( output, ref ) ) /* skip if branch is not downloaded */
       return;
 
       con.then( () =>
@@ -2539,7 +2550,7 @@ function statusRemote_body( o )
     {
       let tag = tags[ h ][ 1 ];
 
-      if( !_.strHas( output, tag ) )// looking for remote tag in list of local tags
+      if( !_.strHas( output, tag ) ) /* looking for remote tag in list of local tags */
       {
         if( result.remoteTags )
         result.remoteTags += '\n';
@@ -3091,7 +3102,7 @@ function repositoryHasVersion( o )
     {
       // if( _.strHas( got.output, /.+\.\..+/ ) )
       /*
-         Dmytro : the output has range of commits that will be fetched, it is more convienent regexp than the previous one.
+         Dmytro : the output has range of commits that will be fetched, it is more convenient regexp than the previous one.
          The regexp does not include strings like : `From ../repo`
       */
       if( _.strHas( got.output, /[a-hA-H0-9]+\.\.[a-hA-H0-9]+/ ) )
@@ -3361,12 +3372,11 @@ function exists( o )
     /* Dmytro : the first way is fetching of all commits and searching for desired ( implemented above )
 
       Also, it can be checked by specific API of git provider.
-      For example, for github.com we can use Rest API of Github or module `octonode` instead :
-      https://github.com/pksunkara/octonode#get-a-certain-commit-for-a-repository-get-repospksunkarahubcommits18293abcd72
+      For example, for github.com we can use Rest API of Github or module `@octokit/core` instead.
     */
-    _.assert( 0, 'Case remote:#version is not implemented' );
-
-    return true;
+    // _.assert( 0, 'Case remote:#version is not implemented' );
+    //
+    // return true;
   }
 
   /* - */
@@ -3390,113 +3400,6 @@ exists.defaults =
   sync : 1
 }
 
-//
-
-/**
- * Routine tagMake() makes tag for current commit.
- *
- * @example
- * // make tag `v0.1` if script run in git repository
- * let tag = _.git.tagMake
- * ({
- *   localPath : _.path.current(),
- *   tag : 'v0.1',
- *   description : 'version 0.1',
- * });
- *
- * @param { Aux } o - Options map.
- * @param { String } o.localPath - Path to git repository on hard drive.
- * @param { String } o.tag - Name of tag.
- * @param { String } o.description - Description of tag.
- * @param { BoolLike } o.light - Enable lightweight tags. Default is 0.
- * @param { BoolLike } o.deleting - Enable deleting of duplicated tags. Default is 1.
- * @param { BoolLike } o.sync - Enable synchronous execution of code. Default is 1.
- * @returns { Consequence|Aux } - Returns map like object with results of Process execution
- * or Consequence that handle such Process.
- * @function tagMake
- * @throws { Error } If arguments.length is not equal to 1.
- * @throws { Error } If options map {-o-} has extra options.
- * @throws { Error } If {-o.localPath-} is not a String with defined length.
- * @throws { Error } If {-o.tag-} is not a String with defined length.
- * @throws { Error } If added two tags with identical names to single commit and {-o.deleting-} is false.
- * @namespace wTools.git
- * @module Tools/mid/GitTools
- */
-
-function tagMake( o )
-{
-  let ready;
-
-  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
-  _.routineOptions( tagMake, arguments );
-
-  let start = _.process.starter
-  ({
-    sync : 0,
-    deasync : 0,
-    outputCollecting : 1,
-    mode : 'shell',
-    currentPath : o.localPath,
-    throwingExitCode : 1,
-    inputMirroring : 0,
-    outputPiping : 0,
-  });
-
-  if( o.deleting )
-  {
-
-    ready = _.git.repositoryHasTag
-    ({
-      localPath : o.localPath,
-      tag : o.tag,
-      local : 1,
-      remote : 0,
-      sync : 0,
-    });
-
-    ready.then( ( has ) =>
-    {
-      if( has )
-      return start( `git tag -d ${o.tag}` );
-      return has;
-    })
-
-  }
-  else
-  {
-    ready = _.take( null );
-  }
-
-  ready.then( () =>
-  {
-    if( o.light )
-    return start( `git tag ${o.tag}` );
-    else
-    return start( `git tag -a ${o.tag} -m "${o.description}"` );
-  });
-
-  // if( got.exitCode !== 0 || got.output && _.strHas( got.output, 'refs/' ) )
-  // return false;
-
-  if( o.sync )
-  {
-    ready.deasync();
-    return ready.sync();
-  }
-
-  return ready;
-}
-
-tagMake.defaults =
-{
-  localPath : null,
-  tag : null,
-  description : '',
-  light : 0,
-  deleting : 1,
-  sync : 1,
-};
-
 // --
 // hook
 // --
@@ -3504,7 +3407,8 @@ tagMake.defaults =
 function hookRegister( o )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = _.git.path;
+  // let path = provider.path;
 
   _.assert( arguments.length === 1 );
   _.routineOptions( hookRegister, o );
@@ -3632,7 +3536,8 @@ function hookRegister( o )
 
     const files = provider.filesFind
     ({
-      filePath : provider.path.join( o.repoPath, '.git/hooks' ),
+      filePath : _.git.path.join( o.repoPath, '.git/hooks' ),
+      // filePath : provider.path.join( o.repoPath, '.git/hooks' ),
       outputFormat : 'absolute',
     });
     _.each( files, ( filePath ) => provider.rightsWrite({ filePath, setRights : 0o754 }) );
@@ -3664,7 +3569,8 @@ hookRegister.defaults =
 function hookUnregister( o )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = _.git.path;
+  // let path = provider.path;
 
   _.assert( arguments.length === 1 );
   _.routineOptions( hookUnregister, o );
@@ -3715,7 +3621,7 @@ hookUnregister.defaults =
 function hookPreservingHardLinksRegister( repoPath )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = provider.path; /* Dmytro : should be provider path */
 
   _.assert( arguments.length === 1 );
   _.assert( _.strDefined( repoPath ) );
@@ -3758,7 +3664,7 @@ function hookPreservingHardLinksRegister( repoPath )
   }
   finally
   {
-    provider.filesDelete( tempPath );
+    path.tempClose( tempPath );
   }
 
   return true;
@@ -3825,7 +3731,8 @@ function hookPreservingHardLinksUnregister( repoPath )
 function ignoreAdd( o )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = _.git.path;
+  // let path = provider.path;
 
   if( arguments.length === 2 )
   o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
@@ -3872,7 +3779,8 @@ defaults.pathMap = null;
 function ignoreRemove( o )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = _.git.path;
+  // let path = provider.path;
 
   if( arguments.length === 2 )
   o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
@@ -3916,7 +3824,8 @@ _.routineExtend( ignoreRemove, ignoreAdd );
 function ignoreRemoveAll( o )
 {
   let provider = _.fileProvider;
-  let path = provider.path;
+  let path = _.git.path;
+  // let path = provider.path;
 
   if( !_.objectIs( o ) )
   o = { insidePath : arguments[ 0 ] }
@@ -4074,9 +3983,11 @@ function repositoryInit( o )
 
   function localInit()
   {
-    _.assert( _.uri.is( o.localPath ) && !_.uri.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    _.assert( _.git.path.is( o.localPath ) && !_.git.path.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
+    // _.assert( _.uri.is( o.localPath ) && !_.uri.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
 
-    o.localPath = _.path.canonize( o.localPath );
+    o.localPath = _.git.path.canonize( o.localPath );
+    // o.localPath = _.path.canonize( o.localPath );
 
     if( _.fileProvider.fileExists( o.localPath ) && !_.fileProvider.isDir( o.localPath ) )
     throw _.err( `Cant clone repository to ${_.color.strFormat( String( o.localPath ), 'path' )}. It is occupied by non-directory.` );
@@ -4152,7 +4063,8 @@ function repositoryInit( o )
     let downloadPath = o.localPath;
     if( _.fileProvider.isDir( o.localPath ) )
     {
-      downloadPath = _.path.join( o.localPath + '-' + _.idWithGuid() );
+      downloadPath = _.git.path.join( o.localPath + '-' + _.idWithGuid() );
+      // downloadPath = _.path.join( o.localPath + '-' + _.idWithGuid() );
     }
 
     _.fileProvider.dirMake( downloadPath );
@@ -4608,7 +4520,8 @@ repositoryMerge.defaults =
 function configRead( filePath )
 {
   const fileProvider = _.fileProvider;
-  const path = fileProvider.path;
+  const path = _.git.path;
+  // const path = fileProvider.path;
 
   _.assert( arguments.length === 1 );
   _.assert( _.strIs( filePath ) );
@@ -4632,7 +4545,8 @@ function configRead( filePath )
 function configSave( filePath, config )
 {
   const fileProvider = _.fileProvider;
-  const path = fileProvider.path;
+  const path = _.git.path;
+  // const path = fileProvider.path;
 
   _.assert( arguments.length === 2 );
   _.assert( _.strDefined( filePath ) );
@@ -4759,7 +4673,7 @@ function configReset( o ) /* aaa : implement */ /* Dmytro : implemented */
   function standardGlobalConfigSet()
   {
     const provider = _.fileProvider;
-    const path = provider.path;
+    const path = provider.path; /* Dmytro : should be provider path */
 
     const globalConfigPath = path.nativize( path.join( process.env.HOME, '.gitconfig' ) );
     /* by default global config has no settings */
@@ -4812,16 +4726,16 @@ function _stateParse( state )
     isSpecial : false
   };
 
-  if( _.strBegins( state, 'HEAD' ) )
-  {
-    result.isSpecial = true;
-    return result;
-  }
+  /* aaa : for Dmytro : should be no such special states */ /* Dmytro : done */
+
+  // if( _.strBegins( state, 'HEAD' ) )
+  // {
+  //   result.isSpecial = true;
+  //   return result;
+  // }
 
   if( _.strBegins( state, statesBegin ) )
   {
-    // result.isVersion = _.strBegins( state, statesBegin[ 0 ] );
-    // result.isTag = _.strBegins( state, statesBegin[ 1 ] );
     result.isVersion = _.git.stateIsHash( state );
     result.isTag = _.git.stateIsTag( state );
     result.value = _.strRemoveBegin( state, statesBegin );
@@ -4850,13 +4764,8 @@ function _stateParse( state )
     return result;
   }
 
-  // if( !allowSpecial )
-  // throw _.err( `Expects state in one of formats:${statesBegin}, but got: ${state}` );
-
   if( !_.longHas( statesSpecial, state ) )
-  {
-    throw _.err( `Expects one of special states: ${statesSpecial}, but got: ${state}` );
-  }
+  throw _.err( `Expects one of special states: ${statesSpecial}, but got: ${state}` );
 
   result.isSpecial = true;
 
@@ -5126,7 +5035,7 @@ function diff( o )
     {
       'A' : 'addedFiles',
       // 'C' : 'copiedFiles',
-      'C' : 'copiedFiles', /* qqq : ? */
+      'C' : 'copiedFiles', /* aaa : ? */ /* Dmytro : fixed, not me, the task resolved in conversation */
       'D' : 'deletedFiles',
       'M' : 'modifiedFiles',
       'R' : 'renamedFiles',
@@ -5265,10 +5174,6 @@ function push( o )
     start( `git push ${ dryRun } --tags ${ force }` );
   }
 
-
-  if( o.dry )
-  return;
-
   if( o.sync )
   {
     ready.deasync();
@@ -5379,12 +5284,13 @@ push.defaults =
 
 //
 
-function reset( o )
+function reset_head( routine, args )
 {
-  let self = this;
+  _.assert( arguments.length === 2 );
 
-  _.assert( arguments.length === 1 );
-  _.routineOptions( reset, arguments );
+  let o = args[ 0 ];
+  _.assert( args.length === 1 );
+  _.routine.options( routine, o );
   _.assert( _.strDefined( o.state1 ) );
   _.assert( _.strDefined( o.state2 ) );
   _.assert( _.strDefined( o.localPath ) );
@@ -5402,8 +5308,51 @@ function reset( o )
       removingSubrepositories : 1,
       removingIgnored : 1,
     };
-    _.mapExtend( o, o2 );
+    _.mapSupplementNulls( o, o2 );
   }
+  else
+  {
+    let o2 =
+    {
+      removingUntracked : 1,
+      removingSubrepositories : 1,
+      removingIgnored : 0,
+    };
+    _.mapSupplementNulls( o, o2 );
+  }
+  return o;
+}
+
+//
+
+/* aaa : for Dmytro : use _.routine.unite */ /* Dmytro : done */
+
+function reset_body( o )
+{
+  let self = this;
+
+  // _.assert( arguments.length === 1 );
+  // _.routineOptions( reset, arguments );
+  // _.assert( _.strDefined( o.state1 ) );
+  // _.assert( _.strDefined( o.state2 ) );
+  // _.assert( _.strDefined( o.localPath ) );
+  // _.assert( _.longHas( [ null, 'all' ], o.preset ) );
+  //
+  // o.logger = _.logger.maybe( o.logger );
+  //
+  // if( o.preset === 'all' )
+  // {
+  //   _.assert( o.state2 === 'committed', 'Preset `all` resets all changes to latest commit' );
+  //
+  //   let o2 =
+  //   {
+  //     removingUntracked : 1,
+  //     removingSubrepositories : 1,
+  //     removingIgnored : 1,
+  //   };
+  //   // _.mapExtend( o, o2 ); /* aaa : for Dmytro : should supplement */ /* Dmytro : done */
+  //   _.mapSupplement( o, o2 );
+  // }
 
   /* */
 
@@ -5433,14 +5382,23 @@ function reset( o )
   if( state2.value === 'working' || state2.value === 'staged' )
   return;
 
+  /* */
+
+  let commands = [];
+
   if( state1.isVersion || state1.isTag )
-  start( `git checkout ${ state1.value }` );
-  /* qqq : for Dmytro : ? */
+  commands.push( `git checkout ${ state1.value }` );
+  // start( `git checkout ${ state1.value }` );
+  /* aaa : for Dmytro : ? */ /* Dmytro : state1 define start point for resetting. If state is not tag or hash, then repository should not change this state */
 
   if( state2.value === 'committed' )
-  start( `git reset --hard` );
+  commands.push( `git reset --hard` );
   else if( state2.isVersion || state2.isTag )
-  start( `git reset --hard ${ state2.value }` );
+  commands.push( `git reset --hard ${ state2.value }` );
+  // if( state2.value === 'committed' )
+  // start( `git reset --hard` );
+  // else if( state2.isVersion || state2.isTag )
+  // start( `git reset --hard ${ state2.value }` );
 
   if( o.removingUntracked )
   {
@@ -5450,8 +5408,11 @@ function reset( o )
     if( o.removingIgnored )
     command += 'x';
 
-    start( command );
+    commands.push( command );
+    // start( command );
   }
+
+  start( commands );
 
   /* aaa : should be "git clean -dffx", but not by default */ /* Dmytro : implemented */
   /* aaa : cover each option */ /* Dmytro : covered */
@@ -5507,26 +5468,162 @@ function reset( o )
   }
 }
 
-reset.defaults =
+reset_body.defaults =
 {
   logger : 1,
   state1 : 'working', /* 'working', 'staged', 'committed' some commit or tag */
   state2 : 'committed', /* 'working', 'staged', 'committed' some commit or tag */
   localPath : null,
-  preset : null, /*[ null, 'all' ]*/ /* qqq : implement and cover option */ /* Dmytro : implemented trivial branch. Please, clarify the behavior of the option */
-  removingUntracked : 1,
-  removingIgnored : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
-  removingSubrepositories : 1, /* aaa : implement and cover option. option -ffx of git command clean */ /* Dmytro : implemented, covered */
+  preset : null, /*[ null, 'all' ]*/ /* aaa : implement and cover option */ /* Dmytro : implemented, preset supplement options in reset_head */
+  // removingUntracked : 1,
+  // removingIgnored : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
+  // removingSubrepositories : 1, /* aaa : implement and cover option. option -ffx of git command clean */ /* Dmytro : implemented, covered */
+  removingUntracked : null,
+  removingIgnored : null,
+  removingSubrepositories : null,
   dry : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
   sync : 1,
+};
+
+//
+
+const reset = _.routine.unite( reset_head, reset_body );
+
+//
+
+/**
+ * Routine tagMake() makes tag for some commit version of repository {-o.toVersion-}.
+ * If {-o.toVersion-} is not defined, then tag adds to current HEAD commit.
+ *
+ * @example
+ * // make tag `v0.1` if script run in git repository
+ * let tag = _.git.tagMake
+ * ({
+ *   localPath : _.path.current(),
+ *   tag : 'v0.1',
+ *   description : 'version 0.1',
+ * });
+ *
+ * @param { Aux } o - Options map.
+ * @param { String } o.localPath - Path to git repository on hard drive.
+ * @param { String } o.tag - Name of tag.
+ * @param { String } o.description - Description of tag.
+ * @param { String } o.toVersion - Commit version to add tag. Default is current HEAD commit.
+ * @param { BoolLike } o.light - Enable lightweight tags. Default is 0.
+ * @param { BoolLike } o.force - Enable force creation of tags, it allows to rewrite tags with same name. Default is 1.
+ * @param { BoolLike } o.sync - Enable synchronous execution of code. Default is 1.
+ * @returns { Consequence|Aux } - Returns map like object with results of Process execution.
+ * or Consequence that handle such Process.
+ * @function tagMake
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If options map {-o-} has extra options.
+ * @throws { Error } If {-o.localPath-} is not a String with defined length.
+ * @throws { Error } If {-o.tag-} is not a String with defined length.
+ * @throws { Error } If added two tags with identical names to single commit and {-o.deleting-} is false.
+ * @namespace wTools.git
+ * @module Tools/mid/GitTools
+ */
+
+function tagMake( o )
+{
+  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
+  _.routine.options( tagMake, o );
+
+  let ready = _.take( null );
+  let start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    deasync : 0,
+    sync : 0,
+    mode : 'shell',
+    ready,
+    outputCollecting : 1,
+    throwingExitCode : 1,
+    inputMirroring : 0,
+    outputPiping : 0,
+  });
+
+  // if( o.deleting )
+  // {
+  //
+  //   ready = _.git.repositoryHasTag
+  //   ({
+  //     localPath : o.localPath,
+  //     tag : o.tag,
+  //     local : 1,
+  //     remote : 0,
+  //     sync : 0,
+  //   });
+  //
+  //   ready.then( ( has ) =>
+  //   {
+  //     if( has )
+  //     return start( `git tag -d ${o.tag}` );
+  //     return has;
+  //   })
+  //
+  // }
+  // else
+  // {
+  //   ready = _.take( null );
+  // }
+  //
+  // ready.then( () =>
+  // {
+
+  // let command = 'git tag';
+  // if( o.force )
+  // command += ' -f';
+  // if( !o.toVersion )
+  // o.toVersion = '';
+
+  // if( o.light )
+  // return start( `git tag ${o.tag}` );
+  // else
+  // return start( `git tag -a ${o.tag} -m "${o.description}"` );
+
+  let tag = o.light ? o.tag : `-a ${ o.tag } -m '${ o.description }'`;
+  let force = o.force ? '-f' : '';
+  let toVersion = o.toVersion ? o.toVersion : '';
+
+  start( `git tag ${ force } ${ tag } ${ toVersion }` );
+
+  // });
+  //
+  // if( got.exitCode !== 0 || got.output && _.strHas( got.output, 'refs/' ) )
+  // return false;
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
 }
+
+tagMake.defaults =
+{
+  localPath : null,
+  tag : null,
+  toVersion : null, /* aaa : for Dmytro : implement option, cover */ /* Dmytro : implemented and covered */
+  force : 1, /* aaa : for Dmytro : implement option and use it instead of option deleting, cover */ /* Dmytro : implemented and covered */
+  description : '',
+  light : 0,
+  // deleting : 1,
+  sync : 1,
+};
+
+/* qqq : for Dmytro : implement tagDelete - 2 routines for branch and ref tag, cover */
+/* qqq : for Dmytro : implement tagList, cover */
 
 //
 
 function renormalize( o )
 {
   let localProvider = _.fileProvider;
-  let path = localProvider.path;
+  let path = _.git.path;
+  // let path = localProvider.path;
 
   if( !_.mapIs( o ) )
   o = { localPath : o }
@@ -5759,7 +5856,6 @@ let Extension =
   repositoryTagToVersion, /* aaa : cover */ /* Dmytro : covered */
   repositoryVersionToTag, /* aaa : cover */ /* Dmytro : covered */
   exists,
-  tagMake, /* aaa : cover */ /* Dmytro : covered */
 
   // hook
 
@@ -5796,6 +5892,8 @@ let Extension =
   pull,
   push,
   reset,
+  tagMake, /* aaa : cover */ /* Dmytro : covered */
+
   renormalize,
 
 }

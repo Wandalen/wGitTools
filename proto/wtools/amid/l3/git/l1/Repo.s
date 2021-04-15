@@ -37,7 +37,7 @@ function _request_functor( fo )
   {
     let o = args[ 0 ];
     if( _.strIs( o ) )
-    o = { remotePath : o }
+    o = { remotePath : o };
     o = _.routine.options( request, o );
     _.assert( args.length === 1 );
     return o;
@@ -327,15 +327,37 @@ let pullList = _request_functor
 
 //
 
+let pullOpenAct = Object.create( null );
+
+pullOpenAct.name = 'pullOpenAct';
+pullOpenAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  descriptionHead : null,
+  descriptionBody : null,
+  srcBranch : null,
+  dstBranch : null,
+  logger : null,
+};
+
+//
+
 function pullOpen( o )
 {
   let ready = _.take( null );
-  let ready2 = new _.Consequence();
+  // let ready2 = new _.Consequence();
+  let currentBranch;
 
   if( _.strIs( o ) )
-  o = { remotePath : o }
+  o = { remotePath : o };
   o = _.routine.options( pullOpen, o );
   o.logger = _.logger.maybe( o.logger );
+
+  if( o.srcBranch === null )
+  o.srcBranch = currentBranchGet();
+  if( o.dstBranch === null )
+  o.dstBranch = currentBranchGet();
 
   if( !o.token && o.throwing )
   throw _.errBrief( 'Cannot autorize user without user token.' )
@@ -370,6 +392,28 @@ function pullOpen( o )
   }
 
   return ready;
+
+  /* */
+
+  function currentBranchGet()
+  {
+    if( currentBranch )
+    return currentBranch;
+
+    _.assert( _.strDefined( o.localPath ), 'Expects local path {-o.localPath-}' );
+
+    let tag = _.git.tagLocalRetrive
+    ({
+      localPath : o.localPath,
+      detailing : 1,
+    });
+
+    if( tag.isBranch )
+    currentBranch = tag.tag;
+    else
+    currentBranch = 'master';
+    return currentBranch;
+  }
 
   /* */
 
@@ -434,12 +478,13 @@ pullOpen.defaults =
   logger : 2,
   token : null,
   remotePath : null,
+  localPath : null,
   // title : null, /* aaa : for Dmytro : rename to descriptionHead */
   // body : null, /* aaa : for Dmytro : rename to descriptionBody */
   descriptionHead : null,
   descriptionBody : null,
-  srcBranch : null, /* qqq : for Dmytro : should get current by default */
-  dstBranch : null, /* qqq : for Dmytro : should get current by default */
+  srcBranch : null, /* aaa : for Dmytro : should get current by default */ /* Dmytro : implemented and covered */
+  dstBranch : null, /* aaa : for Dmytro : should get current by default */ /* Dmytro : implemented and covered */
 };
 
 // --
@@ -531,9 +576,11 @@ function vcsFor( o )
   return null;
 
   _.assert( _.strIs( o.filePath ) );
-  _.assert( _.uri.isGlobal( o.filePath ) );
+  _.assert( _.git.path.isGlobal( o.filePath ) );
+  // _.assert( _.uri.isGlobal( o.filePath ) );
 
-  let parsed = _.uri.parseFull( o.filePath );
+  let parsed = _.git.path.parse( o.filePath );
+  // let parsed = _.uri.parseFull( o.filePath );
 
   if( _.git && _.longHasAny( parsed.protocols, _.git.protocols ) )
   return _.git;
@@ -572,9 +619,9 @@ let Extension =
   pullCollectionExportString,
 
   pullListAct,
-  pullList, /* qqq : for Dmytro : cover */
+  pullList, /* aaa : for Dmytro : cover */ /* Dmytro : covered */
 
-  // pullOpenAct, /* qqq : for Dmytro : add */
+  pullOpenAct, /* aaa : for Dmytro : add */ /* Dmytro : added */
   pullOpen,
 
   // program

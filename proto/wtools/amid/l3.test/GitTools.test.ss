@@ -2177,15 +2177,10 @@ function isUpToDateExtended( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
-  let con = new _.Consequence().take( null )
-
-  a.shell.predefined.mode = 'spawn';
-
-  begin()
 
   /* */
 
-  .then( () =>
+  begin().then( () =>
   {
     test.case = 'both on master, no changes';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master';
@@ -2194,17 +2189,17 @@ function isUpToDateExtended( test )
     {
       test.identical( got, true );
       return got;
-    })
+    });
   })
 
   /* */
 
+  a.shell( 'git -C wModuleForTesting1 reset --hard HEAD~1' )
   .then( () =>
   {
     test.case = 'both on master, local one commit behind';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master';
-    return a.shell( 'git -C wModuleForTesting1 reset --hard HEAD~1' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2212,13 +2207,11 @@ function isUpToDateExtended( test )
     })
   })
 
-  /* */
-
-  begin() /* qqq2 : ? */
+  // begin() /* aaa2 : ? */ /* Dmytro : the routine prepare repo to test, the previous case change repository hard */
 
   /* */
 
-  .then( () =>
+  begin().then( () =>
   {
     test.case = 'local on master, remote on other branch that does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!other';
@@ -2228,12 +2221,13 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout -b newbranch' );
+  a.ready.then( () =>
   {
     test.case = 'local on newbranch, remote on master';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master';
-    return a.shell( 'git -C wModuleForTesting1 checkout -b newbranch' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2243,13 +2237,14 @@ function isUpToDateExtended( test )
     {
       if( err )
       test.exceptionReport({ err });
-      return a.shell({ execPath : 'git -C wModuleForTesting1 checkout master', ready : null })
+      return null;
     })
   })
+  a.shell({ execPath : 'git -C wModuleForTesting1 checkout master' });
 
   /* */
 
-  .then( () =>
+  a.ready.then( () =>
   {
     test.case = 'local on master, remote on tag points to other commit';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!v0.0.70';
@@ -2262,13 +2257,12 @@ function isUpToDateExtended( test )
   })
 
   /* */
-
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' );
+  a.ready.then( () =>
   {
     test.case = 'local on same tag with remote';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!v0.0.70';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -2278,12 +2272,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.71' );
+  a.ready.then( () =>
   {
     test.case = 'local on different tag with remote';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!v0.0.70';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.71' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2293,12 +2287,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout 9a711ca350777586043fbb32cc33ccea267218af' );
+  a.ready.then( () =>
   {
     test.case = 'local on same commit as tag on remote';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!v0.0.70';
-    return a.shell( 'git -C wModuleForTesting1 checkout 9a711ca350777586043fbb32cc33ccea267218af' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -2308,12 +2302,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout fbfcc8e897be2b7df49dc60b9a35818af195e916' );
+  a.ready.then( () =>
   {
     test.case = 'local on different commit as tag on remote';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!v0.0.70';
-    return a.shell( 'git -C wModuleForTesting1 checkout fbfcc8e897be2b7df49dc60b9a35818af195e916' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2323,12 +2317,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.71' );
+  a.ready.then( () =>
   {
     test.case = 'local on tag, remote on master';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/!master';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.71' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2338,12 +2332,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' );
+  a.ready.then( () =>
   {
     test.case = 'local on tag, remote on hash that local tag is pointing to';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#9a711ca350777586043fbb32cc33ccea267218af';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, true );
@@ -2353,12 +2347,12 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' );
+  a.ready.then( () =>
   {
     test.case = 'local on tag, remote on different hash';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/#fbfcc8e897be2b7df49dc60b9a35818af195e916';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2368,16 +2362,13 @@ function isUpToDateExtended( test )
 
   /* */
 
-  begin()
-
-  /* */
-
-  .then( () =>
+  begin();
+  a.shell( 'git -C wModuleForTesting1 checkout master' );
+  a.ready.then( () =>
   {
     test.case = 'local on master, remote is different';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting12.git/';
-    return a.shell( 'git -C wModuleForTesting1 checkout master' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2385,12 +2376,12 @@ function isUpToDateExtended( test )
     })
   })
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' );
+  a.ready.then( () =>
   {
     test.case = 'local on tag, remote is different';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting12.git/';
-    return a.shell( 'git -C wModuleForTesting1 checkout v0.0.70' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2398,12 +2389,12 @@ function isUpToDateExtended( test )
     })
   })
 
-  .then( () =>
+  a.shell( 'git -C wModuleForTesting1 checkout 9a711ca350777586043fbb32cc33ccea267218af' );
+  a.ready.then( () =>
   {
     test.case = 'local detached, remote is different';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting12.git/';
-    return a.shell( 'git -C wModuleForTesting1 checkout 9a711ca350777586043fbb32cc33ccea267218af' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2413,8 +2404,7 @@ function isUpToDateExtended( test )
 
   /* */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
     test.case = 'local does not have gitconfig';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/';
@@ -2429,13 +2419,13 @@ function isUpToDateExtended( test )
 
   /* */
 
-  begin()
-  .then( () =>
+  begin();
+  a.shell( 'git -C wModuleForTesting1 remote remove origin' );
+  a.ready.then( () =>
   {
     test.case = 'local does not have origin';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/';
-    return a.shell( 'git -C wModuleForTesting1 remote remove origin' )
-    .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath }) )
+    return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath })
     .then( ( got ) =>
     {
       test.identical( got, false );
@@ -2445,7 +2435,7 @@ function isUpToDateExtended( test )
 
   /* */
 
-  .then( () =>
+  a.ready.then( () =>
   {
     test.case = 'local does not exist';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git/';
@@ -2460,20 +2450,20 @@ function isUpToDateExtended( test )
 
   /* */
 
-  return con;
+  return a.ready;
 
   /* */
 
   function begin()
   {
-    con.then( () =>
+    a.ready.then( () =>
     {
       a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
       a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
-      return a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1' )
-    })
-
-    return con;
+      return null;
+    });
+    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git wModuleForTesting1' );
+    return a.ready;
   }
 }
 
@@ -15701,352 +15691,6 @@ repositoryVersionToTagWithOptionsRemoteAndLocal.timeOut = 15000;
 
 //
 
-function tagMake( test )
-{
-  let context = this;
-  let a = test.assetFor( 'basic' );
-
-  /* - */
-
-  begin().then( () =>
-  {
-    test.case = 'make lightweight tag';
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-      light : 1,
-    });
-    test.identical( got.exitCode, 0 );
-    return null;
-  });
-
-  a.shell( 'git tag -ln' )
-  .then( ( op ) =>
-  {
-    test.identical( _.strLinesCount( op.output ), 2 );
-    test.identical( _.strCount( op.output, 'v000' ), 1 );
-    return null;
-  });
-
-  /* - */
-
-  begin().then( () =>
-  {
-    test.case = 'make two lightweight tags in single commit';
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-      light : 1,
-    });
-    test.identical( got.exitCode, 0 );
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v001',
-      light : 1,
-    });
-    test.identical( got.exitCode, 0 );
-    return null;
-  });
-
-  a.shell( 'git tag -ln' )
-  .then( ( op ) =>
-  {
-    test.identical( _.strLinesCount( op.output ), 3 );
-    test.identical( _.strCount( op.output, 'v000' ), 1 );
-    test.identical( _.strCount( op.output, 'v001' ), 1 );
-    return null;
-  });
-
-  /* - */
-
-  begin().then( () =>
-  {
-    test.case = 'make two lightweight tags with the same name in single commit, deleting - 1';
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-      light : 1,
-    });
-    test.identical( got.exitCode, 0 );
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-      light : 1,
-    });
-    test.identical( got.exitCode, 0 );
-    return null;
-  });
-
-  a.shell( 'git tag -ln' )
-  .then( ( op ) =>
-  {
-    test.identical( _.strLinesCount( op.output ), 2 );
-    test.identical( _.strCount( op.output, 'v000' ), 1 );
-    return null;
-  });
-
-  /* */
-
-  begin().then( () =>
-  {
-    test.case = 'make tag without description';
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-    });
-    test.identical( got.exitCode, 0 );
-    return null;
-  });
-
-  a.shell( 'git tag -ln' )
-  .then( ( op ) =>
-  {
-    test.identical( _.strLinesCount( op.output ), 2 );
-    test.identical( _.strCount( op.output, 'v000' ), 1 );
-    return null;
-  });
-
-  /* - */
-
-  begin().then( () =>
-  {
-    test.case = 'make two tags without description in single commit';
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-    });
-    test.identical( got.exitCode, 0 );
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v001',
-    });
-    test.identical( got.exitCode, 0 );
-    return null;
-  });
-
-  a.shell( 'git tag -ln' )
-  .then( ( op ) =>
-  {
-    test.identical( _.strLinesCount( op.output ), 3 );
-    test.identical( _.strCount( op.output, 'v000' ), 1 );
-    test.identical( _.strCount( op.output, 'v001' ), 1 );
-    return null;
-  });
-
-  /* - */
-
-  begin().then( () =>
-  {
-    test.case = 'make two tags without description, tags have the same name, deleting - 1';
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-    });
-    test.identical( got.exitCode, 0 );
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-    });
-    test.identical( got.exitCode, 0 );
-    return null;
-  });
-
-  a.shell( 'git tag -ln' )
-  .then( ( op ) =>
-  {
-    test.identical( _.strLinesCount( op.output ), 2 );
-    test.identical( _.strCount( op.output, 'v000' ), 1 );
-    return null;
-  });
-
-  /* */
-
-  begin().then( () =>
-  {
-    test.case = 'make tag with description';
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-      description : 'version 000',
-    });
-    test.identical( got.exitCode, 0 );
-    return null;
-  });
-
-  a.shell( 'git tag -ln' )
-  .then( ( op ) =>
-  {
-    test.identical( _.strLinesCount( op.output ), 2 );
-    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
-    return null;
-  });
-
-  /* - */
-
-  begin().then( () =>
-  {
-    test.case = 'make two tags with description in single commit';
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-      description : 'version 000',
-    });
-    test.identical( got.exitCode, 0 );
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v001',
-      description : 'version 001',
-    });
-    test.identical( got.exitCode, 0 );
-    return null;
-  });
-
-  a.shell( 'git tag -ln' )
-  .then( ( op ) =>
-  {
-    test.identical( _.strLinesCount( op.output ), 3 );
-    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
-    test.identical( _.strCount( op.output, /v001\s+version 001/ ), 1 );
-    return null;
-  });
-
-  /* - */
-
-  begin().then( () =>
-  {
-    test.case = 'make two tags with description, tags have the same name, deleting - 1';
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-      description : 'version 001',
-    });
-    test.identical( got.exitCode, 0 );
-    var got = _.git.tagMake
-    ({
-      localPath : a.abs( '.' ),
-      tag : 'v000',
-      description : 'version 000',
-    });
-    test.identical( got.exitCode, 0 );
-    return null;
-  });
-
-  a.shell( 'git tag -ln' )
-  .then( ( op ) =>
-  {
-    test.identical( _.strLinesCount( op.output ), 2 );
-    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
-    test.identical( _.strCount( op.output, /v000\s+version 001/ ), 0 );
-    return null;
-  });
-  /* - */
-
-  if( Config.debug )
-  {
-    a.ready.then( () =>
-    {
-      test.case = 'without arguments';
-      test.shouldThrowErrorSync( () => _.git.tagMake() );
-
-      test.case = 'extra arguments';
-      test.shouldThrowErrorSync( () =>
-      {
-        let o = { localPath : a.abs( '.' ), tag : 'v0' };
-        return _.git.tagMake( o, o );
-      });
-
-      test.case = 'unknown option in options map o';
-      test.shouldThrowErrorSync( () =>
-      {
-        let o = { localPath : a.abs( '.' ), tag : 'v0', unknown : 1 };
-        return _.git.tagMake( o );
-      });
-
-      test.case = 'wrong type of o.localPath';
-      test.shouldThrowErrorSync( () =>
-      {
-        let o = { localPath : 1, tag : 'v0' };
-        return _.git.tagMake( o );
-      });
-
-      test.case = 'o.localPath is not a repository';
-      test.shouldThrowErrorSync( () =>
-      {
-        let o = { localPath : a.abs( '..' ), tag : 'v0' };
-        return _.git.tagMake( o );
-      });
-
-      test.case = 'wrong type of o.tag';
-      test.shouldThrowErrorSync( () =>
-      {
-        let o = { localPath : a.abs( '.' ), tag : 1 };
-        return _.git.tagMake( o );
-      });
-
-      test.case = 'add several tags with same name without deleting';
-      test.shouldThrowErrorSync( () =>
-      {
-        let o = { localPath : a.abs( '.' ), tag : 'v000', light : 1, deleting : 0 };
-        _.git.tagMake( o );
-        return _.git.tagMake( o );
-      });
-
-      test.case = 'add several tags with same name without deleting';
-      test.shouldThrowErrorSync( () =>
-      {
-        let o = { localPath : a.abs( '.' ), tag : 'v000', deleting : 0 };
-        _.git.tagMake( o );
-        return _.git.tagMake( o );
-      });
-
-      return null;
-    });
-  }
-
-  /* - */
-
-  return a.ready;
-
-  /* */
-
-  function begin()
-  {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ) );
-    a.ready.then( () =>
-    {
-      a.fileProvider.dirMake( a.abs( '.' ) );
-      return null;
-    });
-    a.shell( `git init` );
-    a.ready.then( () =>
-    {
-      a.fileProvider.fileWrite( a.abs( 'file.txt' ), 'file.txt' );
-      return null;
-    });
-    a.shell( 'git add .' );
-    a.shell( 'git commit -m init' );
-    return a.ready;
-  }
-}
-
-tagMake.timeOut = 20000;
-
-//
-
 function gitHooksManager( test )
 {
   let context = this;
@@ -18629,268 +18273,6 @@ repositoryCheckoutRemotePathIsMap.timeOut = 30000;
 
 //
 
-function pullOpen( test )
-{
-  if( !Config.debug )
-  {
-    test.true( true );
-    return;
-  }
-
-  test.case = 'wrong git service';
-  test.shouldThrowErrorSync( () =>
-  {
-    _.git.pullOpen
-    ({
-      throwing : 1,
-      sync : 1,
-      token : 'token',
-      remotePath : 'https://gitlab.com/user/NewRepo',
-      title : 'master',
-      body : null,
-      srcBranch : 'doc',
-      dstBranch : 'master',
-    });
-  })
-
-  test.case = 'wrong token';
-  test.shouldThrowErrorSync( () =>
-  {
-    _.git.pullOpen
-    ({
-      throwing : 1,
-      sync : 1,
-      token : 'token',
-      remotePath : 'https://github.com/user/NewRepo',
-      title : 'master',
-      body : null,
-      srcBranch : 'doc',
-      dstBranch : 'master',
-    });
-  })
-
-  test.case = 'without fields title, srcBranch';
-  test.shouldThrowErrorSync( () =>
-  {
-    _.git.pullOpen
-    ({
-      sync : 1,
-      token : 'token',
-      remotePath : 'https://github.com/user/NewRepo',
-      dstBranch : 'master',
-    });
-  })
-
-  test.case = 'without token';
-  test.shouldThrowErrorSync( () =>
-  {
-    _.git.pullOpen
-    ({
-      remotePath : 'https://github.com/user/NewRepo',
-      title : 'master',
-      body : null,
-      srcBranch : 'doc',
-      dstBranch : 'master',
-    });
-  })
-}
-
-//
-
-function pullOpenRemote( test )
-{
-  let a = test.assetFor( 'basic' );
-  let user = 'wtools-bot';
-  let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
-  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-
-  let testing = _globals_.testing.wTools;
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
-  if( !validPlatform || !insideTestContainer || !validEnvironments )
-  return test.true( true );
-
-  /* - */
-
-  a.reflect();
-  repositoryForm();
-
-  /* */
-
-  branchMake( 'new' ).then( () =>
-  {
-    test.case = 'opened pr only descriptionHead';
-    return null;
-  });
-  a.ready.then( () =>
-  {
-    return _.repo.pullOpen
-    ({
-      token,
-      remotePath : repository,
-      descriptionHead : 'new',
-      srcBranch : 'new',
-      dstBranch : 'master',
-    });
-  })
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.data.changed_files, 1 );
-    test.identical( op.data.state, 'open' );
-    test.identical( op.data.title, 'new' );
-    test.identical( _.strCount( op.data.html_url, /https:\/\/github\.com\/.*\/New-.*\/pull\/\d/ ), 1 );
-    return null;
-  });
-
-  /* */
-
-  a.shell( 'git checkout master' );
-  branchMake( 'new2' ).then( () =>
-  {
-    test.case = 'opened pr, sync : 0, srcBranch has user name';
-    return null;
-  });
-  a.ready.then( () =>
-  {
-    return _.repo.pullOpen
-    ({
-      token,
-      remotePath : repository,
-      descriptionHead : 'new2',
-      srcBranch : `${ user }:new2`,
-      dstBranch : 'master',
-      sync : 0,
-    });
-  })
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.data.changed_files, 1 );
-    test.identical( op.data.state, 'open' );
-    test.identical( op.data.title, 'new2' );
-    test.identical( _.strCount( op.data.html_url, /https:\/\/github\.com\/.*\/New-.*\/pull\/\d/ ), 1 );
-    return null;
-  });
-
-  /* */
-
-  a.shell( 'git checkout master' );
-  branchMake( 'new3' ).then( () =>
-  {
-    test.case = 'opened pr with descriptionBody';
-    return null;
-  });
-  a.ready.then( () =>
-  {
-    return _.repo.pullOpen
-    ({
-      token,
-      remotePath : repository,
-      descriptionHead : 'new3',
-      descriptionBody : 'Some description',
-      srcBranch : 'new3',
-      dstBranch : 'master',
-    });
-  })
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.data.body, 'Some description' );
-    test.identical( op.data.changed_files, 1 );
-    test.identical( op.data.state, 'open' );
-    test.identical( op.data.title, 'new3' );
-    test.identical( _.strCount( op.data.html_url, /https:\/\/github\.com\/.*\/New-.*\/pull\/\d/ ), 1 );
-    return null;
-  });
-
-  /* */
-
-  a.ready.finally( ( err, arg ) =>
-  {
-    repositoryDelete( repository );
-
-    if( err )
-    throw _.err( err, 'Repository should be deleted manually' );
-    return null;
-  });
-
-  /* - */
-
-  return a.ready;
-
-  /* */
-
-  function repositoryForm()
-  {
-    a.ready.Try( () =>
-    {
-      return repositoryDelete( repository );
-    })
-    .catch( ( err ) =>
-    {
-      _.errAttend( err );
-      return null;
-    })
-
-    a.ready.then( () =>
-    {
-      return _.git.repositoryInit
-      ({
-        remotePath : repository,
-        localPath : a.routinePath,
-        throwing : 1,
-        sync : 1,
-        logger : 0,
-        dry : 0,
-        description : 'Test',
-        token,
-      })
-    })
-
-    a.shell
-    (
-      `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`
-    );
-    a.shell( 'git add --all' );
-    a.shell( 'git commit -m first' );
-    a.shell( 'git push -u origin master' );
-    return a.ready;
-  }
-
-  /* */
-
-  function repositoryDelete( remotePath )
-  {
-    return _.git.repositoryDelete
-    ({
-      remotePath,
-      throwing : 1,
-      sync : 1,
-      logger : 1,
-      dry : 0,
-      token,
-    });
-  }
-
-  /* */
-
-  function branchMake( branch )
-  {
-    a.shell( `git checkout -b ${ branch }` );
-    a.ready.then( () =>
-    {
-      a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
-      return null;
-    });
-    a.shell( 'git commit -am second' );
-    a.shell( `git push -u origin ${ branch }` );
-    return a.ready;
-  }
-}
-
-pullOpenRemote.timeOut = 60000;
-
-//
-
 function configRead( test )
 {
   let context = this;
@@ -19394,24 +18776,25 @@ function diff( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
-  /* qqq : bad : use test modules only */
-  /* qqq : for Dmytro : do properly */
-  let remotePath = 'https://github.com/Wandalen/wPathBasic.git';
+  /* aaa : bad : use test modules only */ /* Dmytro : done */
+  /* aaa : for Dmytro : do properly */ /* Dmytro : done */
+  let remotePath = 'https://github.com/Wandalen/wModuleForTesting1.git';
   let latestCommit = _.git.remoteVersionLatest({ remotePath });
 
   a.fileProvider.dirMake( a.abs( '.' ) )
 
-  /* */
+  /* - */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
-    test.case = 'compare two identical states of repo'
+    test.case = 'compare two identical states of repo';
+
+    test.description = 'detailing - 1, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : 'HEAD',
+      state1 : 'committed',
       state2 : `#${latestCommit}`,
-      localPath : a.abs( 'wPathBasic' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -19426,14 +18809,17 @@ function diff( test )
       copiedFiles : '',
       typechangedFiles : '',
       unmergedFiles : '',
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 1, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : 'HEAD',
+      state1 : 'committed',
       state2 : `#${latestCommit}`,
-      localPath : a.abs( 'wPathBasic' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -19448,14 +18834,17 @@ function diff( test )
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : 'HEAD',
+      state1 : 'committed',
       state2 : `#${latestCommit}`,
-      localPath : a.abs( 'wPathBasic' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -19470,14 +18859,17 @@ function diff( test )
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : 'HEAD',
+      state1 : 'committed',
       state2 : `#${latestCommit}`,
-      localPath : a.abs( 'wPathBasic' ),
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 0,
       sync : 1
@@ -19492,74 +18884,61 @@ function diff( test )
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
-  })
+  });
 
-  begin()
-  .then( () =>
+  /* - */
+
+  begin().then( () =>
   {
+    test.case = 'compare two commits'
+
     var status =
 `modifiedFiles:
-  .im.will.yml
-  out/wPathBasic.out.will.yml
   package.json
-  was.package.json
-deletedFiles:
-  proto/dwtools/abase/l3.test/PathBasic.test.s
-addedFiles:
-  proto/dwtools/abase/l2.test/Path.test.s
-renamedFiles:
-  proto/dwtools/abase/l3.test/PathBasic.test.html
-  proto/dwtools/abase/l3/PathBasic.s
-  proto/dwtools/abase/l4.test/Paths.test.s
-  proto/dwtools/abase/l4/PathsBasic.s`
+  was.package.json`
 
     var statusOriginal =
-` .im.will.yml                                       |   10 +-
- out/wPathBasic.out.will.yml                        |   38 +-
- package.json                                       |   10 +-
- .../PathBasic.test.html => l2.test/Path.test.html} |    0
- proto/dwtools/abase/l2.test/Path.test.s            | 8570 ++++++++++++++++++
- proto/dwtools/abase/{l3 => l2}/PathBasic.s         | 1999 ++---
- proto/dwtools/abase/l3.test/PathBasic.test.s       | 9062 --------------------
- .../abase/{l4.test => l3.test}/Paths.test.s        | 1446 ++--
- proto/dwtools/abase/{l4 => l3}/PathsBasic.s        |  263 +-
- was.package.json                                   |    6 +-
- 10 files changed, 10676 insertions(+), 10728 deletions(-)
-`
+` package.json     | 2 +-
+ was.package.json | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+`;
 
-    test.case = 'compare two commits'
+
+    test.description = 'detailing - 1, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : `#faffd60916a71d772ffb9644bbad59152b9ed73e`,
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 1,
       sync : 1
     });
     var expected =
     {
-      modifiedFiles : '.im.will.yml\nout/wPathBasic.out.will.yml\npackage.json\nwas.package.json',
-      deletedFiles : 'proto/dwtools/abase/l3.test/PathBasic.test.s',
-      addedFiles : 'proto/dwtools/abase/l2.test/Path.test.s',
-      renamedFiles : 'proto/dwtools/abase/l3.test/PathBasic.test.html\nproto/dwtools/abase/l3/PathBasic.s\nproto/dwtools/abase/l4.test/Paths.test.s\nproto/dwtools/abase/l4/PathsBasic.s',
+      modifiedFiles : 'package.json\nwas.package.json',
+      deletedFiles : '',
+      addedFiles : '',
+      renamedFiles : '',
       copiedFiles : '',
       typechangedFiles : '',
       unmergedFiles : '',
-      status
+      status,
+    };
+    test.contains( got, expected );
 
-    }
-    test.contains( got, expected )
+    /* */
 
+    test.description = 'detailing - 1, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : `#faffd60916a71d772ffb9644bbad59152b9ed73e`,
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -19568,20 +18947,23 @@ renamedFiles:
     {
       status : true,
       modifiedFiles : true,
-      deletedFiles : true,
-      addedFiles : true,
-      renamedFiles : true,
+      deletedFiles : false,
+      addedFiles : false,
+      renamedFiles : false,
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : `#faffd60916a71d772ffb9644bbad59152b9ed73e`,
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -19596,14 +18978,17 @@ renamedFiles:
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : `#faffd60916a71d772ffb9644bbad59152b9ed73e`,
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 0,
       sync : 1
@@ -19618,92 +19003,94 @@ renamedFiles:
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
-  })
+  });
 
+  /* - */
 
-  begin()
-  .then( () =>
+  begin().then( () =>
   {
+    test.case = 'compare commit and tag';
+
     var status =
 `modifiedFiles:
-  .ex.will.yml
-  .gitattributes
+  .eslintrc.yml
+  .github/workflows/Publish.yml
+  .github/workflows/PullRequest.yml
+  .github/workflows/Push.yml
+  .gitignore
   .im.will.yml
-  .travis.yml
   LICENSE
   README.md
-  out/wPathBasic.out.will.yml
+  out/wModuleForTesting1.out.will.yml
   package.json
-  proto/dwtools/abase/l3.test/PathBasic.test.s
-  proto/dwtools/abase/l3/PathBasic.s
-  proto/dwtools/abase/l4.test/Paths.test.s
-deletedFiles:
+  proto/Integration.test.ss
+  proto/wtools/testing/Basic.s
+  proto/wtools/testing/l1.test/ModuleForTesting1.test.s
+  proto/wtools/testing/l1/Include.s
+  proto/wtools/testing/l1/ModuleForTesting1.s
   was.package.json
+deletedFiles:
+  sample/Sample.s
 addedFiles:
-  out/debug/dwtools/Tools.s
-  out/debug/dwtools/abase/l3.test/PathBasic.test.html
-  out/debug/dwtools/abase/l3.test/PathBasic.test.s
-  out/debug/dwtools/abase/l3/PathBasic.s
-  out/debug/dwtools/abase/l4.test/Paths.test.s
-  out/debug/dwtools/abase/l4/PathsBasic.s
-  out/wPathFundamentals.out.will.yml
-  package-old.json`
+  sample/trivial/Sample.s`;
 
     var statusOriginal =
-` .ex.will.yml                                       |   98 +-
- .gitattributes                                     |    1 +
- .im.will.yml                                       |  242 +-
- .travis.yml                                        |    2 +-
- LICENSE                                            |    3 +-
- README.md                                          |    8 -
- out/debug/dwtools/Tools.s                          |   24 +
- .../dwtools/abase/l3.test/PathBasic.test.html      |   45 +
- out/debug/dwtools/abase/l3.test/PathBasic.test.s   | 8438 ++++++++++++++++++++
- out/debug/dwtools/abase/l3/PathBasic.s             | 2855 +++++++
- out/debug/dwtools/abase/l4.test/Paths.test.s       | 1400 ++++
- out/debug/dwtools/abase/l4/PathsBasic.s            |  482 ++
- out/wPathBasic.out.will.yml                        | 1856 ++---
- out/wPathFundamentals.out.will.yml                 |  598 ++
- package-old.json                                   |   54 +
- package.json                                       |   83 +-
- proto/dwtools/abase/l3.test/PathBasic.test.s       | 1324 +--
- proto/dwtools/abase/l3/PathBasic.s                 |  689 +-
- proto/dwtools/abase/l4.test/Paths.test.s           |   70 +-
- was.package.json                                   |   30 -
- 20 files changed, 15281 insertions(+), 3021 deletions(-)
-`
-    test.case = 'compare commit and tag'
+` .eslintrc.yml                                      |  37 ++-
+ .github/workflows/Publish.yml                      |  27 +-
+ .github/workflows/PullRequest.yml                  |  26 +-
+ .github/workflows/Push.yml                         |  45 ++--
+ .gitignore                                         |  12 +-
+ .im.will.yml                                       |   5 +
+ LICENSE                                            |   2 +-
+ README.md                                          |   2 +-
+ out/wModuleForTesting1.out.will.yml                |  24 +-
+ package.json                                       |  63 +++--
+ proto/Integration.test.ss                          | 287 +++++++++++++++++++--
+ proto/wtools/testing/Basic.s                       |   4 +-
+ .../testing/l1.test/ModuleForTesting1.test.s       |  14 +-
+ proto/wtools/testing/l1/Include.s                  |  78 +++++-
+ proto/wtools/testing/l1/ModuleForTesting1.s        |   9 +-
+ sample/Sample.s                                    |   5 -
+ sample/trivial/Sample.s                            |   9 +
+ was.package.json                                   |   4 +-
+ 18 files changed, 537 insertions(+), 116 deletions(-)
+`;
+
+    test.description = 'detailing - 1, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `!v0.7.4`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : `!v0.0.100`,
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 1,
       sync : 1
     });
     var expected =
     {
-      modifiedFiles : '.ex.will.yml\n.gitattributes\n.im.will.yml\n.travis.yml\nLICENSE\nREADME.md\nout/wPathBasic.out.will.yml\npackage.json\nproto/dwtools/abase/l3.test/PathBasic.test.s\nproto/dwtools/abase/l3/PathBasic.s\nproto/dwtools/abase/l4.test/Paths.test.s',
-      deletedFiles : 'was.package.json',
-      addedFiles : 'out/debug/dwtools/Tools.s\nout/debug/dwtools/abase/l3.test/PathBasic.test.html\nout/debug/dwtools/abase/l3.test/PathBasic.test.s\nout/debug/dwtools/abase/l3/PathBasic.s\nout/debug/dwtools/abase/l4.test/Paths.test.s\nout/debug/dwtools/abase/l4/PathsBasic.s\nout/wPathFundamentals.out.will.yml\npackage-old.json',
+      modifiedFiles : '.eslintrc.yml\n.github/workflows/Publish.yml\n.github/workflows/PullRequest.yml\n.github/workflows/Push.yml\n.gitignore\n.im.will.yml\nLICENSE\nREADME.md\nout/wModuleForTesting1.out.will.yml\npackage.json\nproto/Integration.test.ss\nproto/wtools/testing/Basic.s\nproto/wtools/testing/l1.test/ModuleForTesting1.test.s\nproto/wtools/testing/l1/Include.s\nproto/wtools/testing/l1/ModuleForTesting1.s\nwas.package.json',
+      deletedFiles : 'sample/Sample.s',
+      addedFiles : 'sample/trivial/Sample.s',
       renamedFiles : '',
       copiedFiles : '',
       typechangedFiles : '',
       unmergedFiles : '',
       status
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 1, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `!v0.7.4`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : `!v0.0.100`,
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -19718,14 +19105,17 @@ addedFiles:
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `!v0.7.4`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : `!v0.0.100`,
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -19740,14 +19130,17 @@ addedFiles:
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#0e2b5fb2566960cd412c3d992c98098128a04af5',
-      state2 : `!v0.7.4`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : `!v0.0.100`,
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 0,
       sync : 1
@@ -19762,21 +19155,24 @@ addedFiles:
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
-  })
+  });
 
-  begin()
-  .then( () =>
+  /* - */
+
+  begin().then( () =>
   {
-    test.case = 'compare two identical commits'
+    test.case = 'compare two identical commits';
+
+    test.description = 'detailing - 1, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 1,
       sync : 1
@@ -19791,14 +19187,17 @@ addedFiles:
       copiedFiles : '',
       typechangedFiles : '',
       unmergedFiles : '',
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 1, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : `#db9497547fefa56a29e4a01f48a4d2d0050fa49c`,
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 1,
       explaining : 0,
       sync : 1
@@ -19813,14 +19212,17 @@ addedFiles:
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 1';
     var got = _.git.diff
     ({
-      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 1,
       sync : 1
@@ -19835,14 +19237,17 @@ addedFiles:
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
+    /* */
+
+    test.description = 'detailing - 0, explaining - 0';
     var got = _.git.diff
     ({
-      state1 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      state2 : '#db9497547fefa56a29e4a01f48a4d2d0050fa49c',
-      localPath : a.abs( 'wPathBasic' ),
+      state1 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      state2 : '#d437e8c69b8acf5d1c41404b31f57d81751b6d69',
+      localPath : a.abs( 'wModuleForTesting1' ),
       detailing : 0,
       explaining : 0,
       sync : 1
@@ -19857,13 +19262,13 @@ addedFiles:
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
-  })
+  });
 
-  /* */
+  /* - */
 
   return a.ready;
 
@@ -19871,8 +19276,8 @@ addedFiles:
 
   function begin()
   {
-    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wPathBasic' ) ))
-    a.shell( `git clone ${remotePath}` )
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ));
+    a.shell( `git clone ${ remotePath }` );
     return a.ready;
   }
 }
@@ -19918,7 +19323,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -19940,7 +19345,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -19962,7 +19367,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -19985,7 +19390,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'working',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -20459,7 +19864,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 1,
@@ -20475,13 +19880,13 @@ function diffSpecial( test )
       copiedFiles : '',
       typechangedFiles : '',
       unmergedFiles : '',
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -20497,13 +19902,13 @@ function diffSpecial( test )
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -20520,13 +19925,13 @@ function diffSpecial( test )
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -20542,8 +19947,8 @@ function diffSpecial( test )
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
   })
@@ -21005,7 +20410,7 @@ function diffSpecial( test )
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 1,
       explaining : 0,
@@ -21021,13 +20426,13 @@ function diffSpecial( test )
       copiedFiles : false,
       typechangedFiles : false,
       unmergedFiles : false,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 1,
@@ -21044,13 +20449,13 @@ function diffSpecial( test )
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     var got = _.git.diff
     ({
       state1 : 'staging',
-      state2 : `HEAD`,
+      state2 : 'committed',
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -21066,8 +20471,8 @@ function diffSpecial( test )
       copiedFiles : _.maybe,
       typechangedFiles : _.maybe,
       unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
+    };
+    test.contains( got, expected );
 
     return null;
   })
@@ -21164,118 +20569,6 @@ function diffSpecial( test )
     ({
       state1 : 'staging',
       state2 : `!init`,
-      localPath : a.abs( 'repo' ),
-      detailing : 0,
-      explaining : 0,
-      sync : 1
-    });
-    var expected =
-    {
-      status : true,
-      modifiedFiles : _.maybe,
-      deletedFiles : _.maybe,
-      addedFiles : _.maybe,
-      renamedFiles : _.maybe,
-      copiedFiles : _.maybe,
-      typechangedFiles : _.maybe,
-      unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
-
-    return null;
-  })
-
-  /* */
-
-  begin()
-  .then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'data' )
-    return null;
-  })
-  a.shell( 'git add file' )
-  a.shell( 'git commit -m init' )
-  .then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo', 'file' ), 'datadata' )
-    return null;
-  })
-  a.shell( 'git add file' )
-  a.shell( 'git commit -m change' )
-  .then( () =>
-  {
-    test.case = 'committed..HEAD^'
-    var got = _.git.diff
-    ({
-      state1 : 'committed',
-      state2 : `HEAD^`,
-      localPath : a.abs( 'repo' ),
-      detailing : 1,
-      explaining : 1,
-      sync : 1
-    });
-    var expected =
-    {
-      status : 'modifiedFiles:\n  file',
-      modifiedFiles : 'file',
-      deletedFiles : '',
-      addedFiles : '',
-      renamedFiles : '',
-      copiedFiles : '',
-      typechangedFiles : '',
-      unmergedFiles : '',
-    }
-    test.contains( got, expected )
-
-    var got = _.git.diff
-    ({
-      state1 : 'committed',
-      state2 : `HEAD^`,
-      localPath : a.abs( 'repo' ),
-      detailing : 1,
-      explaining : 0,
-      sync : 1
-    });
-    var expected =
-    {
-      status : true,
-      modifiedFiles : true,
-      deletedFiles : false,
-      addedFiles : false,
-      renamedFiles : false,
-      copiedFiles : false,
-      typechangedFiles : false,
-      unmergedFiles : false,
-    }
-    test.contains( got, expected )
-
-    var got = _.git.diff
-    ({
-      state1 : 'committed',
-      state2 : `HEAD^`,
-      localPath : a.abs( 'repo' ),
-      detailing : 0,
-      explaining : 1,
-      sync : 1
-    });
-    var expected =
-    {
-      status :
-      ' file | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n',
-      modifiedFiles : _.maybe,
-      deletedFiles : _.maybe,
-      addedFiles : _.maybe,
-      renamedFiles : _.maybe,
-      copiedFiles : _.maybe,
-      typechangedFiles : _.maybe,
-      unmergedFiles : _.maybe,
-    }
-    test.contains( got, expected )
-
-    var got = _.git.diff
-    ({
-      state1 : 'committed',
-      state2 : `HEAD^`,
       localPath : a.abs( 'repo' ),
       detailing : 0,
       explaining : 0,
@@ -22451,7 +21744,7 @@ new line`;
   a.ready.then( () =>
   {
     var got = _.git.push({ localPath : a.abs( 'repo' ), dry : 1 });
-    test.identical( got, undefined );
+    test.identical( got.exitCode, 0 );
     return null;
   });
 
@@ -24778,6 +24071,384 @@ resetWithOptionDry.timeOut = 30000;
 
 //
 
+function tagMake( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'make lightweight tag';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      light : 1,
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make two lightweight tags in single commit';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      light : 1,
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v001',
+      light : 1,
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 3 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    test.identical( _.strCount( op.output, 'v001' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make two lightweight tags with the same name in single commit, force - 1';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      light : 1,
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      light : 1,
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make tag without description';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make two tags without description in single commit';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v001',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 3 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    test.identical( _.strCount( op.output, 'v001' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make two tags without description, tags have the same name, force - 1';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, 'v000' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make tag with description';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 000',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make two tags with description in single commit';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 000',
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v001',
+      description : 'version 001',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 3 );
+    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
+    test.identical( _.strCount( op.output, /v001\s+version 001/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make two tags with description, tags have the same name, deleting - 1';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 001',
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 000',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
+    test.identical( _.strCount( op.output, /v000\s+version 001/ ), 0 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make tag for not current HEAD';
+    return null;
+  });
+  var commitHash;
+  a.shell( 'git rev-parse HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    commitHash = op.output.trim();
+    return null;
+  });
+  a.shell( 'git commit --allow-empty -m "empty commit"' );
+  a.ready.then( () =>
+  {
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 000',
+      toVersion : commitHash,
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
+    return null;
+  });
+  a.shell( 'git rev-list -n 1 v000' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( op.output.trim(), commitHash );
+    return null;
+  });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    a.ready.then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.tagMake() );
+
+      test.case = 'extra arguments';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), tag : 'v0' };
+        return _.git.tagMake( o, o );
+      });
+
+      test.case = 'unknown option in options map o';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), tag : 'v0', unknown : 1 };
+        return _.git.tagMake( o );
+      });
+
+      test.case = 'wrong type of o.localPath';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : 1, tag : 'v0' };
+        return _.git.tagMake( o );
+      });
+
+      test.case = 'o.localPath is not a repository';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '..' ), tag : 'v0' };
+        return _.git.tagMake( o );
+      });
+
+      test.case = 'add several tags with same name, force - 0';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), tag : 'v000', light : 1, force : 0 };
+        _.git.tagMake( o );
+        return _.git.tagMake( o );
+      });
+
+      test.case = 'add several tags with same name, force - 0';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), tag : 'v000', force : 0 };
+        _.git.tagMake( o );
+        return _.git.tagMake( o );
+      });
+
+      return null;
+    });
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ) );
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git init` );
+    a.ready.then( () =>
+    {
+      a.fileProvider.fileWrite( a.abs( 'file.txt' ), 'file.txt' );
+      return null;
+    });
+    a.shell( 'git add .' );
+    a.shell( 'git commit -m init' );
+    return a.ready;
+  }
+}
+
+tagMake.timeOut = 20000;
+
+//
+
 function renormalize( test )
 {
   let context = this;
@@ -25743,7 +25414,6 @@ const Proto =
     repositoryVersionToTagWithOptionLocal,
     repositoryVersionToTagWithOptionRemote,
     repositoryVersionToTagWithOptionsRemoteAndLocal,
-    tagMake,
 
     // hook
 
@@ -25761,8 +25431,6 @@ const Proto =
     repositoryClone,
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,
-    pullOpen,
-    pullOpenRemote,
 
     // etc
 
@@ -25786,6 +25454,7 @@ const Proto =
     resetWithOptionRemovingSubrepositories,
     resetWithOptionRemovingIgnored,
     resetWithOptionDry,
+    tagMake,
 
     renormalize,
     renormalizeOriginHasAttributes,
