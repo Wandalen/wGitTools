@@ -3403,7 +3403,8 @@ exists.defaults =
 //
 
 /**
- * Routine tagMake() makes tag for current commit.
+ * Routine tagMake() makes tag for some commit version of repository {-o.toVersion-}. 
+ * If {-o.toVersion-} is not defined, then tag adds to current HEAD commit. 
  *
  * @example
  * // make tag `v0.1` if script run in git repository
@@ -3418,10 +3419,11 @@ exists.defaults =
  * @param { String } o.localPath - Path to git repository on hard drive.
  * @param { String } o.tag - Name of tag.
  * @param { String } o.description - Description of tag.
+ * @param { String } o.toVersion - Commit version to add tag. Default is current HEAD commit.
  * @param { BoolLike } o.light - Enable lightweight tags. Default is 0.
- * @param { BoolLike } o.deleting - Enable deleting of duplicated tags. Default is 1.
+ * @param { BoolLike } o.force - Enable force creation of tags, it allows to rewrite tags with same name. Default is 1.
  * @param { BoolLike } o.sync - Enable synchronous execution of code. Default is 1.
- * @returns { Consequence|Aux } - Returns map like object with results of Process execution
+ * @returns { Consequence|Aux } - Returns map like object with results of Process execution.
  * or Consequence that handle such Process.
  * @function tagMake
  * @throws { Error } If arguments.length is not equal to 1.
