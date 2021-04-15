@@ -15719,7 +15719,7 @@ function tagMake( test )
     return null;
   });
 
-  /* - */
+  /* */
 
   begin().then( () =>
   {
@@ -15750,11 +15750,11 @@ function tagMake( test )
     return null;
   });
 
-  /* - */
+  /* */
 
   begin().then( () =>
   {
-    test.case = 'make two lightweight tags with the same name in single commit, deleting - 1';
+    test.case = 'make two lightweight tags with the same name in single commit, force - 1';
     var got = _.git.tagMake
     ({
       localPath : a.abs( '.' ),
@@ -15802,7 +15802,7 @@ function tagMake( test )
     return null;
   });
 
-  /* - */
+  /* */
 
   begin().then( () =>
   {
@@ -15831,11 +15831,11 @@ function tagMake( test )
     return null;
   });
 
-  /* - */
+  /* */
 
   begin().then( () =>
   {
-    test.case = 'make two tags without description, tags have the same name, deleting - 1';
+    test.case = 'make two tags without description, tags have the same name, force - 1';
     var got = _.git.tagMake
     ({
       localPath : a.abs( '.' ),
@@ -15882,7 +15882,7 @@ function tagMake( test )
     return null;
   });
 
-  /* - */
+  /* */
 
   begin().then( () =>
   {
@@ -15913,7 +15913,7 @@ function tagMake( test )
     return null;
   });
 
-  /* - */
+  /* */
 
   begin().then( () =>
   {
@@ -15943,6 +15943,49 @@ function tagMake( test )
     test.identical( _.strCount( op.output, /v000\s+version 001/ ), 0 );
     return null;
   });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make tag for not current HEAD';
+    return null;
+  });
+  var commitHash;
+  a.shell( 'git rev-parse HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    commitHash = op.output.trim();
+    return null;
+  });
+  a.shell( 'git commit --allow-empty -m "empty commit"' );
+  a.ready.then( () =>
+  {
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 000',
+      toVersion : commitHash,
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
+    return null;
+  });
+  a.shell( 'git rev-list -n 1 v000' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( op.output.trim(), commitHash );
+    return null;
+  });
+
   /* - */
 
   if( Config.debug )
@@ -15980,25 +16023,18 @@ function tagMake( test )
         return _.git.tagMake( o );
       });
 
-      test.case = 'wrong type of o.tag';
+      test.case = 'add several tags with same name, force - 0';
       test.shouldThrowErrorSync( () =>
       {
-        let o = { localPath : a.abs( '.' ), tag : 1 };
-        return _.git.tagMake( o );
-      });
-
-      test.case = 'add several tags with same name without deleting';
-      test.shouldThrowErrorSync( () =>
-      {
-        let o = { localPath : a.abs( '.' ), tag : 'v000', light : 1, deleting : 0 };
+        let o = { localPath : a.abs( '.' ), tag : 'v000', light : 1, force : 0 };
         _.git.tagMake( o );
         return _.git.tagMake( o );
       });
 
-      test.case = 'add several tags with same name without deleting';
+      test.case = 'add several tags with same name, force - 0';
       test.shouldThrowErrorSync( () =>
       {
-        let o = { localPath : a.abs( '.' ), tag : 'v000', deleting : 0 };
+        let o = { localPath : a.abs( '.' ), tag : 'v000', force : 0 };
         _.git.tagMake( o );
         return _.git.tagMake( o );
       });
@@ -16016,11 +16052,7 @@ function tagMake( test )
   function begin()
   {
     a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ) );
-    a.ready.then( () =>
-    {
-      a.fileProvider.dirMake( a.abs( '.' ) );
-      return null;
-    });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
     a.shell( `git init` );
     a.ready.then( () =>
     {
