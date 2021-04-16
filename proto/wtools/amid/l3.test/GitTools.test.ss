@@ -24477,6 +24477,281 @@ function tagDelete_( test )
 
 //
 
+function tagDeleteRefs( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'delete tag that exists only in local repository, remote - 1, force - 1';
+    tagMake( 'new' );
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.git.tagDeleteRefs
+    ({
+      localPath : a.abs( 'clone' ),
+      tag : 'new',
+      remote : 1,
+      force : 1,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'Deleted tag \'new\' (was' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'delete tag that exists in local and remote repositories, remote - 1, force - 1';
+    tagMake( 'new' );
+    tagsPush();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.git.tagDeleteRefs
+    ({
+      localPath : a.abs( 'clone' ),
+      tag : 'new',
+      remote : 1,
+      force : 1,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'Deleted tag \'new\' (was' ), 1 );
+    test.identical( _.strCount( op.output, /To .*/ ), 1 );
+    test.identical( _.strCount( op.output, /- \[deleted\]\s+new/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'delete branch that exists in local and remote repositories, remote - 0, force - 1';
+    tagMake( 'new' );
+    tagsPush();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.git.tagDeleteRefs
+    ({
+      localPath : a.abs( 'clone' ),
+      tag : 'new',
+      remote : 0,
+      force : 1,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'Deleted tag \'new\' (was' ), 1 );
+    test.identical( _.strCount( op.output, /To .*/ ), 0 );
+    test.identical( _.strCount( op.output, /- \[deleted\]\s+new/ ), 0 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'delete branch that exists in local and remote repositories, remote - 1, force - 0';
+    tagMake( 'new' );
+    tagsPush();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.git.tagDeleteRefs
+    ({
+      localPath : a.abs( 'clone' ),
+      tag : 'new',
+      remote : 1,
+      force : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'Deleted tag \'new\' (was' ), 1 );
+    test.identical( _.strCount( op.output, /To .*/ ), 1 );
+    test.identical( _.strCount( op.output, /- \[deleted\]\s+new/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'delete branch that exists in local and remote repositories, remote - 1, force - 0, local - 0';
+    tagMake( 'new' );
+    tagsPush();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.git.tagDeleteRefs
+    ({
+      localPath : a.abs( 'clone' ),
+      tag : 'new',
+      remote : 1,
+      local : 0,
+      force : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'Deleted tag \'new\' (was' ), 0 );
+    test.identical( _.strCount( op.output, /To .*/ ), 1 );
+    test.identical( _.strCount( op.output, /- \[deleted\]\s+new/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'delete not existed tag, throwing - 0';
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.git.tagDeleteRefs
+    ({
+      localPath : a.abs( 'clone' ),
+      tag : 'new',
+      remote : 1,
+      local : 1,
+      force : 1,
+      throwing : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.notIdentical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'Deleted tag \'new\' (was' ), 0 );
+    test.identical( _.strCount( op.output, /To .*/ ), 0 );
+    test.identical( _.strCount( op.output, /- \[deleted\]\s+new/ ), 0 );
+    test.identical( _.strCount( op.output, 'rror: tag \'new\' not found.' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    begin().then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.tagDeleteRefs() );
+
+      test.case = 'extra arguments';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), tag : 'v0' };
+        return _.git.tagDeleteRefs( o, o );
+      });
+
+      test.case = 'unknown option in options map o';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), tag : 'v0', unknown : 1 };
+        return _.git.tagDeleteRefs( o );
+      });
+
+      test.case = 'wrong type of o.localPath';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : 1, tag : 'v0' };
+        return _.git.tagDeleteRefs( o );
+      });
+
+      test.case = 'o.tag is not defined';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : 1, tag : '' };
+        return _.git.tagDeleteRefs( o );
+      });
+
+      test.case = 'o.local - 0, o.remote - 0';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : 1, tag : 'new', local : 0, remote : 0 };
+        return _.git.tagDeleteRefs( o );
+      });
+
+      return null;
+    });
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( 'repo' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( 'repo' ) ); return null });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git init --bare' });
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( 'clone' ) ) );
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( 'clone' ) ); return null });
+    a.shell( 'git clone repo clone' );
+    a.ready.then( () =>
+    {
+      a.fileProvider.fileAppend( a.abs( 'clone/file.txt' ), 'file.txt' );
+      return null;
+    });
+    a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m init' });
+    a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git push -u origin master' });
+    return a.ready;
+  }
+
+  /* */
+
+  function tagMake( tag )
+  {
+    _.git.tagMake
+    ({
+      localPath : a.abs( 'clone' ),
+      tag,
+      force : 1,
+      sync : 1,
+    });
+  }
+
+  /* */
+
+  function tagsPush()
+  {
+    _.git.push
+    ({
+      localPath : a.abs( 'clone' ),
+      withHistory : 0,
+      withTags : 1,
+      force : 1,
+      sync : 1,
+    });
+  }
+}
+
+//
+
 function tagMake( test )
 {
   let context = this;
@@ -25860,8 +26135,10 @@ const Proto =
     resetWithOptionRemovingSubrepositories,
     resetWithOptionRemovingIgnored,
     resetWithOptionDry,
+
     tagList,
     tagDelete_,
+    tagDeleteRefs,
     tagMake,
 
     renormalize,

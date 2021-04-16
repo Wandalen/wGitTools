@@ -5525,6 +5525,8 @@ tagList.defaults =
 
 //
 
+/* aaa : for Dmytro : implement tagDelete* - 2 routines for branch and ref tag, cover */ /* Dmytro : implemented and covered */
+
 function tagDelete_( o )
 {
   _.assert( arguments.length === 1, 'Expects options map {-o-}' );
@@ -5777,8 +5779,6 @@ tagMake.defaults =
   // deleting : 1,
   sync : 1,
 };
-
-/* qqq : for Dmytro : implement tagDelete_ - 2 routines for branch and ref tag, cover */
 
 //
 
