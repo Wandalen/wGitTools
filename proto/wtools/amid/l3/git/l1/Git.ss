@@ -5502,7 +5502,7 @@ function tagList( o )
   ({
     currentPath : o.localPath,
     sync : 1,
-    mode : 'shell',
+    mode : 'spawn',
     outputCollecting : 1,
     throwingExitCode : 1,
     inputMirroring : 0,
@@ -5521,6 +5521,72 @@ tagList.defaults =
   localPath : null,
   withDescription : 1,
   lines : 1,
+};
+
+//
+
+function tagDelete_( o )
+{
+  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
+  _.routine.options( tagDelete_, o );
+  _.assert( _.strDefined( o.localPath ), 'Expects local path to git repository {-o.localPath-}' );
+  _.assert( _.strDefined( o.tag ), 'Expects tag {-o.tag-} to delete' );
+  _.assert( o.local || o.remote );
+
+  let ready = _.take( null );
+  let start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    sync : o.sync,
+    mode : 'shell',
+    ready,
+    outputCollecting : 1,
+    throwingExitCode : o.throwing,
+    inputMirroring : 0,
+    outputPiping : 0,
+  });
+
+  let force = o.force ? '--force' : '';
+
+  let commands = [];
+  if( o.local )
+  commands.push( `git branch --delete ${ force } ${ o.tag }` );
+
+  if( o.remote )
+  {
+    let remotePath = _.git.remotePathFromLocal( o.localPath );
+    let tagExistsremote = _.git.repositoryHasTag
+    ({
+      remotePath,
+      localPath : o.localPath,
+      tag : o.tag,
+      remote : 1,
+      local : 0
+    });
+    if( tagExistsremote )
+    commands.push( `git push --delete ${ force } origin ${ o.tag }` );
+  }
+
+  start( commands );
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+tagDelete_.defaults =
+{
+  localPath : null,
+  tag : null,
+  force : 1,
+  local : 1,
+  remote : 1,
+  throwing : 1,
+  sync : 0,
 };
 
 //
@@ -5648,7 +5714,7 @@ tagMake.defaults =
   sync : 1,
 };
 
-/* qqq : for Dmytro : implement tagDelete - 2 routines for branch and ref tag, cover */
+/* qqq : for Dmytro : implement tagDelete_ - 2 routines for branch and ref tag, cover */
 
 //
 
@@ -5925,7 +5991,11 @@ let Extension =
   pull,
   push,
   reset,
+
+  // tag
+
   tagList,
+  tagDelete_,
   tagMake, /* aaa : cover */ /* Dmytro : covered */
 
   renormalize,
