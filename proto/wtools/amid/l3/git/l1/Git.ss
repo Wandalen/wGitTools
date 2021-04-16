@@ -5495,6 +5495,8 @@ function tagList( o )
 {
   _.assert( arguments.length === 1, 'Expects options map {-o-}' );
   _.routine.options( tagList, o );
+  _.assert( _.strDefined( o.localPath ), 'Expects local path to git repository {-o.localPath-}' );
+  _.assert( _.numberIs( o.lines ), 'Expects number of lines {-o.lines-}' );
 
   let start = _.process.starter
   ({
@@ -5507,8 +5509,8 @@ function tagList( o )
     outputPiping : 0,
   });
 
-  let listOptions = o.onlyNames ? '-l' : `-ln`;
-  let lines = o.onlyNames ? '' : o.lines;
+  let listOptions = o.withDescription ? '-ln' : `-l`;
+  let lines = o.withDescription ? o.lines : '';
   let result = start( `git tag ${ listOptions }${ lines }` );
 
   return result.output;

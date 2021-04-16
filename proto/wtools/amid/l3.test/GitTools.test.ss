@@ -24071,6 +24071,164 @@ resetWithOptionDry.timeOut = 30000;
 
 //
 
+function tagList( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'list tags, withDescription - 1, lines - 1';
+    var got = _.git.tagList
+    ({
+      localPath : a.abs( '.' ),
+      withDescription : 1,
+      lines : 1,
+    });
+    test.identical( _.strCount( got, /v000\s+version\s+000/ ), 0 );
+    test.identical( _.strCount( got, /v000\s+version\s+/ ), 1 );
+    test.identical( _.strCount( got, /v001\s+version\s+001/ ), 0 );
+    test.identical( _.strCount( got, /v001\s+version\s+/ ), 1 );
+    test.identical( _.strCount( got, /v002\s+/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'list tags, withDescription - 1, lines - 2';
+    var got = _.git.tagList
+    ({
+      localPath : a.abs( '.' ),
+      withDescription : 1,
+      lines : 2,
+    });
+    test.identical( _.strCount( got, /v000\s+version\s+000/ ), 1 );
+    test.identical( _.strCount( got, /v000\s+version\s+/ ), 1 );
+    test.identical( _.strCount( got, /v001\s+version\s+001/ ), 1 );
+    test.identical( _.strCount( got, /v001\s+version\s+/ ), 1 );
+    test.identical( _.strCount( got, /v002\s+/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'list tags, withDescription - 0, lines - 2';
+    var got = _.git.tagList
+    ({
+      localPath : a.abs( '.' ),
+      withDescription : 0,
+      lines : 2,
+    });
+    test.identical( _.strCount( got, /v000\s+version\s+000/ ), 0 );
+    test.identical( _.strCount( got, /v000\s+version\s+/ ), 0 );
+    test.identical( _.strCount( got, /v000\s+/ ), 1 );
+    test.identical( _.strCount( got, /v001\s+version\s+001/ ), 0 );
+    test.identical( _.strCount( got, /v001\s+version\s+/ ), 0 );
+    test.identical( _.strCount( got, /v001\s+/ ), 1 );
+    test.identical( _.strCount( got, /v002\s+/ ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    begin().then( () =>
+    {
+      test.case = 'without arguments';
+      test.shouldThrowErrorSync( () => _.git.tagList() );
+
+      test.case = 'extra arguments';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ) };
+        return _.git.tagList( o, o );
+      });
+
+      test.case = 'unknown option in options map o';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), unknown : 1 };
+        return _.git.tagList( o );
+      });
+
+      test.case = 'wrong type of o.localPath';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : 1 };
+        return _.git.tagList( o );
+      });
+
+      test.case = 'wrong type of o.lines';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '.' ), lines : 'ab' };
+        return _.git.tagList( o );
+      });
+
+      test.case = 'o.localPath is not a repository';
+      test.shouldThrowErrorSync( () =>
+      {
+        let o = { localPath : a.abs( '..' ) };
+        return _.git.tagList( o );
+      });
+
+      return null;
+    });
+  }
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ) );
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git init` );
+    a.ready.then( () =>
+    {
+      a.fileProvider.fileWrite( a.abs( 'file.txt' ), 'file.txt' );
+      return null;
+    });
+    a.shell( 'git add .' );
+    a.shell( 'git commit -m init' );
+    a.ready.then( () =>
+    {
+      _.git.tagMake
+      ({
+        localPath : a.abs( '.' ),
+        tag : 'v000',
+        description : 'version\n000',
+      });
+      _.git.tagMake
+      ({
+        localPath : a.abs( '.' ),
+        tag : 'v001',
+        description : 'version\n001',
+      });
+      _.git.tagMake
+      ({
+        localPath : a.abs( '.' ),
+        tag : 'v002',
+      });
+      return null;
+    });
+
+    return a.ready;
+  }
+}
+
+//
+
 function tagMake( test )
 {
   let context = this;
@@ -25454,6 +25612,7 @@ const Proto =
     resetWithOptionRemovingSubrepositories,
     resetWithOptionRemovingIgnored,
     resetWithOptionDry,
+    tagList,
     tagMake,
 
     renormalize,
