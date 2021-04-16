@@ -5591,6 +5591,70 @@ tagDelete_.defaults =
 
 //
 
+function tagDeleteRefs( o )
+{
+  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
+  _.routine.options( tagDeleteRefs, o );
+  _.assert( _.strDefined( o.localPath ), 'Expects local path to git repository {-o.localPath-}' );
+  _.assert( _.strDefined( o.tag ), 'Expects tag {-o.tag-} to delete' );
+  _.assert( o.local || o.remote );
+
+  let ready = _.take( null );
+  let start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    sync : o.sync,
+    mode : 'shell',
+    ready,
+    outputCollecting : 1,
+    throwingExitCode : o.throwing,
+    inputMirroring : 0,
+    outputPiping : 0,
+  });
+
+  let commands = [];
+  if( o.local )
+  commands.push( `git tag --delete ${ o.tag }` );
+
+  if( o.remote )
+  {
+    let remotePath = _.git.remotePathFromLocal( o.localPath );
+    let tagExistsremote = _.git.repositoryHasTag
+    ({
+      remotePath,
+      localPath : o.localPath,
+      tag : o.tag,
+      remote : 1,
+      local : 0
+    });
+    if( tagExistsremote )
+    commands.push( `git push --delete ${ o.force ? '--force' : '' } origin refs/tags/${ o.tag }` );
+  }
+
+  start( commands );
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+tagDeleteRefs.defaults =
+{
+  localPath : null,
+  tag : null,
+  force : 1,
+  local : 1,
+  remote : 1,
+  throwing : 1,
+  sync : 0,
+};
+
+//
+
 /**
  * Routine tagMake() makes tag for some commit version of repository {-o.toVersion-}.
  * If {-o.toVersion-} is not defined, then tag adds to current HEAD commit.
@@ -5996,6 +6060,7 @@ let Extension =
 
   tagList,
   tagDelete_,
+  tagDeleteRefs,
   tagMake, /* aaa : cover */ /* Dmytro : covered */
 
   renormalize,
