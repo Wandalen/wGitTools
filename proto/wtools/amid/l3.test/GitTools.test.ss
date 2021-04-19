@@ -25009,6 +25009,60 @@ function tagMake( test )
 
   begin().then( () =>
   {
+    test.case = 'make two tags with description, tags have the same name, deleting - 1';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 001',
+    });
+    test.identical( got.exitCode, 0 );
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version 000',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 2 );
+    test.identical( _.strCount( op.output, /v000\s+version 000/ ), 1 );
+    test.identical( _.strCount( op.output, /v000\s+version 001/ ), 0 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'make tag with multiline description';
+    var got = _.git.tagMake
+    ({
+      localPath : a.abs( '.' ),
+      tag : 'v000',
+      description : 'version\n000',
+    });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  a.shell( 'git tag -ln2' )
+  .then( ( op ) =>
+  {
+    test.identical( _.strLinesCount( op.output ), 3 );
+    test.identical( _.strCount( op.output, /v000\s+version\n\s+000/ ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
     test.case = 'make tag for not current HEAD';
     return null;
   });
