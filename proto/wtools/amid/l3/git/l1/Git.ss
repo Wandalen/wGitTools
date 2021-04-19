@@ -5748,11 +5748,39 @@ function tagMake( o )
   // else
   // return start( `git tag -a ${o.tag} -m "${o.description}"` );
 
-  let tag = o.light ? o.tag : `-a ${ o.tag } -m "${ o.description }"`;
+  let provider = _.fileProvider; /* Dmytro : should be hard drive provider */
+  let path = provider.path;
+  let tag = o.tag;
+  let tempPath, description;
+  if( !o.light )
+  {
+    tag = `-a ${ o.tag } -m "${ o.description }"`;
+    if( process.platform === 'win32' )
+    {
+      let lines = _.strCount( o.description, '\n' );
+      if( lines )
+      {
+        tempPath = path.tempOpen( o.description );
+        let descriptionPath = path.join( tempPath, 'description' );
+        provider.fileWrite( descriptionPath, o.description );
+        tag = `-a ${ o.tag } -F ${ path.nativize( descriptionPath ) }`;
+      }
+    }
+  }
   let force = o.force ? '-f' : '';
   let toVersion = o.toVersion ? o.toVersion : '';
 
   start( `git tag ${ force } ${ tag } ${ toVersion }` );
+
+  ready.finally( ( err, arg ) =>
+  {
+    if( tempPath )
+    path.tempClose( tempPath );
+
+    if( err )
+    throw _.err( err );
+    return arg;
+  });
 
   // });
   //
