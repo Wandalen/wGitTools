@@ -5748,7 +5748,7 @@ function tagMake( o )
   // else
   // return start( `git tag -a ${o.tag} -m "${o.description}"` );
 
-  let tag = o.light ? o.tag : `-a ${ o.tag } -m '${ o.description }'`;
+  let tag = o.light ? o.tag : `-a ${ o.tag } -m "${ o.description }"`;
   let force = o.force ? '-f' : '';
   let toVersion = o.toVersion ? o.toVersion : '';
 
