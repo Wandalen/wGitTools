@@ -5527,10 +5527,10 @@ tagList.defaults =
 
 /* aaa : for Dmytro : implement tagDelete* - 2 routines for branch and ref tag, cover */ /* Dmytro : implemented and covered */
 
-function tagDelete_( o )
+function tagDeleteBranch( o )
 {
   _.assert( arguments.length === 1, 'Expects options map {-o-}' );
-  _.routine.options( tagDelete_, o );
+  _.routine.options( tagDeleteBranch, o );
   _.assert( _.strDefined( o.localPath ), 'Expects local path to git repository {-o.localPath-}' );
   _.assert( _.strDefined( o.tag ), 'Expects tag {-o.tag-} to delete' );
   _.assert( o.local || o.remote );
@@ -5580,7 +5580,7 @@ function tagDelete_( o )
   return ready;
 }
 
-tagDelete_.defaults =
+tagDeleteBranch.defaults =
 {
   localPath : null,
   tag : null,
@@ -5593,10 +5593,10 @@ tagDelete_.defaults =
 
 //
 
-function tagDeleteRefs( o )
+function tagDeleteTag( o )
 {
   _.assert( arguments.length === 1, 'Expects options map {-o-}' );
-  _.routine.options( tagDeleteRefs, o );
+  _.routine.options( tagDeleteTag, o );
   _.assert( _.strDefined( o.localPath ), 'Expects local path to git repository {-o.localPath-}' );
   _.assert( _.strDefined( o.tag ), 'Expects tag {-o.tag-} to delete' );
   _.assert( o.local || o.remote );
@@ -5644,7 +5644,7 @@ function tagDeleteRefs( o )
   return ready;
 }
 
-tagDeleteRefs.defaults =
+tagDeleteTag.defaults =
 {
   localPath : null,
   tag : null,
@@ -6087,8 +6087,8 @@ let Extension =
   // tag
 
   tagList,
-  tagDelete_,
-  tagDeleteRefs,
+  tagDeleteBranch,
+  tagDeleteTag,
   tagMake, /* aaa : cover */ /* Dmytro : covered */
 
   renormalize,

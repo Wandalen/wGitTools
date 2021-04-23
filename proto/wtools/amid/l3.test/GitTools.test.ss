@@ -24229,7 +24229,7 @@ function tagList( test )
 
 //
 
-function tagDelete_( test )
+function tagDeleteBranch( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
@@ -24244,7 +24244,7 @@ function tagDelete_( test )
   a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git branch new' });
   a.ready.then( () =>
   {
-    return _.git.tagDelete_
+    return _.git.tagDeleteBranch
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24270,7 +24270,7 @@ function tagDelete_( test )
   a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git push origin new' });
   a.ready.then( () =>
   {
-    return _.git.tagDelete_
+    return _.git.tagDeleteBranch
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24298,7 +24298,7 @@ function tagDelete_( test )
   a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git push origin new' });
   a.ready.then( () =>
   {
-    return _.git.tagDelete_
+    return _.git.tagDeleteBranch
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24326,7 +24326,7 @@ function tagDelete_( test )
   a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git push origin new' });
   a.ready.then( () =>
   {
-    return _.git.tagDelete_
+    return _.git.tagDeleteBranch
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24354,7 +24354,7 @@ function tagDelete_( test )
   a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git push origin new' });
   a.ready.then( () =>
   {
-    return _.git.tagDelete_
+    return _.git.tagDeleteBranch
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24381,7 +24381,7 @@ function tagDelete_( test )
   });
   a.ready.then( () =>
   {
-    return _.git.tagDelete_
+    return _.git.tagDeleteBranch
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24408,41 +24408,41 @@ function tagDelete_( test )
     begin().then( () =>
     {
       test.case = 'without arguments';
-      test.shouldThrowErrorSync( () => _.git.tagDelete_() );
+      test.shouldThrowErrorSync( () => _.git.tagDeleteBranch() );
 
       test.case = 'extra arguments';
       test.shouldThrowErrorSync( () =>
       {
         let o = { localPath : a.abs( '.' ), tag : 'v0' };
-        return _.git.tagDelete_( o, o );
+        return _.git.tagDeleteBranch( o, o );
       });
 
       test.case = 'unknown option in options map o';
       test.shouldThrowErrorSync( () =>
       {
         let o = { localPath : a.abs( '.' ), tag : 'v0', unknown : 1 };
-        return _.git.tagDelete_( o );
+        return _.git.tagDeleteBranch( o );
       });
 
       test.case = 'wrong type of o.localPath';
       test.shouldThrowErrorSync( () =>
       {
         let o = { localPath : 1, tag : 'v0' };
-        return _.git.tagDelete_( o );
+        return _.git.tagDeleteBranch( o );
       });
 
       test.case = 'o.tag is not defined';
       test.shouldThrowErrorSync( () =>
       {
         let o = { localPath : 1, tag : '' };
-        return _.git.tagDelete_( o );
+        return _.git.tagDeleteBranch( o );
       });
 
       test.case = 'o.local - 0, o.remote - 0';
       test.shouldThrowErrorSync( () =>
       {
         let o = { localPath : 1, tag : 'new', local : 0, remote : 0 };
-        return _.git.tagDelete_( o );
+        return _.git.tagDeleteBranch( o );
       });
 
       return null;
@@ -24477,7 +24477,7 @@ function tagDelete_( test )
 
 //
 
-function tagDeleteRefs( test )
+function tagDeleteTag( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
@@ -24492,7 +24492,7 @@ function tagDeleteRefs( test )
   });
   a.ready.then( () =>
   {
-    return _.git.tagDeleteRefs
+    return _.git.tagDeleteTag
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24518,7 +24518,7 @@ function tagDeleteRefs( test )
   });
   a.ready.then( () =>
   {
-    return _.git.tagDeleteRefs
+    return _.git.tagDeleteTag
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24546,7 +24546,7 @@ function tagDeleteRefs( test )
   });
   a.ready.then( () =>
   {
-    return _.git.tagDeleteRefs
+    return _.git.tagDeleteTag
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24574,7 +24574,7 @@ function tagDeleteRefs( test )
   });
   a.ready.then( () =>
   {
-    return _.git.tagDeleteRefs
+    return _.git.tagDeleteTag
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24602,7 +24602,7 @@ function tagDeleteRefs( test )
   });
   a.ready.then( () =>
   {
-    return _.git.tagDeleteRefs
+    return _.git.tagDeleteTag
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24629,7 +24629,7 @@ function tagDeleteRefs( test )
   });
   a.ready.then( () =>
   {
-    return _.git.tagDeleteRefs
+    return _.git.tagDeleteTag
     ({
       localPath : a.abs( 'clone' ),
       tag : 'new',
@@ -24656,41 +24656,41 @@ function tagDeleteRefs( test )
     begin().then( () =>
     {
       test.case = 'without arguments';
-      test.shouldThrowErrorSync( () => _.git.tagDeleteRefs() );
+      test.shouldThrowErrorSync( () => _.git.tagDeleteTag() );
 
       test.case = 'extra arguments';
       test.shouldThrowErrorSync( () =>
       {
         let o = { localPath : a.abs( '.' ), tag : 'v0' };
-        return _.git.tagDeleteRefs( o, o );
+        return _.git.tagDeleteTag( o, o );
       });
 
       test.case = 'unknown option in options map o';
       test.shouldThrowErrorSync( () =>
       {
         let o = { localPath : a.abs( '.' ), tag : 'v0', unknown : 1 };
-        return _.git.tagDeleteRefs( o );
+        return _.git.tagDeleteTag( o );
       });
 
       test.case = 'wrong type of o.localPath';
       test.shouldThrowErrorSync( () =>
       {
         let o = { localPath : 1, tag : 'v0' };
-        return _.git.tagDeleteRefs( o );
+        return _.git.tagDeleteTag( o );
       });
 
       test.case = 'o.tag is not defined';
       test.shouldThrowErrorSync( () =>
       {
         let o = { localPath : 1, tag : '' };
-        return _.git.tagDeleteRefs( o );
+        return _.git.tagDeleteTag( o );
       });
 
       test.case = 'o.local - 0, o.remote - 0';
       test.shouldThrowErrorSync( () =>
       {
         let o = { localPath : 1, tag : 'new', local : 0, remote : 0 };
-        return _.git.tagDeleteRefs( o );
+        return _.git.tagDeleteTag( o );
       });
 
       return null;
@@ -26191,8 +26191,8 @@ const Proto =
     resetWithOptionDry,
 
     tagList,
-    tagDelete_,
-    tagDeleteRefs,
+    tagDeleteBranch,
+    tagDeleteTag,
     tagMake,
 
     renormalize,
