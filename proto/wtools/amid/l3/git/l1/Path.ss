@@ -5,13 +5,79 @@
 
 const _ = _global_.wTools;
 // const Parent = _.uri.path;
-/* qqq : for Dmytro : bad */
+/* aaa : for Dmytro : bad */ /* Dmytro : fixed, not me */
+/* aaa for Dmytro : check NpmTools */ /* Dmytro : checked, namespaces have similar declaration */
 const Parent = _.uri;
 const Self = _.git.path = _.git.path || Object.create( Parent );
 
 // --
 //
 // --
+
+/**
+ * Routine parse() parse string path into components.
+ * Routine supports three modes of parsing : full, atomic, objects.
+ * By default mode `full` is used.
+ *
+ * @example
+ * var srcPath = 'git+https:///github.com/user.repo.git/!alpha';
+ * _.git.path.parse( srcPath );
+ * // returns
+ * // {
+ * //   protocol : 'git+https',
+ * //   longPath : '/github.com/user/repo.git/',
+ * //   tag : 'alpha',
+ * //   localVcsPath : './',
+ * //   protocols : [ 'git', 'https' ],
+ * //   isFixated : false,
+ * //   service : 'github.com',
+ * //   user : 'user',
+ * //   repo : 'repo',
+ * // };
+ *
+ * @example
+ * var srcPath = 'git+https:///github.com/user.repo.git/!alpha';
+ * _.git.path.parse({ remotePath : srcPath, full : 0, atomic : 1 });
+ * // returns
+ * // {
+ * //   protocol : 'git+https',
+ * //   tag : 'alpha',
+ * //   localVcsPath : './',
+ * //   service : 'github.com',
+ * //   user : 'user',
+ * //   repo : 'repo',
+ * //   isGlobal : true,
+ * // };
+ *
+ * @example
+ * var srcPath = 'git+https:///github.com/user.repo.git/!alpha';
+ * _.git.path.parse({ remotePath : srcPath, full : 0, atomic : 0, objects : 1 });
+ * // returns
+ * // {
+ * //   service : 'github.com',
+ * //   user : 'user',
+ * //   repo : 'repo',
+ * // };
+ *
+ * First parameter set :
+ * @param { String } remotePath - String path.
+ * Second parameter set :
+ * @param { Aux } o - Options map.
+ * @param { String|Aux } o.remotePath - Path to parse.
+ * @param { BoolLike } o.full - Enables full parsing. Default is 1.
+ * @param { BoolLike } o.full - Enables atomic parsing. Default is 0.
+ * @param { BoolLike } o.objects - Enables parsing of objects. Default is 1.
+ * @returns { Map } - Returns map with parsed path.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-remotePath-} has incompatible type.
+ * @throws { Error } If options map {-o-} has incompatible type.
+ * @throws { Error } If options map {-o-} has unknown option.
+ * @throws { Error } If options map {-o-} has conflicting options or no options for parsing.
+ * @throws { Error } If {-remotePath-} has tag and version simultaneously.
+ * @function parse
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
 
 function parse_head( routine, args )
 {
@@ -188,6 +254,32 @@ let parse = _.routine.uniteCloning_replaceByUnite( parse_head, parse_body );
 
 //
 
+/**
+ * Routine str() assembles path string from components.
+ *
+ * @example
+ * let parsed =
+ * {
+ *   protocol : 'git+https',
+ *   tag : 'alpha',
+ *   localVcsPath : './',
+ *   service : 'github.com',
+ *   user : 'user',
+ *   repo : 'repo',
+ *   isGlobal : true,
+ * };
+ * _.git.path.str( parsed );
+ * // returns : 'git+https:///github.com/user.repo.git!alpha'
+ *
+ * @param { Aux|String } srcPath - Map with parsed path components.
+ * @returns { String } - Returns path string.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @function str
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
+
 function str( srcPath )
 {
   _.assert( arguments.length === 1, 'Expects single argument {-srcPath-}' );
@@ -200,8 +292,8 @@ function str( srcPath )
   let result = '';
   let isParsedAtomic = srcPath.isFixated === undefined && srcPath.protocols === undefined;
 
-  if( isParsedAtomic && srcPath.protocol === undefined && srcPath.localVcsPath === undefined )
-  throw _.err( 'Cannot create path from objects. Not enough information about protocols' );
+  // if( isParsedAtomic && srcPath.protocol === undefined && srcPath.localVcsPath === undefined )
+  // throw _.err( 'Cannot create path from objects. Not enough information about protocols' );
 
   if( srcPath.protocol )
   result += srcPath.protocol + '://';
@@ -246,6 +338,25 @@ function str( srcPath )
 
 //
 
+/**
+ * Routine normalize() transform provided string path {-srcPath-} to normalized form.
+ * Normalized form is global git path with protocols included part `git`.
+ * For remote path it looks like:
+ * git[+protocol]:///[service]/[user]/[repo]/[query][tag|hash]
+ *
+ * @example
+ * _.git.path.normalize( 'https://github.com/user.repo.git/!alpha' );
+ * // returns : 'git+https:///github.com/user.repo.git/!alpha'
+ *
+ * @param { String } srcPath - Path to normalize.
+ * @returns { String } - Returns normalized path.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @function normalize
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
+
 function normalize( srcPath )
 {
   _.assert( arguments.length === 1 );
@@ -285,6 +396,24 @@ function normalize( srcPath )
 // }
 
 //
+
+/**
+ * Routine nativize() transform provided string path {-srcPath-} to nativized for utility Git form.
+ * For remote path it looks like:
+ * [protocol]://[service]/[user]/[repo]
+ *
+ * @example
+ * _.git.path.nativize( 'git+https:///github.com/user.repo.git/!alpha' );
+ * // returns : 'https://github.com/user.repo.git'
+ *
+ * @param { String } srcPath - Path to nativize.
+ * @returns { String } - Returns nativized path.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @function nativize
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
 
 function nativize( srcPath )
 {
@@ -334,6 +463,24 @@ function nativize( srcPath )
 
 //
 
+/**
+ * Routine refine() transform provided string path {-srcPath-}.
+ * Routine refines up tokens in path.
+ * Works on local hard drive path.
+ *
+ * @example
+ * _.git.path.refine( 'hd:\\some\local\repo' );
+ * // returns : 'hd://some/local/repo'
+ *
+ * @param { String } srcPath - Path to refine.
+ * @returns { String } - Returns refined path.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @function refine
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
+
 function refine( srcPath )
 {
   _.assert( arguments.length === 1, 'Expects single path {-srcPath-}' );
@@ -346,9 +493,32 @@ function refine( srcPath )
 
 //
 
-function isFixated( filePath )
+/**
+ * Routine isFixated() checks that provided string path {-srcPath-} has a valid version ( hash ).
+ *
+ * @example
+ * _.git.path.isFixated( 'git+https:///github.com/user.repo.git' );
+ * // returns : false
+ *
+ * @example
+ * _.git.path.isFixated( 'git+https:///github.com/user.repo.git/!alpha' );
+ * // returns : false
+ *
+ * @example
+ * _.git.path.isFixated( 'git+https:///github.com/user.repo.git/#ab6h2c8' );
+ * // returns : true
+ *
+ * @param { String|Aux } srcPath - Path to check.
+ * @returns { Boolean } - Returns true if path has valid version, otherwise, returns false.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @function isFixated
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
+ */
+
+function isFixated( srcPath )
 {
-  let parsed = _.git.path.parse({ remotePath : filePath, full : 0, atomic : 1 });
+  let parsed = _.git.path.parse({ remotePath : srcPath, full : 0, atomic : 1 });
 
   if( !parsed.hash )
   return false;
@@ -365,22 +535,36 @@ function isFixated( filePath )
 //
 
 /**
- * @summary Changes hash in provided path `o.remotePath` to hash of latest commit available.
- * @param {Object} o Options map.
- * @param {String} o.remotePath Remote path.
- * @param {Number} o.logger=0 Level of verbosity.
- * @function pathFixate
- * @namespace wTools.git
- * @module Tools/mid/GitTools
+ * Routine fixate() changes hash in provided path {-o.remotePath-} to hash of latest available commit.
+ *
+ * @example
+ * _.git.path.fixate( 'git+https:///github.com/user.repo.git' );
+ * // returns : 'git+https://github.com/user.repo.git#abc6e1da8be34f69d24af6f90f323816a9d83f3b'
+ *
+ * First parameter set :
+ * @param { String } srcPath - Path to fixate.
+ * Second parameter set :
+ * @param { Aux } o - Options map.
+ * @param { String|Aux } o.srcPath - Path to fixate.
+ * @param { Number } o.logger - Level of verbosity.
+ * @returns { String } - Returns fixated path.
+ * @throws { Error } If arguments.length is not equal to 1.
+ * @throws { Error } If {-srcPath-} has incompatible type.
+ * @throws { Error } If options map {-o-} has incompatible type.
+ * @throws { Error } If options map {-o-} has unknown option.
+ * @function fixate
+ * @module Tools/GitTools
+ * @namespace Tools.git.path
  */
 
 function fixate( o )
 {
-  let path = _.uri;
 
   if( !_.mapIs( o ) )
   o = { remotePath : o }
   _.routine.options_( fixate, o );
+  // o = { remotePath : o };
+  // _.routineOptions( fixate, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let parsed = _.git.path.parse({ remotePath : o.remotePath });
@@ -390,7 +574,7 @@ function fixate( o )
     logger : o.logger,
   });
 
-  let result = path.str
+  let result = _.git.path.str
   ({
     protocol : parsed.protocol,
     longPath : parsed.longPath,
@@ -408,7 +592,8 @@ defaults.logger = 0;
 // declare
 // --
 
-/* qqq : for Dmytro : jsdoc */
+/* aaa : for Dmytro : jsdoc */ /* Dmytro : documented */
+/* aaa for Dmytro : use namespace in module */ /* Dmytro : used */
 
 let Extension =
 {

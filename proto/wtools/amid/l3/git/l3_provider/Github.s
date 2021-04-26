@@ -58,7 +58,6 @@ function repositoryInitAct( o )
   const self = this;
   _.map.assertHasAll( o, repositoryInitAct.defaults );
   _.assert( _.aux.is( o.remotePath ) );
-  const ready = new _.Consequence();
 
   return this._open( o )
   .then( ( octokit ) =>
@@ -91,7 +90,6 @@ function repositoryDeleteAct( o )
   const self = this;
   _.map.assertHasAll( o, repositoryDeleteAct.defaults );
   _.assert( _.aux.is( o.remotePath ) );
-  const ready = new _.Consequence();
 
   return this._open( o )
   .then( ( octokit ) =>
@@ -210,7 +208,10 @@ function pullOpenAct( o )
   .finally( ( err, arg ) =>
   {
     if( err )
-    throw _.err( `Error code : ${ err.statusCode }. ${ err.message }` );
+    {
+      _.errAttend( err );
+      throw _.err( `Error code : ${ err.status }. ${ err.message }` );
+    }
 
     if( o.logger && o.logger.verbosity >= 3 )
     o.logger.log( arg );
@@ -223,14 +224,10 @@ function pullOpenAct( o )
 
 pullOpenAct.defaults =
 {
-  token : null,
-  remotePath : null,
-  descriptionHead : null,
-  descriptionBody : null,
-  srcBranch : null,
-  dstBranch : null,
-  logger : null,
+  ... Parent.pullOpenAct.defaults,
 };
+
+/* aaa for Dmytro : should use parent defaults */ /* Dmytro : parent defaults is used */
 
 //
 
