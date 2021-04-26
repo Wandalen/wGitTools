@@ -5793,7 +5793,7 @@ var KnownHooks =
 let Extension =
 {
 
-  protocols : [ 'git' ],
+  protocols : [ 'git', 'git+http', 'git+https', 'git+ssh', 'git+hd', 'git+file' ],
 
   // checker
 
