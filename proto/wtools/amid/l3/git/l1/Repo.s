@@ -192,22 +192,76 @@ _collectionExportString_functor.defaults =
 
 function providerForPath( o )
 {
+  if( _.strIs( o ) )
+  o = { remotePath : o };
+
+  _.assert( arguments.length === 1 );
   _.routine.options( providerForPath, o );
+
   o.originalRemotePath = o.originalRemotePath || o.remotePath;
-  if( _.strIs( o.remotePath ) )
-  o.remotePath = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
-  let provider = _.repo.provider[ o.remotePath.service ];
+
+  let providerKey = providerGetService( o.originalRemotePath );
+
+  let provider = _.repo.provider[ providerKey ];
+
   if( !provider )
-  throw _.err( `No repo provider for service::${o.remotePath.service}` );
+  {
+    if( providerKey )
+    {
+      provider = _.repo.provider.git;
+    }
+    else
+    {
+      providerKey = providerGetProtocol( o.originalRemotePath );
+      provider = _.repo.provider[ providerKey ];
+    }
+
+    if( !provider )
+    throw _.err( `No repo provider for path::${ o.originalRemotePath }` );
+  }
+
   return provider;
+
+  /* */
+
+  function providerGetService( remotePath )
+  {
+    if( _.strIs( o.remotePath ) )
+    o.remotePath = _.git.path.parse({ remotePath, full : 0, atomic : 0, objects : 1 });
+
+    if( o.remotePath.service )
+    return o.remotePath.service;
+  }
+
+  /* */
+
+  function providerGetProtocol( remotePath )
+  {
+    o.remotePath = _.uri.parse( remotePath );
+    if( !o.remotePath.protocol )
+    return _.fileSystem.defaultProtocol;
+    return o.remotePath.protocol;
+  }
 }
+
+// function providerForPath( o )
+// {
+//   _.routine.options( providerForPath, o );
+//   o.originalRemotePath = o.originalRemotePath || o.remotePath;
+//   if( _.strIs( o.remotePath ) )
+//   o.remotePath = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
+//   let provider = _.repo.provider[ o.remotePath.service ];
+//   if( !provider )
+//   throw _.err( `No repo provider for service::${o.remotePath.service}` );
+//   return provider;
+// }
 
 providerForPath.defaults =
 {
   originalRemotePath : null,
   remotePath : null,
   throwing : 0,
-}
+};
 
 //
 
@@ -564,7 +618,7 @@ let programList = _request_functor
 function vcsFor( o )
 {
   if( !_.mapIs( o ) )
-  o = { filePath : o }
+  o = { filePath : o };
 
   _.assert( arguments.length === 1 );
   _.routine.options( vcsFor, o );
@@ -593,7 +647,7 @@ function vcsFor( o )
 vcsFor.defaults =
 {
   filePath : null,
-}
+};
 
 // --
 // declare
