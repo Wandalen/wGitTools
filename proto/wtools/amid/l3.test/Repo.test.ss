@@ -43,6 +43,118 @@ function onSuiteEnd( test )
 // tests
 // --
 
+function providerForPath( test )
+{
+  test.case = 'remotePath - git, github, no protocol';
+  var got = _.repo.providerForPath( 'git@github.com:user/repo.git' );
+  test.identical( got, _.repo.provider.github );
+
+  test.case = 'remotePath - git, github, git protocol';
+  var got = _.repo.providerForPath( 'git://git@github.com:user/repo.git' );
+  test.identical( got, _.repo.provider.github );
+
+  test.case = 'remotePath - git, github, https protocol';
+  var got = _.repo.providerForPath( 'https://github.com/user/repo.git' );
+  test.identical( got, _.repo.provider.github );
+
+  test.case = 'remotePath - git, github, git+https protocol';
+  var got = _.repo.providerForPath( 'git+https://git@github.com/user/repo.git' );
+  test.identical( got, _.repo.provider.github );
+
+  test.case = 'remotePath - git, github, ssh protocol';
+  var got = _.repo.providerForPath( 'ssh://git@github.com/user/repo.git' );
+  test.identical( got, _.repo.provider.github );
+
+  test.case = 'remotePath - git, github, git+ssh protocol';
+  var got = _.repo.providerForPath( 'git+ssh://git@github.com/user/repo.git' );
+  test.identical( got, _.repo.provider.github );
+
+  /* */
+
+  test.case = 'remotePath - git, gitlab, no protocol';
+  var got = _.repo.providerForPath( 'git@gitlab.com:user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, git protocol';
+  var got = _.repo.providerForPath( 'git://git@gitlab.com:user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, https protocol';
+  var got = _.repo.providerForPath( 'https://gitlab.com/user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, git+https protocol';
+  var got = _.repo.providerForPath( 'git+https://git@gitlab.com/user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, ssh protocol';
+  var got = _.repo.providerForPath( 'ssh://git@gitlab.com/user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, git+ssh protocol';
+  var got = _.repo.providerForPath( 'git+ssh://git@gitlab.com/user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  /* */
+
+  test.case = 'remotePath - npm';
+  var got = _.repo.providerForPath( 'npm://wmodulefortesting1' );
+  test.identical( got, _.repo.provider.npm );
+
+  test.case = 'remotePath - global, npm';
+  var got = _.repo.providerForPath( 'npm:///wmodulefortesting1' );
+  test.identical( got, _.repo.provider.npm );
+
+  /* */
+
+  test.case = 'remotePath - http';
+  var got = _.repo.providerForPath( 'http://remote-path.com' );
+  test.identical( got, _.repo.provider.http );
+
+  test.case = 'remotePath - global, http';
+  var got = _.repo.providerForPath( 'http:///remote-path.com' );
+  test.identical( got, _.repo.provider.http );
+
+  test.case = 'remotePath - https';
+  var got = _.repo.providerForPath( 'https://remote-path.com' );
+  test.identical( got, _.repo.provider.http );
+
+  test.case = 'remotePath - global, https';
+  var got = _.repo.providerForPath( 'https:///remote-path.com' );
+  test.identical( got, _.repo.provider.http );
+
+  /* */
+
+  test.case = 'remotePath - empty string';
+  var got = _.repo.providerForPath( '' );
+  test.identical( got, _.repo.provider.hd );
+
+  test.case = 'remotePath - local hard drive path';
+  var got = _.repo.providerForPath( '/a/b/c' );
+  test.identical( got, _.repo.provider.hd );
+
+  test.case = 'remotePath - hard drive path with protocol';
+  var got = _.repo.providerForPath( 'hd://a/b/c' );
+  test.identical( got, _.repo.provider.hd );
+
+  test.case = 'remotePath - global hard drive path with protocol';
+  var got = _.repo.providerForPath( 'file:///a/b/c' );
+  test.identical( got, _.repo.provider.hd );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'without arguments';
+  test.shouldThrowErrorSync( () => _.repo.providerForPath() );
+
+  test.case = 'extra arguments';
+  test.shouldThrowErrorSync( () => _.repo.providerForPath( 'https://github.com/user/repo.git', 'hd:///local' ) );
+}
+
+//
+
 function vcsFor( test )
 {
   /* - */
@@ -90,16 +202,17 @@ function vcsFor( test )
 function pullListRemote( test )
 {
   let a = test.assetFor( 'basic' );
+  // let user = 'wtools-bot';
   let user = 'dmvict';
   let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
-  let testing = _globals_.testing.wTools;
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
-  if( !validPlatform || !insideTestContainer || !validEnvironments )
-  return test.true( true );
+  // let testing = _globals_.testing.wTools;
+  // let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  // let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  // let insideTestContainer = _.process.insideTestContainer();
+  // if( !validPlatform || !insideTestContainer || !validEnvironments )
+  // return test.true( true );
 
   /* - */
 
@@ -649,6 +762,8 @@ const Proto =
 
   tests :
   {
+    providerForPath,
+
     vcsFor,
 
     pullListRemote,
