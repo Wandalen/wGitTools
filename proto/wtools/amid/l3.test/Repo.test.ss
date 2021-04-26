@@ -90,7 +90,7 @@ function vcsFor( test )
 function pullListRemote( test )
 {
   let a = test.assetFor( 'basic' );
-  let user = 'dmvict';
+  let user = 'wtools-bot';
   let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
