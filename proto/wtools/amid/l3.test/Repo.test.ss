@@ -43,50 +43,6 @@ function onSuiteEnd( test )
 // tests
 // --
 
-function vcsFor( test )
-{
-  /* - */
-
-  test.case = 'no vcs'
-  var vcs = _.repo.vcsFor( 'xxx:///' );
-  test.identical( vcs, null );
-
-  /* - */
-
-  test.case = 'git'
-  var vcs = _.repo.vcsFor( 'git+https:///' );
-  if( _.git )
-  test.identical( vcs, _.git );
-  else
-  test.identical( vcs, null );
-
-  /* - */
-
-  test.case = 'npm'
-  var vcs = _.repo.vcsFor( 'npm:///' );
-  if( _.npm )
-  test.identical( vcs, _.npm );
-  else
-  test.identical( vcs, null );
-
-  /* - */
-
-  test.case = 'special'
-  var vcs = _.repo.vcsFor( [] );
-  test.identical( vcs, null );
-
-  /* - */
-
-  if( !Config.debug )
-  return;
-
-  test.shouldThrowErrorSync( () => _.repo.vcsFor() )
-  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : 1 }) )
-  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : '/' }) )
-}
-
-//
-
 function pullListRemote( test )
 {
   let a = test.assetFor( 'basic' );
@@ -649,12 +605,12 @@ const Proto =
 
   tests :
   {
-    vcsFor,
-
     pullListRemote,
 
     pullOpen,
     pullOpenRemote,
+
+    vcsFor,
   },
 
 };
