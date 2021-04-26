@@ -18910,7 +18910,7 @@ function configRead( test )
   {
     test.case = 'local git repository exists, default config';
     var got = _.git.configRead( a.abs( '.' ) );
-    test.identical( _.mapKeys( got ), [ 'core' ] );
+    test.identical( _.props.keys( got ), [ 'core' ] );
     test.true( _.mapIs( got.core ) );
     test.identical( got.core.bare, false );
     test.identical( got.core.filemode, !( process.platform === 'win32' ) );
@@ -18926,7 +18926,7 @@ function configRead( test )
   {
     test.case = 'local git repository exists, not default config';
     var got = _.git.configRead( a.abs( '.' ) );
-    test.identical( _.mapKeys( got ), [ 'core', 'user' ] );
+    test.identical( _.props.keys( got ), [ 'core', 'user' ] );
     test.true( _.mapIs( got.core ) );
     test.identical( got.core.bare, false );
     test.identical( got.core.filemode, !( process.platform === 'win32' ) );
@@ -24760,7 +24760,7 @@ function resetWithOptionDry( test )
 
   function programMake( locals )
   {
-    locals = _.mapSupplement( { toolsPath : _.module.resolve( 'wTools' ) }, locals );
+    locals = _.props.supplement( { toolsPath : _.module.resolve( 'wTools' ) }, locals );
     return a.program({ routine : testApp, locals });
   }
 
@@ -25669,7 +25669,7 @@ const Proto =
   tests :
   {
 
-    // checker
+    // dichotomy
 
     stateIsHash,
     stateIsTag,
@@ -25696,7 +25696,7 @@ const Proto =
     versionIsCommitHash,
     versionsPull,
 
-    // checker
+    // dichotomy
 
     isUpToDate,
     isUpToDateRemotePathIsMap,

@@ -22,7 +22,7 @@ function parse_head( routine, args )
   if( _.strIs( o ) )
   o = { remotePath : o };
 
-  _.routineOptions( parse, o );
+  _.routine.options_( parse, o );
   _.assert( _.strIs( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects file path {-o.remotePath-}' );
   _.assert
   (
@@ -45,7 +45,7 @@ function parse_body( o )
   let result = pathParse( o.remotePath, o.full );
   let objects = objectsParse( result.longPath, result.protocol );
 
-  result = _.mapExtend( result, objects );
+  result = _.props.extend( result, objects );
 
   if( o.full )
   return result;
@@ -63,7 +63,7 @@ function parse_body( o )
     let result = Object.create( null );
 
     let parsed1 = _.uri.parseConsecutive( remotePath );
-    _.mapExtend( result, parsed1 );
+    _.props.extend( result, parsed1 );
 
     if( !result.tag && !result.hash )
     result.tag = 'master';
@@ -170,7 +170,7 @@ function parse_body( o )
     const butMap = { longPath : null };
     if( _.strBegins( parsedPath.longPath, '/' ) )
     parsedPath.isGlobal = true;
-    return _.mapBut_( parsedPath, butMap );
+    return _.mapBut_( parsedPath, parsedPath, butMap );
   }
 }
 
@@ -184,7 +184,7 @@ parse_body.defaults =
 
 //
 
-let parse = _.routine.uniteCloning_( parse_head, parse_body );
+let parse = _.routine.uniteCloning_replaceByUnite( parse_head, parse_body );
 
 //
 
@@ -380,7 +380,7 @@ function fixate( o )
 
   if( !_.mapIs( o ) )
   o = { remotePath : o }
-  _.routineOptions( fixate, o );
+  _.routine.options_( fixate, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let parsed = _.git.path.parse({ remotePath : o.remotePath });
@@ -426,7 +426,7 @@ let Extension =
 
 }
 
-_.mapExtend( Self, Extension );
+_.props.extend( Self, Extension );
 
 //
 

@@ -136,8 +136,8 @@ function _collectionExportString_functor( fo )
     _.assert( 1 <= args.length && args.length <= 2 );
     let o = args[ 1 ];
     o = _.routine.options( routine, o );
-    o.it = o.it || _.mapExtend( null, routine.itDefaults );
-    return _.unrollFrom([ args[ 0 ], o ]);
+    o.it = o.it || _.props.extend( null, routine.itDefaults );
+    return _.unroll.from([ args[ 0 ], o ]);
   }
 
   function elementArrayExportString_body( object, o )
@@ -238,7 +238,7 @@ function providerAmend( o )
     if( !dst )
     dst = _.repo.provider[ name ] = Object.create( null );
     let name2 = dst.name || o.src.name;
-    _.mapExtend( dst, o.src );
+    _.props.extend( dst, o.src );
     dst.name = name2;
   });
 
@@ -376,7 +376,7 @@ function pullOpen( o )
   function pullOpenOnRemoteServer()
   {
     const provider = _.repo.providerForPath({ remotePath : o.remotePath });
-    let o2 = _.mapExtend( null, o );
+    let o2 = _.props.extend( null, o );
     o2.remotePath = parsed;
     return provider.pullOpenAct( o2 ); /* xxx : think how to refactor or reorganize it */
   }
@@ -592,7 +592,7 @@ let Extension =
 
 }
 
-_.mapExtend( Self, Extension );
+_.props.extend( Self, Extension );
 
 //
 
