@@ -636,10 +636,17 @@ function vcsFor( o )
   let parsed = _.git.path.parse( o.filePath );
   // let parsed = _.uri.parseFull( o.filePath );
 
-  if( _.git && _.longHasAny( parsed.protocols, _.git.protocols ) )
+  if( _.git && _.longHas( _.git.protocols, parsed.protocol ) )
   return _.git;
-  if( _.npm && _.longHasAny( parsed.protocols, _.npm.protocols ) )
+  if( _.npm && _.longHasAny( _.npm.protocols, parsed.protocol ) )
   return _.npm;
+  if( _.http && _.longHasAny( _.http.protocols, parsed.protocol ) )
+  return _.http;
+
+  // if( _.git && _.longHasAny( parsed.protocols, _.git.protocols ) )
+  // return _.git;
+  // if( _.npm && _.longHasAny( parsed.protocols, _.npm.protocols ) )
+  // return _.npm;
 
   return null;
 }
