@@ -8148,7 +8148,7 @@ function statusRemoteTags( test )
     ({
       localPath : a.abs( 'clone' ),
       remoteCommits : 1,
-      remoteBranches : 1,
+      remoteBranches : 0,
       remoteTags : 1,
       detailing : 1,
       explaining : 1
@@ -8156,7 +8156,7 @@ function statusRemoteTags( test )
     var expected =
     {
       remoteCommits : false,
-      remoteBranches : false,
+      remoteBranches : null,
       remoteTags : false,
       status : false
     };
@@ -8175,7 +8175,7 @@ function statusRemoteTags( test )
     ({
       localPath : a.abs( 'clone' ),
       remoteCommits : 1,
-      remoteBranches : 1,
+      remoteBranches : 0,
       remoteTags : 1,
       detailing : 1,
       explaining : 1
@@ -8183,7 +8183,7 @@ function statusRemoteTags( test )
     var expected =
     {
       remoteCommits : false,
-      remoteBranches : false,
+      remoteBranches : null,
       remoteTags : 'refs/tags/v0.0.70\nrefs/tags/v0.0.70^{}',
       status : 'List of unpulled remote tags:\n  refs/tags/v0.0.70\n  refs/tags/v0.0.70^{}'
     };
@@ -8202,7 +8202,7 @@ function statusRemoteTags( test )
     ({
       localPath : a.abs( 'clone' ),
       remoteCommits : 1,
-      remoteBranches : 1,
+      remoteBranches : 0,
       remoteTags : 1,
       detailing : 1,
       explaining : 1
@@ -8210,7 +8210,7 @@ function statusRemoteTags( test )
     var expected =
     {
       remoteCommits : false,
-      remoteBranches : false,
+      remoteBranches : null,
       remoteTags : false,
       status : false
     };
@@ -8229,7 +8229,7 @@ function statusRemoteTags( test )
     ({
       localPath : a.abs( 'clone' ),
       remoteCommits : 1,
-      remoteBranches : 1,
+      remoteBranches : 0,
       remoteTags : 1,
       detailing : 1,
       explaining : 1
@@ -8237,7 +8237,7 @@ function statusRemoteTags( test )
     var expected =
     {
       remoteCommits : false,
-      remoteBranches : false,
+      remoteBranches : null,
       remoteTags : false,
       status : false
     };
@@ -8257,7 +8257,7 @@ function statusRemoteTags( test )
     ({
       localPath : a.abs( 'clone' ),
       remoteCommits : 1,
-      remoteBranches : 1,
+      remoteBranches : 0,
       remoteTags : 1,
       detailing : 1,
       explaining : 1
@@ -8265,7 +8265,7 @@ function statusRemoteTags( test )
     var expected =
     {
       remoteCommits : false,
-      remoteBranches : false,
+      remoteBranches : null,
       remoteTags : 'refs/tags/v0.0.70\nrefs/tags/v0.0.70^{}',
       status : 'List of unpulled remote tags:\n  refs/tags/v0.0.70\n  refs/tags/v0.0.70^{}'
     };
