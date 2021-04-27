@@ -165,6 +165,7 @@ module:
           - ../proto/node_modules/Tools
           - ../proto/node_modules/wgittools
           - ../proto/wtools
+          - ../proto/wtools/abase
           - ../proto/wtools/amid
           - ../proto/wtools/amid/l3
           - ../proto/wtools/amid/l3/git
@@ -186,6 +187,7 @@ module:
           - ../proto/wtools/amid/l3.test/_asset
           - ../proto/wtools/amid/l3.test/_asset/basic
           - ../proto/wtools/amid/l3.test/_asset/basic/File.txt
+          - ../proto/wtools/atop
     submodule:
       wTools:
         path: 'npm:///wTools'
