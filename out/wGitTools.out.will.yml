@@ -179,7 +179,11 @@ module:
           - ../proto/wtools/amid/l3/git/l1/Path.ss
           - ../proto/wtools/amid/l3/git/l1/Repo.s
           - ../proto/wtools/amid/l3/git/l3_provider
+          - ../proto/wtools/amid/l3/git/l3_provider/Git.s
           - ../proto/wtools/amid/l3/git/l3_provider/Github.s
+          - ../proto/wtools/amid/l3/git/l3_provider/HardDrive.s
+          - ../proto/wtools/amid/l3/git/l3_provider/Http.s
+          - ../proto/wtools/amid/l3/git/l3_provider/Npm.s
           - ../proto/wtools/amid/l3.test
           - ../proto/wtools/amid/l3.test/GitTools.test.ss
           - ../proto/wtools/amid/l3.test/Path.test.ss
