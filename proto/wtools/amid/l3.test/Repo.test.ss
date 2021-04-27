@@ -43,46 +43,114 @@ function onSuiteEnd( test )
 // tests
 // --
 
-function vcsFor( test )
+function providerForPath( test )
 {
-  /* - */
+  test.case = 'remotePath - git, github, no protocol';
+  var got = _.repo.providerForPath( 'git@github.com:user/repo.git' );
+  test.identical( got, _.repo.provider.github );
 
-  test.case = 'no vcs'
-  var vcs = _.repo.vcsFor( 'xxx:///' );
-  test.identical( vcs, null );
+  test.case = 'remotePath - git, github, git protocol';
+  var got = _.repo.providerForPath( 'git://git@github.com:user/repo.git' );
+  test.identical( got, _.repo.provider.github );
 
-  /* - */
+  test.case = 'remotePath - git, github, https protocol';
+  var got = _.repo.providerForPath( 'https://github.com/user/repo.git' );
+  test.identical( got, _.repo.provider.github );
 
-  test.case = 'git'
-  var vcs = _.repo.vcsFor( 'git+https:///' );
-  if( _.git )
-  test.identical( vcs, _.git );
-  else
-  test.identical( vcs, null );
+  test.case = 'remotePath - git, github, git+https protocol';
+  var got = _.repo.providerForPath( 'git+https://git@github.com/user/repo.git' );
+  test.identical( got, _.repo.provider.github );
 
-  /* - */
+  test.case = 'remotePath - git, github, ssh protocol';
+  var got = _.repo.providerForPath( 'ssh://git@github.com/user/repo.git' );
+  test.identical( got, _.repo.provider.github );
 
-  test.case = 'npm'
-  var vcs = _.repo.vcsFor( 'npm:///' );
-  if( _.npm )
-  test.identical( vcs, _.npm );
-  else
-  test.identical( vcs, null );
+  test.case = 'remotePath - git, github, git+ssh protocol';
+  var got = _.repo.providerForPath( 'git+ssh://git@github.com/user/repo.git' );
+  test.identical( got, _.repo.provider.github );
 
-  /* - */
+  /* */
 
-  test.case = 'special'
-  var vcs = _.repo.vcsFor( [] );
-  test.identical( vcs, null );
+  test.case = 'remotePath - git, gitlab, no protocol';
+  var got = _.repo.providerForPath( 'git@gitlab.com:user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, git protocol';
+  var got = _.repo.providerForPath( 'git://git@gitlab.com:user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, https protocol';
+  var got = _.repo.providerForPath( 'https://gitlab.com/user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, git+https protocol';
+  var got = _.repo.providerForPath( 'git+https://git@gitlab.com/user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, ssh protocol';
+  var got = _.repo.providerForPath( 'ssh://git@gitlab.com/user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, git+ssh protocol';
+  var got = _.repo.providerForPath( 'git+ssh://git@gitlab.com/user/repo.git' );
+  test.identical( got, _.repo.provider.git );
+
+  /* */
+
+  test.case = 'remotePath - npm';
+  var got = _.repo.providerForPath( 'npm://wmodulefortesting1' );
+  test.identical( got, _.repo.provider.npm );
+
+  test.case = 'remotePath - global, npm';
+  var got = _.repo.providerForPath( 'npm:///wmodulefortesting1' );
+  test.identical( got, _.repo.provider.npm );
+
+  /* */
+
+  test.case = 'remotePath - http';
+  var got = _.repo.providerForPath( 'http://remote-path.com' );
+  test.identical( got, _.repo.provider.http );
+
+  test.case = 'remotePath - global, http';
+  var got = _.repo.providerForPath( 'http:///remote-path.com' );
+  test.identical( got, _.repo.provider.http );
+
+  test.case = 'remotePath - https';
+  var got = _.repo.providerForPath( 'https://remote-path.com' );
+  test.identical( got, _.repo.provider.http );
+
+  test.case = 'remotePath - global, https';
+  var got = _.repo.providerForPath( 'https:///remote-path.com' );
+  test.identical( got, _.repo.provider.http );
+
+  /* */
+
+  test.case = 'remotePath - empty string';
+  var got = _.repo.providerForPath( '' );
+  test.identical( got, _.repo.provider.hd );
+
+  test.case = 'remotePath - local hard drive path';
+  var got = _.repo.providerForPath( '/a/b/c' );
+  test.identical( got, _.repo.provider.hd );
+
+  test.case = 'remotePath - hard drive path with protocol';
+  var got = _.repo.providerForPath( 'hd://a/b/c' );
+  test.identical( got, _.repo.provider.hd );
+
+  test.case = 'remotePath - global hard drive path with protocol';
+  var got = _.repo.providerForPath( 'file:///a/b/c' );
+  test.identical( got, _.repo.provider.hd );
 
   /* - */
 
   if( !Config.debug )
   return;
 
-  test.shouldThrowErrorSync( () => _.repo.vcsFor() )
-  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : 1 }) )
-  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : '/' }) )
+  test.case = 'without arguments';
+  test.shouldThrowErrorSync( () => _.repo.providerForPath() );
+
+  test.case = 'extra arguments';
+  test.shouldThrowErrorSync( () => _.repo.providerForPath( 'https://github.com/user/repo.git', 'hd:///local' ) );
 }
 
 //
@@ -90,7 +158,7 @@ function vcsFor( test )
 function pullListRemote( test )
 {
   let a = test.assetFor( 'basic' );
-  let user = 'dmvict';
+  let user = 'wtools-bot';
   let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
@@ -623,6 +691,118 @@ function pullOpenRemote( test )
 
 pullOpenRemote.timeOut = 60000;
 
+//
+
+function vcsFor( test )
+{
+  test.case = 'not known protocol';
+  var vcs = _.repo.vcsFor( 'xxx:///' );
+  test.identical( vcs, null );
+
+  /* */
+
+  test.case = 'git';
+  var vcs = _.repo.vcsFor( 'git:///' );
+  if( _.git )
+  test.identical( vcs, _.git );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'git+https';
+  var vcs = _.repo.vcsFor( 'git+https:///' );
+  if( _.git )
+  test.identical( vcs, _.git );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'git+ssh';
+  var vcs = _.repo.vcsFor( 'git+ssh:///' );
+  if( _.git )
+  test.identical( vcs, _.git );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'git+hd';
+  var vcs = _.repo.vcsFor( 'git+hd:///' );
+  if( _.git )
+  test.identical( vcs, _.git );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'git+file';
+  var vcs = _.repo.vcsFor( 'git+file:///' );
+  if( _.git )
+  test.identical( vcs, _.git );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'git+bad - not valid protocol';
+  var vcs = _.repo.vcsFor( 'git+bad:///' );
+  test.identical( vcs, null );
+
+  /* */
+
+  test.case = 'npm';
+  var vcs = _.repo.vcsFor( 'npm:///' );
+  if( _.npm )
+  test.identical( vcs, _.npm );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'npm+https';
+  var vcs = _.repo.vcsFor( 'npm+https:///' );
+  test.identical( vcs, null );
+
+  /* */
+
+  test.case = 'http';
+  var vcs = _.repo.vcsFor( 'http:///' );
+  if( _.npm )
+  test.identical( vcs, _.http );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'http+npm';
+  var vcs = _.repo.vcsFor( 'http+npm:///' );
+  test.identical( vcs, null );
+
+  test.case = 'https';
+  var vcs = _.repo.vcsFor( 'https:///' );
+  if( _.npm )
+  test.identical( vcs, _.http );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'https+npm';
+  var vcs = _.repo.vcsFor( 'https+npm:///' );
+  test.identical( vcs, null );
+
+  /* */
+
+  test.case = 'special';
+  var vcs = _.repo.vcsFor( [] );
+  test.identical( vcs, null );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'without arguments';
+  test.shouldThrowErrorSync( () => _.repo.vcsFor() )
+
+  test.case = 'wrong type of filePath';
+  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : 1 }) )
+
+  test.case = 'filePath is not empty array';
+  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : [ 'git:///' ] }) )
+
+  test.case = 'filePath is not a global path';
+  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : '/' }) )
+}
+
+//
+
 // --
 // declare
 // --
@@ -649,12 +829,14 @@ const Proto =
 
   tests :
   {
-    vcsFor,
+    providerForPath,
 
     pullListRemote,
 
     pullOpen,
     pullOpenRemote,
+
+    vcsFor,
   },
 
 };

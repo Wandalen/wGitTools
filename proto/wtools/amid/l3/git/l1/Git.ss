@@ -5599,6 +5599,172 @@ const reset = _.routine.unite( reset_head, reset_body );
 //
 //
 
+function tagList( o )
+{
+  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
+  _.routine.options( tagList, o );
+  _.assert( _.strDefined( o.localPath ), 'Expects local path to git repository {-o.localPath-}' );
+  _.assert( _.numberIs( o.lines ), 'Expects number of lines {-o.lines-}' );
+
+  let start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    sync : 1,
+    mode : 'spawn',
+    outputCollecting : 1,
+    throwingExitCode : 1,
+    inputMirroring : 0,
+    outputPiping : 0,
+  });
+
+  let listOptions = o.withDescription ? '-ln' : `-l`;
+  let lines = o.withDescription ? o.lines : '';
+  let result = start( `git tag ${ listOptions }${ lines }` );
+
+  return result.output;
+}
+
+tagList.defaults =
+{
+  localPath : null,
+  withDescription : 1,
+  lines : 1,
+};
+
+//
+
+/* aaa : for Dmytro : implement tagDelete* - 2 routines for branch and ref tag, cover */ /* Dmytro : implemented and covered */
+
+function tagDeleteBranch( o )
+{
+  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
+  _.routine.options( tagDeleteBranch, o );
+  _.assert( _.strDefined( o.localPath ), 'Expects local path to git repository {-o.localPath-}' );
+  _.assert( _.strDefined( o.tag ), 'Expects tag {-o.tag-} to delete' );
+  _.assert( o.local || o.remote );
+
+  let ready = _.take( null );
+  let start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    sync : o.sync,
+    mode : 'shell',
+    ready,
+    outputCollecting : 1,
+    throwingExitCode : o.throwing,
+    inputMirroring : 0,
+    outputPiping : 0,
+  });
+
+  let force = o.force ? '--force' : '';
+
+  let commands = [];
+  if( o.local )
+  commands.push( `git branch --delete ${ force } ${ o.tag }` );
+
+  if( o.remote )
+  {
+    let remotePath = _.git.remotePathFromLocal( o.localPath );
+    let tagExistsremote = _.git.repositoryHasTag
+    ({
+      remotePath,
+      localPath : o.localPath,
+      tag : o.tag,
+      remote : 1,
+      local : 0
+    });
+    if( tagExistsremote )
+    commands.push( `git push --delete ${ force } origin ${ o.tag }` );
+  }
+
+  start( commands );
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+tagDeleteBranch.defaults =
+{
+  localPath : null,
+  tag : null,
+  force : 1,
+  local : 1,
+  remote : 1,
+  throwing : 1,
+  sync : 0,
+};
+
+//
+
+function tagDeleteTag( o )
+{
+  _.assert( arguments.length === 1, 'Expects options map {-o-}' );
+  _.routine.options( tagDeleteTag, o );
+  _.assert( _.strDefined( o.localPath ), 'Expects local path to git repository {-o.localPath-}' );
+  _.assert( _.strDefined( o.tag ), 'Expects tag {-o.tag-} to delete' );
+  _.assert( o.local || o.remote );
+
+  let ready = _.take( null );
+  let start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    sync : o.sync,
+    mode : 'shell',
+    ready,
+    outputCollecting : 1,
+    throwingExitCode : o.throwing,
+    inputMirroring : 0,
+    outputPiping : 0,
+  });
+
+  let commands = [];
+  if( o.local )
+  commands.push( `git tag --delete ${ o.tag }` );
+
+  if( o.remote )
+  {
+    let remotePath = _.git.remotePathFromLocal( o.localPath );
+    let tagExistsremote = _.git.repositoryHasTag
+    ({
+      remotePath,
+      localPath : o.localPath,
+      tag : o.tag,
+      remote : 1,
+      local : 0
+    });
+    if( tagExistsremote )
+    commands.push( `git push --delete ${ o.force ? '--force' : '' } origin refs/tags/${ o.tag }` );
+  }
+
+  start( commands );
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+tagDeleteTag.defaults =
+{
+  localPath : null,
+  tag : null,
+  force : 1,
+  local : 1,
+  remote : 1,
+  throwing : 1,
+  sync : 0,
+};
+
+//
+
 /**
  * Routine tagMake() makes tag for some commit version of repository {-o.toVersion-}.
  * If {-o.toVersion-} is not defined, then tag adds to current HEAD commit.
@@ -5690,11 +5856,39 @@ function tagMake( o )
   // else
   // return start( `git tag -a ${o.tag} -m "${o.description}"` );
 
-  let tag = o.light ? o.tag : `-a ${ o.tag } -m '${ o.description }'`;
+  let provider = _.fileProvider; /* Dmytro : should be hard drive provider */
+  let path = provider.path;
+  let tag = o.tag;
+  let tempPath, description;
+  if( !o.light )
+  {
+    tag = `-a ${ o.tag } -m "${ o.description }"`;
+    if( process.platform === 'win32' )
+    {
+      let lines = _.strCount( o.description, '\n' );
+      if( lines )
+      {
+        tempPath = path.tempOpen( o.description );
+        let descriptionPath = path.join( tempPath, 'description' );
+        provider.fileWrite( descriptionPath, o.description );
+        tag = `-a ${ o.tag } -F ${ path.nativize( descriptionPath ) }`;
+      }
+    }
+  }
   let force = o.force ? '-f' : '';
   let toVersion = o.toVersion ? o.toVersion : '';
 
   start( `git tag ${ force } ${ tag } ${ toVersion }` );
+
+  ready.finally( ( err, arg ) =>
+  {
+    if( tempPath )
+    path.tempClose( tempPath );
+
+    if( err )
+    throw _.err( err );
+    return arg;
+  });
 
   // });
   //
@@ -5721,9 +5915,6 @@ tagMake.defaults =
   // deleting : 1,
   sync : 1,
 };
-
-/* qqq : for Dmytro : implement tagDelete - 2 routines for branch and ref tag, cover */
-/* qqq : for Dmytro : implement tagList, cover */
 
 //
 
@@ -5901,7 +6092,7 @@ var KnownHooks =
 let Extension =
 {
 
-  protocols : [ 'git' ],
+  protocols : [ 'git', 'git+http', 'git+https', 'git+ssh', 'git+hd', 'git+file' ],
 
   // dichotomy
 
@@ -6000,6 +6191,12 @@ let Extension =
   pull,
   push,
   reset,
+
+  // tag
+
+  tagList,
+  tagDeleteBranch,
+  tagDeleteTag,
   tagMake, /* aaa : cover */ /* Dmytro : covered */
 
   renormalize,
