@@ -155,130 +155,19 @@ function providerForPath( test )
 
 //
 
-function vcsFor( test )
-{
-  test.case = 'not known protocol';
-  var vcs = _.repo.vcsFor( 'xxx:///' );
-  test.identical( vcs, null );
-
-  /* */
-
-  test.case = 'git';
-  var vcs = _.repo.vcsFor( 'git:///' );
-  if( _.git )
-  test.identical( vcs, _.git );
-  else
-  test.identical( vcs, null );
-
-  test.case = 'git+https';
-  var vcs = _.repo.vcsFor( 'git+https:///' );
-  if( _.git )
-  test.identical( vcs, _.git );
-  else
-  test.identical( vcs, null );
-
-  test.case = 'git+ssh';
-  var vcs = _.repo.vcsFor( 'git+ssh:///' );
-  if( _.git )
-  test.identical( vcs, _.git );
-  else
-  test.identical( vcs, null );
-
-  test.case = 'git+hd';
-  var vcs = _.repo.vcsFor( 'git+hd:///' );
-  if( _.git )
-  test.identical( vcs, _.git );
-  else
-  test.identical( vcs, null );
-
-  test.case = 'git+file';
-  var vcs = _.repo.vcsFor( 'git+file:///' );
-  if( _.git )
-  test.identical( vcs, _.git );
-  else
-  test.identical( vcs, null );
-
-  test.case = 'git+bad - not valid protocol';
-  var vcs = _.repo.vcsFor( 'git+bad:///' );
-  test.identical( vcs, null );
-
-  /* */
-
-  test.case = 'npm';
-  var vcs = _.repo.vcsFor( 'npm:///' );
-  if( _.npm )
-  test.identical( vcs, _.npm );
-  else
-  test.identical( vcs, null );
-
-  test.case = 'npm+https';
-  var vcs = _.repo.vcsFor( 'npm+https:///' );
-  test.identical( vcs, null );
-
-  /* */
-
-  test.case = 'http';
-  var vcs = _.repo.vcsFor( 'http:///' );
-  if( _.npm )
-  test.identical( vcs, _.http );
-  else
-  test.identical( vcs, null );
-
-  test.case = 'http+npm';
-  var vcs = _.repo.vcsFor( 'http+npm:///' );
-  test.identical( vcs, null );
-
-  test.case = 'https';
-  var vcs = _.repo.vcsFor( 'https:///' );
-  if( _.npm )
-  test.identical( vcs, _.http );
-  else
-  test.identical( vcs, null );
-
-  test.case = 'https+npm';
-  var vcs = _.repo.vcsFor( 'https+npm:///' );
-  test.identical( vcs, null );
-
-  /* */
-
-  test.case = 'special';
-  var vcs = _.repo.vcsFor( [] );
-  test.identical( vcs, null );
-
-  /* - */
-
-  if( !Config.debug )
-  return;
-
-  test.case = 'without arguments';
-  test.shouldThrowErrorSync( () => _.repo.vcsFor() )
-
-  test.case = 'wrong type of filePath';
-  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : 1 }) )
-
-  test.case = 'filePath is not empty array';
-  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : [ 'git:///' ] }) )
-
-  test.case = 'filePath is not a global path';
-  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : '/' }) )
-}
-
-//
-
 function pullListRemote( test )
 {
   let a = test.assetFor( 'basic' );
-  // let user = 'wtools-bot';
-  let user = 'dmvict';
+  let user = 'wtools-bot';
   let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
-  // let testing = _globals_.testing.wTools;
-  // let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  // let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  // let insideTestContainer = _.process.insideTestContainer();
-  // if( !validPlatform || !insideTestContainer || !validEnvironments )
-  // return test.true( true );
+  let testing = _globals_.testing.wTools;
+  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let insideTestContainer = _.process.insideTestContainer();
+  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  return test.true( true );
 
   /* - */
 
@@ -802,6 +691,118 @@ function pullOpenRemote( test )
 
 pullOpenRemote.timeOut = 60000;
 
+//
+
+function vcsFor( test )
+{
+  test.case = 'not known protocol';
+  var vcs = _.repo.vcsFor( 'xxx:///' );
+  test.identical( vcs, null );
+
+  /* */
+
+  test.case = 'git';
+  var vcs = _.repo.vcsFor( 'git:///' );
+  if( _.git )
+  test.identical( vcs, _.git );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'git+https';
+  var vcs = _.repo.vcsFor( 'git+https:///' );
+  if( _.git )
+  test.identical( vcs, _.git );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'git+ssh';
+  var vcs = _.repo.vcsFor( 'git+ssh:///' );
+  if( _.git )
+  test.identical( vcs, _.git );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'git+hd';
+  var vcs = _.repo.vcsFor( 'git+hd:///' );
+  if( _.git )
+  test.identical( vcs, _.git );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'git+file';
+  var vcs = _.repo.vcsFor( 'git+file:///' );
+  if( _.git )
+  test.identical( vcs, _.git );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'git+bad - not valid protocol';
+  var vcs = _.repo.vcsFor( 'git+bad:///' );
+  test.identical( vcs, null );
+
+  /* */
+
+  test.case = 'npm';
+  var vcs = _.repo.vcsFor( 'npm:///' );
+  if( _.npm )
+  test.identical( vcs, _.npm );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'npm+https';
+  var vcs = _.repo.vcsFor( 'npm+https:///' );
+  test.identical( vcs, null );
+
+  /* */
+
+  test.case = 'http';
+  var vcs = _.repo.vcsFor( 'http:///' );
+  if( _.npm )
+  test.identical( vcs, _.http );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'http+npm';
+  var vcs = _.repo.vcsFor( 'http+npm:///' );
+  test.identical( vcs, null );
+
+  test.case = 'https';
+  var vcs = _.repo.vcsFor( 'https:///' );
+  if( _.npm )
+  test.identical( vcs, _.http );
+  else
+  test.identical( vcs, null );
+
+  test.case = 'https+npm';
+  var vcs = _.repo.vcsFor( 'https+npm:///' );
+  test.identical( vcs, null );
+
+  /* */
+
+  test.case = 'special';
+  var vcs = _.repo.vcsFor( [] );
+  test.identical( vcs, null );
+
+  /* - */
+
+  if( !Config.debug )
+  return;
+
+  test.case = 'without arguments';
+  test.shouldThrowErrorSync( () => _.repo.vcsFor() )
+
+  test.case = 'wrong type of filePath';
+  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : 1 }) )
+
+  test.case = 'filePath is not empty array';
+  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : [ 'git:///' ] }) )
+
+  test.case = 'filePath is not a global path';
+  test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : '/' }) )
+}
+
+//
+
 // --
 // declare
 // --
@@ -830,12 +831,12 @@ const Proto =
   {
     providerForPath,
 
-    vcsFor,
-
     pullListRemote,
 
     pullOpen,
     pullOpenRemote,
+
+    vcsFor,
   },
 
 };
