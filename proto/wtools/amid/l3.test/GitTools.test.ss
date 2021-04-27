@@ -18292,7 +18292,7 @@ function configRead( test )
   {
     test.case = 'local git repository exists, default config';
     var got = _.git.configRead( a.abs( '.' ) );
-    test.identical( _.mapKeys( got ), [ 'core' ] );
+    test.identical( _.props.keys( got ), [ 'core' ] );
     test.true( _.mapIs( got.core ) );
     test.identical( got.core.bare, false );
     test.identical( got.core.filemode, !( process.platform === 'win32' ) );
@@ -18308,7 +18308,7 @@ function configRead( test )
   {
     test.case = 'local git repository exists, not default config';
     var got = _.git.configRead( a.abs( '.' ) );
-    test.identical( _.mapKeys( got ), [ 'core', 'user' ] );
+    test.identical( _.props.keys( got ), [ 'core', 'user' ] );
     test.true( _.mapIs( got.core ) );
     test.identical( got.core.bare, false );
     test.identical( got.core.filemode, !( process.platform === 'win32' ) );
@@ -25178,6 +25178,24 @@ function tagMake( test )
     a.shell( 'git commit -m init' );
     return a.ready;
   }
+
+  /* */
+
+  function programMake( locals )
+  {
+    locals = _.props.supplement( { toolsPath : _.module.resolve( 'wTools' ) }, locals );
+    return a.program({ routine : testApp, locals });
+  }
+
+  /* */
+
+  function testApp()
+  {
+    const _ = require( toolsPath );
+    _.include( 'wGitTools' )
+    _.git.reset( o );
+  }
+
 }
 
 tagMake.timeOut = 20000;
@@ -26075,7 +26093,7 @@ const Proto =
   tests :
   {
 
-    // checker
+    // dichotomy
 
     stateIsHash,
     stateIsTag,
@@ -26102,7 +26120,7 @@ const Proto =
     versionIsCommitHash,
     versionsPull,
 
-    // checker
+    // dichotomy
 
     isUpToDate,
     isUpToDateRemotePathIsMap,

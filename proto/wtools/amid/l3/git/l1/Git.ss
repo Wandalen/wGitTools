@@ -8,7 +8,7 @@ const Self = _.git = _.git || Object.create( null );
 let Ini = null;
 
 // --
-// checker
+// dichotomy
 //
 
 /**
@@ -144,7 +144,7 @@ function stateIsTag( src )
 //   /* */
 //
 //   let parsed1 = path.parseConsecutive( remotePath );
-//   _.mapExtend( result, parsed1 );
+//   _.props.extend( result, parsed1 );
 //
 //   if( !result.tag && !result.hash )
 //   result.tag = 'master';
@@ -265,7 +265,7 @@ function stateIsTag( src )
 //
 //   if( !_.mapIs( o ) )
 //   o = { remotePath : o }
-//   _.routineOptions( pathFixate, o );
+//   _.routine.options_( pathFixate, o );
 //   _.assert( arguments.length === 1, 'Expects single argument' );
 //
 //   // let parsed = _.git.pathParse( o.remotePath );
@@ -323,7 +323,7 @@ function remotePathFromLocal( o )
   if( _.strIs( arguments[ 0 ] ) )
   o = { localPath : arguments[ 0 ] };
 
-  o = _.routineOptions( remotePathFromLocal, o );
+  o = _.routine.options_( remotePathFromLocal, o );
 
   let config = _.git.configRead( o.localPath );
 
@@ -389,7 +389,7 @@ function localPathFromInside( o )
   if( _.strIs( arguments[ 0 ] ) )
   o = { insidePath : o };
 
-  _.routineOptions( localPathFromInside, o );
+  _.routine.options_( localPathFromInside, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let paths = path.traceToRoot( o.insidePath );
@@ -449,7 +449,7 @@ function tagLocalChange( o )
   if( !_.mapIs( o ) )
   o = { localPath : o };
 
-  _.routineOptions( tagLocalChange, o );
+  _.routine.options_( tagLocalChange, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let localTag = _.git.tagLocalRetrive
@@ -546,7 +546,7 @@ function tagLocalRetrive( o )
   if( !_.mapIs( o ) )
   o = { localPath : o };
 
-  _.routineOptions( tagLocalRetrive, o );
+  _.routine.options_( tagLocalRetrive, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
@@ -631,7 +631,7 @@ function tagExplain( o )
   if( !_.mapIs( o ) )
   o = { localPath : o };
 
-  _.routineOptions( tagExplain, o );
+  _.routine.options_( tagExplain, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.tag ), 'Expects tag' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
@@ -731,7 +731,7 @@ function versionLocalChange( o )
   if( !_.mapIs( o ) )
   o = { localPath : o };
 
-  _.routineOptions( versionLocalChange, o );
+  _.routine.options_( versionLocalChange, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let localVersion = _.git.localVersion
@@ -786,7 +786,7 @@ function localVersion( o )
   if( !_.mapIs( o ) )
   o = { localPath : o };
 
-  _.routineOptions( localVersion, o );
+  _.routine.options_( localVersion, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
@@ -847,7 +847,7 @@ function remoteVersionLatest( o )
   if( !_.mapIs( o ) )
   o = { remotePath : o }
 
-  _.routineOptions( remoteVersionLatest, o );
+  _.routine.options_( remoteVersionLatest, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   // let parsed = _.git.pathParse( remotePath );
@@ -899,7 +899,7 @@ function remoteVersionCurrent( o )
   if( !_.mapIs( o ) )
   o = { remotePath : o }
 
-  _.routineOptions( remoteVersionCurrent, o );
+  _.routine.options_( remoteVersionCurrent, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   // let parsed = _.git.pathParse( o.remotePath );
@@ -936,7 +936,7 @@ function versionIsCommitHash( o )
   let self = this;
 
   _.assert( arguments.length === 1 );
-  _.routineOptions( versionIsCommitHash, o );
+  _.routine.options_( versionIsCommitHash, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.version ) );
 
@@ -996,7 +996,7 @@ versionIsCommitHash.defaults =
 
 function versionsRemoteRetrive( o )
 {
-  _.routineOptions( versionsRemoteRetrive, o );
+  _.routine.options_( versionsRemoteRetrive, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ) );
 
@@ -1035,7 +1035,7 @@ defaults.localPath = null;
 
 function versionsPull( o )
 {
-  _.routineOptions( versionsPull, o );
+  _.routine.options_( versionsPull, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   return _.git.versionsRemoteRetrive({ localPath : o.localPath })
@@ -1060,7 +1060,7 @@ var defaults = versionsPull.defaults = Object.create( null );
 defaults.localPath = null;
 
 // --
-// checker
+// dichotomy
 // --
 
 /**
@@ -1079,7 +1079,7 @@ function isUpToDate( o )
   let localProvider = _.fileProvider;
   let path = localProvider.path;
 
-  _.routineOptions( isUpToDate, o );
+  _.routine.options_( isUpToDate, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let srcCurrentPath;
@@ -1283,7 +1283,7 @@ function hasFiles( o )
 {
   let localProvider = _.fileProvider;
 
-  _.routineOptions( hasFiles, o );
+  _.routine.options_( hasFiles, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   if( !localProvider.isDir( o.localPath ) )
@@ -1318,7 +1318,7 @@ function hasRemote( o )
   // let path = localProvider.path;
 
   _.assert( arguments.length === 1, 'Expects single argument' );
-  _.routineOptions( hasRemote, o );
+  _.routine.options_( hasRemote, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.remotePath ) );
 
@@ -1391,7 +1391,7 @@ function isRepository( o )
   let path = _.git.path;
   // let path = _.uri;
 
-  _.routineOptions( isRepository, o );
+  _.routine.options_( isRepository, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let ready = _.Consequence.Try( () =>
@@ -1509,7 +1509,7 @@ function isHead( o )
   let path = _.git.path;
   // let path = localProvider.path;
 
-  _.routineOptions( isHead, o );
+  _.routine.options_( isHead, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( o.tag || o.hash, 'Expects {-o.hash-} or {-o.tag-} to be defined.' )
@@ -1661,7 +1661,7 @@ function sureHasOrigin( o )
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( sureHasOrigin, o );
+  _.routine.options_( sureHasOrigin, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
   _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
@@ -1762,7 +1762,7 @@ function statusLocal_head( routine, args )
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( routine, o );
+  _.routine.options_( routine, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( args.length === 1 );
 
@@ -2311,7 +2311,7 @@ defaults.conflicts = null;
 defaults.detailing = 0;
 defaults.explaining = 0;
 
-let statusLocal = _.routine.uniteCloning_( statusLocal_head, statusLocal_body );
+let statusLocal = _.routine.uniteCloning_replaceByUnite( statusLocal_head, statusLocal_body );
 
 //
 
@@ -2328,7 +2328,7 @@ function statusRemote_head( routine, args )
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( routine, o );
+  _.routine.options_( routine, o );
   _.assert( arguments.length === 2 );
   _.assert( args.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
@@ -2596,7 +2596,7 @@ defaults.sync = 1;
 
 //
 
-let statusRemote = _.routine.uniteCloning_( statusRemote_head, statusRemote_body );
+let statusRemote = _.routine.uniteCloning_replaceByUnite( statusRemote_head, statusRemote_body );
 
 //
 
@@ -2607,7 +2607,7 @@ function status_head( routine, args )
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( routine, o );
+  _.routine.options_( routine, o );
   _.assert( arguments.length === 2 );
   _.assert( args.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
@@ -2655,7 +2655,7 @@ function status_body( o )
       throw _.err.apply( _, errors );
     }
 
-    let result = _.mapExtend( null, arg[ 0 ] || {}, arg[ 1 ] || {} );
+    let result = _.props.extend( null, arg[ 0 ] || {}, arg[ 1 ] || {} );
 
     if( arg[ 0 ] )
     {
@@ -2707,7 +2707,7 @@ defaults.local = 1;
 defaults.detailing = 0;
 defaults.explaining = 0;
 
-let status = _.routine.uniteCloning_( status_head, status_body );
+let status = _.routine.uniteCloning_replaceByUnite( status_head, status_body );
 
 //
 
@@ -2719,7 +2719,7 @@ function statusFull( o )
 {
   let result = Object.create( null );
 
-  o = _.routineOptions( statusFull, arguments );
+  o = _.routine.options_( statusFull, arguments );
 
   result.isRepository = false;
   if( o.prs )
@@ -2773,7 +2773,7 @@ function statusFull( o )
   function statusAdjust( status, prs )
   {
 
-    _.mapExtend( result, status );
+    _.props.extend( result, status );
 
     result.prs = prs;
     if( !result.prs )
@@ -2823,7 +2823,7 @@ statusFull.defaults =
   token : null,
 }
 
-_.mapSupplement( statusFull.defaults, status.defaults );
+_.props.supplement( statusFull.defaults, status.defaults );
 
 //
 
@@ -2910,7 +2910,7 @@ function repositoryHasTag( o )
   let self = this;
 
   _.assert( arguments.length === 1 );
-  _.routineOptions( repositoryHasTag, o );
+  _.routine.options_( repositoryHasTag, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.tag ) );
   _.assert( o.remotePath === null || _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ) );
@@ -3033,7 +3033,7 @@ function repositoryHasVersion( o )
   let self = this;
 
   _.assert( arguments.length === 1 );
-  _.routineOptions( repositoryHasVersion, o );
+  _.routine.options_( repositoryHasVersion, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.version ) );
 
@@ -3138,9 +3138,9 @@ repositoryHasVersion.defaults =
 function repositoryTagToVersion( o )
 {
   let self = this;
-  _.routineOptions( repositoryTagToVersion, o );
+  _.routine.options_( repositoryTagToVersion, o );
   _.assert( arguments.length === 1 );
-  let o2 = _.mapExtend( null, o, { returnVersion : 1 } );
+  let o2 = _.props.extend( null, o, { returnVersion : 1 } );
   return self.repositoryHasTag( o2 );
 }
 
@@ -3161,7 +3161,7 @@ function repositoryVersionToTag( o )
   let self = this;
 
   _.assert( arguments.length === 1 );
-  _.routineOptions( repositoryVersionToTag, o );
+  _.routine.options_( repositoryVersionToTag, o );
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.version ) );
   _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
@@ -3288,7 +3288,7 @@ function exists( o )
 {
   let self = this;
 
-  _.routineOptions( exists, o );
+  _.routine.options_( exists, o );
   _.assert( arguments.length === 1 );
   _.assert( _.strDefined( o.local ) || _.strDefined( o.remote ) );
 
@@ -3316,7 +3316,7 @@ function exists( o )
   {
     let local = parse( o.local );
     if( !local )
-    throw _.err( `Failed to determine kind of {o.local}. Expects "!tag" or "#version", but got:${o.local}`);
+    throw _.err( `Failed to determine kind of {o.local}. Expects "!tag" or "#version", but got:${o.local}` );
 
     if( local.tag )
     return self.repositoryHasTag
@@ -3345,7 +3345,7 @@ function exists( o )
 
     let remote = parse( o.remote );
     if( !remote )
-    throw _.err( `Failed to determine kind of {o.remote}. Expects "!tag" or "#version", but got:${o.remote}`);
+    throw _.err( `Failed to determine kind of {o.remote}. Expects "!tag" or "#version", but got:${o.remote}` );
 
     if( remote.tag )
     return self.repositoryHasTag
@@ -3400,6 +3400,113 @@ exists.defaults =
   sync : 1
 }
 
+//
+
+// /**
+//  * Routine tagMake() makes tag for current commit.
+//  *
+//  * @example
+//  * // make tag `v0.1` if script run in git repository
+//  * let tag = _.git.tagMake
+//  * ({
+//  *   localPath : _.path.current(),
+//  *   tag : 'v0.1',
+//  *   description : 'version 0.1',
+//  * });
+//  *
+//  * @param { Aux } o - Options map.
+//  * @param { String } o.localPath - Path to git repository on hard drive.
+//  * @param { String } o.tag - Name of tag.
+//  * @param { String } o.description - Description of tag.
+//  * @param { BoolLike } o.light - Enable lightweight tags. Default is 0.
+//  * @param { BoolLike } o.deleting - Enable deleting of duplicated tags. Default is 1.
+//  * @param { BoolLike } o.sync - Enable synchronous execution of code. Default is 1.
+//  * @returns { Consequence|Aux } - Returns map like object with results of Process execution
+//  * or Consequence that handle such Process.
+//  * @function tagMake
+//  * @throws { Error } If arguments.length is not equal to 1.
+//  * @throws { Error } If options map {-o-} has extra options.
+//  * @throws { Error } If {-o.localPath-} is not a String with defined length.
+//  * @throws { Error } If {-o.tag-} is not a String with defined length.
+//  * @throws { Error } If added two tags with identical names to single commit and {-o.deleting-} is false.
+//  * @namespace wTools.git
+//  * @module Tools/mid/GitTools
+//  */
+//
+// function tagMake( o )
+// {
+//   let ready;
+//
+//   _.assert( arguments.length === 1, 'Expects options map {-o-}' );
+//   _.routine.options_( tagMake, arguments );
+//
+//   let start = _.process.starter
+//   ({
+//     sync : 0,
+//     deasync : 0,
+//     outputCollecting : 1,
+//     mode : 'shell',
+//     currentPath : o.localPath,
+//     throwingExitCode : 1,
+//     inputMirroring : 0,
+//     outputPiping : 0,
+//   });
+//
+//   if( o.deleting )
+//   {
+//
+//     ready = _.git.repositoryHasTag
+//     ({
+//       localPath : o.localPath,
+//       tag : o.tag,
+//       local : 1,
+//       remote : 0,
+//       sync : 0,
+//     });
+//
+//     ready.then( ( has ) =>
+//     {
+//       if( has )
+//       return start( `git tag -d ${o.tag}` );
+//       return has;
+//     })
+//
+//   }
+//   else
+//   {
+//     ready = _.take( null );
+//   }
+//
+//   ready.then( () =>
+//   {
+//     if( o.light )
+//     return start( `git tag ${o.tag}` );
+//     else
+//     return start( `git tag -a ${o.tag} -m "${o.description}"` );
+//   });
+//
+//   // if( got.exitCode !== 0 || got.output && _.strHas( got.output, 'refs/' ) )
+//   // return false;
+//
+//   if( o.sync )
+//   {
+//     ready.deasync();
+//     return ready.sync();
+//   }
+//
+//   return ready;
+// }
+//
+// tagMake.defaults =
+// {
+//   localPath : null,
+//   tag : null,
+//   description : '',
+//   light : 0,
+//   deleting : 1,
+//   sync : 1,
+// };
+
 // --
 // hook
 // --
@@ -3411,7 +3518,7 @@ function hookRegister( o )
   // let path = provider.path;
 
   _.assert( arguments.length === 1 );
-  _.routineOptions( hookRegister, o );
+  _.routine.options_( hookRegister, o );
 
   if( o.repoPath === null )
   o.repoPath = path.current();
@@ -3573,7 +3680,7 @@ function hookUnregister( o )
   // let path = provider.path;
 
   _.assert( arguments.length === 1 );
-  _.routineOptions( hookUnregister, o );
+  _.routine.options_( hookUnregister, o );
 
   if( o.repoPath === null )
   o.repoPath = path.current();
@@ -3738,7 +3845,7 @@ function ignoreAdd( o )
   o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
 
   _.assert( arguments.length === 1 || arguments.length === 2 );
-  _.routineOptions( ignoreAdd, o );
+  _.routine.options_( ignoreAdd, o );
 
   if( !provider.isDir( o.insidePath ) )
   throw _.err( 'Provided {-o.insidePath-} is not a directory:', _.strQuote( o.insidePath ) );
@@ -3747,7 +3854,7 @@ function ignoreAdd( o )
   throw _.err( 'Provided {-o.insidePath-}:', _.strQuote( o.insidePath ), 'is not inside of a git repository.' );
 
   let gitignorePath = path.join( o.insidePath, '.gitignore' );
-  let records = _.mapKeys( o.pathMap );
+  let records = _.props.keys( o.pathMap );
 
   let result = 0;
 
@@ -3786,7 +3893,7 @@ function ignoreRemove( o )
   o = { insidePath : arguments[ 0 ], pathMap : arguments[ 1 ] }
 
   _.assert( arguments.length === 1 || arguments.length === 2 );
-  _.routineOptions( ignoreRemove, o );
+  _.routine.options_( ignoreRemove, o );
 
   let gitignorePath = path.join( o.insidePath, '.gitignore' );
 
@@ -3796,7 +3903,7 @@ function ignoreRemove( o )
   if( !this.isTerminal( o.insidePath ) )
   throw _.err( 'Provided .gitignore file:', _.strQuote( gitignorePath ), 'is not terminal' );
 
-  let records = _.mapKeys( o.pathMap );
+  let records = _.props.keys( o.pathMap );
 
   if( !records.length )
   return false;
@@ -3831,7 +3938,7 @@ function ignoreRemoveAll( o )
   o = { insidePath : arguments[ 0 ] }
 
   _.assert( arguments.length === 1 || arguments.length === 2 );
-  _.routineOptions( ignoreRemoveAll, o );
+  _.routine.options_( ignoreRemoveAll, o );
 
   let gitignorePath = path.join( o.insidePath, '.gitignore' );
   if( !provider.fileExists( gitignorePath ) )
@@ -3852,7 +3959,7 @@ function repositoryInit( o )
   let self = this;
   let ready = _.take( null );
 
-  o = _.routineOptions( repositoryInit, o );
+  o = _.routine.options_( repositoryInit, o );
 
   let nativeRemotePath = null;
   let parsed = null;
@@ -3946,7 +4053,7 @@ function repositoryInit( o )
 
       const provider = _.repo.providerForPath({ remotePath : o.remotePath });
 
-      let o2 = _.mapExtend( null, o );
+      let o2 = _.props.extend( null, o );
       o2.remotePath = parsed;
       return provider.repositoryInitAct( o2 ); /* xxx : think how to refactor or reorganize it */
 
@@ -4134,7 +4241,7 @@ function repositoryDelete( o )
   let self = this;
   let ready = _.take( null );
 
-  o = _.routineOptions( repositoryDelete, o );
+  o = _.routine.options_( repositoryDelete, o );
 
   let nativeRemotePath = null;
   let parsed = null;
@@ -4210,7 +4317,7 @@ function repositoryDelete( o )
       return true;
 
       const provider = _.repo.providerForPath({ remotePath : o.remotePath });
-      let o2 = _.mapExtend( null, o );
+      let o2 = _.props.extend( null, o );
       o2.remotePath = parsed;
       return provider.repositoryDeleteAct( o2 ); /* xxx : think how to refactor or reorganize it */
 
@@ -4256,7 +4363,7 @@ function repositoryClone( o )
   let localProvider = _.fileProvider;
 
   _.assert( arguments.length === 1, 'Expects single argument' );
-  _.routineOptions( repositoryClone, o );
+  _.routine.options_( repositoryClone, o );
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
   _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
 
@@ -4316,7 +4423,7 @@ function repositoryCheckout( o )
   let localProvider = _.fileProvider;
 
   _.assert( arguments.length === 1, 'Expects single argument' );
-  _.routineOptions( repositoryCheckout, o );
+  _.routine.options_( repositoryCheckout, o );
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
   _.assert( _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ), 'Expects remote path' );
 
@@ -4416,7 +4523,7 @@ repositoryCheckout.defaults =
 
 function repositoryStash( o )
 {
-  _.routineOptions( repositoryStash, o );
+  _.routine.options_( repositoryStash, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
 
@@ -4466,7 +4573,7 @@ repositoryStash.defaults =
 
 function repositoryMerge( o )
 {
-  _.routineOptions( repositoryMerge, o );
+  _.routine.options_( repositoryMerge, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ), 'Expects local path' );
 
@@ -4564,7 +4671,7 @@ function configSave( filePath, config )
 function configReset( o ) /* aaa : implement */ /* Dmytro : implemented */
 {
   _.assert( arguments.length === 1, 'Expects single options map {-o-}' );
-  _.routineOptions( configReset, o );
+  _.routine.options_( configReset, o );
   if( o.preset === 'recommended' )
   {
     _.assert( _.strDefined( o.userName ), 'Expects user name {-o.userName-}' );
@@ -4778,7 +4885,7 @@ function diff( o )
 {
   let self = this;
 
-  o = _.routineOptions( diff, o );
+  o = _.routine.options_( diff, o );
 
   _.assert( arguments.length === 1 );
   _.assert( _.strDefined( o.state1 ) || o.state1 === null );
@@ -5101,7 +5208,7 @@ function pull( o )
   let ready = _.take( null );
 
   _.assert( arguments.length === 1 );
-  _.routineOptions( pull, arguments );
+  _.routine.options_( pull, arguments );
   _.assert( _.strDefined( o.localPath ) );
 
   if( o.dry )
@@ -5143,7 +5250,7 @@ pull.defaults =
 function push( o )
 {
   _.assert( arguments.length === 1 );
-  _.routineOptions( push, arguments );
+  _.routine.options_( push, arguments );
   _.assert( _.strDefined( o.localPath ) );
 
   let ready = _.take( null );
@@ -5224,7 +5331,7 @@ function push( o )
 
   function tagsCommitsGet( tags )
   {
-    let result = _.arrayMake( tags );
+    let result = _.array.make( tags );
     for( let i = 0 ; i < tags.length ; i++ )
     {
       let commit = start({ execPath : `git show-ref -s ${ tags[ i ] }`, sync : 1 }).output;
@@ -5489,6 +5596,7 @@ reset_body.defaults =
 
 const reset = _.routine.unite( reset_head, reset_body );
 
+//
 //
 
 function tagList( o )
@@ -5819,7 +5927,7 @@ function renormalize( o )
   if( !_.mapIs( o ) )
   o = { localPath : o }
 
-  _.routineOptions( renormalize, o );
+  _.routine.options_( renormalize, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
@@ -5986,7 +6094,7 @@ let Extension =
 
   protocols : [ 'git' ],
 
-  // checker
+  // dichotomy
 
   stateIsHash,
   stateIsTag,
@@ -6020,7 +6128,7 @@ let Extension =
   versionsRemoteRetrive,
   versionsPull,
 
-  // checker
+  // dichotomy
 
   isUpToDate,
   hasFiles,
@@ -6095,7 +6203,7 @@ let Extension =
 
 }
 
-_.mapExtend( Self, Extension );
+_.props.extend( Self, Extension );
 
 //
 
