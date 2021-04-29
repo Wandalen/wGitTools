@@ -3934,7 +3934,7 @@ function ignoreRemoveAll( o )
   let path = _.git.path;
   // let path = provider.path;
 
-  if( !_.objectIs( o ) )
+  if( !_.object.isBasic( o ) )
   o = { insidePath : arguments[ 0 ] }
 
   _.assert( arguments.length === 1 || arguments.length === 2 );
@@ -4657,7 +4657,7 @@ function configSave( filePath, config )
 
   _.assert( arguments.length === 2 );
   _.assert( _.strDefined( filePath ) );
-  _.assert( _.objectIs( config ) );
+  _.assert( _.object.isBasic( config ) );
 
   if( !Ini )
   Ini = require( 'ini' );
@@ -4996,7 +4996,7 @@ function diff( o )
     {
       if( _.boolIs( got ) )
       state.exists = got;
-      else if( _.objectIs( got ) )
+      else if( _.object.isBasic( got ) )
       state.exists = got.exitCode === 0;
       else
       {
@@ -5959,7 +5959,7 @@ function renormalize( o )
 
   ready.then( ( status ) =>
   {
-    if( _.objectIs( status ) && status.status )
+    if( _.object.isBasic( status ) && status.status )
     return true;
 
     let config = _.git.configRead( o.localPath );

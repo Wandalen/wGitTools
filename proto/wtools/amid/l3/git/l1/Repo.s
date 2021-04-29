@@ -309,7 +309,7 @@ providerAmend.defaults =
 
 function pullIs( element )
 {
-  if( !_.objectIs( element ) )
+  if( !_.object.isBasic( element ) )
   return false;
   return element.type === 'repo.pull';
 }
@@ -547,7 +547,7 @@ pullOpen.defaults =
 
 function programIs( object )
 {
-  if( !_.objectIs( object ) )
+  if( !_.object.isBasic( object ) )
   return false;
   return object.type === 'repo.program';
 }

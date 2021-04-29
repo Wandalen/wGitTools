@@ -15,7 +15,7 @@ _.repo.provider = _.repo.provider || Object.create( null );
 function _open( o )
 {
   _.map.assertHasAll( o, _open.defaults );
-  _.assert( _.objectIs( o.remotePath ) );
+  _.assert( _.object.isBasic( o.remotePath ) );
   let ready = _.take( null );
   ready
   .then( () =>
@@ -122,7 +122,7 @@ function pullListAct( o )
   let self = this;
   let ready = _.take( null );
   _.map.assertHasAll( o, pullListAct.defaults );
-  _.assert( _.objectIs( o.remotePath ) );
+  _.assert( _.object.isBasic( o.remotePath ) );
   return this._open( o )
   .then( ( octokit ) =>
   {
@@ -236,7 +236,7 @@ function programListAct( o )
   let self = this;
   let ready = _.take( null );
   _.map.assertHasAll( o, programListAct.defaults );
-  _.assert( _.objectIs( o.remotePath ) );
+  _.assert( _.object.isBasic( o.remotePath ) );
   return this._open( o )
   .then( ( octokit ) =>
   {
