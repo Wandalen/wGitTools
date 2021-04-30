@@ -60,26 +60,22 @@ function _request_functor( fo )
     {
       let provider = _.repo.providerForPath({ remotePath : o.remotePath, throwing : o.throwing });
       if( provider && !_.routineIs( provider[ actName ] ) )
-      {
-        if( o.throwing )
-        throw _.err( `Repo provider ${provider.name} does not support routine ${actName}` );
-        return null;
-      }
+      throw _.err( `Repo provider ${provider.name} does not support routine ${actName}` );
       return provider[ actName ]( o );
     })
-    .finally( ( err, op ) =>
+    .then( ( op ) =>
     {
-      if( !err && !op.result && o.throwing )
-      err = _.err( `Failed` );
-      if( err )
-      {
-        if( o.throwing )
-        throw _.err( err, `\nFailed to ${description} for ${path.str( o.originalRemotePath )}` );
-        _.errAttend( err );
-        return null;
-      }
+      if( !op.result && o.throwing )
+      throw _.err( `Failed` );
       return o;
-    });
+    })
+    .catch( ( err ) =>
+    {
+      if( o.throwing )
+      throw _.err( err, `\nFailed to ${description} for ${path.str( o.originalRemotePath )}` );
+      _.errAttend( err );
+      return null;
+    })
 
     if( o.sync )
     {
