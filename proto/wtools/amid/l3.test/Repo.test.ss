@@ -43,6 +43,52 @@ function onSuiteEnd( test )
 // tests
 // --
 
+function _request_functor( test )
+{
+  /* */
+
+  test.case = 'provider does not support routine'
+
+  let testActRoutine = Object.create( null );
+  testActRoutine.name = '_testActRoutineForRequestFunctor';
+  testActRoutine.defaults =
+  {
+    remotePath : null,
+    sync : null
+  }
+  let routine = _.repo._request_functor
+  ({
+    description : 'test description',
+    act : testActRoutine,
+  })
+
+  test.shouldThrowErrorSync
+  (
+    () =>
+    {
+      routine
+      ({
+        remotePath : 'https://github.com/user/NewRepo',
+        throwing : 1,
+        sync : 1
+      })
+    }
+  )
+
+  var got = routine
+  ({
+    remotePath : 'https://github.com/user/NewRepo',
+    throwing : 0,
+    sync : 1
+  });
+  test.identical( got, null );
+
+  /* */
+
+}
+
+//
+
 function providerForPath( test )
 {
   test.case = 'remotePath - git, github, no protocol';
@@ -829,6 +875,8 @@ const Proto =
 
   tests :
   {
+    _request_functor,
+
     providerForPath,
 
     pullListRemote,
