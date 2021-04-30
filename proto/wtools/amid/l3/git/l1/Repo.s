@@ -65,8 +65,12 @@ function _request_functor( fo )
     })
     .then( ( op ) =>
     {
-      if( !op.result && o.throwing )
-      throw _.err( `Failed` );
+      if( !_.map.is( op ) )
+      throw _.err( `Routine ${actName} should return options map. Got:${op}` );
+
+      if( op.result === undefined )
+      throw _.err( `Options map returned by routine ${actName} should have {result} field. Got:${op}` );
+
       return o;
     })
     .catch( ( err ) =>
