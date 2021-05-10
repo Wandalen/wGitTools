@@ -1,6 +1,6 @@
 {
   "name" : "wgittools",
-  "version" : "0.3.316",
+  "version" : "0.3.317",
   "description" : "Collection of tools to use git programmatically.",
   "author" : "Kostiantyn Wandalen <wanalen@01.school>",
   "license" : "MIT",
@@ -20,12 +20,12 @@
   {
     "ini" : "=2.0.0",
     "@octokit/rest" : "=18.5.2",
-    "wTools" : "delta",
-    "wCopyable" : "delta",
-    "wFiles" : "delta",
-    "wfilesarchive" : "delta",
-    "wprocess" : "delta"
+    "wTools" : "gamma",
+    "wCopyable" : "gamma",
+    "wFiles" : "gamma",
+    "wfilesarchive" : "gamma",
+    "wprocess" : "gamma"
   },
-  "devDependencies" : { "eslint" : "7.1.0", "wTesting" : "delta" },
+  "devDependencies" : { "eslint" : "7.1.0", "wTesting" : "gamma" },
   "keywords" : [ "wTools" ]
 }
