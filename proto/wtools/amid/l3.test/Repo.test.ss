@@ -196,6 +196,12 @@ function providerForPath( test )
 
   test.case = 'extra arguments';
   test.shouldThrowErrorSync( () => _.repo.providerForPath( 'https://github.com/user/repo.git', 'hd:///local' ) );
+
+  test.case = 'wrong protocol of remotePath';
+  test.shouldThrowErrorSync( () => _.repo.providerForPath( 'test+https://github.com/user/repo.git' ) );
+
+  test.case = 'valid protocol of remotePath but no provider for protocol';
+  test.shouldThrowErrorSync( () => _.repo.providerForPath( 'npm+https://github.com/user/repo.git' ) );
 }
 
 //
