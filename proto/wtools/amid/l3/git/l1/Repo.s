@@ -198,6 +198,7 @@ function providerForPath( o )
   _.assert( arguments.length === 1 );
   _.routine.options( providerForPath, o );
 
+  let parsed;
   o.originalRemotePath = o.originalRemotePath || o.remotePath;
 
   let providerKey = providerGetService( o.originalRemotePath );
@@ -212,7 +213,7 @@ function providerForPath( o )
     }
     else
     {
-      providerKey = providerGetProtocol( o.originalRemotePath );
+      providerKey = providerGetProtocol();
       provider = _.repo.provider[ providerKey ];
     }
 
@@ -227,23 +228,24 @@ function providerForPath( o )
   function providerGetService( remotePath )
   {
     if( _.strIs( o.remotePath ) )
-    o.remotePath = _.git.path.parse({ remotePath, full : 1, atomic : 0, objects : 1 });
+    parsed = o.remotePath = _.git.path.parse({ remotePath, full : 1, atomic : 0, objects : 1 });
+    else
+    parsed = o.remotePath;
 
-    if( o.remotePath.service )
+    if( parsed.service )
     {
-      _.assert( o.remotePath.protocols.length <= 1 || o.remotePath.protocols[ 0 ] === 'git' );
-      return o.remotePath.service;
+      _.assert( parsed.protocols.length <= 1 || parsed.protocols[ 0 ] === 'git' );
+      return parsed.service;
     }
   }
 
   /* */
 
-  function providerGetProtocol( remotePath )
+  function providerGetProtocol()
   {
-    o.remotePath = _.uri.parse( remotePath );
-    if( !o.remotePath.protocol )
+    if( !parsed.protocol )
     return _.fileSystem.defaultProtocol;
-    return o.remotePath.protocol;
+    return parsed.protocol;
   }
 }
 
