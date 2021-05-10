@@ -10,9 +10,6 @@ if( typeof module !== 'undefined' )
   require( '../git/entry/GitTools.ss' );;
 }
 
-
-//
-
 const _ = _global_.wTools;
 
 // --
@@ -851,8 +848,6 @@ function vcsFor( test )
   test.case = 'filePath is not a global path';
   test.shouldThrowErrorSync( () => _.repo.vcsFor({ filePath : '/' }) )
 }
-
-//
 
 // --
 // declare
