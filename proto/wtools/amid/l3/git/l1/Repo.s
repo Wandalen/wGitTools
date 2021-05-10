@@ -227,10 +227,13 @@ function providerForPath( o )
   function providerGetService( remotePath )
   {
     if( _.strIs( o.remotePath ) )
-    o.remotePath = _.git.path.parse({ remotePath, full : 0, atomic : 0, objects : 1 });
+    o.remotePath = _.git.path.parse({ remotePath, full : 1, atomic : 0, objects : 1 });
 
     if( o.remotePath.service )
-    return o.remotePath.service;
+    {
+      _.assert( o.remotePath.protocols.length <= 1 || o.remotePath.protocols[ 0 ] === 'git' );
+      return o.remotePath.service;
+    }
   }
 
   /* */
