@@ -2084,7 +2084,7 @@ function statusLocal_body( o )
 
     if( match )
     {
-      match = _.strLinesStrip( match );
+      match = _.str.lines.strip( match );
       result[ check ] = match.join( '\n' )
     }
 
@@ -2254,7 +2254,7 @@ function statusLocal_body( o )
       result.unpushedCommits = '';
       if( match )
       {
-        match = _.strLinesStrip( match );
+        match = _.str.lines.strip( match );
         result.unpushedCommits = match.join( '\n' );
       }
 

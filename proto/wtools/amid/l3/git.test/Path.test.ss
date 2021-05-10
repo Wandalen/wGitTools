@@ -9,7 +9,7 @@ if( typeof module !== 'undefined' )
 
   _.include( 'wTesting' );
 
-  require( '../l3/git/entry/GitTools.ss' );
+  require( '../git/entry/GitTools.ss' );;
 }
 
 //

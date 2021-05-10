@@ -7,7 +7,7 @@ if( typeof module !== 'undefined' )
 {
   const _ = require( '../../../node_modules/Tools' );
   _.include( 'wTesting' );
-  require( '../l3/git/entry/GitTools.ss' );
+  require( '../git/entry/GitTools.ss' );;
 }
 
 

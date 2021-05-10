@@ -1,5 +1,5 @@
 
-# module::GitTools  [![status](https://github.com/Wandalen/wGitTools/workflows/publish/badge.svg)](https://github.com/Wandalen/wGitTools/actions?query=workflow%3Apublish) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
+# module::GitTools  [![status](https://github.com/Wandalen/wGitTools/actions/workflows/StandardPublish.yml/badge.svg)](https://github.com/Wandalen/wGitTools/actions/workflows/StandardPublish.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](https://github.com/emersion/stability-badges#stable)
 
 Collection of tools to use git programmatically.
 
@@ -11,7 +11,7 @@ npm install
 node sample/trivial/Sample.s
 ```
 
-## To add to your project
+### To add to your project
 ```
 npm add 'wgittools@alpha'
 ```
