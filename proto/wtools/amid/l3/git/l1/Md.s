@@ -4,7 +4,7 @@
 'use strict';
 
 const _ = _global_.wTools;
-const Self = _.md = _.md || Object.create( null );
+_.md = _.md || Object.create( null );
 
 /* xxx : move out */
 
@@ -34,7 +34,8 @@ function parse_body( o )
   let section = sectionOpen();
   section.lineInterval[ 0 ] = 0;
   section.charInterval[ 0 ] = 0;
-  let firstLine = _.str.lines.get( 0 ).val;
+  let firstLine = _.str.lines.at( o.src, 0 ).val;
+  debugger;
   let fromIndex = 0;
   if( lineIsSecationHead( firstLine ) )
   {
@@ -42,9 +43,9 @@ function parse_body( o )
     fromIndex += 1;
   }
 
-  let op = _.str.lines.each( o.src, [ fromIndex, Infinity ], ( line, lineIndex, charInterval ) =>
+  let op = _.str.lines.each( o.src, [ fromIndex, Infinity ], ( it ) =>
   {
-    lineAnalyze( ... arguments )
+    lineAnalyze( it )
   });
 
   sectionClose( section, op );
@@ -53,12 +54,13 @@ function parse_body( o )
 
   /* */
 
-  function lineAnalyze( line, it )
+  function lineAnalyze( it )
   {
 
-    if( lineIsSecationHead( line ) )
+    debugger;
+    if( lineIsSecationHead( it.line ) )
     {
-      sectionClose( section, lineIndex );
+      sectionClose( section, it.lineIndex );
       section = sectionOpen();
       sectionHead( section, it.line );
     }
@@ -69,6 +71,7 @@ function parse_body( o )
 
   function lineIsSecationHead( line )
   {
+    debugger;
     if( _.strBegins( line.trimStart(), o.headToken ) )
     return true;
     return false;
@@ -144,7 +147,7 @@ let Extension =
 
 }
 
-_.props.extend( Self, Extension );
+_.props.extend( _.md, Extension );
 
 //
 
