@@ -34,7 +34,7 @@ function parse_body( o )
   let section = sectionOpen();
   section.lineInterval[ 0 ] = 0;
   section.charInterval[ 0 ] = 0;
-  let firstLine = _.str.lines.at( o.src, 0 ).val;
+  let firstLine = _.str.lines.at( o.src, 0 ).line;
   debugger;
   let fromIndex = 0;
   if( lineIsSecationHead( firstLine ) )
