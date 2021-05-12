@@ -5224,6 +5224,7 @@ function pull( o )
     throwingExitCode : o.throwing,
     inputMirroring : 1,
     outputPiping : 1,
+    logger : o.logger,
     ready,
   });
 
@@ -5242,6 +5243,7 @@ pull.defaults =
   localPath : null,
   dry : 0,
   sync : 1,
+  logger : null,
   throwing : 0,
 };
 
@@ -5265,6 +5267,7 @@ function push( o )
     throwingExitCode : o.throwing,
     inputMirroring : 1,
     outputPiping : 1,
+    logger : o.logger,
     ready,
   });
 
@@ -5387,6 +5390,7 @@ push.defaults =
   dry : 0,
   sync : 1,
   throwing : 0,
+  logger : null
 };
 
 //
@@ -5475,6 +5479,7 @@ function reset_body( o )
     throwingExitCode : 0,
     inputMirroring : 0,
     outputPiping : 0,
+    logger : o.logger,
     ready
   });
 
@@ -5590,6 +5595,7 @@ reset_body.defaults =
   removingSubrepositories : null,
   dry : 0, /* aaa : implement and cover option */ /* Dmytro : implemented, covered */
   sync : 1,
+  logger : null
 };
 
 //
@@ -5815,6 +5821,7 @@ function tagMake( o )
     throwingExitCode : 1,
     inputMirroring : 0,
     outputPiping : 0,
+    logger : o.logger
   });
 
   // if( o.deleting )
@@ -5914,6 +5921,7 @@ tagMake.defaults =
   light : 0,
   // deleting : 1,
   sync : 1,
+  logger : null
 };
 
 //
