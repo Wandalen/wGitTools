@@ -5821,6 +5821,7 @@ function tagMake( o )
     throwingExitCode : 1,
     inputMirroring : 0,
     outputPiping : 0,
+    logger : o.logger
   });
 
   // if( o.deleting )
@@ -5920,6 +5921,7 @@ tagMake.defaults =
   light : 0,
   // deleting : 1,
   sync : 1,
+  logger : null
 };
 
 //
