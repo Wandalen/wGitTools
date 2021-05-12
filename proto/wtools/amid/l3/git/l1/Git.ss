@@ -5224,6 +5224,7 @@ function pull( o )
     throwingExitCode : o.throwing,
     inputMirroring : 1,
     outputPiping : 1,
+    logger : o.logger,
     ready,
   });
 
@@ -5242,6 +5243,7 @@ pull.defaults =
   localPath : null,
   dry : 0,
   sync : 1,
+  logger : null,
   throwing : 0,
 };
 
