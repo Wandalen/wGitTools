@@ -3,13 +3,16 @@
 
 Collection of tools to use git programmatically.
 
-## Try out from the repository
+### Try out from the repository
+
 ```
 git clone https://github.com/Wandalen/wGitTools
 cd wGitTools
-npm install
+will .npm.install
 node sample/trivial/Sample.s
 ```
+
+Make sure you have utility `willbe` installed. To install willbe: `npm i -g willbe@delta`. Willbe is required to build of the module.
 
 ### To add to your project
 ```
