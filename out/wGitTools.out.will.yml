@@ -2,12 +2,9 @@ format: outwillfile-2.0
 root:
   - wGitTools.out
 consistency:
-  ../.ex.will.yml: &ref_0
-    hash: 15f7123b7761b7eba6df2912328a70a6
-    size: 1720
-  ../.im.will.yml: &ref_1
-    hash: 02b5b1ff44480175ad24cb875bfe3374
-    size: 5347
+  ../will.yml: &ref_0
+    hash: 06c43e267fe1aca5454ee8738b910279
+    size: 6828
 module:
   wGitTools.out:
     about:
@@ -16,19 +13,19 @@ module:
       description: Collection of tools to use git programmatically.
       enabled: 1
       version: 0.4.0
-      interpreters: &ref_2
+      license: MIT
+      npm.name: wgittools
+      author: Kostiantyn Wandalen <wanalen@01.school>
+      keywords: &ref_1
+        - wTools
+        - graph
+      contributors: &ref_2
+        - Kostiantyn Wandalen <wanalen@01.school>
+      interpreters: &ref_3
         - njs >= 10.0.0
         - chrome >= 60.0.0
         - firefox >= 60.0.0
-      keywords: &ref_3
-        - wTools
-        - graph
-      license: MIT
-      author: Kostiantyn Wandalen <wanalen@01.school>
-      contributors: &ref_4
-        - Kostiantyn Wandalen <wanalen@01.school>
-      npm.name: wgittools
-      npm.scripts: &ref_5
+      npm.scripts: &ref_4
         test: 'wtest .run proto/** rapidity:-3'
         docgen: wdocgen .build proto
     path:
@@ -43,15 +40,11 @@ module:
       module.original.willfiles:
         criterion:
           predefined: 1
-        path:
-          - ../.ex.will.yml
-          - ../.im.will.yml
+        path: ../will.yml
       module.peer.willfiles:
         criterion:
           predefined: 1
-        path:
-          - ../.ex.will.yml
-          - ../.im.will.yml
+        path: ../will.yml
       module.peer.in:
         criterion:
           predefined: 1
@@ -204,11 +197,11 @@ module:
         path: 'npm:///wFiles'
         autoExporting: 0
         enabled: 0
-      wFilesArchive:
+      wfilesarchive:
         path: 'npm:///wfilesarchive'
         autoExporting: 0
         enabled: 0
-      wProcess:
+      wprocess:
         path: 'npm:///wprocess'
         autoExporting: 0
         enabled: 0
@@ -216,7 +209,7 @@ module:
         path: 'npm:///ini#2.0.0'
         autoExporting: 0
         enabled: 0
-      octonode:
+      '@octokit':
         path: 'npm:///@octokit/rest#=18.5.2'
         autoExporting: 0
         enabled: 0
@@ -833,8 +826,7 @@ module:
           content: proto
           export: 1
     consistency:
-      ../.ex.will.yml: *ref_0
-      ../.im.will.yml: *ref_1
+      ../will.yml: *ref_0
   ../:
     about:
       name: wGitTools
@@ -842,26 +834,22 @@ module:
       description: Collection of tools to use git programmatically.
       enabled: 1
       version: 0.4.0
-      interpreters: *ref_2
-      keywords: *ref_3
       license: MIT
-      author: Kostiantyn Wandalen <wanalen@01.school>
-      contributors: *ref_4
       npm.name: wgittools
-      npm.scripts: *ref_5
+      author: Kostiantyn Wandalen <wanalen@01.school>
+      keywords: *ref_1
+      contributors: *ref_2
+      interpreters: *ref_3
+      npm.scripts: *ref_4
     path:
       module.willfiles:
         criterion:
           predefined: 1
-        path:
-          - .ex.will.yml
-          - .im.will.yml
+        path: will.yml
       module.original.willfiles:
         criterion:
           predefined: 1
-        path:
-          - .ex.will.yml
-          - .im.will.yml
+        path: will.yml
       module.peer.willfiles:
         criterion:
           predefined: 1
@@ -975,11 +963,11 @@ module:
         path: 'npm:///wFiles'
         autoExporting: 0
         enabled: 0
-      wFilesArchive:
+      wfilesarchive:
         path: 'npm:///wfilesarchive'
         autoExporting: 0
         enabled: 0
-      wProcess:
+      wprocess:
         path: 'npm:///wprocess'
         autoExporting: 0
         enabled: 0
@@ -987,7 +975,7 @@ module:
         path: 'npm:///ini#2.0.0'
         autoExporting: 0
         enabled: 0
-      octonode:
+      '@octokit':
         path: 'npm:///@octokit/rest#=18.5.2'
         autoExporting: 0
         enabled: 0
@@ -1540,9 +1528,6 @@ module:
           - 'build::release'
           - 'build::npm'
     consistency:
-      ../.ex.will.yml:
-        hash: 15f7123b7761b7eba6df2912328a70a6
-        size: 1720
-      ../.im.will.yml:
-        hash: 02b5b1ff44480175ad24cb875bfe3374
-        size: 5347
+      ../will.yml:
+        hash: 06c43e267fe1aca5454ee8738b910279
+        size: 6828
