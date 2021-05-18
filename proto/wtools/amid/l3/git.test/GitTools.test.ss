@@ -15478,7 +15478,7 @@ function repositoryVersionToTagWithOptionRemote( test )
       local : 0,
       remote : 1,
     });
-    got = _.arrayAs( got );
+    got = _.array.as( got );
 
     test.true( _.longHas( got, 'master' ) );
     return null;
@@ -15556,7 +15556,7 @@ function repositoryVersionToTagWithOptionRemote( test )
       remote : 1,
       remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
     });
-    got = _.arrayAs( got );
+    got = _.array.as( got );
 
     test.true( _.longHas( got, 'master' ) );
     return null;
@@ -15661,7 +15661,7 @@ function repositoryVersionToTagWithOptionsRemoteAndLocal( test )
       local : 1,
       remote : 1,
     });
-    got = _.arrayAs( got );
+    got = _.array.as( got );
 
     test.true( _.longHas( got, 'master' ) );
     return null;

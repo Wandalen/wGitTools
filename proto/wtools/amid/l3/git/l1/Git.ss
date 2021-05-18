@@ -4204,7 +4204,7 @@ function repositoryInit( o )
           src : downloadPath,
           dstRewriting : 1,
           dstRewritingOnlyPreserving : 1,
-          linking : 'hardLink',
+          linkingAction : 'hardLink',
         }
         _.fileProvider.filesReflect( o2 );
       }
