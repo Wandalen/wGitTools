@@ -374,7 +374,10 @@ function normalize( srcPath )
   }
   else
   {
+    if( _.strHas( parsed.longPath, 'git@' ) )
     parsed.protocol = 'git';
+    else
+    parsed.protocol = 'git+hd';
   }
 
   parsed.longPath = _.uri.join( _.uri.rootToken, parsed.longPath );
