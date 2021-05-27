@@ -1689,6 +1689,7 @@ function sureHasOrigin( o )
   );
 
   let srcCurrentPath = config[ 'remote "origin"' ].url;
+  srcCurrentPath = _.git.path.nativize( _.git.path.normalize( config[ 'remote "origin"' ].url ) ); /* qqq : for Dmytro : cover */
 
   // _.sure
   // (
