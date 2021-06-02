@@ -4,7 +4,7 @@
 'use strict';
 
 const _ = _global_.wTools;
-const Self = _.repo = _.repo || Object.create( null );
+_.repo = _.repo || Object.create( null );
 _.repo.provider = _.repo.provider || Object.create( null );
 
 // --
@@ -705,7 +705,7 @@ let Extension =
 
 }
 
-_.props.extend( Self, Extension );
+/* _.props.extend */Object.assign( _.repo, Extension );
 
 //
 

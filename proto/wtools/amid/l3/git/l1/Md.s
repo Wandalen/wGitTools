@@ -283,7 +283,7 @@ let Extension =
 
 }
 
-_.props.extend( _.md, Extension );
+/* _.props.extend */Object.assign( _.md, Extension );
 
 //
 
