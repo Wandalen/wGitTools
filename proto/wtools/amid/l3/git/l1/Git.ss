@@ -4806,7 +4806,7 @@ configReset.defaults =
 
 /* qqq : aaa:fixed
 
- = Message of error#1
+ = Message of Error#1
     Unexpected change type: "u", filePath: "revision" fatal: ambiguous argument 'alhpa': unknown revision or path not in the working tree.
     Use '--' to separate paths from revisions, like this:
     'git <command> [<revision>...] -- [<file>...]'
