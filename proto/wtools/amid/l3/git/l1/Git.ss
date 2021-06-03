@@ -5582,7 +5582,7 @@ function reset_body( o )
 
 reset_body.defaults =
 {
-  logger : 1,
+  // logger : 1,
   state1 : 'working', /* 'working', 'staged', 'committed' some commit or tag */
   state2 : 'committed', /* 'working', 'staged', 'committed' some commit or tag */
   localPath : null,
