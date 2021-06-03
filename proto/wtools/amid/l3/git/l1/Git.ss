@@ -4,7 +4,7 @@
 'use strict';
 
 const _ = _global_.wTools;
-const Self = _.git = _.git || Object.create( null );
+_.git = _.git || Object.create( null );
 let Ini = null;
 
 // --
@@ -1516,8 +1516,8 @@ function isHead( o )
   _.routine.options_( isHead, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strDefined( o.localPath ) );
-  _.assert( o.tag || o.hash, 'Expects {-o.hash-} or {-o.tag-} to be defined.' )
-  _.assert( !o.tag || !o.hash, 'Expects only {-o.hash-} or {-o.tag-}, but not both at same time.' )
+  _.assert( !!o.tag || !!o.hash, 'Expects {-o.hash-} or {-o.tag-} to be defined.' );
+  _.assert( !o.tag || !o.hash, 'Expects only {-o.hash-} or {-o.tag-}, but not both at same time.' );
 
   let ready = _.take( null );
 
@@ -1530,7 +1530,7 @@ function isHead( o )
     deasync : 0,
     inputMirroring : 0,
     outputCollecting : 1
-  })
+  });
 
   let head = null;
   let tag = null;
@@ -2135,7 +2135,7 @@ function statusLocal_body( o )
     .then( ( got ) =>
     {
       tags = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
-      _.assert( tags.length );
+      _.assert( tags.length > 0 );
       return remoteTagsGet();
     })
     .then( ( got ) =>
@@ -2919,7 +2919,7 @@ function repositoryHasTag( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.tag ) );
   _.assert( o.remotePath === null || _.strDefined( o.remotePath ) || _.mapIs( o.remotePath ) );
-  _.assert( o.local || o.remote );
+  _.assert( !!o.local || !!o.remote );
 
   let ready = _.take( null );
   let start = _.process.starter
@@ -3170,7 +3170,7 @@ function repositoryVersionToTag( o )
   _.assert( _.strDefined( o.localPath ) );
   _.assert( _.strDefined( o.version ) );
   _.assert( o.remotePath === null || _.strDefined( o.remotePath ) );
-  _.assert( o.local || o.remote );
+  _.assert( !!o.local || !!o.remote );
 
   let ready = _.take( null );
   let start = _.process.starter
@@ -4811,7 +4811,7 @@ configReset.defaults =
 
 /* qqq : aaa:fixed
 
- = Message of error#1
+ = Message of Error#1
     Unexpected change type: "u", filePath: "revision" fatal: ambiguous argument 'alhpa': unknown revision or path not in the working tree.
     Use '--' to separate paths from revisions, like this:
     'git <command> [<revision>...] -- [<file>...]'
@@ -5652,7 +5652,7 @@ function tagDeleteBranch( o )
   _.routine.options( tagDeleteBranch, o );
   _.assert( _.strDefined( o.localPath ), 'Expects local path to git repository {-o.localPath-}' );
   _.assert( _.strDefined( o.tag ), 'Expects tag {-o.tag-} to delete' );
-  _.assert( o.local || o.remote );
+  _.assert( !!o.local || !!o.remote );
 
   let ready = _.take( null );
   let start = _.process.starter
@@ -5718,7 +5718,7 @@ function tagDeleteTag( o )
   _.routine.options( tagDeleteTag, o );
   _.assert( _.strDefined( o.localPath ), 'Expects local path to git repository {-o.localPath-}' );
   _.assert( _.strDefined( o.tag ), 'Expects tag {-o.tag-} to delete' );
-  _.assert( o.local || o.remote );
+  _.assert( !!o.local || !!o.remote );
 
   let ready = _.take( null );
   let start = _.process.starter
@@ -6216,7 +6216,7 @@ let Extension =
 
 }
 
-_.props.extend( Self, Extension );
+/* _.props.extend */Object.assign( _.git, Extension );
 
 //
 

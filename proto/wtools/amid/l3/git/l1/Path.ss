@@ -4,11 +4,8 @@
 'use strict';
 
 const _ = _global_.wTools;
-// const Parent = _.uri.path;
-/* aaa : for Dmytro : bad */ /* Dmytro : fixed, not me */
-/* aaa for Dmytro : check NpmTools */ /* Dmytro : checked, namespaces have similar declaration */
 const Parent = _.uri;
-const Self = _.git.path = _.git.path || Object.create( Parent );
+_.git.path = _.git.path || Object.create( Parent );
 
 // --
 //
@@ -595,9 +592,6 @@ defaults.logger = 0;
 // declare
 // --
 
-/* aaa : for Dmytro : jsdoc */ /* Dmytro : documented */
-/* aaa for Dmytro : use namespace in module */ /* Dmytro : used */
-
 let Extension =
 {
 
@@ -614,11 +608,6 @@ let Extension =
 
 }
 
-_.props.extend( Self, Extension );
-
-//
-
-if( typeof module !== 'undefined' )
-module[ 'exports' ] = _global_.wTools;
+/* _.props.extend */Object.assign( _.git.path, Extension );
 
 })();

@@ -328,7 +328,7 @@ function remotePathFromLocal( test )
       return null;
     })
 
-    _.assert( o.local || o.remote );
+    _.assert( !!o.local || !!o.remote );
     _.assert( !o.local || !o.remote );
 
     if( o.local )
