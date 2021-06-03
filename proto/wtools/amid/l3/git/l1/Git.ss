@@ -1041,7 +1041,7 @@ function versionsPull( o )
   return _.git.versionsRemoteRetrive({ localPath : o.localPath })
   .then( ( versions ) =>
   {
-    _.assert( _.arrayIs( versions ) && versions.length );
+    _.assert( _.arrayIs( versions ) && versions.length > 0 );
 
     let ready = _.take( null );
     let start = _.process.starter
