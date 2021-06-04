@@ -87,6 +87,8 @@ function _request_functor( test )
 
 function providerForPath( test )
 {
+  test.open( 'remote path - string' );
+
   test.case = 'remotePath - git, github, no protocol';
   var got = _.repo.providerForPath( 'git@github.com:user/repo.git' );
   test.identical( got, _.repo.provider.github );
@@ -183,6 +185,122 @@ function providerForPath( test )
   var got = _.repo.providerForPath( 'file:///a/b/c' );
   test.identical( got, _.repo.provider.hd );
 
+  test.close( 'remote path - string' );
+
+  /* - */
+
+  test.open( 'remote path - map' );
+
+  test.case = 'remotePath - git, github, no protocol in map';
+  var remotePath =
+  {
+    service : 'github',
+    user : 'user',
+    repo : 'repo',
+  };
+  var got = _.repo.providerForPath({ remotePath });
+  test.identical( got, _.repo.provider.github );
+
+  /* */
+
+  test.case = 'remotePath - git, github, no protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'git@github.com:user/repo.git' ) });
+  test.identical( got, _.repo.provider.github );
+
+  test.case = 'remotePath - git, github, git protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'git://git@github.com:user/repo.git' ) });
+  test.identical( got, _.repo.provider.github );
+
+  test.case = 'remotePath - git, github, https protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'https://github.com/user/repo.git' ) });
+  test.identical( got, _.repo.provider.github );
+
+  test.case = 'remotePath - git, github, git+https protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'git+https://git@github.com/user/repo.git' ) });
+  test.identical( got, _.repo.provider.github );
+
+  test.case = 'remotePath - git, github, ssh protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'ssh://git@github.com/user/repo.git' ) });
+  test.identical( got, _.repo.provider.github );
+
+  test.case = 'remotePath - git, github, git+ssh protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'git+ssh://git@github.com/user/repo.git' ) });
+  test.identical( got, _.repo.provider.github );
+
+  /* */
+
+  test.case = 'remotePath - git, gitlab, no protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'git@gitlab.com:user/repo.git' ) });
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, git protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'git://git@gitlab.com:user/repo.git' ) });
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, https protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'https://gitlab.com/user/repo.git' ) });
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, git+https protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'git+https://git@gitlab.com/user/repo.git' ) });
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, ssh protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'ssh://git@gitlab.com/user/repo.git' ) });
+  test.identical( got, _.repo.provider.git );
+
+  test.case = 'remotePath - git, gitlab, git+ssh protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'git+ssh://git@gitlab.com/user/repo.git' ) });
+  test.identical( got, _.repo.provider.git );
+
+  /* */
+
+  test.case = 'remotePath - npm';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'npm://wmodulefortesting1' ) });
+  test.identical( got, _.repo.provider.npm );
+
+  test.case = 'remotePath - global, npm';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'npm:///wmodulefortesting1' ) });
+  test.identical( got, _.repo.provider.npm );
+
+  /* */
+
+  test.case = 'remotePath - http';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'http://remote-path.com' ) });
+  test.identical( got, _.repo.provider.http );
+
+  test.case = 'remotePath - global, http';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'http:///remote-path.com' ) });
+  test.identical( got, _.repo.provider.http );
+
+  test.case = 'remotePath - https';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'https://remote-path.com' ) });
+  test.identical( got, _.repo.provider.http );
+
+  test.case = 'remotePath - global, https';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'https:///remote-path.com' ) });
+  test.identical( got, _.repo.provider.http );
+
+  /* */
+
+  test.case = 'remotePath - empty string';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( '' ) });
+  test.identical( got, _.repo.provider.hd );
+
+  test.case = 'remotePath - local hard drive path';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( '/a/b/c' ) });
+  test.identical( got, _.repo.provider.hd );
+
+  test.case = 'remotePath - hard drive path with protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'hd://a/b/c' ) });
+  test.identical( got, _.repo.provider.hd );
+
+  test.case = 'remotePath - global hard drive path with protocol';
+  var got = _.repo.providerForPath({ remotePath : _.git.path.parse( 'file:///a/b/c' ) });
+  test.identical( got, _.repo.provider.hd );
+
+  test.close( 'remote path - map' );
+
   /* - */
 
   if( !Config.debug )
@@ -199,6 +317,9 @@ function providerForPath( test )
 
   test.case = 'valid protocol of remotePath but no provider for protocol';
   test.shouldThrowErrorSync( () => _.repo.providerForPath( 'npm+https://github.com/user/repo.git' ) );
+
+  test.case = 'remote path is map, not all objects are passed';
+  test.shouldThrowErrorSync( () => _.repo.providerForPath({ remotePath : { service : 'github' } }) );
 }
 
 //
