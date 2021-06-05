@@ -3745,7 +3745,7 @@ function hookPreservingHardLinksRegister( repoPath )
   let name = 'archivePerform';
   let filePath = path.join( tempPath, name );
 
-  _.program.write
+  _.program.make
   ({
     sourceCode,
     name,
