@@ -234,7 +234,8 @@ function providerForPath( o )
 
     if( parsed.service )
     {
-      _.assert( parsed.protocols.length <= 1 || parsed.protocols[ 0 ] === 'git' );
+      _.assert( _.map.assertHasAll( parsed, { user : null, repo : null } ) );
+      _.assert( parsed.protocols === undefined || parsed.protocols.length <= 1 || parsed.protocols[ 0 ] === 'git' );
       return parsed.service;
     }
   }
