@@ -25986,7 +25986,7 @@ function renormalizeAudit( test )
     routine : program,
     locals :
     {
-      GitToolsPath : a.path.nativize( a.path.resolve( __dirname, '../l3/git/entry/GitTools.ss' ) ),
+      GitToolsPath : a.path.nativize( a.path.resolve( __dirname, '../git/entry/GitTools.ss' ) ),
       ClonePath : a.abs( testPath, 'clone' )
     }
   });
