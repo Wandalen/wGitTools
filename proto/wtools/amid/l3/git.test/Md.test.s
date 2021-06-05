@@ -37,9 +37,9 @@ function parseBasic( test )
   var exp =
   {
     src,
-    "headToken" : `#`,
-    "withText" : true,
-    "sectionArray" :
+    'headToken' : `#`,
+    'withText' : true,
+    'sectionArray' :
     [
       {
         'head' :
@@ -55,10 +55,10 @@ function parseBasic( test )
           'lineInterval' : [ 1, 0 ],
           'charInterval' : [ 4, 3 ],
         },
-        "level" : 1,
-        "lineInterval" : [ 0, 0 ],
-        "charInterval" : [ 0, 3 ],
-        "text" : '#h1\n',
+        'level' : 1,
+        'lineInterval' : [ 0, 0 ],
+        'charInterval' : [ 0, 3 ],
+        'text' : '#h1\n',
       },
       {
         'head' :
@@ -74,10 +74,10 @@ function parseBasic( test )
           'lineInterval' : [ 2, 1 ],
           'charInterval' : [ 9, 8 ]
         },
-        "level" : 2,
-        "lineInterval" : [ 1, 1 ],
-        "charInterval" : [ 4, 8 ],
-        "text" : '##h2\n',
+        'level' : 2,
+        'lineInterval' : [ 1, 1 ],
+        'charInterval' : [ 4, 8 ],
+        'text' : '##h2\n',
       },
       {
         'head' :
@@ -93,13 +93,13 @@ function parseBasic( test )
           'lineInterval' : [ 3, 2 ],
           'charInterval' : [ 14, 13 ]
         },
-        "level" : 3,
-        "lineInterval" : [ 2, 2 ],
-        "charInterval" : [ 9, 13 ],
-        "text" : '###h3',
+        'level' : 3,
+        'lineInterval' : [ 2, 2 ],
+        'charInterval' : [ 9, 13 ],
+        'text' : '###h3',
       }
     ],
-    sectionMap : {},
+    'sectionMap' : {},
   }
   test.identical( got, exp );
   console.log( _.entity.exportJs( got ) );
@@ -124,50 +124,50 @@ ff
   var exp =
   {
     src,
-    "headToken" : `#`,
-    "withText" : true,
-    "sectionArray" :
+    'headToken' : `#`,
+    'withText' : true,
+    'sectionArray' :
     [
       {
-        "head" :
+        'head' :
         {
-          "text" : `h1`,
-          "raw" : ` h1\t`,
-          "charInterval" : [ 0, 5 ],
-          "lineIndex" : 0
+          'text' : `h1`,
+          'raw' : ` h1\t`,
+          'charInterval' : [ 0, 5 ],
+          'lineIndex' : 0
         },
-        "body" :
+        'body' :
         {
-          "text" : `cc\ndd\n`,
-          "lineInterval" : [ 1, 2 ],
-          "charInterval" : [ 6, 11 ]
+          'text' : `cc\ndd\n`,
+          'lineInterval' : [ 1, 2 ],
+          'charInterval' : [ 6, 11 ]
         },
-        "level" : 1,
-        "lineInterval" : [ 0, 2 ],
-        "charInterval" : [ 0, 11 ],
-        "text" : '# h1\t\ncc\ndd\n',
+        'level' : 1,
+        'lineInterval' : [ 0, 2 ],
+        'charInterval' : [ 0, 11 ],
+        'text' : '# h1\t\ncc\ndd\n',
       },
       {
-        "head" :
+        'head' :
         {
-          "text" : `h2`,
-          "raw" : ` h2 `,
-          "charInterval" : [ 12, 18 ],
-          "lineIndex" : 3
+          'text' : `h2`,
+          'raw' : ` h2 `,
+          'charInterval' : [ 12, 18 ],
+          'lineIndex' : 3
         },
-        "body" :
+        'body' :
         {
-          "text" : `ee\nff\n`,
-          "lineInterval" : [ 4, 6 ],
-          "charInterval" : [ 19, 24 ]
+          'text' : `ee\nff\n`,
+          'lineInterval' : [ 4, 6 ],
+          'charInterval' : [ 19, 24 ]
         },
-        "level" : 2,
-        "lineInterval" : [ 3, 6 ],
-        "charInterval" : [ 12, 24 ],
-        "text" : '## h2\u0020\nee\nff\n',
+        'level' : 2,
+        'lineInterval' : [ 3, 6 ],
+        'charInterval' : [ 12, 24 ],
+        'text' : '## h2\u0020\nee\nff\n',
       }
     ],
-    "sectionMap" : {},
+    'sectionMap' : {},
   }
   test.identical( got, exp );
   console.log( _.entity.exportJs( got ) );
@@ -187,44 +187,44 @@ cc
   var exp =
   {
     src,
-    "headToken" : `#`,
-    "withText" : true,
-    "sectionArray" :
+    'headToken' : `#`,
+    'withText' : true,
+    'sectionArray' :
     [
       {
-        "head" : { "text" : null, "raw" : null },
-        "body" :
+        'head' : { 'text' : null, 'raw' : null },
+        'body' :
         {
-          "text" : `\n`,
-          "lineInterval" : [ 0, 0 ],
-          "charInterval" : [ 0, 0 ]
+          'text' : `\n`,
+          'lineInterval' : [ 0, 0 ],
+          'charInterval' : [ 0, 0 ]
         },
-        "level" : 0,
-        "lineInterval" : [ 0, 0 ],
-        "charInterval" : [ 0, 0 ],
-        "text" : '\n',
+        'level' : 0,
+        'lineInterval' : [ 0, 0 ],
+        'charInterval' : [ 0, 0 ],
+        'text' : '\n',
       },
       {
-        "head" :
+        'head' :
         {
-          "text" : `h1`,
-          "raw" : `h1`,
-          "charInterval" : [ 1, 4 ],
-          "lineIndex" : 1
+          'text' : `h1`,
+          'raw' : `h1`,
+          'charInterval' : [ 1, 4 ],
+          'lineIndex' : 1
         },
-        "body" :
+        'body' :
         {
-          "text" : `cc\n`,
-          "lineInterval" : [ 2, 3 ],
-          "charInterval" : [ 5, 7 ]
+          'text' : `cc\n`,
+          'lineInterval' : [ 2, 3 ],
+          'charInterval' : [ 5, 7 ]
         },
-        "level" : 1,
-        "lineInterval" : [ 1, 3 ],
-        "charInterval" : [ 1, 7 ],
-        "text" : '#h1\ncc\n',
+        'level' : 1,
+        'lineInterval' : [ 1, 3 ],
+        'charInterval' : [ 1, 7 ],
+        'text' : '#h1\ncc\n',
       }
     ],
-    "sectionMap" : {}
+    'sectionMap' : {}
   }
   test.identical( got, exp );
   console.log( _.entity.exportJs( got ) );
@@ -245,44 +245,44 @@ cc
   var exp =
   {
     src,
-    "headToken" : `#`,
-    "withText" : true,
-    "sectionArray" :
+    'headToken' : `#`,
+    'withText' : true,
+    'sectionArray' :
     [
       {
-        "head" : { "text" : null, "raw" : null },
-        "body" :
+        'head' : { 'text' : null, 'raw' : null },
+        'body' :
         {
-          "text" : `aa\nbb\n`,
-          "lineInterval" : [ 0, 1 ],
-          "charInterval" : [ 0, 5 ]
+          'text' : `aa\nbb\n`,
+          'lineInterval' : [ 0, 1 ],
+          'charInterval' : [ 0, 5 ]
         },
-        "level" : 0,
-        "lineInterval" : [ 0, 1 ],
-        "charInterval" : [ 0, 5 ],
-        "text" : `aa\nbb\n`,
+        'level' : 0,
+        'lineInterval' : [ 0, 1 ],
+        'charInterval' : [ 0, 5 ],
+        'text' : `aa\nbb\n`,
       },
       {
-        "head" :
+        'head' :
         {
-          "text" : `h1`,
-          "raw" : `h1`,
-          "charInterval" : [ 6, 9 ],
-          "lineIndex" : 2
+          'text' : `h1`,
+          'raw' : `h1`,
+          'charInterval' : [ 6, 9 ],
+          'lineIndex' : 2
         },
-        "body" :
+        'body' :
         {
-          "text" : `cc\n`,
-          "lineInterval" : [ 3, 4 ],
-          "charInterval" : [ 10, 12 ]
+          'text' : `cc\n`,
+          'lineInterval' : [ 3, 4 ],
+          'charInterval' : [ 10, 12 ]
         },
-        "level" : 1,
-        "lineInterval" : [ 2, 4 ],
-        "charInterval" : [ 6, 12 ],
-        "text" : `#h1\ncc\n`,
+        'level' : 1,
+        'lineInterval' : [ 2, 4 ],
+        'charInterval' : [ 6, 12 ],
+        'text' : `#h1\ncc\n`,
       }
     ],
-    "sectionMap" : {}
+    'sectionMap' : {}
   }
   test.identical( got, exp );
   console.log( _.entity.exportJs( got ) );
@@ -304,50 +304,47 @@ cc
   var exp =
   {
     src,
-    "headToken" : `#`,
-    "withText" : true,
-    "sectionArray" :
+    'headToken' : `#`,
+    'withText' : true,
+    'sectionArray' :
     [
       {
-        "head" : { "text" : null, "raw" : null },
-        "body" :
+        'head' : { 'text' : null, 'raw' : null },
+        'body' :
         {
-          "text" : `\naa\nbb\n`,
-          "lineInterval" : [ 0, 2 ],
-          "charInterval" : [ 0, 6 ]
+          'text' : `\naa\nbb\n`,
+          'lineInterval' : [ 0, 2 ],
+          'charInterval' : [ 0, 6 ]
         },
-        "level" : 0,
-        "lineInterval" : [ 0, 2 ],
-        "charInterval" : [ 0, 6 ],
-        "text" : `\naa\nbb\n`,
+        'level' : 0,
+        'lineInterval' : [ 0, 2 ],
+        'charInterval' : [ 0, 6 ],
+        'text' : `\naa\nbb\n`,
       },
       {
-        "head" :
+        'head' :
         {
-          "text" : `h1`,
-          "raw" : `h1`,
-          "charInterval" : [ 7, 10 ],
-          "lineIndex" : 3
+          'text' : `h1`,
+          'raw' : `h1`,
+          'charInterval' : [ 7, 10 ],
+          'lineIndex' : 3
         },
-        "body" :
+        'body' :
         {
-          "text" : `cc\n`,
-          "lineInterval" : [ 4, 5 ],
-          "charInterval" : [ 11, 13 ]
+          'text' : `cc\n`,
+          'lineInterval' : [ 4, 5 ],
+          'charInterval' : [ 11, 13 ]
         },
-        "level" : 1,
-        "lineInterval" : [ 3, 5 ],
-        "charInterval" : [ 7, 13 ],
-        "text" : `#h1\ncc\n`,
+        'level' : 1,
+        'lineInterval' : [ 3, 5 ],
+        'charInterval' : [ 7, 13 ],
+        'text' : `#h1\ncc\n`,
       }
     ],
-    "sectionMap" : {},
+    'sectionMap' : {},
   }
   test.identical( got, exp );
   console.log( _.entity.exportJs( got ) );
-
-  /* */
-
 }
 
 //

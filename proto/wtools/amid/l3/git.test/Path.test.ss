@@ -5577,6 +5577,11 @@ function normalize( test )
   var got = _.git.path.normalize( srcPath );
   test.identical( got, 'git+hd:///../wModuleForTesting1/out/wModuleForTesting1.out.will!dev1' );
 
+  test.case = 'absolute windows hd path without protocol';
+  var srcPath = 'C:\\users\\wModuleForTesting1\\';
+  var got = _.git.path.normalize( srcPath );
+  test.identical( got, 'git+hd:///C/users/wModuleForTesting1/' );
+
   /* - */
 
   if( !Config.debug )

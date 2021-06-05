@@ -1041,7 +1041,7 @@ function versionsPull( o )
   return _.git.versionsRemoteRetrive({ localPath : o.localPath })
   .then( ( versions ) =>
   {
-    _.assert( _.arrayIs( versions ) && versions.length );
+    _.assert( _.arrayIs( versions ) && versions.length > 0 );
 
     let ready = _.take( null );
     let start = _.process.starter
@@ -1315,7 +1315,6 @@ function hasRemote( o )
 {
   let localProvider = _.fileProvider;
   let path = _.git.path;
-  // let path = localProvider.path;
 
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.routine.options_( hasRemote, o );
@@ -1346,24 +1345,29 @@ function hasRemote( o )
 
     let config = _.git.configRead( o.localPath );
 
-    // let remoteVcsPath = _.git.pathParse( o.remotePath ).remoteVcsPath;
-    let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
+    let parsed = path.parse({ remotePath : o.remotePath, full : 0, atomic : 1 });
     let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null, localVcsPath : null } );
-    let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
-    remoteVcsPath = _.git.path.nativize( remoteVcsPath );
+    let remoteVcsPath = path.str( remoteVcsPathParsed );
+    remoteVcsPath = path.nativize( remoteVcsPath );
 
     let remoteOrigin = config[ 'remote "origin"' ];
     let originVcsPath = null;
 
-    if( remoteOrigin )
-    originVcsPath = remoteOrigin.url;
+    if( remoteOrigin ) /* qqq : for Dmytro : cover */
+    {
+      originVcsPath = path.normalize( remoteOrigin.url );
+      originVcsPath = path.nativize( originVcsPath );
+    }
 
     _.sure( _.strDefined( remoteVcsPath ) );
     _.sure( _.strDefined( originVcsPath ) || originVcsPath === null );
 
     result.remoteVcsPath = remoteVcsPath;
     result.originVcsPath = originVcsPath;
-    result.remoteIsValid = originVcsPath === remoteVcsPath;
+    if( originVcsPath === null )
+    result.remoteIsValid = false;
+    else
+    result.remoteIsValid = path.trail( path.refine( originVcsPath ) ) === path.trail( path.refine( remoteVcsPath ) );
 
     return result;
   });
@@ -1685,6 +1689,7 @@ function sureHasOrigin( o )
   );
 
   let srcCurrentPath = config[ 'remote "origin"' ].url;
+  srcCurrentPath = _.git.path.nativize( _.git.path.normalize( config[ 'remote "origin"' ].url ) ); /* qqq : for Dmytro : cover */
 
   // _.sure
   // (
@@ -5582,7 +5587,7 @@ function reset_body( o )
 
 reset_body.defaults =
 {
-  logger : 1,
+  // logger : 1,
   state1 : 'working', /* 'working', 'staged', 'committed' some commit or tag */
   state2 : 'committed', /* 'working', 'staged', 'committed' some commit or tag */
   localPath : null,
