@@ -21335,7 +21335,7 @@ function pullCheckOutput( test )
   let a = test.assetFor( 'basic' );
   a.shell.predefined.outputCollecting = 1;
   a.shell.predefined.currentPath = a.abs( 'repo' );
-  let programPath;
+  let program;
 
   let programShell = _.process.starter
   ({
@@ -21351,7 +21351,7 @@ function pullCheckOutput( test )
   {
     test.case = 'pull changes';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ) });
+    program = programMake({ localPath : a.abs( 'repo' ) });
     return null;
   });
 
@@ -21378,7 +21378,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
+    return programShell( 'node ' + _.path.nativize( program.programPath ) );
   });
   a.ready.then( ( op ) =>
   {
@@ -21400,7 +21400,7 @@ function pullCheckOutput( test )
   {
     test.case = 'dry - 1, pull not changes';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), dry : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), dry : 1 });
     return null;
   });
 
@@ -21427,7 +21427,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
+    return programShell( 'node ' + _.path.nativize( program.programPath ) );
   });
   a.ready.then( ( op ) =>
   {
@@ -21449,7 +21449,7 @@ function pullCheckOutput( test )
   {
     test.case = 'pull with conflict, throwing - 0';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
+    program = programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
     return null;
   });
 
@@ -21480,7 +21480,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
+    return programShell( 'node ' + _.path.nativize( program.programPath ) );
   });
   a.ready.then( ( op ) =>
   {
@@ -21503,7 +21503,7 @@ function pullCheckOutput( test )
   {
     test.case = 'pull with conflict, throwing - 1';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
     return null;
   });
 
@@ -21534,7 +21534,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( programPath ) });
+    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( program.programPath ) });
   });
   a.ready.then( ( op ) =>
   {
@@ -21907,7 +21907,7 @@ function pushCheckOutput( test )
   let a = test.assetFor( 'basic' );
   a.shell.predefined.outputCollecting = 1;
   a.shell.predefined.currentPath = a.abs( 'repo' );
-  let programPath;
+  let program;
 
   let programShell = _.process.starter
   ({
@@ -21923,7 +21923,7 @@ function pushCheckOutput( test )
   {
     test.case = 'push to not added master branch';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ) });
+    program = programMake({ localPath : a.abs( 'repo' ) });
     return null;
   });
 
@@ -21945,7 +21945,7 @@ function pushCheckOutput( test )
   {
     test.case = 'push to automatically added branch';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'clone' ) });
+    program = programMake({ localPath : a.abs( 'clone' ) });
     return null;
   });
 
@@ -21979,7 +21979,7 @@ function pushCheckOutput( test )
   {
     test.case = 'several pushes';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ) });
+    program = programMake({ localPath : a.abs( 'repo' ) });
     return null;
   });
 
@@ -22002,7 +22002,7 @@ function pushCheckOutput( test )
   {
     test.case = 'dry - 1, push no changes';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), dry : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), dry : 1 });
     return null;
   });
 
@@ -22024,7 +22024,7 @@ function pushCheckOutput( test )
   {
     test.case = 'dry - 1, force - 1, push no changes';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), dry : 1, force : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), dry : 1, force : 1 });
     return null;
   });
 
@@ -22046,7 +22046,7 @@ function pushCheckOutput( test )
   {
     test.case = 'withTags - 1, no unpushed tags exist';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
     return null;
   });
 
@@ -22070,7 +22070,7 @@ function pushCheckOutput( test )
   {
     test.case = 'withTags - 1, force - 1, no unpushed tags exist';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
     return null;
   });
 
@@ -22094,7 +22094,7 @@ function pushCheckOutput( test )
   {
     test.case = 'withTags - 1, tags exist';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
     return null;
   });
 
@@ -22125,7 +22125,7 @@ function pushCheckOutput( test )
   {
     test.case = 'withTags - 1, tags exist';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
     return null;
   });
 
@@ -22156,7 +22156,7 @@ function pushCheckOutput( test )
   {
     test.case = 'throwing - 0, push to not existed repository';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
+    program = programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
     return null;
   });
 
@@ -22189,7 +22189,7 @@ function pushCheckOutput( test )
   {
     test.case = 'throwing - 1, push to not existed repository';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
     return null;
   });
 
@@ -22205,7 +22205,7 @@ function pushCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( programPath ) });
+    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( program.programPath ) });
   });
   a.ready.then( ( op ) =>
   {
@@ -22269,7 +22269,7 @@ function pushCheckOutput( test )
 
   function start()
   {
-    return a.ready.then( () => programShell( 'node ' + _.path.nativize( programPath ) ) );
+    return a.ready.then( () => programShell( 'node ' + _.path.nativize( program.programPath ) ) );
   }
 
   /* */
@@ -23723,7 +23723,7 @@ function resetWithOptionDry( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
-  let programPath;
+  let program;
 
   a.shell.predefined.outputCollecting = 1;
   a.shell.predefined.currentPath = a.abs( 'repo' );
@@ -23759,13 +23759,13 @@ function resetWithOptionDry( test )
       removingIgnored : 1,
       dry : 1,
     };
-    programPath = programMake({ o });
+    program = programMake({ o });
     return null;
   });
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23779,7 +23779,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( programPath );
+      return a.fileProvider.filesDelete( program.programPath );
     });
   });
 
@@ -23804,7 +23804,7 @@ function resetWithOptionDry( test )
       removingIgnored : 1,
       dry : 1,
     };
-    programPath = programMake({ o });
+    program = programMake({ o });
 
     a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
     a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
@@ -23825,7 +23825,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23839,7 +23839,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( programPath );
+      return a.fileProvider.filesDelete( program.programPath );
     });
   });
 
@@ -23864,7 +23864,7 @@ function resetWithOptionDry( test )
       removingIgnored : 1,
       dry : 1,
     };
-    programPath = programMake({ o });
+    program = programMake({ o });
 
     a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
     a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
@@ -23885,7 +23885,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23901,7 +23901,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( programPath );
+      return a.fileProvider.filesDelete( program.programPath );
     });
   });
 
@@ -23927,7 +23927,7 @@ function resetWithOptionDry( test )
       removingIgnored : 0,
       dry : 1,
     };
-    programPath = programMake({ o });
+    program = programMake({ o });
 
     a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
     a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
@@ -23948,7 +23948,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23964,7 +23964,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( programPath );
+      return a.fileProvider.filesDelete( program.programPath );
     });
   });
 
@@ -23990,7 +23990,7 @@ function resetWithOptionDry( test )
       removingIgnored : 1,
       dry : 1,
     };
-    programPath = programMake({ o });
+    program = programMake({ o });
 
     a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
     a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
@@ -24011,7 +24011,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -24027,7 +24027,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( programPath );
+      return a.fileProvider.filesDelete( program.programPath );
     });
   });
 
@@ -25981,15 +25981,16 @@ function renormalizeAudit( test )
     ready : con
   })
 
-  let programPath = a.program
+  let program = a.program
   ({
-    routine : program,
+    routine : testApp,
     locals :
     {
       GitToolsPath : a.path.nativize( a.path.resolve( __dirname, '../git/entry/GitTools.ss' ) ),
       ClonePath : a.abs( testPath, 'clone' )
     }
   });
+  let programPath = program.programPath;
 
   /* - */
 
@@ -26055,7 +26056,7 @@ function renormalizeAudit( test )
     return con;
   }
 
-  function program()
+  function testApp()
   {
     const _ = require( GitToolsPath );
     _.git.renormalize({ localPath : ClonePath, audit : 1 });
