@@ -21335,7 +21335,7 @@ function pullCheckOutput( test )
   let a = test.assetFor( 'basic' );
   a.shell.predefined.outputCollecting = 1;
   a.shell.predefined.currentPath = a.abs( 'repo' );
-  let programPath;
+  let program;
 
   let programShell = _.process.starter
   ({
@@ -21351,7 +21351,7 @@ function pullCheckOutput( test )
   {
     test.case = 'pull changes';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ) });
+    program = programMake({ localPath : a.abs( 'repo' ) });
     return null;
   });
 
@@ -21378,7 +21378,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
+    return programShell( 'node ' + _.path.nativize( program.programPath ) );
   });
   a.ready.then( ( op ) =>
   {
@@ -21400,7 +21400,7 @@ function pullCheckOutput( test )
   {
     test.case = 'dry - 1, pull not changes';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), dry : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), dry : 1 });
     return null;
   });
 
@@ -21427,7 +21427,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
+    return programShell( 'node ' + _.path.nativize( program.programPath ) );
   });
   a.ready.then( ( op ) =>
   {
@@ -21449,7 +21449,7 @@ function pullCheckOutput( test )
   {
     test.case = 'pull with conflict, throwing - 0';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
+    program = programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
     return null;
   });
 
@@ -21480,7 +21480,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) );
+    return programShell( 'node ' + _.path.nativize( program.programPath ) );
   });
   a.ready.then( ( op ) =>
   {
@@ -21503,7 +21503,7 @@ function pullCheckOutput( test )
   {
     test.case = 'pull with conflict, throwing - 1';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
     return null;
   });
 
@@ -21534,7 +21534,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( programPath ) });
+    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( program.programPath ) });
   });
   a.ready.then( ( op ) =>
   {
