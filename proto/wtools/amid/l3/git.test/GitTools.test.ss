@@ -21907,7 +21907,7 @@ function pushCheckOutput( test )
   let a = test.assetFor( 'basic' );
   a.shell.predefined.outputCollecting = 1;
   a.shell.predefined.currentPath = a.abs( 'repo' );
-  let programPath;
+  let program;
 
   let programShell = _.process.starter
   ({
@@ -21923,7 +21923,7 @@ function pushCheckOutput( test )
   {
     test.case = 'push to not added master branch';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ) });
+    program = programMake({ localPath : a.abs( 'repo' ) });
     return null;
   });
 
@@ -21945,7 +21945,7 @@ function pushCheckOutput( test )
   {
     test.case = 'push to automatically added branch';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'clone' ) });
+    program = programMake({ localPath : a.abs( 'clone' ) });
     return null;
   });
 
@@ -21979,7 +21979,7 @@ function pushCheckOutput( test )
   {
     test.case = 'several pushes';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ) });
+    program = programMake({ localPath : a.abs( 'repo' ) });
     return null;
   });
 
@@ -22002,7 +22002,7 @@ function pushCheckOutput( test )
   {
     test.case = 'dry - 1, push no changes';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), dry : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), dry : 1 });
     return null;
   });
 
@@ -22024,7 +22024,7 @@ function pushCheckOutput( test )
   {
     test.case = 'dry - 1, force - 1, push no changes';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), dry : 1, force : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), dry : 1, force : 1 });
     return null;
   });
 
@@ -22046,7 +22046,7 @@ function pushCheckOutput( test )
   {
     test.case = 'withTags - 1, no unpushed tags exist';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
     return null;
   });
 
@@ -22070,7 +22070,7 @@ function pushCheckOutput( test )
   {
     test.case = 'withTags - 1, force - 1, no unpushed tags exist';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
     return null;
   });
 
@@ -22094,7 +22094,7 @@ function pushCheckOutput( test )
   {
     test.case = 'withTags - 1, tags exist';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
     return null;
   });
 
@@ -22125,7 +22125,7 @@ function pushCheckOutput( test )
   {
     test.case = 'withTags - 1, tags exist';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
     return null;
   });
 
@@ -22156,7 +22156,7 @@ function pushCheckOutput( test )
   {
     test.case = 'throwing - 0, push to not existed repository';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
+    program = programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
     return null;
   });
 
@@ -22189,7 +22189,7 @@ function pushCheckOutput( test )
   {
     test.case = 'throwing - 1, push to not existed repository';
     a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    programPath = programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
+    program = programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
     return null;
   });
 
@@ -22205,7 +22205,7 @@ function pushCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( programPath ) });
+    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( program.programPath ) });
   });
   a.ready.then( ( op ) =>
   {
@@ -22269,7 +22269,7 @@ function pushCheckOutput( test )
 
   function start()
   {
-    return a.ready.then( () => programShell( 'node ' + _.path.nativize( programPath ) ) );
+    return a.ready.then( () => programShell( 'node ' + _.path.nativize( program.programPath ) ) );
   }
 
   /* */
