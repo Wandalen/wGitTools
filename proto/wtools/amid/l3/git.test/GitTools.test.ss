@@ -23723,7 +23723,7 @@ function resetWithOptionDry( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
-  let programPath;
+  let program;
 
   a.shell.predefined.outputCollecting = 1;
   a.shell.predefined.currentPath = a.abs( 'repo' );
@@ -23759,13 +23759,13 @@ function resetWithOptionDry( test )
       removingIgnored : 1,
       dry : 1,
     };
-    programPath = programMake({ o });
+    program = programMake({ o });
     return null;
   });
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23779,7 +23779,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( programPath );
+      return a.fileProvider.filesDelete( program.programPath );
     });
   });
 
@@ -23804,7 +23804,7 @@ function resetWithOptionDry( test )
       removingIgnored : 1,
       dry : 1,
     };
-    programPath = programMake({ o });
+    program = programMake({ o });
 
     a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
     a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
@@ -23825,7 +23825,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23839,7 +23839,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( programPath );
+      return a.fileProvider.filesDelete( program.programPath );
     });
   });
 
@@ -23864,7 +23864,7 @@ function resetWithOptionDry( test )
       removingIgnored : 1,
       dry : 1,
     };
-    programPath = programMake({ o });
+    program = programMake({ o });
 
     a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
     a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
@@ -23885,7 +23885,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23901,7 +23901,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( programPath );
+      return a.fileProvider.filesDelete( program.programPath );
     });
   });
 
@@ -23927,7 +23927,7 @@ function resetWithOptionDry( test )
       removingIgnored : 0,
       dry : 1,
     };
-    programPath = programMake({ o });
+    program = programMake({ o });
 
     a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
     a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
@@ -23948,7 +23948,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23964,7 +23964,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( programPath );
+      return a.fileProvider.filesDelete( program.programPath );
     });
   });
 
@@ -23990,7 +23990,7 @@ function resetWithOptionDry( test )
       removingIgnored : 1,
       dry : 1,
     };
-    programPath = programMake({ o });
+    program = programMake({ o });
 
     a.fileProvider.fileAppend( a.abs( 'repo', 'file' ), 'new data' );
     a.fileProvider.fileDelete( a.abs( 'repo', 'file1' ) );
@@ -24011,7 +24011,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.programPath ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -24027,7 +24027,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( programPath );
+     return a.fileProvider.filesDelete( program.programPath );
     });
   });
 
