@@ -24027,7 +24027,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-     return a.fileProvider.filesDelete( program.programPath );
+      return a.fileProvider.filesDelete( program.programPath );
     });
   });
 
@@ -25981,15 +25981,16 @@ function renormalizeAudit( test )
     ready : con
   })
 
-  let programPath = a.program
+  let program = a.program
   ({
-    routine : program,
+    routine : testApp,
     locals :
     {
       GitToolsPath : a.path.nativize( a.path.resolve( __dirname, '../git/entry/GitTools.ss' ) ),
       ClonePath : a.abs( testPath, 'clone' )
     }
   });
+  let programPath = program.programPath;
 
   /* - */
 
@@ -26055,7 +26056,7 @@ function renormalizeAudit( test )
     return con;
   }
 
-  function program()
+  function testApp()
   {
     const _ = require( GitToolsPath );
     _.git.renormalize({ localPath : ClonePath, audit : 1 });
