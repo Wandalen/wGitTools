@@ -1,11 +1,11 @@
 {
   "name" : "wgittools",
-  "version" : "0.3.332",
+  "version" : "0.3.333",
   "description" : "Collection of tools to use git programmatically.",
   "author" : "Kostiantyn Wandalen <wanalen@01.school>",
   "license" : "MIT",
   "main" : "proto/node_modules/wgittools",
-  "files" : [ "proto/wtools/amid/l3/git", "out", "proto/node_modules" ],
+  "files" : [ "proto/wtools/amid/l3/git", "out", "proto/node_modules", "proto/node_modules/Tools", "proto/node_modules/wgittools" ],
   "scripts" : { "test" : "wtest .run 'proto/**' rapidity:-3", "docgen" : "wdocgen proto" },
   "repository" :
   {
