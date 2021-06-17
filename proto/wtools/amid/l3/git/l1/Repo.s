@@ -160,7 +160,7 @@ function _collectionExportString_functor( fo )
     {
       if( result.length )
       result += '\n';
-      /* xxx : use _.stringer.itUp() */
+      /* xxx : use _.stringer.verbosityUp() */
       result += o.it.tab + o.it.dtab + elementExportRoutine.body.call( _.repo, element, o );
     });
 
