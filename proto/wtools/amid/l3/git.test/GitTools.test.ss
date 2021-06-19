@@ -21589,7 +21589,7 @@ function pullCheckOutput( test )
   function programMake( options )
   {
     let locals = { toolsPath : _.module.resolve( 'wTools' ), o : options };
-    return a.program({ routine : testApp, locals });
+    return a.program({ entry : testApp, locals });
   }
 
   /* */
@@ -22253,7 +22253,7 @@ function pushCheckOutput( test )
   function programMake( options )
   {
     let locals = { toolsPath : _.module.resolve( 'wTools' ), o : options };
-    return a.program({ routine : testApp, locals });
+    return a.program({ entry : testApp, locals });
   }
 
   /* */
@@ -24054,7 +24054,7 @@ function resetWithOptionDry( test )
   function programMake( locals )
   {
     locals = _.mapSupplement( { toolsPath : _.module.resolve( 'wTools' ) }, locals );
-    return a.program({ routine : testApp, locals });
+    return a.program({ entry : testApp, locals });
   }
 
   /* */
@@ -25184,7 +25184,7 @@ function tagMake( test )
   function programMake( locals )
   {
     locals = _.props.supplement( { toolsPath : _.module.resolve( 'wTools' ) }, locals );
-    return a.program({ routine : testApp, locals });
+    return a.program({ entry : testApp, locals });
   }
 
   /* */
