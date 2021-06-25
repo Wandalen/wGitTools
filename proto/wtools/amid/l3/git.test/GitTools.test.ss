@@ -17547,6 +17547,108 @@ repositoryClone.timeOut = 60000;
 
 //
 
+function repositoryCloneCheckRetryOptions( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.fileProvider.dirMake( a.abs( '.' ) );
+
+  if( process.platform === 'win32' || process.platform === 'darwin' || !_.process.insideTestContainer() )
+  return test.true( true );
+
+  let netInterfaces = __.test.netInterfacesGet({ activeInterfaces : 1, sync : 1 });
+  begin().then( () => __.test.netInterfacesDown({ interfaces : netInterfaces }) );
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'default options';
+    var onErrorCallback = ( err, arg ) =>
+    {
+      test.true( _.error.is( err ) );
+      test.identical( arg, undefined );
+      var exp = `Attempts is exhausted, made ${ _.git.repositoryClone.defaults.attemptLimit } attempts`;
+      test.identical( _.strCount( err.message, exp ), 1 );
+      test.identical( _.strCount( err.message, `Could not resolve hostname` ), 1 );
+      return null;
+    };
+    return test.shouldThrowErrorAsync
+    (
+      () =>
+      {
+        return _.git.repositoryClone
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        });
+      },
+      onErrorCallback,
+    );
+  });
+
+  a.ready.then( () =>
+  {
+    test.case = 'not default attemptLimit';
+    var onErrorCallback = ( err, arg ) =>
+    {
+      test.true( _.error.is( err ) );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, `Attempts is exhausted, made 2 attempts` ), 1 );
+      test.identical( _.strCount( err.message, `Could not resolve hostname` ), 1 );
+      return null;
+    };
+    return test.shouldThrowErrorAsync
+    (
+      () =>
+      {
+        return _.git.repositoryClone
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+          attemptLimit : 2,
+        });
+      },
+      onErrorCallback,
+    );
+  });
+
+  let start;
+  a.ready.then( () =>
+  {
+    test.case = 'not default attemptDelay';
+    return test.shouldThrowErrorAsync( () =>
+    {
+      start = _.time.now();
+      return _.git.repositoryClone
+      ({
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        attemptDelay : 2000,
+      });
+    });
+  });
+  a.ready.then( () =>
+  {
+    let spent = _.time.now() - start;
+    test.ge( spent, 2000 * _.git.repositoryClone.defaults.attemptLimit );
+    return null;
+  });
+
+  /* */
+
+
+  a.ready.finally( () => __.test.netInterfacesUp({ interfaces : netInterfaces }) );
+
+  /* - */
+
+  return a.ready;
+}
+
+repositoryCloneCheckRetryOptions.timeOut = 60000;
+
+//
+
 function repositoryCheckout( test )
 {
   let context = this;
@@ -26183,6 +26285,7 @@ const Proto =
     repositoryInitRemote,
     repositoryDeleteRemote,
     repositoryClone,
+    repositoryCloneCheckRetryOptions,
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,
 
