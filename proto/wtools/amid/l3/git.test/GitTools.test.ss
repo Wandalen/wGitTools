@@ -17624,7 +17624,6 @@ function repositoryCloneCheckRetryOptions( test )
 
   /* */
 
-
   a.ready.finally( () => __.test.netInterfacesUp({ interfaces : netInterfaces }) );
 
   /* - */
