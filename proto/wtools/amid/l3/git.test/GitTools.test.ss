@@ -26062,30 +26062,26 @@ function renormalizeAudit( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  // let repoPath = path.join( testPath, 'repo' ); // a.abs( testPath, 'repo' )
-  // let clonePath = path.join( testPath, 'clone' ); // a.abs( testPath, 'clone' )
-  let file1Data = 'abc\n';
+  let testPath = a.abs( 'routine-' + test.name );
 
-  let con = new _.Consequence().take( null );
+  let con = _.take( null );
 
   let shell = _.process.starter
   ({
     currentPath : a.abs( testPath, 'repo' ),
     ready : con
-  })
+  });
 
   let shell2 = _.process.starter
   ({
     currentPath : testPath,
     ready : con
-  })
+  });
 
   let program = a.program
   ({
-    routine : testApp,
+    // routine : testApp,
+    entry : testApp,
     locals :
     {
       GitToolsPath : a.path.nativize( a.path.resolve( __dirname, '../git/entry/GitTools.ss' ) ),
@@ -26122,14 +26118,14 @@ function renormalizeAudit( test )
 
     con.then( () =>
     {
-      provider.filesDelete( testPath );
-      provider.dirMake( testPath )
-      provider.dirMake( a.abs( testPath, 'repo' ) )
+      a.fileProvider.filesDelete( testPath );
+      a.fileProvider.dirMake( testPath )
+      a.fileProvider.dirMake( a.abs( testPath, 'repo' ) )
 
-      provider.fileWrite( a.abs( testPath, 'repo', 'file1' ), file1Data );
+      a.fileProvider.fileWrite( a.abs( testPath, 'repo', 'file1' ), 'abc\n' );
 
       if( o.attributes )
-      provider.fileWrite( a.abs( testPath, 'repo', '.gitattributes' ), o.attributes );
+      a.fileProvider.fileWrite( a.abs( testPath, 'repo', '.gitattributes' ), o.attributes );
 
       return null;
     })
@@ -26146,7 +26142,7 @@ function renormalizeAudit( test )
     o = o || {}
     con.then( () =>
     {
-      provider.filesDelete( a.abs( 'clone' ) );
+      a.fileProvider.filesDelete( a.abs( 'clone' ) );
       return null;
     })
 
