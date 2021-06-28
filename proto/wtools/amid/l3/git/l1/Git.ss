@@ -3755,7 +3755,8 @@ function hookPreservingHardLinksRegister( repoPath )
     // sourceCode,
     routineCode,
     name,
-    filePath/*programPath*/ : filePath,
+    filePath,
+    // filePath/*programPath*/ : filePath,
   });
 
   try
@@ -4423,7 +4424,7 @@ function repositoryClone( o )
       'Could not read from remote repository',
       'Failed to connect',
     ];
-    if( !_.strHasAny( err.message, errorMsgs ) )
+    if( !_.strHasAny( err.originalMessage, errorMsgs ) )
     return false;
 
     _.error.attend( err );
