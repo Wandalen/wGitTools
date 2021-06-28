@@ -3755,7 +3755,7 @@ function hookPreservingHardLinksRegister( repoPath )
     // sourceCode,
     routineCode,
     name,
-    programPath : filePath,
+    filePath/*programPath*/ : filePath,
   });
 
   try
