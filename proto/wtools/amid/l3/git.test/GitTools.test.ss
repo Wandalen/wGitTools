@@ -307,58 +307,9 @@ function remotePathFromLocal( test )
   let repoPath = a.abs( 'repo' );
   let clonePath = a.abs( 'clone' );
 
-  a.shellSync = _.process.starter
-  ({
-    currentPath : a.abs( '.' ),
-    ready : null,
-    sync : 1,
-    deasync : 1,
-    outputPiping : 1,
-    stdio : 'pipe'
-  })
+  /* - */
 
-  a.init = ( o ) =>
-  {
-    o = o || {};
-
-    a.ready.then( () =>
-    {
-      a.fileProvider.filesDelete( a.abs( '.' ) );
-      a.reflect();
-      return null;
-    })
-
-    _.assert( !!o.local || !!o.remote );
-    _.assert( !o.local || !o.remote );
-
-    if( o.local )
-    a.ready.then( () =>
-    {
-      a.shellSync( 'git init repo' )
-      a.shellSync( 'git -C repo commit --allow-empty -m initial' )
-      a.shellSync( 'git clone repo clone' )
-      return null;
-    })
-    else if( o.remote )
-    a.ready.then( () =>
-    {
-      a.shellSync( 'git clone https://github.com/Wandalen/wModuleForTesting1.git clone' )
-      return null;
-    })
-
-    if( o.url )
-    {
-      a.shellSync( 'git -C clone remote remove origin' )
-      a.shellSync( 'git -C clone remote add origin ' + o.url )
-    }
-
-
-    return a.ready;
-  }
-
-  /* */
-
-  a.init({ local : 1 })
+  begin({ local : 1 })
   .then( () =>
   {
     let got = _.git.remotePathFromLocal({ localPath : clonePath });
@@ -369,7 +320,7 @@ function remotePathFromLocal( test )
 
   /* */
 
-  a.init({ remote : 1 })
+  begin({ remote : 1 })
   .then( () =>
   {
     let got = _.git.remotePathFromLocal({ localPath : clonePath });
@@ -380,18 +331,52 @@ function remotePathFromLocal( test )
 
   /* */
 
-  a.init({ local : 1, url : 'git@github.com:Wandalen/wModuleForTesting1.git' })
+  begin({ local : 1, url : 'git@github.com:Wandalen/wModuleForTesting1.git' })
   .then( () =>
   {
     let got = _.git.remotePathFromLocal({ localPath : clonePath });
     let expected = `git:///git@github.com:Wandalen/wModuleForTesting1.git`
     test.identical( got, expected );
     return null;
-  })
+  });
+
+  /* - */
+
+  return a.ready;
 
   /* */
 
-  return a.ready;
+  function begin( o )
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.reflect();
+      return null;
+    });
+
+    _.assert( !!o.local || !!o.remote );
+    _.assert( !o.local || !o.remote );
+
+    if( o.local )
+    {
+      a.shell( 'git init repo' );
+      a.shell( 'git -C repo commit --allow-empty -m initial' );
+      a.shell( 'git clone repo clone' );
+    }
+    else if( o.remote )
+    {
+      a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git clone' );
+    }
+
+    if( o.url )
+    {
+      a.shell( 'git -C clone remote remove origin' );
+      a.shell( 'git -C clone remote add origin ' + o.url );
+    }
+
+    return a.ready;
+  }
 }
 
 //
@@ -16642,8 +16627,10 @@ function hookTrivial( test )
   a.shell( 'git init' )
   .then( () =>
   {
-    let sourceCode = '#!/usr/bin/env node\n' + 'process.exit( 1 )';
-    let tempPath = _.process.tempOpen({ sourceCode });
+    // let sourceCode = '#!/usr/bin/env node\n' + 'process.exit( 1 )';
+    // let tempPath = _.process.tempOpen({ sourceCode });
+    let routineCode = '#!/usr/bin/env node\n' + 'process.exit( 1 )';
+    let tempPath = _.process.tempOpen({ routineCode });
     _.git.hookRegister
     ({
       repoPath : a.abs( '.' ),
@@ -16697,7 +16684,7 @@ function hookTrivial( test )
     test.identical( got.exitCode, 0 );
     test.true( _.strHas( got.output, `test` ) );
     return got;
-  })
+  });
 
   return a.ready;
 
@@ -17544,6 +17531,108 @@ function repositoryClone( test )
 }
 
 repositoryClone.timeOut = 60000;
+
+//
+
+function repositoryCloneCheckRetryOptions( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.fileProvider.dirMake( a.abs( '.' ) );
+
+  if( process.platform === 'win32' || process.platform === 'darwin' || !_.process.insideTestContainer() )
+  return test.true( true );
+
+  let netInterfaces = __.test.netInterfacesGet({ activeInterfaces : 1, sync : 1 });
+  a.ready.then( () => __.test.netInterfacesDown({ interfaces : netInterfaces }) );
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'default options';
+    var onErrorCallback = ( err, arg ) =>
+    {
+      test.true( _.error.is( err ) );
+      test.identical( arg, undefined );
+      var exp = `Attempts is exhausted, made ${ _.git.repositoryClone.defaults.attemptLimit } attempts`;
+      test.identical( _.strCount( err.message, exp ), 1 );
+      test.identical( _.strCount( err.message, `Could not resolve hostname` ), 1 );
+      return null;
+    };
+    return test.shouldThrowErrorAsync
+    (
+      () =>
+      {
+        return _.git.repositoryClone
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        });
+      },
+      onErrorCallback,
+    );
+  });
+
+  a.ready.then( () =>
+  {
+    test.case = 'not default attemptLimit';
+    var onErrorCallback = ( err, arg ) =>
+    {
+      test.true( _.error.is( err ) );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.message, `Attempts is exhausted, made 2 attempts` ), 1 );
+      test.identical( _.strCount( err.message, `Could not resolve hostname` ), 1 );
+      return null;
+    };
+    return test.shouldThrowErrorAsync
+    (
+      () =>
+      {
+        return _.git.repositoryClone
+        ({
+          localPath : a.abs( 'wModuleForTesting1' ),
+          remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+          attemptLimit : 2,
+        });
+      },
+      onErrorCallback,
+    );
+  });
+
+  let start;
+  a.ready.then( () =>
+  {
+    test.case = 'not default attemptDelay';
+    return test.shouldThrowErrorAsync( () =>
+    {
+      start = _.time.now();
+      return _.git.repositoryClone
+      ({
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        attemptDelay : 2000,
+      });
+    });
+  });
+  a.ready.then( () =>
+  {
+    let spent = _.time.now() - start;
+    test.ge( spent, 2000 * _.git.repositoryClone.defaults.attemptLimit );
+    return null;
+  });
+
+  /* */
+
+
+  a.ready.finally( () => __.test.netInterfacesUp({ interfaces : netInterfaces }) );
+
+  /* - */
+
+  return a.ready;
+}
+
+repositoryCloneCheckRetryOptions.timeOut = 60000;
 
 //
 
@@ -25960,30 +26049,26 @@ function renormalizeAudit( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
-  let provider = context.provider;
-  let path = provider.path;
-  let testPath = path.join( context.suiteTempPath, 'routine-' + test.name );
-  // let repoPath = path.join( testPath, 'repo' ); // a.abs( testPath, 'repo' )
-  // let clonePath = path.join( testPath, 'clone' ); // a.abs( testPath, 'clone' )
-  let file1Data = 'abc\n';
+  let testPath = a.abs( 'routine-' + test.name );
 
-  let con = new _.Consequence().take( null );
+  let con = _.take( null );
 
   let shell = _.process.starter
   ({
     currentPath : a.abs( testPath, 'repo' ),
     ready : con
-  })
+  });
 
   let shell2 = _.process.starter
   ({
     currentPath : testPath,
     ready : con
-  })
+  });
 
   let program = a.program
   ({
-    routine : testApp,
+    // routine : testApp,
+    entry : testApp,
     locals :
     {
       GitToolsPath : a.path.nativize( a.path.resolve( __dirname, '../git/entry/GitTools.ss' ) ),
@@ -26020,14 +26105,14 @@ function renormalizeAudit( test )
 
     con.then( () =>
     {
-      provider.filesDelete( testPath );
-      provider.dirMake( testPath )
-      provider.dirMake( a.abs( testPath, 'repo' ) )
+      a.fileProvider.filesDelete( testPath );
+      a.fileProvider.dirMake( testPath )
+      a.fileProvider.dirMake( a.abs( testPath, 'repo' ) )
 
-      provider.fileWrite( a.abs( testPath, 'repo', 'file1' ), file1Data );
+      a.fileProvider.fileWrite( a.abs( testPath, 'repo', 'file1' ), 'abc\n' );
 
       if( o.attributes )
-      provider.fileWrite( a.abs( testPath, 'repo', '.gitattributes' ), o.attributes );
+      a.fileProvider.fileWrite( a.abs( testPath, 'repo', '.gitattributes' ), o.attributes );
 
       return null;
     })
@@ -26044,7 +26129,7 @@ function renormalizeAudit( test )
     o = o || {}
     con.then( () =>
     {
-      provider.filesDelete( a.abs( 'clone' ) );
+      a.fileProvider.filesDelete( a.abs( 'clone' ) );
       return null;
     })
 
@@ -26183,6 +26268,7 @@ const Proto =
     repositoryInitRemote,
     repositoryDeleteRemote,
     repositoryClone,
+    repositoryCloneCheckRetryOptions,
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,
 
