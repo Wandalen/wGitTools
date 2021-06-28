@@ -3745,14 +3745,15 @@ function hookPreservingHardLinksRegister( repoPath )
 
   // let sourceCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
   // let tempPath = _.process.tempOpen({ sourceCode });
-  let sourceCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
+  let routineCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
   let tempPath = path.tempOpen(); /* xxx : review */
   let name = 'archivePerform';
   let filePath = path.join( tempPath, name );
 
   _.program.make
   ({
-    sourceCode,
+    // sourceCode,
+    routineCode,
     name,
     programPath : filePath,
   });
