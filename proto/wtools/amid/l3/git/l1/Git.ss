@@ -3745,14 +3745,15 @@ function hookPreservingHardLinksRegister( repoPath )
 
   // let sourceCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
   // let tempPath = _.process.tempOpen({ sourceCode });
-  let sourceCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
+  let routineCode = '#!/usr/bin/env node\n' + restoreHardLinksCode();
   let tempPath = path.tempOpen(); /* xxx : review */
   let name = 'archivePerform';
   let filePath = path.join( tempPath, name );
 
   _.program.make
   ({
-    sourceCode,
+    // sourceCode,
+    routineCode,
     name,
     programPath : filePath,
   });
@@ -4377,7 +4378,6 @@ function repositoryClone( o )
   if( _.git.isRepository({ localPath : o.localPath }) )
   return ready;
 
-  // let parsed = _.git.pathParse( o.remotePath );
   let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
   let remoteVcsPathParsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
   remoteVcsPathParsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
@@ -4389,11 +4389,6 @@ function repositoryClone( o )
   else
   localProvider.dirMake( o.localPath );
 
-  // if( !localProvider.fileExists( o.localPath ) )
-  // localProvider.dirMake( o.localPath );
-  // else
-  // _.sure( localProvider.dirIsEmpty( o.localPath ) );
-
   let shell = _.process.starter
   ({
     logger : _.logger.relativeMaybe( o.logger, -1 ),
@@ -4402,7 +4397,13 @@ function repositoryClone( o )
     ready,
   });
 
-  shell( `git clone ${ remoteVcsLongerPath } . --config core.autocrlf=false` );
+  ready = _.retry
+  ({
+    routine : () => shell( `git clone ${ remoteVcsLongerPath } . --config core.autocrlf=false` ),
+    attemptLimit : o.attemptLimit,
+    attemptDelay : o.attemptDelay,
+    onError,
+  });
 
   if( o.sync )
   {
@@ -4411,12 +4412,31 @@ function repositoryClone( o )
   }
 
   return ready;
+
+  /* */
+
+  function onError( err )
+  {
+    const errorMsgs =
+    [
+      'Could not resolve hostname',
+      'Could not read from remote repository',
+      'Failed to connect',
+    ];
+    if( !_.strHasAny( err.message, errorMsgs ) )
+    return false;
+
+    _.error.attend( err );
+    return true;
+  }
 }
 
 repositoryClone.defaults =
 {
   remotePath : null,
   localPath : null,
+  attemptLimit : 3,
+  attemptDelay : 250,
   logger : 0,
   sync : 0
 };
