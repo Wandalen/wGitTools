@@ -16642,8 +16642,10 @@ function hookTrivial( test )
   a.shell( 'git init' )
   .then( () =>
   {
-    let sourceCode = '#!/usr/bin/env node\n' + 'process.exit( 1 )';
-    let tempPath = _.process.tempOpen({ sourceCode });
+    // let sourceCode = '#!/usr/bin/env node\n' + 'process.exit( 1 )';
+    // let tempPath = _.process.tempOpen({ sourceCode });
+    let routineCode = '#!/usr/bin/env node\n' + 'process.exit( 1 )';
+    let tempPath = _.process.tempOpen({ routineCode });
     _.git.hookRegister
     ({
       repoPath : a.abs( '.' ),
@@ -16697,7 +16699,7 @@ function hookTrivial( test )
     test.identical( got.exitCode, 0 );
     test.true( _.strHas( got.output, `test` ) );
     return got;
-  })
+  });
 
   return a.ready;
 
