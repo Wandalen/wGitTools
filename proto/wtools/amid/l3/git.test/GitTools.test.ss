@@ -307,58 +307,9 @@ function remotePathFromLocal( test )
   let repoPath = a.abs( 'repo' );
   let clonePath = a.abs( 'clone' );
 
-  a.shellSync = _.process.starter
-  ({
-    currentPath : a.abs( '.' ),
-    ready : null,
-    sync : 1,
-    deasync : 1,
-    outputPiping : 1,
-    stdio : 'pipe'
-  })
+  /* - */
 
-  a.init = ( o ) =>
-  {
-    o = o || {};
-
-    a.ready.then( () =>
-    {
-      a.fileProvider.filesDelete( a.abs( '.' ) );
-      a.reflect();
-      return null;
-    })
-
-    _.assert( !!o.local || !!o.remote );
-    _.assert( !o.local || !o.remote );
-
-    if( o.local )
-    a.ready.then( () =>
-    {
-      a.shellSync( 'git init repo' )
-      a.shellSync( 'git -C repo commit --allow-empty -m initial' )
-      a.shellSync( 'git clone repo clone' )
-      return null;
-    })
-    else if( o.remote )
-    a.ready.then( () =>
-    {
-      a.shellSync( 'git clone https://github.com/Wandalen/wModuleForTesting1.git clone' )
-      return null;
-    })
-
-    if( o.url )
-    {
-      a.shellSync( 'git -C clone remote remove origin' )
-      a.shellSync( 'git -C clone remote add origin ' + o.url )
-    }
-
-
-    return a.ready;
-  }
-
-  /* */
-
-  a.init({ local : 1 })
+  begin({ local : 1 })
   .then( () =>
   {
     let got = _.git.remotePathFromLocal({ localPath : clonePath });
@@ -369,7 +320,7 @@ function remotePathFromLocal( test )
 
   /* */
 
-  a.init({ remote : 1 })
+  begin({ remote : 1 })
   .then( () =>
   {
     let got = _.git.remotePathFromLocal({ localPath : clonePath });
@@ -380,18 +331,52 @@ function remotePathFromLocal( test )
 
   /* */
 
-  a.init({ local : 1, url : 'git@github.com:Wandalen/wModuleForTesting1.git' })
+  begin({ local : 1, url : 'git@github.com:Wandalen/wModuleForTesting1.git' })
   .then( () =>
   {
     let got = _.git.remotePathFromLocal({ localPath : clonePath });
     let expected = `git:///git@github.com:Wandalen/wModuleForTesting1.git`
     test.identical( got, expected );
     return null;
-  })
+  });
+
+  /* - */
+
+  return a.ready;
 
   /* */
 
-  return a.ready;
+  function begin( o )
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( '.' ) );
+      a.reflect();
+      return null;
+    });
+
+    _.assert( !!o.local || !!o.remote );
+    _.assert( !o.local || !o.remote );
+
+    if( o.local )
+    {
+      a.shell( 'git init repo' );
+      a.shell( 'git -C repo commit --allow-empty -m initial' );
+      a.shell( 'git clone repo clone' );
+    }
+    else if( o.remote )
+    {
+      a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git clone' );
+    }
+
+    if( o.url )
+    {
+      a.shell( 'git -C clone remote remove origin' );
+      a.shell( 'git -C clone remote add origin ' + o.url );
+    }
+
+    return a.ready;
+  }
 }
 
 //
@@ -17559,7 +17544,7 @@ function repositoryCloneCheckRetryOptions( test )
   return test.true( true );
 
   let netInterfaces = __.test.netInterfacesGet({ activeInterfaces : 1, sync : 1 });
-  begin().then( () => __.test.netInterfacesDown({ interfaces : netInterfaces }) );
+  a.ready.then( () => __.test.netInterfacesDown({ interfaces : netInterfaces }) );
 
   /* - */
 
