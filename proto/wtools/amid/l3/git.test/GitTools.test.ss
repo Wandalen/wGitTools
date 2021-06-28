@@ -21378,7 +21378,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( program.programPath ) );
+    return programShell( 'node ' + _.path.nativize( program.filePath/*programPath*/ ) );
   });
   a.ready.then( ( op ) =>
   {
@@ -21427,7 +21427,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( program.programPath ) );
+    return programShell( 'node ' + _.path.nativize( program.filePath/*programPath*/ ) );
   });
   a.ready.then( ( op ) =>
   {
@@ -21480,7 +21480,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( program.programPath ) );
+    return programShell( 'node ' + _.path.nativize( program.filePath/*programPath*/ ) );
   });
   a.ready.then( ( op ) =>
   {
@@ -21534,7 +21534,7 @@ function pullCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( program.programPath ) });
+    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( program.filePath/*programPath*/ ) });
   });
   a.ready.then( ( op ) =>
   {
@@ -22205,7 +22205,7 @@ function pushCheckOutput( test )
 
   a.ready.then( () =>
   {
-    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( program.programPath ) });
+    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( program.filePath/*programPath*/ ) });
   });
   a.ready.then( ( op ) =>
   {
@@ -22269,7 +22269,7 @@ function pushCheckOutput( test )
 
   function start()
   {
-    return a.ready.then( () => programShell( 'node ' + _.path.nativize( program.programPath ) ) );
+    return a.ready.then( () => programShell( 'node ' + _.path.nativize( program.filePath/*programPath*/ ) ) );
   }
 
   /* */
@@ -23765,7 +23765,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( program.programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.filePath/*programPath*/ ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23779,7 +23779,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( program.programPath );
+      return a.fileProvider.filesDelete( program.filePath/*programPath*/ );
     });
   });
 
@@ -23825,7 +23825,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( program.programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.filePath/*programPath*/ ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23839,7 +23839,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( program.programPath );
+      return a.fileProvider.filesDelete( program.filePath/*programPath*/ );
     });
   });
 
@@ -23885,7 +23885,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( program.programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.filePath/*programPath*/ ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23901,7 +23901,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( program.programPath );
+      return a.fileProvider.filesDelete( program.filePath/*programPath*/ );
     });
   });
 
@@ -23948,7 +23948,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( program.programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.filePath/*programPath*/ ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -23964,7 +23964,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( program.programPath );
+      return a.fileProvider.filesDelete( program.filePath/*programPath*/ );
     });
   });
 
@@ -24011,7 +24011,7 @@ function resetWithOptionDry( test )
 
   a.ready.then( () =>
   {
-    return programShell( 'node ' + _.path.nativize( program.programPath ) )
+    return programShell( 'node ' + _.path.nativize( program.filePath/*programPath*/ ) )
     .then( ( op ) =>
     {
       test.identical( _.strCount( op.output, 'Uncommitted changes, would be reseted :' ), 1 );
@@ -24027,7 +24027,7 @@ function resetWithOptionDry( test )
     })
     .then( () =>
     {
-      return a.fileProvider.filesDelete( program.programPath );
+      return a.fileProvider.filesDelete( program.filePath/*programPath*/ );
     });
   });
 
@@ -25990,7 +25990,7 @@ function renormalizeAudit( test )
       ClonePath : a.abs( testPath, 'clone' )
     }
   });
-  let programPath = program.programPath;
+  let filePath/*programPath*/ = program.filePath/*programPath*/;
 
   /* - */
 
@@ -26000,7 +26000,7 @@ function renormalizeAudit( test )
   {
     test.case = 'text in gitattributes, core.eol=crlf';
 
-    return a.appStartNonThrowing({ execPath : programPath })
+    return a.appStartNonThrowing({ execPath : filePath/*programPath*/ })
     .then( ( op ) =>
     {
       test.identical( op.exitCode, 0 );

@@ -3754,7 +3754,7 @@ function hookPreservingHardLinksRegister( repoPath )
   ({
     sourceCode,
     name,
-    programPath : filePath,
+    filePath/*programPath*/ : filePath,
   });
 
   try
