@@ -4420,7 +4420,7 @@ function repositoryClone( o )
   {
     const errorMsgs =
     [
-      'Could not resolve hostname',
+      'Could not resolve host',
       'Could not read from remote repository',
       'Failed to connect',
     ];
