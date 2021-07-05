@@ -1014,7 +1014,7 @@ function versionsRemoteRetrive( o )
     inputMirroring : 0,
     outputPiping : 0,
     outputCollecting : 1,
-  })
+  });
 
   ready.finally( ( err, got ) =>
   {
@@ -1023,7 +1023,7 @@ function versionsRemoteRetrive( o )
 
     let result = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
     return result.slice( 1 );
-  })
+  });
 
   return ready;
 }
@@ -1083,7 +1083,6 @@ function isUpToDate( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
 
   let srcCurrentPath;
-  // let parsed = _.git.pathParse( o.remotePath );
 
   /* Vova: used full:1 because repositoryHasTag expects remote path as full */
   let parsed = _.git.path.parse({ remotePath : o.remotePath, /* full : 0, atomic : 1 */ full : 1, atomic : 0 });
@@ -1147,10 +1146,10 @@ function isUpToDate( o )
 
   shell( 'git status' );
 
-  ready.then( function( got )
+  ready.then( ( got ) =>
   {
     let result = false;
-    let detachedRegexp = /* /HEAD detached at (\w+)/ */ /HEAD detached at (.+)/;
+    let detachedRegexp = /* /HEAD detached at (\w+)/ */ /(HEAD detached at (.+)|Not currently on any branch.)/;
     let detachedParsed = detachedRegexp.exec( got.output );
     // let versionLocal = _.git.tagLocalRetrive({ localPath : o.localPath, logger : o.logger });
 
@@ -1227,7 +1226,7 @@ function isUpToDate( o )
     return result;
   });
 
-  ready.finally( function( err, arg )
+  ready.finally( ( err, arg ) =>
   {
     if( err )
     throw _.err( err );
