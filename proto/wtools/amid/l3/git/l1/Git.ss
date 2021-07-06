@@ -4402,6 +4402,7 @@ function repositoryClone( o )
     routine : () => shell( `git clone ${ remoteVcsLongerPath } . --config core.autocrlf=false` ),
     attemptLimit : o.attemptLimit,
     attemptDelay : o.attemptDelay,
+    attemptDelayMultiplier : o.attemptDelayMultiplier,
     onError,
   });
 
@@ -4437,6 +4438,7 @@ repositoryClone.defaults =
   localPath : null,
   attemptLimit : 3,
   attemptDelay : 250,
+  attemptDelayMultiplier : 4,
   logger : 0,
   sync : 0
 };
