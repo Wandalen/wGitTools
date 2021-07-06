@@ -409,7 +409,6 @@ function insideRepository( test )
   var insidePath = a.abs( __dirname, process.platform === 'win32' ? '/c' : '/' );
   var got = _.git.insideRepository({ insidePath })
   test.identical( got, false )
-
 }
 
 //
@@ -17603,7 +17602,7 @@ function repositoryCloneCheckRetryOptions( test )
   let start;
   a.ready.then( () =>
   {
-    test.case = 'not default attemptDelay';
+    test.case = 'not default attemptDelay - 2000, not default attemptDelayMultiplier - 1';
     return test.shouldThrowErrorAsync( () =>
     {
       start = _.time.now();
@@ -17611,14 +17610,37 @@ function repositoryCloneCheckRetryOptions( test )
       ({
         localPath : a.abs( 'wModuleForTesting1' ),
         remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
-        attemptDelay : 2000,
+        attemptDelay : 1000,
       });
     });
   });
   a.ready.then( () =>
   {
     let spent = _.time.now() - start;
-    test.ge( spent, 2000 * _.git.repositoryClone.defaults.attemptLimit );
+    test.ge( spent, 1000 * _.git.repositoryClone.defaults.attemptLimit );
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    test.case = 'not default attemptDelayMultiplier';
+    return test.shouldThrowErrorAsync( () =>
+    {
+      start = _.time.now();
+      return _.git.repositoryClone
+      ({
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        attemptLimit : 4,
+        attemptDelayMultiplier : 2,
+      });
+    });
+  });
+  a.ready.then( () =>
+  {
+    let spent = _.time.now() - start;
+    let delay = _.git.repositoryClone.defaults.attemptDelay;
+    test.ge( spent, delay + ( 2 * delay ) + ( 2 * 2 * delay ) );
     return null;
   });
 
