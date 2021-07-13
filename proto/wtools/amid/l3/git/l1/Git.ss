@@ -4436,7 +4436,7 @@ repositoryClone.defaults =
 {
   remotePath : null,
   localPath : null,
-  attemptLimit : 3,
+  attemptLimit : 4,
   attemptDelay : 250,
   attemptDelayMultiplier : 4,
   logger : 0,
