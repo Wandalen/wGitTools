@@ -17602,7 +17602,7 @@ function repositoryCloneCheckRetryOptions( test )
   let start;
   a.ready.then( () =>
   {
-    test.case = 'not default attemptDelay - 2000, not default attemptDelayMultiplier - 1';
+    test.case = 'not default attemptDelay - 1000, not default attemptDelayMultiplier - 1';
     return test.shouldThrowErrorAsync( () =>
     {
       start = _.time.now();
@@ -17610,6 +17610,7 @@ function repositoryCloneCheckRetryOptions( test )
       ({
         localPath : a.abs( 'wModuleForTesting1' ),
         remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        attemptDelayMultiplier : 1,
         attemptDelay : 1000,
       });
     });
