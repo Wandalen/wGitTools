@@ -17529,7 +17529,7 @@ function repositoryClone( test )
   }
 }
 
-repositoryClone.timeOut = 60000;
+repositoryClone.timeOut = 120000;
 
 //
 
