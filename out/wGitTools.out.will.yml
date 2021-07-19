@@ -3,8 +3,8 @@ root:
   - wGitTools.out
 consistency:
   ../will.yml: &ref_0
-    hash: 06c43e267fe1aca5454ee8738b910279
-    size: 6828
+    hash: 5de6b044219a0fcb0e24884881e74c05
+    size: 6838
 module:
   wGitTools.out:
     about:
@@ -193,8 +193,8 @@ module:
         path: 'npm:///wCopyable'
         autoExporting: 0
         enabled: 0
-      wFiles:
-        path: 'npm:///wFiles'
+      wFilesBasic:
+        path: 'npm:///wfilesbasic'
         autoExporting: 0
         enabled: 0
       wfilesarchive:
@@ -959,8 +959,8 @@ module:
         path: 'npm:///wCopyable'
         autoExporting: 0
         enabled: 0
-      wFiles:
-        path: 'npm:///wFiles'
+      wFilesBasic:
+        path: 'npm:///wfilesbasic'
         autoExporting: 0
         enabled: 0
       wfilesarchive:
@@ -1529,5 +1529,5 @@ module:
           - 'build::npm'
     consistency:
       ../will.yml:
-        hash: 06c43e267fe1aca5454ee8738b910279
-        size: 6828
+        hash: 5de6b044219a0fcb0e24884881e74c05
+        size: 6838
