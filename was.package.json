@@ -26,8 +26,8 @@
   "dependencies": {
     "wTools": "",
     "wprocess": "",
-    "wFilesBasic": "",
     "wfilesarchive": "",
+    "wfilesbasic": "",
     "wCopyable": "",
     "ini": "=2.0.0",
     "@octokit/rest": "=18.5.2"
