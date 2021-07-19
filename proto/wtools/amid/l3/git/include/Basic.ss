@@ -11,7 +11,7 @@ if( typeof module !== 'undefined' )
 
   _.include( 'wCopyable' );
   _.include( 'wProcess' );
-  _.include( 'wFiles' );
+  _.include( 'wFilesBasic' );
 
   module[ 'exports' ] = _global_.wTools;
 }
