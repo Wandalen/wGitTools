@@ -13872,7 +13872,7 @@ function repositoryHasTag( test )
   }
 }
 
-repositoryHasTag.timeOut = 60000;
+repositoryHasTag.timeOut = 120000;
 
 //
 
