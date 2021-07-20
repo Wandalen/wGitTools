@@ -4255,10 +4255,7 @@ function repositoryDelete( o )
 
   if( o.remotePath )
   {
-    // o.remotePath = self.remotePathNormalize( o.remotePath );
-    // nativeRemotePath = self.remotePathNativize( o.remotePath );
     o.remotePath = nativeRemotePath = _.git.path.normalize( o.remotePath );
-    // parsed = self.objectsParse( o.remotePath );
     parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
     remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
   }
@@ -4277,18 +4274,8 @@ function repositoryDelete( o )
       if( o.throwing )
       throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
 
-      _.errAttend( err );
+      _.error.attend( err );
       return null;
-
-      // if( !o.throwing )
-      // {
-      //   _.errAttend( err );
-      //   return null;
-      // }
-      // else
-      // {
-      //   throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-      // }
     }
     return arg;
   });
@@ -4311,11 +4298,10 @@ function repositoryDelete( o )
       throw _.err( 'Requires an access token to create a repository on github.com' );
       return null;
     }
-    let ready = _.take( null );
-    ready
-    .then( () =>
-    {
 
+    let ready = _.take( null );
+    ready.then( () =>
+    {
       if( o.logger && o.logger.verbosity > 0 )
       o.logger.log( `Removing remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
 
@@ -4325,17 +4311,18 @@ function repositoryDelete( o )
       const provider = _.repo.providerForPath({ remotePath : o.remotePath });
       let o2 = _.props.extend( null, o );
       o2.remotePath = parsed;
-      return provider.repositoryDeleteAct( o2 ); /* xxx : think how to refactor or reorganize it */
-
-      // let github = require( 'octonode' );
-      // let client = github.client( o.token );
-      // let repo = client.repo( `${parsed.user}/${parsed.repo}` );
-      // return repo.destroyAsync();
+      return _.retry
+      ({
+        routine : () => provider.repositoryDeleteAct( o2 ),
+        attemptLimit : o.attemptLimit,
+        attemptDelay : o.attemptDelay,
+        attemptDelayMultiplier : o.attemptDelayMultiplier,
+      });
+      // return provider.repositoryDeleteAct( o2 ); /* xxx : think how to refactor or reorganize it */
     })
     .then( ( result ) =>
     {
       return result || null;
-      // return result[ 0 ] || null;
     });
     return ready;
   }
@@ -4347,7 +4334,7 @@ function repositoryDelete( o )
     if( parsed.service === 'github.com' )
     return removeGithub();
     if( o.throwing )
-    throw _.err( `Cant remove remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+    throw _.err( `Can't remove remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
     return null;
   }
 }
@@ -4355,12 +4342,15 @@ function repositoryDelete( o )
 repositoryDelete.defaults =
 {
   remotePath : null,
+  token : null,
   throwing : 1,
   sync : 1,
   logger : 1,
   dry : 0,
-  token : null,
-}
+  attemptLimit : 3,
+  attemptDelay : 250,
+  attemptDelayMultiplier : 4,
+};
 
 //
 
