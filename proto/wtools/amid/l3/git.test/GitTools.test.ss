@@ -7533,7 +7533,6 @@ statusLocalExtended.timeOut = 60000;
 function statusLocalWithAttempts( test )
 {
   let context = this;
-  let testing = _globals_.testing.wTools;
 
   let a = test.assetFor( 'basic' );
   a.fileProvider.dirMake( a.abs( '.' ) )
@@ -7546,8 +7545,8 @@ function statusLocalWithAttempts( test )
 
   /* */
 
-  let netInterfaces = testing.test.netInterfacesGet({ activeInterfaces : 1, sync : 1 });
-  begin().then( () => testing.test.netInterfacesDown({ interfaces : netInterfaces }) );
+  let netInterfaces = __.test.netInterfacesGet({ activeInterfaces : 1, sync : 1 });
+  begin().then( () => __.test.netInterfacesDown({ interfaces : netInterfaces }) );
 
   /* */
 
@@ -7610,7 +7609,7 @@ function statusLocalWithAttempts( test )
 
   /* */
 
-  a.ready.finally( () => testing.test.netInterfacesUp({ interfaces : netInterfaces }) );
+  a.ready.finally( () => __.test.netInterfacesUp({ interfaces : netInterfaces }) );
 
   /* - */
 
@@ -16889,9 +16888,8 @@ function repositoryInitRemote( test )
   let repository;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
-  let testing = _globals_.testing.wTools;
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
   if( !validPlatform || !insideTestContainer || !validEnvironments )
   return test.true( true );
@@ -17063,9 +17061,8 @@ function repositoryDeleteRemote( test )
   let repository;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
-  let testing = _globals_.testing.wTools;
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
   if( !validPlatform || !insideTestContainer || !validEnvironments )
   return test.true( true );
@@ -17097,7 +17094,7 @@ function repositoryDeleteRemote( test )
       dry : 0,
       token,
     });
-  });
+  }).delay( 500 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.data, undefined );
