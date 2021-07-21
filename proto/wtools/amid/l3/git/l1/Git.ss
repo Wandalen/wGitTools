@@ -1082,7 +1082,7 @@ function isUpToDate( o )
   _.routine.options_( isUpToDate, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let srcCurrentPath;
+  let status = statusInit();
 
   /* Vova: used full:1 because repositoryHasTag expects remote path as full */
   let parsed = _.git.path.parse({ remotePath : o.remotePath, /* full : 0, atomic : 1 */ full : 1, atomic : 0 });
@@ -1111,17 +1111,21 @@ function isUpToDate( o )
     outputCollecting : 1,
   });
 
-  if( !localProvider.fileExists( o.localPath ) )
-  return false;
+  status.dirExists = localProvider.fileExists( o.localPath );
 
-  let gitConfigExists = localProvider.fileExists( path.join( o.localPath, '.git' ) );
+  if( !status.dirExists )
+  return end( false );
 
-  if( !gitConfigExists )
-  return false;
+  status.isRepository = localProvider.fileExists( path.join( o.localPath, '.git' ) );
 
-  if( !isClonedFromRemote() )
+  if( !status.isRepository )
+  return end( false );
+
+  status.isClonedFromRemote = isClonedFromRemote();
+
+  if( !status.isClonedFromRemote )
   {
-    ready.take( false );
+    ready.take( end( false ) );
     return ready.split();
   }
 
@@ -1171,7 +1175,7 @@ function isUpToDate( o )
     if( parsed.hash && !_.git.versionIsCommitHash({ localPath : o.localPath, version : parsed.hash }) )
     throw _.err( `Remote path: ( ${_.color.strFormat( String( o.remotePath ), 'path' )} ) looks like path with tag, but defined as path with version. Please use ! instead of # to specify tag` );
 
-    result = _.git.isHead
+    result = status.isHead = _.git.isHead
     ({
       localPath : o.localPath,
       tag : parsed.tag,
@@ -1197,14 +1201,14 @@ function isUpToDate( o )
 
     if( !result && parsed.tag )
     {
-      let repositoryHasTag = _.git.repositoryHasTag
+      status.repositoryHasTag = _.git.repositoryHasTag
       ({
         localPath : o.localPath,
         remotePath : parsed,
         tag : parsed.tag
       });
 
-      if( !repositoryHasTag )
+      if( !status.repositoryHasTag )
       {
         let remoteVcsPathParsed = _.mapBut_( null, parsed, { tag : null, hash : null, query : null } );
         let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
@@ -1218,12 +1222,12 @@ function isUpToDate( o )
     }
 
     if( result && !detachedParsed )
-    result = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
+    result = status.branchIsUpToDate = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
 
     if( o.logger && o.logger.verbosity > 0 )
     o.logger.log( o.remotePath, result ? 'is up to date' : 'is not up to date' );
 
-    return result;
+    return end( result );
   });
 
   ready.finally( ( err, arg ) =>
@@ -1237,6 +1241,19 @@ function isUpToDate( o )
 
   /* */
 
+  function statusInit()
+  {
+    let status = Object.create( null );
+    status.dirExists = null;
+    status.isRepository = null;
+    status.isClonedFromRemote = null;
+    status.isHead = null;
+    status.branchIsUpToDate = null;
+    return status;
+  }
+
+  /* */
+
   function isClonedFromRemote()
   {
     let conf = _.git.configRead( o.localPath );
@@ -1244,7 +1261,7 @@ function isUpToDate( o )
     if( !conf || !conf[ 'remote "origin"' ] || !_.strIs( conf[ 'remote "origin"' ].url ) )
     return false;
 
-    srcCurrentPath = conf[ 'remote "origin"' ].url;
+    let srcCurrentPath = conf[ 'remote "origin"' ].url;
     let originParsed = _.git.path.parse( srcCurrentPath );
 
     // if( !_.strEnds( srcCurrentPath, remoteVcsPath ) )
@@ -1258,6 +1275,32 @@ function isUpToDate( o )
 
     return true;
   }
+
+  /* */
+
+  function end( result )
+  {
+    status.result = result;
+
+    if( !o.detailing )
+    return result;
+
+    if( result === false )
+    {
+      if( status.dirExists === false )
+      status.reason = 'Directory does not exist.'
+      else if( status.isRepository === false )
+      status.reason = 'Directory does not contain a git repository.'
+      else if( status.isClonedFromRemote === false )
+      status.reason = 'Repository has different origin.'
+      else if( status.isHead === false )
+      status.reason = 'HEAD of the repository points to a different tag or hash.'
+      else if( status.branchIsUpToDate === false )
+      status.reason = 'Current branch is not up-to-date with remote.'
+    }
+
+    return status;
+  }
 }
 
 var defaults = isUpToDate.defaults = Object.create( null );
@@ -1265,6 +1308,7 @@ defaults.localPath = null;
 defaults.remotePath = null;
 defaults.differentiatingTags = true;
 defaults.logger = 0;
+defaults.detailing = 0;
 
 //
 
