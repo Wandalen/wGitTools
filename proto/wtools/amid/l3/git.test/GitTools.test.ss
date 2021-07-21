@@ -7533,7 +7533,6 @@ statusLocalExtended.timeOut = 60000;
 function statusLocalWithAttempts( test )
 {
   let context = this;
-  let testing = _globals_.testing.wTools;
 
   let a = test.assetFor( 'basic' );
   a.fileProvider.dirMake( a.abs( '.' ) )
@@ -7546,8 +7545,8 @@ function statusLocalWithAttempts( test )
 
   /* */
 
-  let netInterfaces = testing.test.netInterfacesGet({ activeInterfaces : 1, sync : 1 });
-  begin().then( () => testing.test.netInterfacesDown({ interfaces : netInterfaces }) );
+  let netInterfaces = __.test.netInterfacesGet({ activeInterfaces : 1, sync : 1 });
+  begin().then( () => __.test.netInterfacesDown({ interfaces : netInterfaces }) );
 
   /* */
 
@@ -7610,7 +7609,7 @@ function statusLocalWithAttempts( test )
 
   /* */
 
-  a.ready.finally( () => testing.test.netInterfacesUp({ interfaces : netInterfaces }) );
+  a.ready.finally( () => __.test.netInterfacesUp({ interfaces : netInterfaces }) );
 
   /* - */
 
@@ -16889,9 +16888,8 @@ function repositoryInitRemote( test )
   let repository;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
-  let testing = _globals_.testing.wTools;
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
   if( !validPlatform || !insideTestContainer || !validEnvironments )
   return test.true( true );
@@ -17059,13 +17057,13 @@ function repositoryDeleteRemote( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
+
   let user = 'wtools-bot';
   let repository;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
-  let testing = _globals_.testing.wTools;
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
   if( !validPlatform || !insideTestContainer || !validEnvironments )
   return test.true( true );
@@ -17097,7 +17095,7 @@ function repositoryDeleteRemote( test )
       dry : 0,
       token,
     });
-  });
+  }).delay( 500 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.data, undefined );
@@ -17132,6 +17130,145 @@ function repositoryDeleteRemote( test )
     return a.ready;
   }
 }
+
+//
+
+function repositoryDeleteCheckRetryOptions( test )
+{
+  let context = this;
+  let a = test.assetFor( 'basic' );
+  a.reflect();
+
+  let user = 'wtools-bot';
+  let repository = `https://github.com/Wandalen/wModuleForTesting3.git`;
+  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+
+  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let insideTestContainer = _.process.insideTestContainer();
+  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  return test.true( true );
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'not default attemptLimit';
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    var onErrorCallback = ( err, arg ) =>
+    {
+      test.true( _.error.is( err ) );
+      _.error.attend( err );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.originalMessage, `Error code : ` ), 1 );
+      var exp = `Attempts is exhausted, made 4 attempts`;
+      test.identical( _.strCount( err.originalMessage, exp ), 1 );
+      return null;
+    };
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath : repository,
+        throwing : 1,
+        sync : 1,
+        logger : 1,
+        dry : 0,
+        token,
+        attemptLimit : 4,
+      });
+    }, onErrorCallback );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'not default attemptDelay';
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    var start = _.time.now();
+    var onErrorCallback = ( err, arg ) =>
+    {
+      var spent = _.time.now() - start;
+      test.ge( spent, 2000 );
+      test.true( _.error.is( err ) );
+      _.error.attend( err );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.originalMessage, `Error code : ` ), 1 );
+      var exp = `Attempts is exhausted, made 3 attempts`;
+      test.identical( _.strCount( err.originalMessage, exp ), 1 );
+      return null;
+    };
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath : repository,
+        throwing : 1,
+        sync : 1,
+        logger : 1,
+        dry : 0,
+        token,
+        attemptLimit : 3,
+        attemptDelay : 1000,
+      });
+    }, onErrorCallback );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'not default attemptDelayMultiplier';
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    var start = _.time.now();
+    var onErrorCallback = ( err, arg ) =>
+    {
+      var spent = _.time.now() - start;
+      test.ge( spent, 2000 );
+      test.true( _.error.is( err ) );
+      _.error.attend( err );
+      test.identical( arg, undefined );
+      test.identical( _.strCount( err.originalMessage, `Error code : ` ), 1 );
+      var exp = `Attempts is exhausted, made 3 attempts`;
+      test.identical( _.strCount( err.originalMessage, exp ), 1 );
+      return null;
+    };
+    test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath : repository,
+        throwing : 1,
+        sync : 1,
+        logger : 1,
+        dry : 0,
+        token,
+        attemptLimit : 3,
+        attemptDelay : 250,
+        attemptDelay : 8,
+      });
+    }, onErrorCallback );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+}
+
+repositoryDeleteCheckRetryOptions.timeOut = 120000;
 
 //
 
@@ -17554,7 +17691,7 @@ function repositoryCloneCheckRetryOptions( test )
     {
       test.true( _.error.is( err ) );
       test.identical( arg, undefined );
-      var exp = `Attempts is exhausted, made ${ _.git.repositoryClone.defaults.attemptLimit } attempts`;
+      var exp = `Attempts is exhausted, made 3 attempts`;
       test.identical( _.strCount( err.message, exp ), 1 );
       test.identical( _.strCount( err.message, `Could not resolve host` ), 1 );
       return null;
@@ -26289,6 +26426,7 @@ const Proto =
     repositoryInit,
     repositoryInitRemote,
     repositoryDeleteRemote,
+    repositoryDeleteCheckRetryOptions,
     repositoryClone,
     repositoryCloneCheckRetryOptions,
     repositoryCheckout,
