@@ -303,6 +303,9 @@ submodule:
   wprocess:
     path: 'npm:///wprocess'
     enabled: 0
+  wremote:
+    path: 'npm:///wremote'
+    enabled: 0
   ini:
     path: 'npm:///ini#2.0.0'
     enabled: 0
