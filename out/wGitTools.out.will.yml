@@ -3,8 +3,8 @@ root:
   - wGitTools.out
 consistency:
   ../will.yml: &ref_0
-    hash: 5de6b044219a0fcb0e24884881e74c05
-    size: 6838
+    hash: f2f7d23f273cccb5d414e806c2efad3d
+    size: 6891
 module:
   wGitTools.out:
     about:
@@ -203,6 +203,10 @@ module:
         enabled: 0
       wprocess:
         path: 'npm:///wprocess'
+        autoExporting: 0
+        enabled: 0
+      wremote:
+        path: 'npm:///wremote'
         autoExporting: 0
         enabled: 0
       ini:
@@ -971,6 +975,10 @@ module:
         path: 'npm:///wprocess'
         autoExporting: 0
         enabled: 0
+      wremote:
+        path: 'npm:///wremote'
+        autoExporting: 0
+        enabled: 0
       ini:
         path: 'npm:///ini#2.0.0'
         autoExporting: 0
@@ -1529,5 +1537,5 @@ module:
           - 'build::npm'
     consistency:
       ../will.yml:
-        hash: 5de6b044219a0fcb0e24884881e74c05
-        size: 6838
+        hash: f2f7d23f273cccb5d414e806c2efad3d
+        size: 6891
