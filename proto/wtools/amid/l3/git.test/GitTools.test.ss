@@ -2674,13 +2674,13 @@ function isUptoDateDetailing( test )
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath, detailing : 1 })
     .then( ( got ) =>
     {
-      let exp = 
+      let exp =
       {
-        'dirExists' : true, 
-        'isRepository' : true, 
-        'isClonedFromRemote' : true, 
-        'isHead' : true, 
-        'branchIsUpToDate' : true, 
+        'dirExists' : true,
+        'isRepository' : true,
+        'isClonedFromRemote' : true,
+        'isHead' : true,
+        'branchIsUpToDate' : true,
         'result' : true
       }
       test.identical( got, exp );
@@ -2695,14 +2695,14 @@ function isUptoDateDetailing( test )
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath, detailing : 1 })
     .then( ( got ) =>
     {
-      let exp = 
+      let exp =
       {
-        'dirExists' : true, 
-        'isRepository' : true, 
+        'dirExists' : true,
+        'isRepository' : true,
         'isClonedFromRemote' : true,
         'isHead' : false,
         'branchIsUpToDate' : null,
-        'result' : false, 
+        'result' : false,
       }
       test.contains( got, exp );
       test.true( _.strDefined( got.reason ) );
@@ -2722,12 +2722,12 @@ function isUptoDateDetailing( test )
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath, detailing : 1 })
     .then( ( got ) =>
     {
-      let exp = 
+      let exp =
       {
-        'dirExists' : true, 
-        'isRepository' : true, 
-        'isClonedFromRemote' : true, 
-        'isHead' : true, 
+        'dirExists' : true,
+        'isRepository' : true,
+        'isClonedFromRemote' : true,
+        'isHead' : true,
         'branchIsUpToDate' : null,
         'result' : true
       }
@@ -2743,14 +2743,14 @@ function isUptoDateDetailing( test )
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath, detailing : 1 })
     .then( ( got ) =>
     {
-      let exp = 
+      let exp =
       {
-        'dirExists' : true, 
-        'isRepository' : true, 
+        'dirExists' : true,
+        'isRepository' : true,
         'isClonedFromRemote' : true,
         'isHead' : false,
         'branchIsUpToDate' : null,
-        'result' : false, 
+        'result' : false,
       }
       test.contains( got, exp );
       test.true( _.strDefined( got.reason ) );
@@ -2773,14 +2773,14 @@ function isUptoDateDetailing( test )
     .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath, detailing : 1 }) )
     .then( ( got ) =>
     {
-      let exp = 
+      let exp =
       {
-        'dirExists' : true, 
-        'isRepository' : true, 
+        'dirExists' : true,
+        'isRepository' : true,
         'isClonedFromRemote' : true,
         'isHead' : true,
         'branchIsUpToDate' : false,
-        'result' : false, 
+        'result' : false,
       }
       test.contains( got, exp );
       test.true( _.strDefined( got.reason ) );
@@ -2801,14 +2801,14 @@ function isUptoDateDetailing( test )
     .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath, detailing : 1 }) )
     .then( ( got ) =>
     {
-      let exp = 
+      let exp =
       {
-        'dirExists' : true, 
-        'isRepository' : true, 
+        'dirExists' : true,
+        'isRepository' : true,
         'isClonedFromRemote' : true,
         'isHead' : true,
         'branchIsUpToDate' : true,
-        'result' : true, 
+        'result' : true,
       }
       test.contains( got, exp );
       return got;
@@ -2840,14 +2840,14 @@ function isUptoDateDetailing( test )
     .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath, detailing : 1 }) )
     .then( ( got ) =>
     {
-      let exp = 
+      let exp =
       {
-        'dirExists' : true, 
-        'isRepository' : true, 
+        'dirExists' : true,
+        'isRepository' : true,
         'isClonedFromRemote' : true,
         'isHead' : true,
         'branchIsUpToDate' : false,
-        'result' : false, 
+        'result' : false,
       }
       test.contains( got, exp );
       test.true( _.strDefined( got.reason ) );
@@ -2873,14 +2873,14 @@ function isUptoDateDetailing( test )
     .then( () => _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath, detailing : 1 }) )
     .then( ( got ) =>
     {
-      let exp = 
+      let exp =
       {
-        'dirExists' : true, 
-        'isRepository' : true, 
+        'dirExists' : true,
+        'isRepository' : true,
         'isClonedFromRemote' : true,
         'isHead' : false,
         'branchIsUpToDate' : null,
-        'result' : false, 
+        'result' : false,
       }
       test.contains( got, exp );
       test.true( _.strDefined( got.reason ) );
@@ -2900,14 +2900,14 @@ function isUptoDateDetailing( test )
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath, detailing : 1 })
     .then( ( got ) =>
     {
-      let exp = 
+      let exp =
       {
-        'dirExists' : true, 
-        'isRepository' : true, 
+        'dirExists' : true,
+        'isRepository' : true,
         'isClonedFromRemote' : true,
         'isHead' : false,
         'branchIsUpToDate' : null,
-        'result' : false, 
+        'result' : false,
       }
       test.contains( got, exp );
       test.true( _.strDefined( got.reason ) );
@@ -2925,14 +2925,14 @@ function isUptoDateDetailing( test )
     return _.git.isUpToDate({ localPath : a.abs( 'wModuleForTesting1' ), remotePath, detailing : 1 })
     .then( ( got ) =>
     {
-      let exp = 
+      let exp =
       {
-        'dirExists' : true, 
-        'isRepository' : true, 
+        'dirExists' : true,
+        'isRepository' : true,
         'isClonedFromRemote' : true,
         'isHead' : true,
         'branchIsUpToDate' : true,
-        'result' : true, 
+        'result' : true,
       }
       test.contains( got, exp );
       return got;
