@@ -4317,6 +4317,7 @@ function repositoryDelete( o )
         attemptLimit : o.attemptLimit,
         attemptDelay : o.attemptDelay,
         attemptDelayMultiplier : o.attemptDelayMultiplier,
+        defaults : _.remote.attemptDefaults,
       })
       .finally( ( err, arg ) =>
       {
@@ -4353,9 +4354,9 @@ repositoryDelete.defaults =
   sync : 1,
   logger : 1,
   dry : 0,
-  attemptLimit : 3,
-  attemptDelay : 250,
-  attemptDelayMultiplier : 4,
+  attemptLimit : null,
+  attemptDelay : null,
+  attemptDelayMultiplier : null,
 };
 
 //
@@ -4399,6 +4400,7 @@ function repositoryClone( o )
     attemptLimit : o.attemptLimit,
     attemptDelay : o.attemptDelay,
     attemptDelayMultiplier : o.attemptDelayMultiplier,
+    defaults : _.remote.attemptDefaults,
     onError,
   });
 
@@ -4432,11 +4434,11 @@ repositoryClone.defaults =
 {
   remotePath : null,
   localPath : null,
-  attemptLimit : 4,
-  attemptDelay : 250,
-  attemptDelayMultiplier : 4,
   logger : 0,
-  sync : 0
+  sync : 0,
+  attemptLimit : null,
+  attemptDelay : null,
+  attemptDelayMultiplier : null,
 };
 
 //

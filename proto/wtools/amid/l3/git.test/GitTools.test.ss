@@ -17057,6 +17057,7 @@ function repositoryDeleteRemote( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
+
   let user = 'wtools-bot';
   let repository;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
@@ -17690,7 +17691,7 @@ function repositoryCloneCheckRetryOptions( test )
     {
       test.true( _.error.is( err ) );
       test.identical( arg, undefined );
-      var exp = `Attempts is exhausted, made ${ _.git.repositoryClone.defaults.attemptLimit } attempts`;
+      var exp = `Attempts is exhausted, made 3 attempts`;
       test.identical( _.strCount( err.message, exp ), 1 );
       test.identical( _.strCount( err.message, `Could not resolve host` ), 1 );
       return null;
