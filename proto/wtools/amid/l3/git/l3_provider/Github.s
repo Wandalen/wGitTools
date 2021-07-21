@@ -99,12 +99,6 @@ function repositoryDeleteAct( o )
       owner : o.remotePath.user,
       repo : o.remotePath.repo,
     });
-  })
-  .finally( ( err, arg ) =>
-  {
-    if( err )
-    throw _.err( `Error code : ${ err.statusCode }. ${ err.message }` );
-    return arg;
   });
 }
 

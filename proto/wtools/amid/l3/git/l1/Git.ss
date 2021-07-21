@@ -4317,6 +4317,12 @@ function repositoryDelete( o )
         attemptLimit : o.attemptLimit,
         attemptDelay : o.attemptDelay,
         attemptDelayMultiplier : o.attemptDelayMultiplier,
+      })
+      .finally( ( err, arg ) =>
+      {
+        if( err )
+        throw _.err( `Error code : ${ err.status }. ${ err.message }` );
+        return arg;
       });
       // return provider.repositoryDeleteAct( o2 ); /* xxx : think how to refactor or reorganize it */
     })
