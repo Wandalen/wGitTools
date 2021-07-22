@@ -17601,7 +17601,7 @@ function repositoryDeleteCheckRetryOptions( test )
         token,
         attemptLimit : 3,
         attemptDelay : 250,
-        attemptDelay : 8,
+        attemptDelayMultiplier : 8,
       });
     }, onErrorCallback );
     return null;
