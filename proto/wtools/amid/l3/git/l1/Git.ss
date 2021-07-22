@@ -1221,6 +1221,8 @@ function isUpToDate( o )
       }
     }
 
+    status.gitStatus = got.output;
+
     if( result && !detachedParsed )
     result = status.branchIsUpToDate = !_.strHasAny( got.output, [ 'Your branch is behind', 'have diverged' ] );
 
@@ -1249,6 +1251,9 @@ function isUpToDate( o )
     status.isClonedFromRemote = null;
     status.isHead = null;
     status.branchIsUpToDate = null;
+    status.originPath = null;
+    status.hasOrigin = null;
+    status.gitStatus = null;
     return status;
   }
 
@@ -1258,13 +1263,18 @@ function isUpToDate( o )
   {
     let conf = _.git.configRead( o.localPath );
 
+    status.hasOrigin = true;
+
     if( !conf || !conf[ 'remote "origin"' ] || !_.strIs( conf[ 'remote "origin"' ].url ) )
-    return false;
+    {
+      status.hasOrigin = false;
+      return false;
+    }
 
-    let srcCurrentPath = conf[ 'remote "origin"' ].url;
-    let originParsed = _.git.path.parse( srcCurrentPath );
+    status.originPath = conf[ 'remote "origin"' ].url;
+    let originParsed = _.git.path.parse( status.originPath );
 
-    // if( !_.strEnds( srcCurrentPath, remoteVcsPath ) )
+    // if( !_.strEnds( status.originPath, remoteVcsPath ) )
     if
     (
       parsed.service !== originParsed.service
@@ -1288,15 +1298,17 @@ function isUpToDate( o )
     if( result === false )
     {
       if( status.dirExists === false )
-      status.reason = 'Directory does not exist.'
+      status.reason = `Path does not exist: ${o.localPath}`;
       else if( status.isRepository === false )
-      status.reason = 'Directory does not contain a git repository.'
+      status.reason = `No git repository at: ${o.localPath}`;
+      else if( status.hasOrigin === false )
+      status.reason = `Repository does not have origin.`;
       else if( status.isClonedFromRemote === false )
-      status.reason = 'Repository has different origin.'
+      status.reason = `Repository has different origin.\nCurrent origin: ${status.originPath}\nRemote path: ${o.remotePath}`;
       else if( status.isHead === false )
-      status.reason = 'HEAD of the repository points to a different tag or hash.'
+      status.reason = `HEAD of the repository does not point to: ${parsed.tag ? `!${parsed.tag}` : `#${parsed.hash}`}`;
       else if( status.branchIsUpToDate === false )
-      status.reason = 'Current branch is not up-to-date with remote.'
+      status.reason = `Current branch is not up-to-date with remote. Git status:\n${status.gitStatus}`;
     }
 
     return status;
