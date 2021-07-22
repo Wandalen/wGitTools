@@ -17290,7 +17290,7 @@ function repositoryInitRemote( test )
       description : 'Test',
       token,
     });
-  });
+  }).delay( 1000 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -17356,7 +17356,7 @@ function repositoryInitRemote( test )
       description : 'Test',
       token,
     });
-  });
+  }).delay( 1000 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -17420,7 +17420,7 @@ function repositoryDeleteRemote( test )
     a.reflect();
     return null;
   });
-  repositoryForm();
+  repositoryForm().delay( 1000 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
