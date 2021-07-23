@@ -17232,10 +17232,9 @@ function repositoryInitRemote( test )
   let repository;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
   let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
-  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  if( !insideTestContainer || !validEnvironments )
   return test.true( true );
 
   /* - */
@@ -17290,7 +17289,7 @@ function repositoryInitRemote( test )
       description : 'Test',
       token,
     });
-  }).delay( 1000 );
+  });
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -17356,7 +17355,7 @@ function repositoryInitRemote( test )
       description : 'Test',
       token,
     });
-  }).delay( 1000 );
+  });
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -17374,7 +17373,7 @@ function repositoryInitRemote( test )
 
   function repositoryDelete( remotePath )
   {
-    a.ready.Try( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryDelete
       ({
