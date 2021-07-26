@@ -2664,8 +2664,9 @@ function isUptoDateDetailing( test )
 {
   let context = this;
   let a = test.assetFor( 'basic' );
+  a.fileProvider.dirMake( a.abs( '.' ) );
 
-  /* */
+  /* - */
 
   begin().then( () =>
   {
@@ -2682,8 +2683,8 @@ function isUptoDateDetailing( test )
         'isHead' : true,
         'branchIsUpToDate' : true,
         'result' : true
-      }
-      test.identical( got, exp );
+      };
+      test.contains( got, exp );
       return got;
     });
   });
@@ -2703,7 +2704,7 @@ function isUptoDateDetailing( test )
         'isHead' : false,
         'branchIsUpToDate' : null,
         'result' : false,
-      }
+      };
       test.contains( got, exp );
       test.true( _.strDefined( got.reason ) );
       return got;
@@ -2730,8 +2731,8 @@ function isUptoDateDetailing( test )
         'isHead' : true,
         'branchIsUpToDate' : null,
         'result' : true
-      }
-      test.identical( got, exp );
+      };
+      test.contains( got, exp );
       return got;
     });
   });
@@ -2751,7 +2752,7 @@ function isUptoDateDetailing( test )
         'isHead' : false,
         'branchIsUpToDate' : null,
         'result' : false,
-      }
+      };
       test.contains( got, exp );
       test.true( _.strDefined( got.reason ) );
       return got;
@@ -2781,7 +2782,7 @@ function isUptoDateDetailing( test )
         'isHead' : true,
         'branchIsUpToDate' : false,
         'result' : false,
-      }
+      };
       test.contains( got, exp );
       test.true( _.strDefined( got.reason ) );
       return got;
@@ -2809,7 +2810,7 @@ function isUptoDateDetailing( test )
         'isHead' : true,
         'branchIsUpToDate' : true,
         'result' : true,
-      }
+      };
       test.contains( got, exp );
       return got;
     });
@@ -2908,7 +2909,7 @@ function isUptoDateDetailing( test )
         'isHead' : false,
         'branchIsUpToDate' : null,
         'result' : false,
-      }
+      };
       test.contains( got, exp );
       test.true( _.strDefined( got.reason ) );
       return got;
@@ -2933,7 +2934,7 @@ function isUptoDateDetailing( test )
         'isHead' : true,
         'branchIsUpToDate' : true,
         'result' : true,
-      }
+      };
       test.contains( got, exp );
       return got;
     });
@@ -2984,13 +2985,7 @@ function isUptoDateDetailing( test )
 
   function begin()
   {
-    a.ready.then( () =>
-    {
-      let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git';
-      a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
-      a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
-      return null;
-    });
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ); return null });
     a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git wModuleForTesting1' );
     return a.ready;
   }
