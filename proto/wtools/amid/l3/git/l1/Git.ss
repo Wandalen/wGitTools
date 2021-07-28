@@ -4442,9 +4442,10 @@ function repositoryClone( o )
   else
   localProvider.dirMake( o.localPath );
 
-  let shell = _.process.starter
+  const logger = _.logger.relativeMaybe( o.logger, -1 );
+  const shell = _.process.starter
   ({
-    logger : _.logger.relativeMaybe( o.logger, -1 ),
+    logger,
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
     currentPath : o.localPath,
     ready,
@@ -4458,6 +4459,7 @@ function repositoryClone( o )
     attemptDelayMultiplier : o.attemptDelayMultiplier,
     defaults : _.remote.attemptDefaults,
     onError,
+    logger,
   });
 
   if( o.sync )
