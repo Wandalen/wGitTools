@@ -18030,8 +18030,8 @@ function repositoryCloneCheckRetryOptions( test )
       test.true( _.error.is( err ) );
       test.identical( arg, undefined );
       var exp = `Attempts is exhausted, made 3 attempts`;
-      test.identical( _.strCount( err.message, exp ), 1 );
-      test.identical( _.strCount( err.message, `Could not resolve host` ), 1 );
+      test.identical( _.strCount( err.originalMessage, exp ), 1 );
+      test.identical( _.strCount( err.originalMessage, `Could not resolve host` ), 1 );
       return null;
     };
     return test.shouldThrowErrorAsync
@@ -18055,8 +18055,8 @@ function repositoryCloneCheckRetryOptions( test )
     {
       test.true( _.error.is( err ) );
       test.identical( arg, undefined );
-      test.identical( _.strCount( err.message, `Attempts is exhausted, made 2 attempts` ), 1 );
-      test.identical( _.strCount( err.message, `Could not resolve host` ), 1 );
+      test.identical( _.strCount( err.originalMessage, `Attempts is exhausted, made 2 attempts` ), 1 );
+      test.identical( _.strCount( err.originalMessage, `Could not resolve host` ), 1 );
       return null;
     };
     return test.shouldThrowErrorAsync
