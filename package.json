@@ -1,6 +1,6 @@
 {
   "name": "wgittools",
-  "version": "0.3.363",
+  "version": "0.3.364",
   "description": "Collection of tools to use git programmatically.",
   "author": "Kostiantyn Wandalen <wanalen@01.school>",
   "license": "MIT",
@@ -24,17 +24,17 @@
     "url": "https://github.com/Wandalen/wGitTools/issues"
   },
   "dependencies": {
-    "wTools": "latest",
-    "wremote": "latest",
-    "wprocess": "latest",
-    "wfilesbasic": "latest",
-    "wfilesarchive": "latest",
-    "wCopyable": "latest",
+    "wTools": "delta",
+    "wremote": "delta",
+    "wprocess": "delta",
+    "wfilesbasic": "delta",
+    "wfilesarchive": "delta",
+    "wCopyable": "delta",
     "ini": "=2.0.0",
     "@octokit/rest": "=18.5.2"
   },
   "devDependencies": {
-    "wTesting": "latest",
+    "wTesting": "delta",
     "eslint": "7.1.0"
   },
   "keywords": [
