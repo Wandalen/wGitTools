@@ -548,6 +548,91 @@ pullOpen.defaults =
 };
 
 // --
+// release
+// --
+
+let releaseMakeAct = Object.create( null );
+
+releaseMakeAct.name = 'releaseMakeAct';
+releaseMakeAct.defaults =
+{
+  name : null,
+  token : null,
+  remotePath : null,
+  descriptionBody : null,
+  draft : null,
+  prerelease : null,
+  logger : null,
+};
+
+//
+
+function releaseMake( o )
+{
+  let ready = _.take( null );
+  let currentBranch;
+
+  if( _.strIs( o ) )
+  o = { remotePath : o };
+  o = _.routine.options( releaseMake, o );
+  o.logger = _.logger.maybe( o.logger );
+
+  if( !o.token && o.throwing )
+  throw _.errBrief( 'Cannot autorize user without user token.' )
+
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+
+  ready.then( () =>
+  {
+    if( parsed.service === 'github.com' )
+    return _releaseMake();
+    if( o.throwing )
+    throw _.err( 'Unknown service' );
+    return null;
+  })
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    {
+      if( o.throwing )
+      throw _.err( err, '\nFailed to create release.' );
+      _.errAttend( err );
+      return null;
+    }
+    return arg;
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /* */
+
+  function _releaseMake()
+  {
+    const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+    let o2 = _.props.extend( null, o );
+    _.map.supplement( o2, _.repo.releaseMakeAct.defaults );
+    o2.remotePath = parsed;
+    return provider.releaseMakeAct( o2 );
+  }
+}
+
+releaseMake.defaults =
+{
+  throwing : 1,
+  sync : 1,
+  logger : 2,
+  token : null,
+  remotePath : null,
+};
+
+
+// --
 // program
 // --
 
@@ -690,6 +775,11 @@ let Extension =
 
   pullOpenAct, /* aaa : for Dmytro : add */ /* Dmytro : added */
   pullOpen,
+
+  // release
+
+  releaseMakeAct,
+  releaseMake,
 
   // program
 
