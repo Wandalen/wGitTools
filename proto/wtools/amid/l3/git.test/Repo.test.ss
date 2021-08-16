@@ -361,7 +361,7 @@ function pullListRemote( test )
     test.identical( op.result.elements.length, 1 );
     var pr = op.result.elements[ 0 ];
     test.identical( pr.description.head, 'new' );
-    test.identical( pr.description.body, '' );
+    test.identical( pr.description.body, null );
     test.identical( pr.from.name, user );
     test.identical( pr.to.tag, 'master' );
     test.identical( pr.type, 'repo.pull' );
@@ -395,7 +395,7 @@ function pullListRemote( test )
     test.identical( op.result.elements.length, 2 );
     var pr = op.result.elements[ 0 ];
     test.identical( pr.description.head, 'new2' );
-    test.identical( pr.description.body, '' );
+    test.identical( pr.description.body, null );
     test.identical( pr.from.name, user );
     test.identical( pr.to.tag, 'master' );
     test.identical( pr.type, 'repo.pull' );
@@ -436,7 +436,7 @@ function pullListRemote( test )
   //   test.identical( op.result.elements.length, 1 );
   //   var pr = op.result.elements[ 0 ];
   //   test.identical( pr.description.head, 'new' );
-  //   test.identical( pr.description.body, '' );
+  //   test.identical( pr.description.body, null );
   //   test.identical( pr.from.name, user );
   //   test.identical( pr.to.tag, 'master' );
   //   test.identical( pr.type, 'repo.pull' );
@@ -473,7 +473,7 @@ function pullListRemote( test )
   //   test.identical( op.result.elements.length, 2 );
   //   var pr = op.result.elements[ 0 ];
   //   test.identical( pr.description.head, 'new2' );
-  //   test.identical( pr.description.body, '' );
+  //   test.identical( pr.description.body, null );
   //   test.identical( pr.from.name, user );
   //   test.identical( pr.to.tag, 'master' );
   //   test.identical( pr.type, 'repo.pull' );
