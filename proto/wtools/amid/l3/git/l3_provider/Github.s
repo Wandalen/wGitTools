@@ -184,7 +184,6 @@ function pullOpenAct( o )
   const self = this;
   _.map.assertHasAll( o, pullOpenAct.defaults );
   _.assert( _.aux.is( o.remotePath ) );
-  const ready = new _.Consequence();
 
   return this._open( o )
   .then( ( octokit ) =>
@@ -222,6 +221,50 @@ pullOpenAct.defaults =
 };
 
 /* aaa for Dmytro : should use parent defaults */ /* Dmytro : parent defaults is used */
+
+//
+
+function releaseMakeAct( o )
+{
+  _.map.assertHasAll( o, releaseMakeAct.defaults );
+  _.assert( _.aux.is( o.remotePath ) );
+  _.assert( _.str.defined( o.remotePath.tag ), 'Expects tag to publish.' );
+
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    return octokit.rest.repos.createRelease
+    ({
+      owner : o.remotePath.user,
+      repo : o.remotePath.repo,
+      tag_name : o.remotePath.tag,
+      name : o.name || '',
+      body : o.descriptionBody || '',
+      prerelease : o.draft || false,
+      prerelease : o.prerelease || false,
+    });
+  })
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    {
+      _.errAttend( err );
+      throw _.err( `Error code : ${ err.status }. ${ err.message }` );
+    }
+
+    if( o.logger && o.logger.verbosity >= 3 )
+    o.logger.log( arg );
+    else if( o.logger && o.logger.verbosity >= 1 )
+    o.logger.log( `Succefully created release "${ o.remotePath.tag }" in ${ _.git.path.str( o.remotePath ) }.` );
+
+    return arg;
+  });
+}
+
+releaseMakeAct.defaults =
+{
+  ... Parent.releaseMakeAct.defaults,
+};
 
 //
 
@@ -322,6 +365,8 @@ const Self =
   _pullListResponseNormalize,
 
   pullOpenAct,
+
+  releaseMakeAct,
 
   programListAct,
   _programListResponseNormalize,
