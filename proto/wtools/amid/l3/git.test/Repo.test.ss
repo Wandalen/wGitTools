@@ -401,7 +401,7 @@ function pullListRemote( test )
     test.identical( pr.type, 'repo.pull' );
     var pr = op.result.elements[ 1 ];
     test.identical( pr.description.head, 'new' );
-    test.identical( pr.description.body, '' );
+    test.identical( pr.description.body, null );
     test.identical( pr.from.name, user );
     test.identical( pr.to.tag, 'master' );
     test.identical( pr.type, 'repo.pull' );
