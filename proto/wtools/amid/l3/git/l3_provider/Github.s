@@ -240,7 +240,7 @@ function releaseMakeAct( o )
       tag_name : o.remotePath.tag,
       name : o.name || '',
       body : o.descriptionBody || '',
-      prerelease : o.draft || false,
+      draft : o.draft || false,
       prerelease : o.prerelease || false,
     });
   })

@@ -869,9 +869,10 @@ function releaseMakeOnRemote( test )
   let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
 
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
   let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
-  if( !insideTestContainer || !validEnvironments )
+  if( !validPlatform || !insideTestContainer || !validEnvironments )
   return test.true( true );
 
   /* - */
