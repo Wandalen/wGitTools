@@ -18143,9 +18143,12 @@ function repositoryCheckout( test )
   a.ready.then( () =>
   {
     a.fileProvider.dirMake( a.abs( '.' ) )
-    return null;
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+    });
   });
-  a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
 
   /* - */
 
