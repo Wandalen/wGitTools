@@ -852,7 +852,7 @@ function tagLocalChange( test )
   }
 }
 
-tagLocalChange.timeOut = 20000;
+tagLocalChange.timeOut = 40000;
 
 //
 
