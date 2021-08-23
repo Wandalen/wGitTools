@@ -852,7 +852,7 @@ function tagLocalChange( test )
   }
 }
 
-tagLocalChange.timeOut = 20000;
+tagLocalChange.timeOut = 40000;
 
 //
 
@@ -17248,7 +17248,6 @@ function repositoryInitRemote( test )
       remotePath : repository,
       localPath : a.routinePath,
       throwing : 1,
-      sync : 1,
       logger : 0,
       dry : 1,
       description : 'Test',
@@ -17278,7 +17277,6 @@ function repositoryInitRemote( test )
       remotePath : repository,
       localPath : a.routinePath,
       throwing : 1,
-      sync : 1,
       logger : 0,
       dry : 0,
       description : 'Test',
@@ -17310,7 +17308,6 @@ function repositoryInitRemote( test )
       remotePath : repository,
       localPath : a.routinePath,
       throwing : 1,
-      sync : 1,
       logger : 2,
       dry : 0,
       description : 'Test',
@@ -17344,7 +17341,6 @@ function repositoryInitRemote( test )
       remotePath : repository,
       localPath : a.routinePath,
       throwing : 1,
-      sync : 1,
       logger,
       dry : 0,
       description : 'Test',
@@ -17374,7 +17370,6 @@ function repositoryInitRemote( test )
       ({
         remotePath,
         throwing : 1,
-        sync : 1,
         logger : 1,
         dry : 0,
         token,
@@ -18143,9 +18138,12 @@ function repositoryCheckout( test )
   a.ready.then( () =>
   {
     a.fileProvider.dirMake( a.abs( '.' ) )
-    return null;
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+    });
   });
-  a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
 
   /* - */
 
@@ -18543,9 +18541,12 @@ function repositoryCheckoutRemotePathIsMap( test )
   a.ready.then( () =>
   {
     a.fileProvider.dirMake( a.abs( '.' ) )
-    return null;
+    return _.git.repositoryClone
+    ({
+      localPath : a.abs( 'wModuleForTesting1' ),
+      remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+    });
   });
-  a.shell( `git clone https://github.com/Wandalen/wModuleForTesting1.git` );
 
   /* - */
 

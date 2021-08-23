@@ -624,6 +624,7 @@ function releaseMake( o )
 
 releaseMake.defaults =
 {
+  ... releaseMakeAct.defaults,
   throwing : 1,
   sync : 1,
   logger : 2,
