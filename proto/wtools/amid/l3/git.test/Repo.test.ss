@@ -333,10 +333,14 @@ function pullListRemote( test )
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
 
   let testing = _globals_.testing.wTools;
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let validPlatform = process.platform !== 'win32';
   let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
-  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  let validMajorVersion = false;
+  if( typeof process !== 'undefined' && process.versions !== undefined )
+  validMajorVersion = _.str.begins( process.versions.node, '16' );
+
+  if( !validPlatform || !insideTestContainer || !validEnvironments || !validMajorVersion )
   return test.true( true );
 
   /* - */
@@ -648,7 +652,11 @@ function pullOpenRemote( test )
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
   let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
-  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  let validMajorVersion = false;
+  if( typeof process !== 'undefined' && process.versions !== undefined )
+  validMajorVersion = _.str.begins( process.versions.node, '16' );
+
+  if( !validPlatform || !insideTestContainer || !validEnvironments || !validMajorVersion )
   return test.true( true );
 
   /* - */
@@ -872,7 +880,11 @@ function releaseMakeOnRemote( test )
   let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
   let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
   let insideTestContainer = _.process.insideTestContainer();
-  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  let validMajorVersion = false;
+  if( typeof process !== 'undefined' && process.versions !== undefined )
+  validMajorVersion = _.str.begins( process.versions.node, '16' );
+
+  if( !validPlatform || !insideTestContainer || !validEnvironments || !validMajorVersion )
   return test.true( true );
 
   /* - */
