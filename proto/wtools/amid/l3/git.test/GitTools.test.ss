@@ -17221,14 +17221,14 @@ function repositoryInit( test )
 
 function repositoryInitRemote( test )
 {
-  let context = this;
-  let a = test.assetFor( 'basic' );
-  let user = 'wtools-bot';
-  let repository;
-  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const context = this;
+  const a = test.assetFor( 'basic' );
 
-  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
+  const user = 'wtools-bot';
+  const repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  const insideTestContainer = _.process.insideTestContainer();
   if( !insideTestContainer || !validEnvironments )
   return test.true( true );
 
@@ -17242,7 +17242,6 @@ function repositoryInitRemote( test )
   });
   a.ready.then( () =>
   {
-    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
     return _.git.repositoryInit
     ({
       remotePath : repository,
@@ -17271,7 +17270,6 @@ function repositoryInitRemote( test )
   });
   a.ready.then( () =>
   {
-    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
     return _.git.repositoryInit
     ({
       remotePath : repository,
@@ -17302,7 +17300,6 @@ function repositoryInitRemote( test )
   });
   a.ready.then( () =>
   {
-    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
     return _.git.repositoryInit
     ({
       remotePath : repository,
@@ -17333,7 +17330,6 @@ function repositoryInitRemote( test )
   });
   a.ready.then( () =>
   {
-    repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
     let logger = _global_.logger;
     logger.verbosity = 2;
     return _.git.repositoryInit
