@@ -628,8 +628,99 @@ releaseMake.defaults =
   throwing : 1,
   sync : 1,
   logger : 2,
+};
+
+//
+
+let releaseDeleteAct = Object.create( null );
+
+releaseDeleteAct.name = 'releaseDeleteAct';
+releaseDeleteAct.defaults =
+{
   token : null,
   remotePath : null,
+  logger : null,
+};
+
+//
+
+function releaseDelete( o )
+{
+  let ready = _.take( null );
+  let currentBranch;
+
+  o = _.routine.options( releaseDelete, o );
+  o.logger = _.logger.maybe( o.logger );
+
+  _.assert( _.str.defined( o.localPath ), 'Expects local path {-o.localPath-}.' );
+
+  if( !o.token && o.throwing )
+  throw _.errBrief( 'Cannot autorize user without user token.' )
+
+  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+
+  ready.then( () =>
+  {
+    if( parsed.service === 'github.com' )
+    return _releaseDelete();
+    if( o.throwing )
+    throw _.err( 'Unknown service' );
+    return null;
+  })
+  .then( ( arg ) =>
+  {
+    _.git.tagDeleteTag
+    ({
+      localPath : o.localPath,
+      tag : parsed.tag,
+      remote : o.force,
+      local : 1,
+      local : 1,
+      throwing : 0,
+      sync : 1,
+    });
+    return arg;
+  })
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    {
+      if( o.throwing )
+      throw _.err( err, '\nFailed to delete release.' );
+      _.errAttend( err );
+      return null;
+    }
+    return arg;
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+
+  /* */
+
+  function _releaseDelete()
+  {
+    const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+    let o2 = _.props.extend( null, o );
+    _.map.supplement( o2, _.repo.releaseDeleteAct.defaults );
+    o2.remotePath = parsed;
+    return provider.releaseDeleteAct( o2 );
+  }
+}
+
+releaseDelete.defaults =
+{
+  ... releaseDeleteAct.defaults,
+  localPath : null,
+  force : 0,
+  throwing : 1,
+  sync : 1,
+  logger : 2,
 };
 
 
@@ -781,6 +872,8 @@ let Extension =
 
   releaseMakeAct,
   releaseMake,
+  releaseDeleteAct,
+  releaseDelete,
 
   // program
 
