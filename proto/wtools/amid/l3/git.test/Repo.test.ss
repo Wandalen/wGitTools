@@ -988,6 +988,141 @@ releaseMakeOnRemote.timeOut = 60000;
 
 //
 
+function releaseDeleteOnRemote( test )
+{
+  let a = test.assetFor( 'basic' );
+  let user = 'wtools-bot';
+  let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+
+  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
+  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
+  let insideTestContainer = _.process.insideTestContainer();
+  let validMajorVersion = false;
+  if( typeof process !== 'undefined' && process.versions !== undefined )
+  validMajorVersion = _.str.begins( process.versions.node, '16' );
+
+  if( !validPlatform || !insideTestContainer || !validEnvironments || !validMajorVersion )
+  return test.true( true );
+
+  /* - */
+
+  a.reflect();
+  repositoryForm();
+
+  /* */
+
+  releaseMake( 'v0.0.1' );
+  a.ready.then( ( op ) =>
+  {
+    let remotePath = `${ repository }!v0.0.1`;
+    return _.repo.releaseDelete
+    ({
+      token,
+      remotePath,
+      localPath : a.abs( '.' ),
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.data, undefined );
+    test.identical( op.status, 204 );
+    return null;
+  });
+  a.shell( 'git tag' )
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    return null;
+  });
+
+  /* */
+
+  a.ready.finally( ( err, arg ) =>
+  {
+    repositoryDelete( repository );
+
+    if( err )
+    throw _.err( err, 'Repository should be deleted manually' );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function repositoryForm()
+  {
+    a.ready.Try( () => repositoryDelete( repository ) )
+    .catch( ( err ) =>
+    {
+      _.errAttend( err );
+      return null;
+    })
+
+    a.ready.then( () =>
+    {
+      return _.git.repositoryInit
+      ({
+        remotePath : repository,
+        localPath : a.routinePath,
+        throwing : 1,
+        sync : 1,
+        logger : 0,
+        dry : 0,
+        description : 'Test',
+        token,
+      })
+    })
+
+    a.shell
+    (
+      `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`
+    );
+    a.shell( 'git add --all' );
+    a.shell( 'git commit -m first' );
+    a.shell( 'git push -u origin master' );
+    return a.ready;
+  }
+
+  /* */
+
+  function repositoryDelete( remotePath )
+  {
+    return _.git.repositoryDelete
+    ({
+      remotePath,
+      throwing : 1,
+      sync : 1,
+      logger : 1,
+      dry : 0,
+      token,
+    });
+  }
+
+  /* */
+
+  function releaseMake( tag )
+  {
+    return a.ready.then( () =>
+    {
+      let remotePath = `${ repository }!${ tag }`;
+      return _.repo.releaseMake
+      ({
+        token,
+        remotePath,
+      });
+    });
+  }
+}
+
+releaseDeleteOnRemote.timeOut = 60000;
+
+//
+
 function vcsFor( test )
 {
   test.case = 'not known protocol';
@@ -1132,6 +1267,7 @@ const Proto =
     pullOpenRemote,
 
     releaseMakeOnRemote,
+    releaseDeleteOnRemote,
 
     vcsFor,
   },
