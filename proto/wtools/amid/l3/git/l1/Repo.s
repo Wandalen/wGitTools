@@ -584,6 +584,14 @@ function releaseMake( o )
 
   ready.then( () =>
   {
+    if( o.force )
+    {
+      let o2 = _.mapOnly_( null, o, _.repo.releaseDelete.defaults );
+      o2.sync = 1;
+      o2.throwing = 0;
+      _.repo.releaseDelete( o2 );
+    }
+
     if( parsed.service === 'github.com' )
     return _releaseMake();
     if( o.throwing )
@@ -625,7 +633,9 @@ function releaseMake( o )
 releaseMake.defaults =
 {
   ... releaseMakeAct.defaults,
+  localPath : null,
   throwing : 1,
+  force : 0,
   sync : 1,
   logger : 2,
 };
@@ -674,7 +684,6 @@ function releaseDelete( o )
       localPath : o.localPath,
       tag : parsed.tag,
       remote : o.force,
-      local : 1,
       local : 1,
       throwing : 0,
       sync : 1,
