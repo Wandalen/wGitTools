@@ -268,6 +268,58 @@ releaseMakeAct.defaults =
 
 //
 
+function releaseDeleteAct( o )
+{
+  _.map.assertHasAll( o, releaseDeleteAct.defaults );
+  _.assert( _.aux.is( o.remotePath ) );
+  _.assert( _.str.defined( o.remotePath.tag ), 'Expects tag to publish.' );
+
+  let octokit = null;
+
+  return this._open( o )
+  .then( ( instance ) =>
+  {
+    octokit = instance;
+    return octokit.rest.repos.getReleaseByTag
+    ({
+      owner : o.remotePath.user,
+      repo : o.remotePath.repo,
+      tag : o.remotePath.tag,
+    });
+  })
+  .then( ( response ) =>
+  {
+    return octokit.rest.repos.deleteRelease
+    ({
+      owner : o.remotePath.user,
+      repo : o.remotePath.repo,
+      release_id : response.data.id,
+    });
+  })
+  .finally( ( err, arg ) =>
+  {
+    if( err )
+    {
+      _.errAttend( err );
+      throw _.err( `Error code : ${ err.status }. ${ err.message }` );
+    }
+
+    if( o.logger && o.logger.verbosity >= 3 )
+    o.logger.log( arg );
+    else if( o.logger && o.logger.verbosity >= 1 )
+    o.logger.log( `Succefully deleted release "${ o.remotePath.tag }" in ${ _.git.path.str( o.remotePath ) }.` );
+
+    return arg;
+  });
+}
+
+releaseDeleteAct.defaults =
+{
+  ... Parent.releaseDeleteAct.defaults,
+};
+
+//
+
 function programListAct( o )
 {
   let self = this;
@@ -367,6 +419,7 @@ const Self =
   pullOpenAct,
 
   releaseMakeAct,
+  releaseDeleteAct,
 
   programListAct,
   _programListResponseNormalize,
