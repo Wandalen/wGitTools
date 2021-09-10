@@ -17221,7 +17221,6 @@ function repositoryInit( test )
 
 function repositoryInitRemote( test )
 {
-  const context = this;
   const a = test.assetFor( 'basic' );
 
   const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
@@ -17378,7 +17377,6 @@ function repositoryInitRemote( test )
 
 function repositoryDeleteRemote( test )
 {
-  let context = this;
   let a = test.assetFor( 'basic' );
 
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
