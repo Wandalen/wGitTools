@@ -17222,15 +17222,14 @@ function repositoryInit( test )
 function repositoryInitRemote( test )
 {
   const context = this;
-  const a = test.assetFor( 'basic' );
 
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  if( !_.process.insideTestContainer() || !token )
+  return test.true( true );
+
+  const a = test.assetFor( 'basic' );
   const user = 'wtools-bot';
   const repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
-  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-  const validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  const insideTestContainer = _.process.insideTestContainer();
-  if( !insideTestContainer || !validEnvironments )
-  return test.true( true );
 
   /* - */
 
@@ -17360,7 +17359,7 @@ function repositoryInitRemote( test )
 
   function repositoryDelete( remotePath )
   {
-    a.ready.then( () =>
+    return a.ready.then( () =>
     {
       return _.git.repositoryDelete
       ({
@@ -17370,13 +17369,7 @@ function repositoryInitRemote( test )
         dry : 0,
         token,
       });
-    })
-    .catch( ( err ) =>
-    {
-      _.errAttend( err );
-      return null;
     });
-    return a.ready;
   }
 }
 
