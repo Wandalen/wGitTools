@@ -17222,12 +17222,13 @@ function repositoryInit( test )
 function repositoryInitRemote( test )
 {
   const context = this;
+  const a = test.assetFor( 'basic' );
 
   const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-  if( !_.process.insideTestContainer() || !token )
+  let trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
+  if( !_.process.insideTestContainer() || trigger === 'pull_request' || !token )
   return test.true( true );
 
-  const a = test.assetFor( 'basic' );
   const user = 'wtools-bot';
   const repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
 
@@ -17380,15 +17381,13 @@ function repositoryDeleteRemote( test )
   let context = this;
   let a = test.assetFor( 'basic' );
 
-  let user = 'wtools-bot';
-  let repository;
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
-  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  let trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
+  if( !_.process.insideTestContainer() || trigger === 'pull_request' || !token )
   return test.true( true );
+
+  let user = 'wtools-bot';
+  let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
 
   /* - */
 
@@ -17398,7 +17397,7 @@ function repositoryDeleteRemote( test )
     a.reflect();
     return null;
   });
-  repositoryForm().delay( 1000 );
+  repositoryForm();
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -17412,12 +17411,11 @@ function repositoryDeleteRemote( test )
     ({
       remotePath : repository,
       throwing : 1,
-      sync : 1,
       logger : 1,
       dry : 0,
       token,
     });
-  }).delay( 500 );
+  });
   a.ready.then( ( op ) =>
   {
     test.identical( op.data, undefined );
@@ -17434,22 +17432,19 @@ function repositoryDeleteRemote( test )
 
   function repositoryForm()
   {
-    a.ready.then( () =>
+    return a.ready.then( () =>
     {
-      repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
       return _.git.repositoryInit
       ({
         remotePath : repository,
         localPath : a.routinePath,
         throwing : 1,
-        sync : 1,
         logger : 0,
         dry : 0,
         description : 'Test',
         token,
       });
     });
-    return a.ready;
   }
 }
 
