@@ -873,27 +873,23 @@ pullOpenRemote.timeOut = 60000;
 function releaseMakeOnRemote( test )
 {
   let a = test.assetFor( 'basic' );
-  let user = 'wtools-bot';
-  let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
 
   let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
+  let trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
+  let validPlatform = process.platform !== 'win32';
   let validMajorVersion = false;
   if( typeof process !== 'undefined' && process.versions !== undefined )
   validMajorVersion = _.str.begins( process.versions.node, '16' );
-
-  if( !validPlatform || !insideTestContainer || !validEnvironments || !validMajorVersion )
+  if( !validPlatform || !_.process.insideTestContainer() || trigger === 'pull_request' && !token || !validMajorVersion )
   return test.true( true );
+
+  let user = 'wtools-bot';
+  let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+  a.reflect();
 
   /* - */
 
-  a.reflect();
   repositoryForm();
-
-  /* */
-
   a.ready.then( () =>
   {
     test.case = 'make release';
@@ -903,7 +899,7 @@ function releaseMakeOnRemote( test )
       token,
       remotePath : repository,
     });
-  })
+  });
   a.ready.then( ( op ) =>
   {
     test.identical( op.data.body, '' );
@@ -913,17 +909,7 @@ function releaseMakeOnRemote( test )
     test.identical( op.data.tag_name, 'v0.0.1' );
     return null;
   });
-
-  /* */
-
-  a.ready.finally( ( err, arg ) =>
-  {
-    repositoryDelete( repository );
-
-    if( err )
-    throw _.err( err, 'Repository should be deleted manually' );
-    return null;
-  });
+  repositoryDelete();
 
   /* - */
 
@@ -933,16 +919,7 @@ function releaseMakeOnRemote( test )
 
   function repositoryForm()
   {
-    a.ready.Try( () =>
-    {
-      return repositoryDelete( repository );
-    })
-    .catch( ( err ) =>
-    {
-      _.errAttend( err );
-      return null;
-    })
-
+    repositoryDelete();
     a.ready.then( () =>
     {
       return _.git.repositoryInit
@@ -950,18 +927,14 @@ function releaseMakeOnRemote( test )
         remotePath : repository,
         localPath : a.routinePath,
         throwing : 1,
-        sync : 1,
         logger : 0,
         dry : 0,
         description : 'Test',
         token,
-      })
-    })
+      });
+    });
 
-    a.shell
-    (
-      `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`
-    );
+    a.shell( `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'` );
     a.shell( 'git add --all' );
     a.shell( 'git commit -m first' );
     a.shell( 'git push -u origin master' );
@@ -972,14 +945,16 @@ function releaseMakeOnRemote( test )
 
   function repositoryDelete( remotePath )
   {
-    return _.git.repositoryDelete
-    ({
-      remotePath,
-      throwing : 1,
-      sync : 1,
-      logger : 1,
-      dry : 0,
-      token,
+    return a.ready.finally( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath,
+        throwing : 1,
+        logger : 1,
+        dry : 0,
+        token,
+      });
     });
   }
 }
