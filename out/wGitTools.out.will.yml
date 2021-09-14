@@ -3,8 +3,8 @@ root:
   - wGitTools.out
 consistency:
   ../will.yml: &ref_0
-    hash: f2f7d23f273cccb5d414e806c2efad3d
-    size: 6891
+    hash: 713f54f38e4c15c46fbb66fc2fa29352
+    size: 6883
 module:
   wGitTools.out:
     about:
@@ -193,16 +193,20 @@ module:
         path: 'npm:///wCopyable'
         autoExporting: 0
         enabled: 0
-      wFilesBasic:
+      wintrospectorextra:
+        path: 'npm:///wintrospectorextra'
+        autoExporting: 0
+        enabled: 0
+      wprocess:
+        path: 'npm:///wprocess'
+        autoExporting: 0
+        enabled: 0
+      wfilesbasic:
         path: 'npm:///wfilesbasic'
         autoExporting: 0
         enabled: 0
       wfilesarchive:
         path: 'npm:///wfilesarchive'
-        autoExporting: 0
-        enabled: 0
-      wprocess:
-        path: 'npm:///wprocess'
         autoExporting: 0
         enabled: 0
       wremote:
@@ -217,12 +221,6 @@ module:
         path: 'npm:///@octokit/rest#=18.5.2'
         autoExporting: 0
         enabled: 0
-      wgittools:
-        path: 'hd://..'
-        autoExporting: 0
-        enabled: 0
-        criterion:
-          development: 1
       wTesting:
         path: 'npm:///wTesting'
         autoExporting: 0
@@ -963,16 +961,20 @@ module:
         path: 'npm:///wCopyable'
         autoExporting: 0
         enabled: 0
-      wFilesBasic:
+      wintrospectorextra:
+        path: 'npm:///wintrospectorextra'
+        autoExporting: 0
+        enabled: 0
+      wprocess:
+        path: 'npm:///wprocess'
+        autoExporting: 0
+        enabled: 0
+      wfilesbasic:
         path: 'npm:///wfilesbasic'
         autoExporting: 0
         enabled: 0
       wfilesarchive:
         path: 'npm:///wfilesarchive'
-        autoExporting: 0
-        enabled: 0
-      wprocess:
-        path: 'npm:///wprocess'
         autoExporting: 0
         enabled: 0
       wremote:
@@ -987,12 +989,6 @@ module:
         path: 'npm:///@octokit/rest#=18.5.2'
         autoExporting: 0
         enabled: 0
-      wgittools:
-        path: 'hd://.'
-        autoExporting: 0
-        enabled: 0
-        criterion:
-          development: 1
       wTesting:
         path: 'npm:///wTesting'
         autoExporting: 0
@@ -1537,5 +1533,5 @@ module:
           - 'build::npm'
     consistency:
       ../will.yml:
-        hash: f2f7d23f273cccb5d414e806c2efad3d
-        size: 6891
+        hash: 713f54f38e4c15c46fbb66fc2fa29352
+        size: 6883

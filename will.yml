@@ -294,14 +294,17 @@ submodule:
   wCopyable:
     path: 'npm:///wCopyable'
     enabled: 0
-  wFilesBasic:
+  wintrospectorextra:
+    path: 'npm:///wintrospectorextra'
+    enabled: 0
+  wprocess:
+    path: 'npm:///wprocess'
+    enabled: 0
+  wfilesbasic:
     path: 'npm:///wfilesbasic'
     enabled: 0
   wfilesarchive:
     path: 'npm:///wfilesarchive'
-    enabled: 0
-  wprocess:
-    path: 'npm:///wprocess'
     enabled: 0
   wremote:
     path: 'npm:///wremote'
@@ -312,11 +315,6 @@ submodule:
   '@octokit':
     path: 'npm:///@octokit/rest#=18.5.2'
     enabled: 0
-  wgittools:
-    path: 'hd://.'
-    enabled: 0
-    criterion:
-      development: 1
   wTesting:
     path: 'npm:///wTesting'
     enabled: 0
