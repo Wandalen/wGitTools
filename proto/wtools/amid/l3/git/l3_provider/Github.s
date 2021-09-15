@@ -117,7 +117,8 @@ function pullListAct( o )
   let ready = _.take( null );
   _.map.assertHasAll( o, pullListAct.defaults );
   _.assert( _.object.isBasic( o.remotePath ) );
-  return this._open( o )
+
+  return self._open( o )
   .then( ( octokit ) =>
   {
     return octokit.rest.pulls.list

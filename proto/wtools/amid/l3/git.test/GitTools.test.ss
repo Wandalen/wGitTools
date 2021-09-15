@@ -17221,16 +17221,15 @@ function repositoryInit( test )
 
 function repositoryInitRemote( test )
 {
-  const context = this;
   const a = test.assetFor( 'basic' );
 
-  const user = 'wtools-bot';
-  const repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
   const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-  const validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  const insideTestContainer = _.process.insideTestContainer();
-  if( !insideTestContainer || !validEnvironments )
+  const trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
+  if( !_.process.insideTestContainer() || trigger === 'pull_request' || !token )
   return test.true( true );
+
+  const user = 'wtools-bot';
+  const repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
 
   /* - */
 
@@ -17360,23 +17359,18 @@ function repositoryInitRemote( test )
 
   function repositoryDelete( remotePath )
   {
-    a.ready.then( () =>
+    return a.ready.then( () =>
     {
       return _.git.repositoryDelete
       ({
         remotePath,
-        throwing : 1,
+        throwing : 0,
         logger : 1,
         dry : 0,
         token,
+        attemptDelayMultiplier : 4,
       });
-    })
-    .catch( ( err ) =>
-    {
-      _.errAttend( err );
-      return null;
     });
-    return a.ready;
   }
 }
 
@@ -17384,18 +17378,15 @@ function repositoryInitRemote( test )
 
 function repositoryDeleteRemote( test )
 {
-  let context = this;
-  let a = test.assetFor( 'basic' );
+  const a = test.assetFor( 'basic' );
 
-  let user = 'wtools-bot';
-  let repository;
-  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
-  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
+  if( !_.process.insideTestContainer() || trigger === 'pull_request' || !token )
   return test.true( true );
+
+  const user = 'wtools-bot';
+  const repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
 
   /* - */
 
@@ -17405,7 +17396,7 @@ function repositoryDeleteRemote( test )
     a.reflect();
     return null;
   });
-  repositoryForm().delay( 1000 );
+  repositoryForm();
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -17419,12 +17410,11 @@ function repositoryDeleteRemote( test )
     ({
       remotePath : repository,
       throwing : 1,
-      sync : 1,
       logger : 1,
       dry : 0,
       token,
     });
-  }).delay( 500 );
+  });
   a.ready.then( ( op ) =>
   {
     test.identical( op.data, undefined );
@@ -17443,13 +17433,22 @@ function repositoryDeleteRemote( test )
   {
     a.ready.then( () =>
     {
-      repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+      return _.git.repositoryDelete
+      ({
+        remotePath : repository,
+        throwing : 0,
+        logger : 1,
+        dry : 0,
+        token,
+      });
+    });
+    a.ready.then( () =>
+    {
       return _.git.repositoryInit
       ({
         remotePath : repository,
         localPath : a.routinePath,
         throwing : 1,
-        sync : 1,
         logger : 0,
         dry : 0,
         description : 'Test',
@@ -17464,19 +17463,15 @@ function repositoryDeleteRemote( test )
 
 function repositoryDeleteCheckRetryOptions( test )
 {
-  let context = this;
-  let a = test.assetFor( 'basic' );
-  a.reflect();
+  const a = test.assetFor( 'basic' );
 
-  let user = 'wtools-bot';
-  let repository = `https://github.com/Wandalen/wModuleForTesting3.git`;
-  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
-  if( !validPlatform || !insideTestContainer || !validEnvironments )
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
+  if( !_.process.insideTestContainer() || trigger === 'pull_request' || !token )
   return test.true( true );
+
+  const user = 'wtools-bot';
+  const repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
 
   /* - */
 
@@ -17497,20 +17492,18 @@ function repositoryDeleteCheckRetryOptions( test )
       test.identical( _.strCount( err.originalMessage, exp ), 1 );
       return null;
     };
-    test.shouldThrowErrorSync( () =>
+    return test.shouldThrowErrorAsync( () =>
     {
       return _.git.repositoryDelete
       ({
         remotePath : repository,
         throwing : 1,
-        sync : 1,
         logger : 1,
         dry : 0,
         token,
         attemptLimit : 4,
       });
     }, onErrorCallback );
-    return null;
   });
 
   /* */
@@ -17535,13 +17528,12 @@ function repositoryDeleteCheckRetryOptions( test )
       test.identical( _.strCount( err.originalMessage, exp ), 1 );
       return null;
     };
-    test.shouldThrowErrorSync( () =>
+    return test.shouldThrowErrorAsync( () =>
     {
       return _.git.repositoryDelete
       ({
         remotePath : repository,
         throwing : 1,
-        sync : 1,
         logger : 1,
         dry : 0,
         token,
@@ -17549,7 +17541,6 @@ function repositoryDeleteCheckRetryOptions( test )
         attemptDelay : 1000,
       });
     }, onErrorCallback );
-    return null;
   });
 
   /* */
@@ -17574,13 +17565,12 @@ function repositoryDeleteCheckRetryOptions( test )
       test.identical( _.strCount( err.originalMessage, exp ), 1 );
       return null;
     };
-    test.shouldThrowErrorSync( () =>
+    return test.shouldThrowErrorAsync( () =>
     {
       return _.git.repositoryDelete
       ({
         remotePath : repository,
         throwing : 1,
-        sync : 1,
         logger : 1,
         dry : 0,
         token,
@@ -17589,7 +17579,6 @@ function repositoryDeleteCheckRetryOptions( test )
         attemptDelayMultiplier : 8,
       });
     }, onErrorCallback );
-    return null;
   });
 
   /* - */

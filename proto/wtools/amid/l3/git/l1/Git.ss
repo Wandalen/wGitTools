@@ -4289,7 +4289,7 @@ repositoryInit.defaults =
   remote : null,
   local : null,
   throwing : 1,
-  sync : 1,
+  sync : 0,
   logger : 0,
   dry : 0,
   description : null,
@@ -4300,40 +4300,27 @@ repositoryInit.defaults =
 
 function repositoryDelete( o )
 {
-  let self = this;
-  let ready = _.take( null );
-
   o = _.routine.options_( repositoryDelete, o );
 
-  let nativeRemotePath = null;
-  let parsed = null;
-  let remoteExists = null;
+  let ready = _.take( null );
+  let parsed = '';
 
   if( o.remotePath )
   {
-    o.remotePath = nativeRemotePath = _.git.path.normalize( o.remotePath );
+    o.remotePath = _.git.path.normalize( o.remotePath );
     parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
-    remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
   }
 
-  if( !remoteExists )
-  return false;
-
-  ready.then( () =>
-  {
-    return remove();
-  })
+  ready.then( () => remove() )
   .finally( ( err, arg ) =>
   {
     if( err )
     {
       if( o.throwing )
-      throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-
+      throw _.err( err, `\nFailed to delete repository : ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
       _.error.attend( err );
-      return null;
     }
-    return arg;
+    return arg || false;
   });
 
   if( o.sync )
@@ -4346,6 +4333,17 @@ function repositoryDelete( o )
 
   /* */
 
+  function remove()
+  {
+    if( parsed.service === 'github.com' )
+    return removeGithub();
+    if( o.throwing )
+    throw _.err( `Can't remove remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+    return null;
+  }
+
+  /* */
+
   function removeGithub()
   {
     if( !o.token )
@@ -4355,50 +4353,29 @@ function repositoryDelete( o )
       return null;
     }
 
-    let ready = _.take( null );
-    ready.then( () =>
-    {
-      if( o.logger && o.logger.verbosity > 0 )
-      o.logger.log( `Removing remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+    if( o.logger && o.logger.verbosity > 0 )
+    o.logger.log( `Removing remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
 
-      if( o.dry )
-      return true;
+    if( o.dry )
+    return true;
 
-      const provider = _.repo.providerForPath({ remotePath : o.remotePath });
-      let o2 = _.props.extend( null, o );
-      o2.remotePath = parsed;
-      return _.retry
-      ({
-        routine : () => provider.repositoryDeleteAct( o2 ),
-        attemptLimit : o.attemptLimit,
-        attemptDelay : o.attemptDelay,
-        attemptDelayMultiplier : o.attemptDelayMultiplier,
-        defaults : _.remote.attemptDefaults,
-      })
-      .finally( ( err, arg ) =>
-      {
-        if( err )
-        throw _.err( `Error code : ${ err.status }. ${ err.message }` );
-        return arg;
-      });
-      // return provider.repositoryDeleteAct( o2 ); /* xxx : think how to refactor or reorganize it */
+    const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+    let o2 = _.props.extend( null, o );
+    o2.remotePath = parsed;
+    return _.retry
+    ({
+      routine : () => provider.repositoryDeleteAct( o2 ),
+      attemptLimit : o.attemptLimit,
+      attemptDelay : o.attemptDelay,
+      attemptDelayMultiplier : o.attemptDelayMultiplier,
+      defaults : _.remote.attemptDefaults,
     })
-    .then( ( result ) =>
+    .finally( ( err, arg ) =>
     {
-      return result || null;
+      if( err )
+      throw _.err( `Error code : ${ err.status }. ${ err.message }` );
+      return arg || null;
     });
-    return ready;
-  }
-
-  /* */
-
-  function remove()
-  {
-    if( parsed.service === 'github.com' )
-    return removeGithub();
-    if( o.throwing )
-    throw _.err( `Can't remove remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-    return null;
   }
 }
 
@@ -4407,7 +4384,7 @@ repositoryDelete.defaults =
   remotePath : null,
   token : null,
   throwing : 1,
-  sync : 1,
+  sync : 0,
   logger : 1,
   dry : 0,
   attemptLimit : null,

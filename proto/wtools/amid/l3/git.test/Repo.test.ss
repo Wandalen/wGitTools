@@ -327,21 +327,20 @@ function providerForPath( test )
 
 function pullListRemote( test )
 {
-  let a = test.assetFor( 'basic' );
-  let user = 'wtools-bot';
-  let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
-  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const a = test.assetFor( 'basic' );
 
-  let testing = _globals_.testing.wTools;
-  let validPlatform = process.platform !== 'win32';
-  let validEnvironments = testing.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const validPlatform = process.platform !== 'win32';
+  const trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
   let validMajorVersion = false;
-  if( typeof process !== 'undefined' && process.versions !== undefined )
+  if( Config.interpreter === 'njs' )
   validMajorVersion = _.str.begins( process.versions.node, '16' );
 
-  if( !validPlatform || !insideTestContainer || !validEnvironments || !validMajorVersion )
+  if( !validPlatform || !_.process.insideTestContainer() || trigger === 'pull_request' || !token || !validMajorVersion )
   return test.true( true );
+
+  const user = 'wtools-bot';
+  const repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
 
   /* - */
 
@@ -353,7 +352,7 @@ function pullListRemote( test )
   });
   repositoryForm();
   branchMake( 'new' );
-  pullRequestMake( 'master', 'new', 'new' )
+  pullRequestMake( 'master', 'new', 'new' );
 
   a.ready.then( () =>
   {
@@ -372,7 +371,7 @@ function pullListRemote( test )
     test.identical( pr.type, 'repo.pull' );
     return null;
   });
-  a.ready.then( () => repositoryDelete( repository ) );
+  repositoryDelete( repository );
 
   /* */
 
@@ -385,7 +384,6 @@ function pullListRemote( test )
   repositoryForm();
   branchMake( 'new' );
   pullRequestMake( 'master', 'new', 'new' )
-  a.shell( 'git checkout master' );
   branchMake( 'new2' );
   pullRequestMake( 'master', 'new2', 'new2' )
 
@@ -412,85 +410,84 @@ function pullListRemote( test )
     test.identical( pr.type, 'repo.pull' );
     return null;
   });
-  a.ready.then( () => repositoryDelete( repository ) );
+  repositoryDelete( repository );
 
   /* */
 
-  /* qqq : for Dmytro : uncomment when find reason of lock */
-  // a.ready.then( () =>
-  // {
-  //   test.case = 'single pull request, check async';
-  //   a.reflect();
-  //   return null;
-  // });
-  // repositoryForm();
-  // branchMake( 'new' );
-  // pullRequestMake( 'master', 'new', 'new' )
-  //
-  // a.ready.then( () =>
-  // {
-  //   return _.repo.pullList
-  //   ({
-  //     token,
-  //     remotePath : repository,
-  //     sync : 0,
-  //   });
-  // });
-  // a.ready.then( ( op ) =>
-  // {
-  //   test.identical( op.result.elements.length, 1 );
-  //   var pr = op.result.elements[ 0 ];
-  //   test.identical( pr.description.head, 'new' );
-  //   test.identical( pr.description.body, null );
-  //   test.identical( pr.from.name, user );
-  //   test.identical( pr.to.tag, 'master' );
-  //   test.identical( pr.type, 'repo.pull' );
-  //   return null;
-  // });
-  // a.ready.then( () => repositoryDelete( repository ) );
-  //
-  // /* */
-  //
-  // a.ready.then( () =>
-  // {
-  //   test.case = 'several pull requests, check async';
-  //   a.reflect();
-  //   return null;
-  // });
-  // repositoryForm();
-  // branchMake( 'new' );
-  // pullRequestMake( 'master', 'new', 'new' )
-  // a.shell( 'git checkout master' );
-  // branchMake( 'new2' );
-  // pullRequestMake( 'master', 'new2', 'new2' )
-  //
-  // a.ready.then( () =>
-  // {
-  //   return _.repo.pullList
-  //   ({
-  //     token,
-  //     remotePath : repository,
-  //     sync : 0,
-  //   });
-  // });
-  // a.ready.then( ( op ) =>
-  // {
-  //   test.identical( op.result.elements.length, 2 );
-  //   var pr = op.result.elements[ 0 ];
-  //   test.identical( pr.description.head, 'new2' );
-  //   test.identical( pr.description.body, null );
-  //   test.identical( pr.from.name, user );
-  //   test.identical( pr.to.tag, 'master' );
-  //   test.identical( pr.type, 'repo.pull' );
-  //   var pr = op.result.elements[ 1 ];
-  //   test.identical( pr.description.head, 'new' );
-  //   test.identical( pr.description.body, '' );
-  //   test.identical( pr.from.name, user );
-  //   test.identical( pr.to.tag, 'master' );
-  //   test.identical( pr.type, 'repo.pull' );
-  //   return null;
-  // });
-  // a.ready.then( () => repositoryDelete( repository ) );
+  /* aaa : for Dmytro : uncomment when find reason of lock */ /* Dmytro : fixex */
+  a.ready.then( () =>
+  {
+    test.case = 'single pull request, check async';
+    a.reflect();
+    return null;
+  });
+  repositoryForm();
+  branchMake( 'new' );
+  pullRequestMake( 'master', 'new', 'new' )
+
+  a.ready.then( () =>
+  {
+    return _.repo.pullList
+    ({
+      token,
+      remotePath : repository,
+      sync : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.result.elements.length, 1 );
+    var pr = op.result.elements[ 0 ];
+    test.identical( pr.description.head, 'new' );
+    test.identical( pr.description.body, null );
+    test.identical( pr.from.name, user );
+    test.identical( pr.to.tag, 'master' );
+    test.identical( pr.type, 'repo.pull' );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'several pull requests, check async';
+    a.reflect();
+    return null;
+  });
+  repositoryForm();
+  branchMake( 'new' );
+  pullRequestMake( 'master', 'new', 'new' )
+  branchMake( 'new2' );
+  pullRequestMake( 'master', 'new2', 'new2' )
+
+  a.ready.then( () =>
+  {
+    return _.repo.pullList
+    ({
+      token,
+      remotePath : repository,
+      sync : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.result.elements.length, 2 );
+    var pr = op.result.elements[ 0 ];
+    test.identical( pr.description.head, 'new2' );
+    test.identical( pr.description.body, null );
+    test.identical( pr.from.name, user );
+    test.identical( pr.to.tag, 'master' );
+    test.identical( pr.type, 'repo.pull' );
+    var pr = op.result.elements[ 1 ];
+    test.identical( pr.description.head, 'new' );
+    test.identical( pr.description.body, null );
+    test.identical( pr.from.name, user );
+    test.identical( pr.to.tag, 'master' );
+    test.identical( pr.type, 'repo.pull' );
+    return null;
+  });
+  repositoryDelete( repository );
 
   /* - */
 
@@ -500,26 +497,50 @@ function pullListRemote( test )
 
   function repositoryForm()
   {
-    a.ready.then( () =>
-    {
-      return _.git.repositoryInit
-      ({
-        remotePath : repository,
-        localPath : a.routinePath,
-        throwing : 1,
-        sync : 1,
-        logger : 0,
-        dry : 0,
-        description : 'Test',
-        token,
-      })
-    });
-
+    repositoryDelete( repository );
+    repositoryInit( repository );
     a.shell( `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`);
     a.shell( 'git add --all' );
     a.shell( 'git commit -m first' );
     a.shell( 'git push -u origin master' );
     return a.ready;
+  }
+
+  /* */
+
+  function repositoryDelete( remotePath )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath,
+        throwing : 0,
+        logger : 1,
+        dry : 0,
+        token,
+        attemptDelayMultiplier : 4,
+      });
+    });
+  }
+
+  /* */
+
+  function repositoryInit( remotePath )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryInit
+      ({
+        remotePath,
+        localPath : a.routinePath,
+        throwing : 1,
+        logger : 0,
+        dry : 0,
+        description : 'Test',
+        token,
+      });
+    });
   }
 
   /* */
@@ -541,29 +562,11 @@ function pullListRemote( test )
 
   /* */
 
-  function repositoryDelete( remotePath )
-  {
-    return _.git.repositoryDelete
-    ({
-      remotePath,
-      throwing : 1,
-      sync : 1,
-      logger : 1,
-      dry : 0,
-      token,
-    });
-  }
-
-  /* */
-
   function branchMake( branch )
   {
+    a.shell( 'git checkout master' );
     a.shell( `git checkout -b ${ branch }` );
-    a.ready.then( () =>
-    {
-      a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' );
-      return null;
-    });
+    a.ready.then( () => { a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' ); return null });
     a.shell( 'git commit -am second' );
     a.shell( `git push -u origin ${ branch }` );
     return a.ready;
@@ -644,27 +647,25 @@ function pullOpen( test )
 
 function pullOpenRemote( test )
 {
-  let a = test.assetFor( 'basic' );
-  let user = 'wtools-bot';
-  let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+  const a = test.assetFor( 'basic' );
 
-  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const validPlatform = process.platform !== 'win32';
+  const trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
   let validMajorVersion = false;
-  if( typeof process !== 'undefined' && process.versions !== undefined )
+  if( Config.interpreter === 'njs' )
   validMajorVersion = _.str.begins( process.versions.node, '16' );
 
-  if( !validPlatform || !insideTestContainer || !validEnvironments || !validMajorVersion )
+  if( !validPlatform || !_.process.insideTestContainer() || trigger === 'pull_request' || !token || !validMajorVersion )
   return test.true( true );
 
-  /* - */
+  const user = 'wtools-bot';
+  const repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
 
   a.reflect();
   repositoryForm();
 
-  /* */
+  /* - */
 
   branchMake( 'new' ).then( () =>
   {
@@ -783,14 +784,7 @@ function pullOpenRemote( test )
 
   /* */
 
-  a.ready.finally( ( err, arg ) =>
-  {
-    repositoryDelete( repository );
-
-    if( err )
-    throw _.err( err, 'Repository should be deleted manually' );
-    return null;
-  });
+  repositoryDelete( repository );
 
   /* - */
 
@@ -800,35 +794,9 @@ function pullOpenRemote( test )
 
   function repositoryForm()
   {
-    a.ready.Try( () =>
-    {
-      return repositoryDelete( repository );
-    })
-    .catch( ( err ) =>
-    {
-      _.errAttend( err );
-      return null;
-    })
-
-    a.ready.then( () =>
-    {
-      return _.git.repositoryInit
-      ({
-        remotePath : repository,
-        localPath : a.routinePath,
-        throwing : 1,
-        sync : 1,
-        logger : 0,
-        dry : 0,
-        description : 'Test',
-        token,
-      })
-    })
-
-    a.shell
-    (
-      `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`
-    );
+    repositoryDelete( repository );
+    repositoryInit( repository );
+    a.shell( `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'` );
     a.shell( 'git add --all' );
     a.shell( 'git commit -m first' );
     a.shell( 'git push -u origin master' );
@@ -839,14 +807,36 @@ function pullOpenRemote( test )
 
   function repositoryDelete( remotePath )
   {
-    return _.git.repositoryDelete
-    ({
-      remotePath,
-      throwing : 1,
-      sync : 1,
-      logger : 1,
-      dry : 0,
-      token,
+    return a.ready.finally( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath,
+        throwing : 0,
+        logger : 1,
+        dry : 0,
+        token,
+        attemptDelayMultiplier : 4,
+      });
+    });
+  }
+
+  /* */
+
+  function repositoryInit( remotePath )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryInit
+      ({
+        remotePath,
+        localPath : a.routinePath,
+        throwing : 1,
+        logger : 0,
+        dry : 0,
+        description : 'Test',
+        token,
+      });
     });
   }
 
@@ -872,28 +862,26 @@ pullOpenRemote.timeOut = 60000;
 
 function releaseMakeOnRemote( test )
 {
-  let a = test.assetFor( 'basic' );
-  let user = 'wtools-bot';
-  let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+  const a = test.assetFor( 'basic' );
 
-  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const validPlatform = process.platform !== 'win32';
+  const trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
   let validMajorVersion = false;
-  if( typeof process !== 'undefined' && process.versions !== undefined )
+  if( Config.interpreter === 'njs' )
   validMajorVersion = _.str.begins( process.versions.node, '16' );
 
-  if( !validPlatform || !insideTestContainer || !validEnvironments || !validMajorVersion )
+  if( !validPlatform || !_.process.insideTestContainer() || trigger === 'pull_request' || !token || !validMajorVersion )
   return test.true( true );
+
+  const user = 'wtools-bot';
+  let repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
+
+  a.reflect();
 
   /* - */
 
-  a.reflect();
   repositoryForm();
-
-  /* */
-
   a.ready.then( () =>
   {
     test.case = 'make release';
@@ -903,7 +891,7 @@ function releaseMakeOnRemote( test )
       token,
       remotePath : repository,
     });
-  })
+  });
   a.ready.then( ( op ) =>
   {
     test.identical( op.data.body, '' );
@@ -913,17 +901,7 @@ function releaseMakeOnRemote( test )
     test.identical( op.data.tag_name, 'v0.0.1' );
     return null;
   });
-
-  /* */
-
-  a.ready.finally( ( err, arg ) =>
-  {
-    repositoryDelete( repository );
-
-    if( err )
-    throw _.err( err, 'Repository should be deleted manually' );
-    return null;
-  });
+  repositoryDelete( repository );
 
   /* - */
 
@@ -933,35 +911,9 @@ function releaseMakeOnRemote( test )
 
   function repositoryForm()
   {
-    a.ready.Try( () =>
-    {
-      return repositoryDelete( repository );
-    })
-    .catch( ( err ) =>
-    {
-      _.errAttend( err );
-      return null;
-    })
-
-    a.ready.then( () =>
-    {
-      return _.git.repositoryInit
-      ({
-        remotePath : repository,
-        localPath : a.routinePath,
-        throwing : 1,
-        sync : 1,
-        logger : 0,
-        dry : 0,
-        description : 'Test',
-        token,
-      })
-    })
-
-    a.shell
-    (
-      `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`
-    );
+    repositoryDelete( repository );
+    repositoryInit( repository );
+    a.shell( `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'` );
     a.shell( 'git add --all' );
     a.shell( 'git commit -m first' );
     a.shell( 'git push -u origin master' );
@@ -972,14 +924,35 @@ function releaseMakeOnRemote( test )
 
   function repositoryDelete( remotePath )
   {
-    return _.git.repositoryDelete
-    ({
-      remotePath,
-      throwing : 1,
-      sync : 1,
-      logger : 1,
-      dry : 0,
-      token,
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath,
+        throwing : 0,
+        logger : 1,
+        dry : 0,
+        token,
+      });
+    });
+  }
+
+  /* */
+
+  function repositoryInit( remotePath )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryInit
+      ({
+        remotePath,
+        localPath : a.routinePath,
+        throwing : 1,
+        logger : 0,
+        dry : 0,
+        description : 'Test',
+        token,
+      });
     });
   }
 }
@@ -990,27 +963,25 @@ releaseMakeOnRemote.timeOut = 60000;
 
 function releaseDeleteOnRemote( test )
 {
-  let a = test.assetFor( 'basic' );
-  let user = 'wtools-bot';
-  let repository = `https://github.com/${ user }/New-${ _.idWithDateAndTime() }`;
+  const a = test.assetFor( 'basic' );
 
-  let token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
-  let validPlatform = process.platform === 'linux' || process.platform === 'darwin';
-  let validEnvironments = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) ) !== 'pull_request' && token;
-  let insideTestContainer = _.process.insideTestContainer();
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const validPlatform = process.platform !== 'win32';
+  const trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
   let validMajorVersion = false;
-  if( typeof process !== 'undefined' && process.versions !== undefined )
+  if( Config.interpreter === 'njs' )
   validMajorVersion = _.str.begins( process.versions.node, '16' );
 
-  if( !validPlatform || !insideTestContainer || !validEnvironments || !validMajorVersion )
+  if( !validPlatform || !_.process.insideTestContainer() || trigger === 'pull_request' || !token || !validMajorVersion )
   return test.true( true );
 
-  /* - */
+  const user = 'wtools-bot';
+  const repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
 
   a.reflect();
   repositoryForm();
 
-  /* */
+  /* - */
 
   releaseMake( 'v0.0.1' );
   a.ready.then( ( op ) =>
@@ -1036,17 +1007,7 @@ function releaseDeleteOnRemote( test )
     test.identical( op.output, '' );
     return null;
   });
-
-  /* */
-
-  a.ready.finally( ( err, arg ) =>
-  {
-    repositoryDelete( repository );
-
-    if( err )
-    throw _.err( err, 'Repository should be deleted manually' );
-    return null;
-  });
+  repositoryDelete( repository );
 
   /* - */
 
@@ -1056,32 +1017,9 @@ function releaseDeleteOnRemote( test )
 
   function repositoryForm()
   {
-    a.ready.Try( () => repositoryDelete( repository ) )
-    .catch( ( err ) =>
-    {
-      _.errAttend( err );
-      return null;
-    })
-
-    a.ready.then( () =>
-    {
-      return _.git.repositoryInit
-      ({
-        remotePath : repository,
-        localPath : a.routinePath,
-        throwing : 1,
-        sync : 1,
-        logger : 0,
-        dry : 0,
-        description : 'Test',
-        token,
-      })
-    })
-
-    a.shell
-    (
-      `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`
-    );
+    repositoryDelete( repository );
+    repositoryInit( repository );
+    a.shell( `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'` );
     a.shell( 'git add --all' );
     a.shell( 'git commit -m first' );
     a.shell( 'git push -u origin master' );
@@ -1092,14 +1030,35 @@ function releaseDeleteOnRemote( test )
 
   function repositoryDelete( remotePath )
   {
-    return _.git.repositoryDelete
-    ({
-      remotePath,
-      throwing : 1,
-      sync : 1,
-      logger : 1,
-      dry : 0,
-      token,
+    return a.ready.finally( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath,
+        throwing : 0,
+        logger : 1,
+        dry : 0,
+        token,
+      });
+    });
+  }
+
+  /* */
+
+  function repositoryInit( remotePath )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryInit
+      ({
+        remotePath,
+        localPath : a.routinePath,
+        throwing : 1,
+        logger : 0,
+        dry : 0,
+        description : 'Test',
+        token,
+      });
     });
   }
 
@@ -1109,11 +1068,10 @@ function releaseDeleteOnRemote( test )
   {
     return a.ready.then( () =>
     {
-      let remotePath = `${ repository }!${ tag }`;
       return _.repo.releaseMake
       ({
         token,
-        remotePath,
+        remotePath : `${ repository }!${ tag }`,
       });
     });
   }
