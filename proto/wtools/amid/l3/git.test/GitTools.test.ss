@@ -17198,6 +17198,7 @@ function repositoryInit( test )
       remotePath : null,
       token : 'token',
       local : 1,
+      sync : 1,
       remote : 1,
       dry : 1,
     });
@@ -17211,6 +17212,7 @@ function repositoryInit( test )
       remotePath : 'https://github.com/user/New2',
       token : 'token',
       local : 1,
+      sync : 1,
       remote : 1,
       dry : 1,
     });
