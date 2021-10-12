@@ -22673,12 +22673,8 @@ function pushCheckOutput( test )
   });
 
   commitAdd();
-  a.ready.then( () =>
-  {
-    _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000' });
-    _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init' });
-    return null;
-  });
+  a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000', sync : 0 }) );
+  a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init', sync : 0 }) );
 
   start();
   a.ready.then( ( op ) =>
@@ -22704,12 +22700,8 @@ function pushCheckOutput( test )
   });
 
   commitAdd();
-  a.ready.then( () =>
-  {
-    _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000' });
-    _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init' });
-    return null;
-  });
+  a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000', sync : 0 }) );
+  a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init', sync : 0 }) );
 
   start();
   a.ready.then( ( op ) =>
@@ -22748,7 +22740,7 @@ function pushCheckOutput( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, 'fatal: \'../main\' does not appear to be a git repository' ), 1 );
+    test.identical( _.strCount( op.output, /fatal: .*\/main\' does not appear to be a git repository/ ), 1 );
     test.identical( _.strCount( op.output, 'fatal: Could not read from remote repository.' ), 1 );
     test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 1 );
     test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 1 );
@@ -22784,7 +22776,7 @@ function pushCheckOutput( test )
   a.ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, 'fatal: \'../main\' does not appear to be a git repository' ), 2 );
+    test.identical( _.strCount( op.output, /fatal: .*\/main\' does not appear to be a git repository/ ), 2 );
     test.identical( _.strCount( op.output, 'fatal: Could not read from remote repository.' ), 2 );
     test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 2 );
     test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 2 );
@@ -22804,21 +22796,13 @@ function pushCheckOutput( test )
     a.ready.then( () =>
     {
       a.fileProvider.filesDelete( a.abs( 'main' ) );
-      a.fileProvider.filesDelete( a.abs( 'clone' ) );
       a.fileProvider.filesDelete( a.abs( 'repo' ) );
-      return null;
-    });
-
-    a.ready.then( () =>
-    {
       a.fileProvider.dirMake( a.abs( 'main' ) );
       a.fileProvider.dirMake( a.abs( 'repo' ) );
       return null;
     });
     a.shell({ currentPath : a.abs( 'main' ), execPath : `git init --bare` });
-
-    a.shell( `git init` );
-    a.shell( 'git remote add origin ../main' );
+    a.shell({ currentPath : a.abs( '.' ), execPath : `git clone ./main ./repo` });
     return a.ready;
   }
 
