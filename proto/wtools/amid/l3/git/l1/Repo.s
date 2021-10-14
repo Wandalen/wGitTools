@@ -309,6 +309,45 @@ providerAmend.defaults =
   src : null,
 }
 
+//
+
+function issuesGet( o )
+{
+  debugger;
+  _.routine.options( issuesGet, o );
+  _.assert( _.str.is( o.remotePath ) || _.aux.is( o.remotePath ) );
+
+  o.remotePath = _.git.path.normalize( o.remotePath );
+  const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
+
+  const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+  const o2 = _.props.extend( null, o );
+  o2.remotePath = parsed;
+
+  const ready = provider.repositoryIssuesGetAct( o2 );
+  ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( `Error code : ${ err.status }. ${ err.message }` );
+    return arg || null;
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+issuesGet.defaults =
+{
+  remotePath : null,
+  state : 'all',
+  sync : 0,
+};
+
 // --
 // pr
 // --
@@ -864,6 +903,10 @@ let Extension =
 
   providerForPath,
   providerAmend,
+
+  // issue
+
+  issuesGet,
 
   // pr
 
