@@ -127,7 +127,7 @@ function repositoryIssuesGetAct( o )
     let issuesArray = [];
     do
     {
-      issuesArray = getIssuesSync( octokit, page ).data;
+      issuesArray = issuesGetSync( octokit, page ).data;
       _.arrayAppendArray( result, issuesArray );
       page += 1;
     }
@@ -139,7 +139,7 @@ function repositoryIssuesGetAct( o )
 
   /* */
 
-  function getIssuesSync( octokit, page )
+  function issuesGetSync( octokit, page )
   {
     let con = _.take( null );
     con.then( () =>
@@ -163,6 +163,47 @@ repositoryIssuesGetAct.defaults =
 {
   remotePath : null,
   state : null,
+};
+
+//
+
+function repositoryIssuesCreateAct( o )
+{
+  const self = this;
+  _.assert( _.aux.is( o.remotePath ) );
+  _.assert( _.str.defined( o.token ) );
+  _.assert( o.issues );
+
+  o.issues = _.array.as( o.issues );
+
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    let ready = _.take( null );
+    for( let i = 0 ; i < o.issues.length ; i++ )
+    ready.then( () => issueCreate( octokit, o.issues[ i ].title, o.issues[ i ].body || null ) );
+    return ready;
+  });
+
+  /* */
+
+  function issueCreate( octokit, title, body )
+  {
+    return octokit.rest.issues.create
+    ({
+      owner : o.remotePath.user,
+      repo : o.remotePath.repo,
+      title,
+      body,
+    });
+  }
+}
+
+repositoryIssuesCreateAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  issues : null,
 };
 
 
@@ -472,6 +513,7 @@ const Self =
   repositoryDeleteAct,
 
   repositoryIssuesGetAct,
+  repositoryIssuesCreateAct,
 
   pullListAct,
   _pullListResponseNormalize,
