@@ -325,6 +325,76 @@ function providerForPath( test )
 
 //
 
+function issuesGet( test )
+{
+  const a = test.assetFor( 'basic' );
+  const repository = 'https://github.com/Learn-Together-Pro/Blockchain.git';
+
+  /* qqq2 : for Dmytro : use testing module instead of real module */
+
+  let open, closed, all;
+
+  /* - */
+
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository }) );
+  a.ready.then( ( issues ) =>
+  {
+    test.case = 'get all issues, state - default';
+    all = issues.length;
+    test.ge( issues.length, 20 );
+    test.le( issues.length, 30 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'all' }) );
+  a.ready.then( ( issues ) =>
+  {
+    test.case = 'get all issues, state - all, as default';
+    test.ge( issues.length, 20 );
+    test.le( issues.length, 30 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'open' }) );
+  a.ready.then( ( issues ) =>
+  {
+    test.case = 'get opened issues';
+    open = issues.length;
+    test.ge( issues.length, 0 );
+    test.le( issues.length, all );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'closed' }) );
+  a.ready.then( ( issues ) =>
+  {
+    test.case = 'get closed issues';
+    closed = issues.length;
+    test.ge( issues.length, 0 );
+    test.le( issues.length, all );
+    return null;
+  });
+
+  a.ready.finally( () =>
+  {
+    test.case = 'check balance of issues';
+    test.identical( all, open + closed );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+}
+
+//
+
 function pullListRemote( test )
 {
   const a = test.assetFor( 'basic' );
@@ -1218,6 +1288,8 @@ const Proto =
     _request_functor,
 
     providerForPath,
+
+    issuesGet,
 
     pullListRemote,
 
