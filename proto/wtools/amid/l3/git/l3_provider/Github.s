@@ -108,6 +108,63 @@ repositoryDeleteAct.defaults =
   remotePath : null,
 };
 
+//
+
+function repositoryIssuesGetAct( o )
+{
+  const self = this;
+  _.map.assertHasAll( o, repositoryIssuesGetAct.defaults );
+  _.assert( _.aux.is( o.remotePath ) );
+  _.assert( _.long.leftIndex( [ 'open', 'closed', 'all' ], o.state ) !== -1 );
+
+  o.token = null;
+
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    let page = 1;
+    let result = [];
+    let issuesArray = [];
+    do
+    {
+      issuesArray = getIssuesSync( octokit, page ).data;
+      _.arrayAppendArray( result, issuesArray );
+      page += 1;
+    }
+    while( issuesArray.length > 0 )
+
+    result = result.filter( ( e ) => !e.pull_request );
+    return result;
+  });
+
+  /* */
+
+  function getIssuesSync( octokit, page )
+  {
+    let con = _.take( null );
+    con.then( () =>
+    {
+      return octokit.rest.issues.listForRepo
+      ({
+        owner : o.remotePath.user,
+        repo : o.remotePath.repo,
+        state : o.state,
+        per_page : 50,
+        page,
+      });
+      return null;
+    });
+    con.deasync();
+    return con.sync();
+  }
+}
+
+repositoryIssuesGetAct.defaults =
+{
+  remotePath : null,
+  state : null,
+};
+
 
 //
 
@@ -413,6 +470,8 @@ const Self =
 
   repositoryInitAct,
   repositoryDeleteAct,
+
+  repositoryIssuesGetAct,
 
   pullListAct,
   _pullListResponseNormalize,
