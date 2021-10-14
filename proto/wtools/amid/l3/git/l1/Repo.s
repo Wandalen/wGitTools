@@ -313,7 +313,6 @@ providerAmend.defaults =
 
 function issuesGet( o )
 {
-  debugger;
   _.routine.options( issuesGet, o );
   _.assert( _.str.is( o.remotePath ) || _.aux.is( o.remotePath ) );
 
@@ -345,6 +344,46 @@ issuesGet.defaults =
 {
   remotePath : null,
   state : 'all',
+  sync : 0,
+};
+
+//
+
+function issuesCreate( o )
+{
+  _.routine.options( issuesCreate, o );
+  _.assert( _.str.is( o.remotePath ) || _.aux.is( o.remotePath ) );
+  _.assert( _.str.defined( o.token ), 'Expects token {-o.token-}' );
+
+  o.remotePath = _.git.path.normalize( o.remotePath );
+  const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
+
+  const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+  const o2 = _.props.extend( null, o );
+  o2.remotePath = parsed;
+
+  const ready = provider.repositoryIssuesCreateAct( o2 );
+  ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( `Error code : ${ err.status }. ${ err.message }` );
+    return arg || null;
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+issuesCreate.defaults =
+{
+  remotePath : null,
+  token : null,
+  issues : null,
   sync : 0,
 };
 
@@ -907,6 +946,7 @@ let Extension =
   // issue
 
   issuesGet,
+  issuesCreate,
 
   // pr
 
