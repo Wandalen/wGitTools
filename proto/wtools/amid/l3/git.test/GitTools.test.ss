@@ -14663,7 +14663,7 @@ function repositoryHasTagWithOptionReturnVersion( test )
   }
 }
 
-repositoryHasTagWithOptionReturnVersion.timeOut = 30000;
+repositoryHasTagWithOptionReturnVersion.timeOut = 60000;
 
 //
 
@@ -17375,6 +17375,8 @@ function repositoryInitRemote( test )
     });
   }
 }
+
+repositoryInitRemote.timeOut = 60000;
 
 //
 
@@ -24784,6 +24786,8 @@ function tagList( test )
     return a.ready;
   }
 }
+
+tagList.timeOut = 60000;
 
 //
 
