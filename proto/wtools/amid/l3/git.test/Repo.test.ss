@@ -393,6 +393,175 @@ function issuesGet( test )
   return a.ready;
 }
 
+issuesGet.timeOut = 10000;
+
+//
+
+function issuesCreate( test )
+{
+  const a = test.assetFor( 'basic' );
+
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
+
+  if( !_.process.insideTestContainer() || trigger === 'pull_request' || !token )
+  return test.true( true );
+
+  const user = 'dmvict';
+  // const user = 'wtools-bot';
+  const repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
+
+  /* - */
+
+  repositoryInit( repository );
+  a.ready.then( () =>
+  {
+    test.case = 'issue - map';
+    var issues =
+    {
+      title : 'first',
+      body : 'it\'s issue',
+    };
+    return _.repo.issuesCreate({ remotePath : repository, token, issues });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( _.props.keys( op ), [ 'status', 'url', 'headers', 'data' ] );
+    test.identical( op.status, 201 );
+    test.identical( op.data.title, 'first' );
+    test.identical( op.data.body, 'it\'s issue' );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* */
+
+  repositoryInit( repository );
+  a.ready.then( () =>
+  {
+    test.case = 'issue - array';
+    var issue1 =
+    {
+      title : 'first',
+      body : 'it\'s issue',
+    };
+    var issue2 =
+    {
+      title : 'second',
+      body : 'it\'s issue',
+    };
+    return _.repo.issuesCreate({ remotePath : repository, token, issues : [ issue1, issue2 ] });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( _.props.keys( op ), [ 'status', 'url', 'headers', 'data' ] );
+    test.identical( op.status, 201 );
+    test.identical( op.data.title, 'second' );
+    test.identical( op.data.body, 'it\'s issue' );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* */
+
+  repositoryInit( repository );
+  a.ready.then( () =>
+  {
+    test.case = 'issue - single map in file';
+    var issues =
+    {
+      title : 'first',
+      body : 'it\'s issue',
+    };
+    let issuesPath = a.abs( 'file.json' );
+    a.fileProvider.fileWriteUnknown( issuesPath, issues );
+    return _.repo.issuesCreate({ remotePath : repository, token, issues : issuesPath });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( _.props.keys( op ), [ 'status', 'url', 'headers', 'data' ] );
+    test.identical( op.status, 201 );
+    test.identical( op.data.title, 'first' );
+    test.identical( op.data.body, 'it\'s issue' );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* */
+
+  repositoryInit( repository );
+  a.ready.then( () =>
+  {
+    test.case = 'issue - array';
+    var issue1 =
+    {
+      title : 'first',
+      body : 'it\'s issue',
+    };
+    var issue2 =
+    {
+      title : 'second',
+      body : 'it\'s issue',
+    };
+    let issuesPath = a.abs( 'file.json' );
+    a.fileProvider.fileWriteUnknown( issuesPath, [ issue1, issue2 ] );
+    return _.repo.issuesCreate({ remotePath : repository, token, issues : issuesPath });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( _.props.keys( op ), [ 'status', 'url', 'headers', 'data' ] );
+    test.identical( op.status, 201 );
+    test.identical( op.data.title, 'second' );
+    test.identical( op.data.body, 'it\'s issue' );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function repositoryDelete( remotePath )
+  {
+    a.ready.then( () => a.fileProvider.filesDelete( a.abs( '.' ) ) );
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath,
+        throwing : 0,
+        logger : 1,
+        dry : 0,
+        token,
+        attemptDelayMultiplier : 4,
+      });
+    });
+  }
+
+  /* */
+
+  function repositoryInit( remotePath )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryInit
+      ({
+        remotePath,
+        localPath : a.routinePath,
+        throwing : 1,
+        logger : 0,
+        dry : 0,
+        description : 'Test',
+        token,
+      });
+    });
+  }
+}
+
+issuesCreate.timeOut = 60000;
+
 //
 
 function pullListRemote( test )
@@ -1290,6 +1459,7 @@ const Proto =
     providerForPath,
 
     issuesGet,
+    issuesCreate,
 
     pullListRemote,
 
