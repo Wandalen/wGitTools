@@ -309,6 +309,91 @@ providerAmend.defaults =
   src : null,
 }
 
+//
+
+function issuesGet( o )
+{
+  _.routine.options( issuesGet, o );
+  _.assert( _.str.is( o.remotePath ) || _.aux.is( o.remotePath ) );
+
+  o.remotePath = _.git.path.normalize( o.remotePath );
+  const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
+
+  const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+  const o2 = _.props.extend( null, o );
+  o2.remotePath = parsed;
+
+  const ready = provider.repositoryIssuesGetAct( o2 );
+  ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( `Error code : ${ err.status }. ${ err.message }` );
+    return arg || null;
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+issuesGet.defaults =
+{
+  remotePath : null,
+  token : null,
+  state : 'all',
+  sync : 0,
+};
+
+//
+
+function issuesCreate( o )
+{
+  let localProvider = _.fileProvider;
+  let path = localProvider.path;
+  _.routine.options( issuesCreate, o );
+  _.assert( _.str.is( o.remotePath ) || _.aux.is( o.remotePath ) );
+  _.assert( _.str.defined( o.token ), 'Expects token {-o.token-}' );
+
+  if( _.str.is( o.issues ) )
+  o.issues = localProvider.fileReadUnknown( path.join( path.current(), o.issues ) );
+  _.assert( _.array.is( o.issues ) || _.aux.is( o.issues ) );
+
+  o.remotePath = _.git.path.normalize( o.remotePath );
+  const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
+
+  const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+  const o2 = _.props.extend( null, o );
+  o2.remotePath = parsed;
+
+  const ready = provider.repositoryIssuesCreateAct( o2 );
+  ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( `Error code : ${ err.status }. ${ err.message }` );
+    return arg || null;
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+issuesCreate.defaults =
+{
+  remotePath : null,
+  token : null,
+  issues : null,
+  sync : 0,
+};
+
 // --
 // pr
 // --
@@ -864,6 +949,11 @@ let Extension =
 
   providerForPath,
   providerAmend,
+
+  // issue
+
+  issuesGet,
+  issuesCreate,
 
   // pr
 

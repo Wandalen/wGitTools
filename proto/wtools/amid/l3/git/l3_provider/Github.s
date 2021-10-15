@@ -108,6 +108,103 @@ repositoryDeleteAct.defaults =
   remotePath : null,
 };
 
+//
+
+function repositoryIssuesGetAct( o )
+{
+  const self = this;
+  _.map.assertHasAll( o, repositoryIssuesGetAct.defaults );
+  _.assert( _.aux.is( o.remotePath ) );
+  _.assert( _.long.leftIndex( [ 'open', 'closed', 'all' ], o.state ) !== -1 );
+
+  let result = [];
+
+  return this._open( o )
+  .then( ( octokit ) => issuesGet( octokit, 1 ) )
+  .then( () => result );
+
+  /* */
+
+  function issuesGet( octokit, page )
+  {
+    const con = _.take( null );
+    con.then( () =>
+    {
+      return octokit.rest.issues.listForRepo
+      ({
+        owner : o.remotePath.user,
+        repo : o.remotePath.repo,
+        state : o.state,
+        per_page : 50,
+        page,
+      });
+      return null;
+    });
+    con.then( ( op ) =>
+    {
+      if( op.data.length )
+      {
+        _.arrayAppendArray( result, op.data );
+        return issuesGet( octokit, page + 1 );
+      }
+      else
+      {
+        result = result.filter( ( e ) => !e.pull_request );
+      }
+      return null;
+    });
+    return con;
+  }
+}
+
+repositoryIssuesGetAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  state : null,
+};
+
+//
+
+function repositoryIssuesCreateAct( o )
+{
+  const self = this;
+  _.assert( _.aux.is( o.remotePath ) );
+  _.assert( _.str.defined( o.token ) );
+  _.assert( o.issues !== null );
+
+  o.issues = _.array.as( o.issues );
+
+  return this._open( o )
+  .then( ( octokit ) =>
+  {
+    let ready = _.take( null );
+    for( let i = 0 ; i < o.issues.length ; i++ )
+    ready.then( () => issueCreate( octokit, o.issues[ i ].title, o.issues[ i ].body || null ) );
+    return ready;
+  });
+
+  /* */
+
+  function issueCreate( octokit, title, body )
+  {
+    return octokit.rest.issues.create
+    ({
+      owner : o.remotePath.user,
+      repo : o.remotePath.repo,
+      title,
+      body,
+    });
+  }
+}
+
+repositoryIssuesCreateAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  issues : null,
+};
+
 
 //
 
@@ -413,6 +510,9 @@ const Self =
 
   repositoryInitAct,
   repositoryDeleteAct,
+
+  repositoryIssuesGetAct,
+  repositoryIssuesCreateAct,
 
   pullListAct,
   _pullListResponseNormalize,
