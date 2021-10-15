@@ -327,6 +327,10 @@ function providerForPath( test )
 
 function issuesGet( test )
 {
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  if( !token )
+  return test.true( true );
+
   const a = test.assetFor( 'basic' );
   const repository = 'https://github.com/Learn-Together-Pro/Blockchain.git';
 
@@ -336,7 +340,7 @@ function issuesGet( test )
 
   /* - */
 
-  a.ready.then( () => _.repo.issuesGet({ remotePath : repository }) );
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, token }) );
   a.ready.then( ( issues ) =>
   {
     test.case = 'get all issues, state - default';
@@ -348,7 +352,7 @@ function issuesGet( test )
 
   /* */
 
-  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'all' }) );
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'all', token }) );
   a.ready.then( ( issues ) =>
   {
     test.case = 'get all issues, state - all, as default';
@@ -359,7 +363,7 @@ function issuesGet( test )
 
   /* */
 
-  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'open' }) );
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'open', token }) );
   a.ready.then( ( issues ) =>
   {
     test.case = 'get opened issues';
@@ -371,7 +375,7 @@ function issuesGet( test )
 
   /* */
 
-  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'closed' }) );
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'closed', token }) );
   a.ready.then( ( issues ) =>
   {
     test.case = 'get closed issues';
