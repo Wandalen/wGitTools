@@ -117,29 +117,17 @@ function repositoryIssuesGetAct( o )
   _.assert( _.aux.is( o.remotePath ) );
   _.assert( _.long.leftIndex( [ 'open', 'closed', 'all' ], o.state ) !== -1 );
 
-  return this._open( o )
-  .then( ( octokit ) =>
-  {
-    let page = 1;
-    let result = [];
-    let issuesArray = [];
-    do
-    {
-      issuesArray = issuesGetSync( octokit, page ).data;
-      _.arrayAppendArray( result, issuesArray );
-      page += 1;
-    }
-    while( issuesArray.length > 0 )
+  let result = [];
 
-    result = result.filter( ( e ) => !e.pull_request );
-    return result;
-  });
+  return this._open( o )
+  .then( ( octokit ) => issuesGet( octokit, 1 ) )
+  .then( () => result );
 
   /* */
 
-  function issuesGetSync( octokit, page )
+  function issuesGet( octokit, page )
   {
-    let con = _.take( null );
+    const con = _.take( null );
     con.then( () =>
     {
       return octokit.rest.issues.listForRepo
@@ -152,8 +140,20 @@ function repositoryIssuesGetAct( o )
       });
       return null;
     });
-    con.deasync();
-    return con.sync();
+    con.then( ( op ) =>
+    {
+      if( op.data.length )
+      {
+        _.arrayAppendArray( result, op.data );
+        return issuesGet( octokit, page + 1 );
+      }
+      else
+      {
+        result = result.filter( ( e ) => !e.pull_request );
+      }
+      return null;
+    });
+    return con;
   }
 }
 
