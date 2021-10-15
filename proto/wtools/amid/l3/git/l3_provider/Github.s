@@ -161,6 +161,7 @@ function repositoryIssuesGetAct( o )
 
 repositoryIssuesGetAct.defaults =
 {
+  token : null,
   remotePath : null,
   state : null,
 };
@@ -172,7 +173,7 @@ function repositoryIssuesCreateAct( o )
   const self = this;
   _.assert( _.aux.is( o.remotePath ) );
   _.assert( _.str.defined( o.token ) );
-  _.assert( o.issues );
+  _.assert( o.issues !== null );
 
   o.issues = _.array.as( o.issues );
 
