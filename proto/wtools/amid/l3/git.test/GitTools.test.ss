@@ -17253,7 +17253,7 @@ function repositoryInitRemote( test )
       description : 'Test',
       token,
     });
-  });
+  }).delay( 3000 );
   a.ready.then( ( op ) =>
   {
     test.identical( op, null );
@@ -17281,7 +17281,7 @@ function repositoryInitRemote( test )
       description : 'Test',
       token,
     });
-  });
+  }).delay( 3000 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -17311,7 +17311,7 @@ function repositoryInitRemote( test )
       description : 'Test',
       token,
     });
-  });
+  }).delay( 3000 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -17343,7 +17343,7 @@ function repositoryInitRemote( test )
       description : 'Test',
       token,
     });
-  });
+  }).delay( 3000 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -17361,7 +17361,7 @@ function repositoryInitRemote( test )
 
   function repositoryDelete( remotePath )
   {
-    return a.ready.then( () =>
+    return a.ready.finally( () =>
     {
       return _.git.repositoryDelete
       ({
@@ -17376,7 +17376,7 @@ function repositoryInitRemote( test )
   }
 }
 
-repositoryInitRemote.timeOut = 60000;
+repositoryInitRemote.timeOut = 90000;
 
 //
 
@@ -22491,6 +22491,7 @@ function pushCheckOutput( test )
     mode : 'shell',
     throwingExitCode : 1,
     outputCollecting : 1,
+    sync : 0,
   });
 
   /* - */
@@ -22829,7 +22830,7 @@ function pushCheckOutput( test )
 
   function start()
   {
-    return a.ready.then( () => programShell( 'node ' + _.path.nativize( program.filePath/*programPath*/ ) ) );
+    return a.ready.then( () => programShell( `node ${ _.path.nativize( program.filePath ) }` ) );
   }
 
   /* */
