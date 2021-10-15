@@ -22491,6 +22491,7 @@ function pushCheckOutput( test )
     mode : 'shell',
     throwingExitCode : 1,
     outputCollecting : 1,
+    sync : 0,
   });
 
   /* - */
@@ -22829,7 +22830,7 @@ function pushCheckOutput( test )
 
   function start()
   {
-    return a.ready.then( () => programShell( 'node ' + _.path.nativize( program.filePath/*programPath*/ ) ) );
+    return a.ready.then( () => programShell( `node ${ _.path.nativize( program.filePath ) }` ) );
   }
 
   /* */
