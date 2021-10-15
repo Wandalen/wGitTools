@@ -407,8 +407,7 @@ function issuesCreate( test )
   if( !_.process.insideTestContainer() || trigger === 'pull_request' || !token )
   return test.true( true );
 
-  const user = 'dmvict';
-  // const user = 'wtools-bot';
+  const user = 'wtools-bot';
   const repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
 
   /* - */
@@ -430,6 +429,14 @@ function issuesCreate( test )
     test.identical( op.status, 201 );
     test.identical( op.data.title, 'first' );
     test.identical( op.data.body, 'it\'s issue' );
+    return null;
+  }).delay( 3000 );
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'all', token }) );
+  a.ready.then( ( issues ) =>
+  {
+    test.identical( issues.length, 1 );
+    test.identical( issues[ 0 ].title, 'first' );
+    test.identical( issues[ 0 ].body, 'it\'s issue' );
     return null;
   });
   repositoryDelete( repository );
@@ -459,6 +466,16 @@ function issuesCreate( test )
     test.identical( op.data.title, 'second' );
     test.identical( op.data.body, 'it\'s issue' );
     return null;
+  }).delay( 3000 );
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'all', token }) );
+  a.ready.then( ( issues ) =>
+  {
+    test.identical( issues.length, 2 );
+    test.identical( issues[ 0 ].title, 'second' );
+    test.identical( issues[ 0 ].body, 'it\'s issue' );
+    test.identical( issues[ 1 ].title, 'first' );
+    test.identical( issues[ 1 ].body, 'it\'s issue' );
+    return null;
   });
   repositoryDelete( repository );
 
@@ -483,6 +500,14 @@ function issuesCreate( test )
     test.identical( op.status, 201 );
     test.identical( op.data.title, 'first' );
     test.identical( op.data.body, 'it\'s issue' );
+    return null;
+  }).delay( 3000 );
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'all', token }) );
+  a.ready.then( ( issues ) =>
+  {
+    test.identical( issues.length, 1 );
+    test.identical( issues[ 0 ].title, 'first' );
+    test.identical( issues[ 0 ].body, 'it\'s issue' );
     return null;
   });
   repositoryDelete( repository );
@@ -513,6 +538,16 @@ function issuesCreate( test )
     test.identical( op.status, 201 );
     test.identical( op.data.title, 'second' );
     test.identical( op.data.body, 'it\'s issue' );
+    return null;
+  }).delay( 3000 );
+  a.ready.then( () => _.repo.issuesGet({ remotePath : repository, state : 'all', token }) );
+  a.ready.then( ( issues ) =>
+  {
+    test.identical( issues.length, 2 );
+    test.identical( issues[ 0 ].title, 'second' );
+    test.identical( issues[ 0 ].body, 'it\'s issue' );
+    test.identical( issues[ 1 ].title, 'first' );
+    test.identical( issues[ 1 ].body, 'it\'s issue' );
     return null;
   });
   repositoryDelete( repository );
@@ -560,7 +595,7 @@ function issuesCreate( test )
   }
 }
 
-issuesCreate.timeOut = 60000;
+issuesCreate.timeOut = 90000;
 
 //
 
