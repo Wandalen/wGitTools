@@ -343,6 +343,7 @@ function issuesGet( o )
 issuesGet.defaults =
 {
   remotePath : null,
+  token : null,
   state : 'all',
   sync : 0,
 };
@@ -351,9 +352,15 @@ issuesGet.defaults =
 
 function issuesCreate( o )
 {
+  let localProvider = _.fileProvider;
+  let path = localProvider.path;
   _.routine.options( issuesCreate, o );
   _.assert( _.str.is( o.remotePath ) || _.aux.is( o.remotePath ) );
   _.assert( _.str.defined( o.token ), 'Expects token {-o.token-}' );
+
+  if( _.str.is( o.issues ) )
+  o.issues = localProvider.fileReadUnknown( path.join( path.current(), o.issues ) );
+  _.assert( _.array.is( o.issues ) || _.aux.is( o.issues ) );
 
   o.remotePath = _.git.path.normalize( o.remotePath );
   const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });

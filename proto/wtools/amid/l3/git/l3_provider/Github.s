@@ -117,8 +117,6 @@ function repositoryIssuesGetAct( o )
   _.assert( _.aux.is( o.remotePath ) );
   _.assert( _.long.leftIndex( [ 'open', 'closed', 'all' ], o.state ) !== -1 );
 
-  o.token = null;
-
   return this._open( o )
   .then( ( octokit ) =>
   {
