@@ -4311,8 +4311,12 @@ function repositoryDelete( o )
     parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
   }
 
-  ready.then( () => remove() )
-  .finally( ( err, arg ) =>
+  if( o.local )
+  ready.then( () => removeLocal() );
+  if( o.remote )
+  ready.then( () => removeRemote() );
+
+  ready.finally( ( err, arg ) =>
   {
     if( err )
     {
@@ -4333,48 +4337,23 @@ function repositoryDelete( o )
 
   /* */
 
-  function remove()
+  function removeRemote()
   {
-    if( parsed.service === 'github.com' )
-    return removeGithub();
-    if( o.throwing )
-    throw _.err( `Can't remove remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-    return null;
+    _.assert( false, 'not implemented' );
   }
 
   /* */
 
-  function removeGithub()
+  function removeRemote()
   {
-    if( !o.token )
-    {
-      if( o.throwing )
-      throw _.err( 'Requires an access token to create a repository on github.com' );
-      return null;
-    }
-
-    if( o.logger && o.logger.verbosity > 0 )
-    o.logger.log( `Removing remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-
-    if( o.dry )
-    return true;
-
-    const provider = _.repo.providerForPath({ remotePath : o.remotePath });
-    let o2 = _.props.extend( null, o );
-    o2.remotePath = parsed;
+    let o2 = _.mapOnly_( null, o, _.repo.repositoryDelete.defaults );
     return _.retry
     ({
-      routine : () => provider.repositoryDeleteAct( o2 ),
+      routine : () => _.repo.repositoryDelete( o2 ),
       attemptLimit : o.attemptLimit,
       attemptDelay : o.attemptDelay,
       attemptDelayMultiplier : o.attemptDelayMultiplier,
       defaults : _.remote.attemptDefaults,
-    })
-    .finally( ( err, arg ) =>
-    {
-      if( err )
-      throw _.err( `Error code : ${ err.status }. ${ err.message }` );
-      return arg || null;
     });
   }
 }
@@ -4382,6 +4361,9 @@ function repositoryDelete( o )
 repositoryDelete.defaults =
 {
   remotePath : null,
+  localPath : null,
+  local : 0,
+  remote : 1,
   token : null,
   throwing : 1,
   sync : 0,
