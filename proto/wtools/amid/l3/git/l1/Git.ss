@@ -4031,11 +4031,8 @@ function repositoryInit( o )
 
   if( o.remotePath )
   {
-    // o.remotePath = self.remotePathNormalize( o.remotePath );
-    // nativeRemotePath = self.remotePathNativize( o.remotePath );
     o.remotePath = nativeRemotePath = _.git.path.nativize( o.remotePath );
 
-    // parsed = self.objectsParse( o.remotePath );
     parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
     remoteExists = self.isRepository({ remotePath : o.remotePath, sync : 1 });
   }
@@ -4056,29 +4053,18 @@ function repositoryInit( o )
     currentPath : o.localPath,
   });
 
-  ready
-  .then( () =>
-  {
-    if( !o.remote )
-    return null;
-    if( remoteExists )
-    return null;
-    return remoteInit();
-  })
-  .then( () =>
-  {
-    if( !o.local )
-    return null;
-    return localInit();
-  })
-  .finally( ( err, arg ) =>
+  if( o.remote && !remoteExists )
+  ready.then( () => remoteInit() );
+  if( o.local )
+  ready.then( () => localInit() );
+
+  ready.finally( ( err, arg ) =>
   {
     if( err )
     {
+      _.error.attend( err );
       if( o.throwing )
       throw _.err( err, `\nFailed to init git repository remotePath:${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-
-      _.errAttend( err );
       return null;
     }
     return arg;
@@ -4094,58 +4080,16 @@ function repositoryInit( o )
 
   /* */
 
-  function repositoryInitOnGithub()
-  {
-    if( !o.token )
-    {
-      if( o.throwing )
-      throw _.err( 'Requires an access token to create a repository on github.com' );
-      return null;
-    }
-    let ready = _.take( null );
-    ready
-    .then( () =>
-    {
-
-      if( o.logger && o.logger.verbosity > 0 )
-      o.logger.log( `Making remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-
-      if( o.dry )
-      return true;
-
-      const provider = _.repo.providerForPath({ remotePath : o.remotePath });
-
-      let o2 = _.props.extend( null, o );
-      o2.remotePath = parsed;
-      return provider.repositoryInitAct( o2 ); /* xxx : think how to refactor or reorganize it */
-
-      // let github = require( 'octonode' );
-      // let client = github.client( o.token );
-      // let me = client.me();
-      //
-      // return me.repoAsync
-      // ({
-      //   'name' : parsed.repo,
-      //   'description' : o.description || '',
-      // });
-    })
-    .then( ( result ) =>
-    {
-      return result || null;
-      // return result[ 0 ] || null;
-    });
-    return ready;
-  }
-
-  /* */
-
   function remoteInit()
   {
-    if( parsed.service === 'github.com' )
-    return repositoryInitOnGithub();
-    if( o.throwing )
-    throw _.err( `Cant init remote repository, because not clear what service to use for ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
-    return null;
+    if( o.logger && o.logger.verbosity > 0 )
+    o.logger.log( `Making remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+
+    if( o.dry )
+    return true;
+
+    const o2 = _.mapOnly_( null, o, _.repo.repositoryInit.defaults );
+    return _.repo.repositoryInit( o2 )
   }
 
   /* */
@@ -4153,13 +4097,11 @@ function repositoryInit( o )
   function localInit()
   {
     _.assert( _.git.path.is( o.localPath ) && !_.git.path.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
-    // _.assert( _.uri.is( o.localPath ) && !_.uri.isGlobal( o.localPath ), () => `Expects local path, but got ${_.color.strFormat( String( o.localPath ), 'path' )}` );
 
     o.localPath = _.git.path.canonize( o.localPath );
-    // o.localPath = _.path.canonize( o.localPath );
 
     if( _.fileProvider.fileExists( o.localPath ) && !_.fileProvider.isDir( o.localPath ) )
-    throw _.err( `Cant clone repository to ${_.color.strFormat( String( o.localPath ), 'path' )}. It is occupied by non-directory.` );
+    throw _.err( `Can't clone repository to ${_.color.strFormat( String( o.localPath ), 'path' )}. It is occupied by non-directory.` );
 
     if( o.remotePath && remoteExists )
     {
@@ -4209,8 +4151,6 @@ function repositoryInit( o )
     o.logger.log( `Adding origin ${_.color.strFormat( String( o.remotePath ), 'path' )} to local repository ${_.color.strFormat( String( o.localPath ), 'path' )}` );
     if( o.dry )
     return null;
-    // if( _.git.remotePathFromLocal( o.localPath ) )
-    // start( `git remote rm origin` );
     return start( `git remote add origin ${nativeRemotePath}` );
   }
 
@@ -4233,7 +4173,6 @@ function repositoryInit( o )
     if( _.fileProvider.isDir( o.localPath ) )
     {
       downloadPath = _.git.path.join( o.localPath + '-' + _.idWithGuid() );
-      // downloadPath = _.path.join( o.localPath + '-' + _.idWithGuid() );
     }
 
     _.fileProvider.dirMake( downloadPath );
@@ -4311,6 +4250,11 @@ function repositoryDelete( o )
     parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
   }
 
+  if( o.remote === null )
+  o.remote = !!o.remotePath;
+  if( o.local === null )
+  o.local = !!o.localPath;
+
   if( o.local )
   ready.then( () => removeLocal() );
   if( o.remote )
@@ -4346,6 +4290,12 @@ function repositoryDelete( o )
 
   function removeRemote()
   {
+    if( o.logger && o.logger.verbosity > 0 )
+    o.logger.log( `Deleting remote repository ${_.color.strFormat( String( o.remotePath ), 'path' )}` );
+
+    if( o.dry )
+    return true;
+
     let o2 = _.mapOnly_( null, o, _.repo.repositoryDelete.defaults );
     return _.retry
     ({
@@ -4362,8 +4312,8 @@ repositoryDelete.defaults =
 {
   remotePath : null,
   localPath : null,
-  local : 0,
-  remote : 1,
+  local : null,
+  remote : null,
   token : null,
   throwing : 1,
   sync : 0,
