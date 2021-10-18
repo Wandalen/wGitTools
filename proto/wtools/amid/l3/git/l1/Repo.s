@@ -821,11 +821,58 @@ releaseDelete.defaults =
 // repository
 // --
 
+function repositoryInit( o )
+{
+  _.routine.options_( repositoryInit, o );
+  _.assert( _.str.is( o.remotePath ) || _.aux.is( o.remotePath ) );
+  _.sure( _.str.defined( o.token ), 'An access token is required to create a repository.' );
+
+  /* */
+
+  o.remotePath = _.git.path.normalize( o.remotePath );
+  const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
+
+  const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+  const o2 = _.props.extend( null, o );
+  o2.remotePath = parsed;
+
+  const ready = provider.repositoryInitAct( o2 );
+  ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    {
+      _.error.attend( err );
+      if( o.throwing )
+      throw _.err( `Error code : ${ err.status }. ${ err.message }` );
+    }
+    return arg || false;
+  });
+
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
+
+  return ready;
+}
+
+repositoryInit.defaults =
+{
+  remotePath : null,
+  token : null,
+  description : null,
+  throwing : 1,
+  sync : 0,
+};
+
+//
+
 function repositoryDelete( o )
 {
   _.routine.options_( repositoryDelete, o );
   _.assert( _.str.is( o.remotePath ) || _.aux.is( o.remotePath ) );
-  _.sure( _.str.defined( o.token ), 'An access token is required to create a repository.' );
+  _.sure( _.str.defined( o.token ), 'An access token is required to delete the repository.' );
 
   /* */
 
@@ -1025,6 +1072,7 @@ let Extension =
 
   // repository
 
+  repositoryInit,
   repositoryDelete,
 
   // program
