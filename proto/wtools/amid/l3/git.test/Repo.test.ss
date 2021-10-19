@@ -1359,6 +1359,183 @@ releaseDeleteOnRemote.timeOut = 60000;
 
 //
 
+function repositoryInit( test )
+{
+  const a = test.assetFor( 'basic' );
+
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
+  if( !_.process.insideTestContainer() || trigger === 'pull_request' || !token )
+  return test.true( true );
+
+  const user = 'wtools-bot';
+  const repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'create remote repository, without description';
+    a.reflect();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.repo.repositoryInit
+    ({
+      remotePath : repository,
+      token,
+      throwing : 1,
+    });
+  }).delay( 3000 );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.status, 201 );
+    test.true( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'create remote repository, with description';
+    a.reflect();
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.repo.repositoryInit
+    ({
+      remotePath : repository,
+      description : 'Test',
+      token,
+      throwing : 1,
+    });
+  }).delay( 3000 );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.status, 201 );
+    test.true( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+  repositoryDelete( repository );
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function repositoryDelete( remotePath )
+  {
+    return a.ready.finally( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath,
+        throwing : 0,
+        logger : 1,
+        dry : 0,
+        token,
+        attemptDelayMultiplier : 4,
+      });
+    });
+  }
+}
+
+repositoryInit.timeOut = 90000;
+
+
+//
+
+function repositoryDelete( test )
+{
+  const a = test.assetFor( 'basic' );
+
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  const trigger = __.test.workflowTriggerGet( a.abs( __dirname, '../../../..' ) );
+  if( !_.process.insideTestContainer() || trigger === 'pull_request' || !token )
+  return test.true( true );
+
+  const user = 'wtools-bot';
+  const repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'delete remote repository';
+    a.reflect();
+    return null;
+  });
+  repositoryForm();
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output, '' );
+    test.true( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    return _.repo.repositoryDelete
+    ({
+      remotePath : repository,
+      throwing : 1,
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.data, undefined );
+    test.identical( op.status, 204 );
+    test.false( _.git.isRepository({ remotePath : repository }) );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function repositoryForm()
+  {
+    a.ready.then( () =>
+    {
+      return _.git.repositoryDelete
+      ({
+        remotePath : repository,
+        throwing : 0,
+        logger : 1,
+        dry : 0,
+        token,
+        attemptDelayMultiplier : 4,
+      });
+    });
+    a.ready.then( () =>
+    {
+      return _.git.repositoryInit
+      ({
+        remotePath : repository,
+        localPath : a.routinePath,
+        throwing : 1,
+        logger : 0,
+        dry : 0,
+        description : 'Test',
+        token,
+      });
+    });
+    return a.ready;
+  }
+}
+
+repositoryDelete.timeOut = 30000;
+
+//
+
 function vcsFor( test )
 {
   test.case = 'not known protocol';
@@ -1507,6 +1684,9 @@ const Proto =
 
     releaseMakeOnRemote,
     releaseDeleteOnRemote,
+
+    repositoryInit,
+    repositoryDelete,
 
     vcsFor,
   },
