@@ -416,7 +416,7 @@ function issuesCreate( test )
 
   /* - */
 
-  repositoryInit( repository );
+  repositoryInit( repository ).delay( 3000 );
   a.ready.then( () =>
   {
     test.case = 'issue - map';
@@ -443,11 +443,11 @@ function issuesCreate( test )
     test.identical( issues[ 0 ].body, 'it\'s issue' );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
-  repositoryInit( repository );
+  repositoryInit( repository ).delay( 3000 );
   a.ready.then( () =>
   {
     test.case = 'issue - array';
@@ -481,11 +481,11 @@ function issuesCreate( test )
     test.identical( issues[ 1 ].body, 'it\'s issue' );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
-  repositoryInit( repository );
+  repositoryInit( repository ).delay( 3000 );
   a.ready.then( () =>
   {
     test.case = 'issue - single map in file';
@@ -514,11 +514,11 @@ function issuesCreate( test )
     test.identical( issues[ 0 ].body, 'it\'s issue' );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
-  repositoryInit( repository );
+  repositoryInit( repository ).delay( 3000 );
   a.ready.then( () =>
   {
     test.case = 'issue - array';
@@ -554,7 +554,7 @@ function issuesCreate( test )
     test.identical( issues[ 1 ].body, 'it\'s issue' );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* - */
 
@@ -599,7 +599,7 @@ function issuesCreate( test )
   }
 }
 
-issuesCreate.timeOut = 90000;
+issuesCreate.timeOut = 120000;
 
 //
 
