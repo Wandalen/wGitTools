@@ -866,14 +866,14 @@ function pullOpen( test )
   test.case = 'wrong git service';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.pullOpen
+    _.repo.pullOpen
     ({
       throwing : 1,
       sync : 1,
       token : 'token',
       remotePath : 'https://gitlab.com/user/NewRepo',
-      title : 'master',
-      body : null,
+      descriptionHead : 'master',
+      descriptionBody : null,
       srcBranch : 'doc',
       dstBranch : 'master',
     });
@@ -882,23 +882,23 @@ function pullOpen( test )
   test.case = 'wrong token';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.pullOpen
+    _.repo.pullOpen
     ({
       throwing : 1,
       sync : 1,
       token : 'token',
       remotePath : 'https://github.com/user/NewRepo',
-      title : 'master',
-      body : null,
+      descriptionHead : 'master',
+      descriptionBody : null,
       srcBranch : 'doc',
       dstBranch : 'master',
     });
   })
 
-  test.case = 'without fields title, srcBranch';
+  test.case = 'without fields descriptionHead, srcBranch';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.pullOpen
+    _.repo.pullOpen
     ({
       sync : 1,
       token : 'token',
@@ -910,11 +910,11 @@ function pullOpen( test )
   test.case = 'without token';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.pullOpen
+    _.repo.pullOpen
     ({
       remotePath : 'https://github.com/user/NewRepo',
-      title : 'master',
-      body : null,
+      descriptionHead : 'master',
+      descriptionBody : null,
       srcBranch : 'doc',
       dstBranch : 'master',
     });
