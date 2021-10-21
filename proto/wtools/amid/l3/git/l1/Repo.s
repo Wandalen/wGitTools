@@ -857,6 +857,17 @@ repositoryInit.defaults =
 
 //
 
+const repositoryDeleteAct = Object.create( null );
+
+repositoryDeleteAct.name = 'repositoryDeleteAct';
+repositoryDeleteAct.defaults =
+{
+  token : null,
+  remotePath : null,
+};
+
+//
+
 function repositoryDelete( o )
 {
   _.routine.options_( repositoryDelete, o );
@@ -897,8 +908,7 @@ function repositoryDelete( o )
 
 repositoryDelete.defaults =
 {
-  remotePath : null,
-  token : null,
+  ... repositoryDeleteAct.defaults,
   throwing : 1,
   sync : 0,
 };
@@ -1065,6 +1075,7 @@ let Extension =
 
   repositoryInitAct,
   repositoryInit,
+  repositoryDeleteAct,
   repositoryDelete,
 
   // program

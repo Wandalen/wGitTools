@@ -102,8 +102,7 @@ function repositoryDeleteAct( o )
 
 repositoryDeleteAct.defaults =
 {
-  token : null,
-  remotePath : null,
+  ... Parent.repositoryDeleteAct.defaults,
 };
 
 //
