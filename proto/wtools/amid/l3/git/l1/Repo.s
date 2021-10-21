@@ -350,6 +350,19 @@ issuesGet.defaults =
 
 //
 
+
+let repositoryIssuesCreateAct = Object.create( null );
+
+repositoryIssuesCreateAct.name = 'repositoryIssuesCreateAct';
+repositoryIssuesCreateAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  issues : null,
+};
+
+//
+
 function issuesCreate( o )
 {
   let localProvider = _.fileProvider;
@@ -388,9 +401,7 @@ function issuesCreate( o )
 
 issuesCreate.defaults =
 {
-  remotePath : null,
-  token : null,
-  issues : null,
+  ... repositoryIssuesCreateAct.defaults,
   sync : 0,
 };
 
@@ -1007,6 +1018,7 @@ let Extension =
   // issue
 
   issuesGet,
+  repositoryIssuesCreateAct,
   issuesCreate,
 
   // pr

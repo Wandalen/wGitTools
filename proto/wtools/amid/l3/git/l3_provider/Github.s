@@ -200,9 +200,7 @@ function repositoryIssuesCreateAct( o )
 
 repositoryIssuesCreateAct.defaults =
 {
-  token : null,
-  remotePath : null,
-  issues : null,
+  ... Parent.repositoryIssuesCreateAct.defaults,
 };
 
 
@@ -239,7 +237,7 @@ function pullListAct( o )
 pullListAct.defaults =
 {
   ... Parent.pullListAct.defaults,
-}
+};
 
 //
 
