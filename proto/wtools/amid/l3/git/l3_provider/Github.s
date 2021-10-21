@@ -78,9 +78,7 @@ function repositoryInitAct( o )
 
 repositoryInitAct.defaults =
 {
-  token : null,
-  remotePath : null,
-  description : null,
+  ... Parent.repositoryInitAct.defaults,
 };
 
 //

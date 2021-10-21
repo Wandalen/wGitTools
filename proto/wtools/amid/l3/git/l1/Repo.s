@@ -800,6 +800,18 @@ releaseDelete.defaults =
 // repository
 // --
 
+const repositoryInitAct = Object.create( null );
+
+repositoryInitAct.name = 'repositoryInitAct';
+repositoryInitAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  description : null,
+};
+
+//
+
 function repositoryInit( o )
 {
   _.routine.options_( repositoryInit, o );
@@ -838,9 +850,7 @@ function repositoryInit( o )
 
 repositoryInit.defaults =
 {
-  remotePath : null,
-  token : null,
-  description : null,
+  ... repositoryInitAct.defaults,
   throwing : 1,
   sync : 0,
 };
@@ -1053,6 +1063,7 @@ let Extension =
 
   // repository
 
+  repositoryInitAct,
   repositoryInit,
   repositoryDelete,
 
