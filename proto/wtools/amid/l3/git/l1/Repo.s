@@ -720,28 +720,19 @@ releaseDeleteAct.defaults =
 
 function releaseDelete( o )
 {
-  let ready = _.take( null );
-  let currentBranch;
-
+  _.assert( arguments.length === 1 );
   _.routine.options( releaseDelete, o );
-  o.logger = _.logger.maybe( o.logger );
-
+  _.sure( _.str.defined( o.token ), 'Expects token {-o.token-}.' );
+  _.assert( _.str.defined( o.remotePath ) );
   _.assert( _.str.defined( o.localPath ), 'Expects local path {-o.localPath-}.' );
 
-  if( !o.token && o.throwing )
-  throw _.errBrief( 'Cannot autorize user without user token.' )
+  const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+  const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+  const o2 = _.props.extend( null, o );
+  o2.remotePath = parsed;
 
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
-
-  ready.then( () =>
-  {
-    if( parsed.service === 'github.com' )
-    return _releaseDelete();
-    if( o.throwing )
-    throw _.err( 'Unknown service' );
-    return null;
-  })
-  .then( ( arg ) =>
+  const ready = provider.releaseDeleteAct( o2 );
+  ready.then( ( arg ) =>
   {
     _.git.tagDeleteTag
     ({
@@ -758,12 +749,11 @@ function releaseDelete( o )
   {
     if( err )
     {
+      _.errAttend( err );
       if( o.throwing )
       throw _.err( err, '\nFailed to delete release.' );
-      _.errAttend( err );
-      return null;
     }
-    return arg;
+    return arg || false;
   });
 
   if( o.sync )
@@ -773,17 +763,6 @@ function releaseDelete( o )
   }
 
   return ready;
-
-  /* */
-
-  function _releaseDelete()
-  {
-    const provider = _.repo.providerForPath({ remotePath : o.remotePath });
-    let o2 = _.props.extend( null, o );
-    _.map.supplement( o2, _.repo.releaseDeleteAct.defaults );
-    o2.remotePath = parsed;
-    return provider.releaseDeleteAct( o2 );
-  }
 }
 
 releaseDelete.defaults =
