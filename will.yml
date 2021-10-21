@@ -309,6 +309,9 @@ submodule:
   wremote:
     path: 'npm:///wremote'
     enabled: 0
+  wgitpath:
+    path: 'npm:///wgitpath'
+    enabled: 0
   ini:
     path: 'npm:///ini#2.0.0'
     enabled: 0
