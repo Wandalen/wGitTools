@@ -159,9 +159,7 @@ function repositoryIssuesGetAct( o )
 
 repositoryIssuesGetAct.defaults =
 {
-  token : null,
-  remotePath : null,
-  state : null,
+  ... Parent.repositoryIssuesGetAct.defaults,
 };
 
 //

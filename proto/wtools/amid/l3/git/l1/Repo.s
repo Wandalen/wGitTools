@@ -311,11 +311,24 @@ providerAmend.defaults =
 
 //
 
+const repositoryIssuesGetAct = Object.create( null );
+
+repositoryIssuesGetAct.name = 'repositoryIssuesGetAct';
+repositoryIssuesGetAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  state : null,
+};
+
+//
+
 function issuesGet( o )
 {
   _.routine.options( issuesGet, o );
   _.assert( _.str.is( o.remotePath ) || _.aux.is( o.remotePath ) );
 
+  o.state = o.state || 'all';
   o.remotePath = _.git.path.normalize( o.remotePath );
   const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
 
@@ -342,16 +355,13 @@ function issuesGet( o )
 
 issuesGet.defaults =
 {
-  remotePath : null,
-  token : null,
-  state : 'all',
+  ... repositoryIssuesGetAct.defaults,
   sync : 0,
 };
 
 //
 
-
-let repositoryIssuesCreateAct = Object.create( null );
+const repositoryIssuesCreateAct = Object.create( null );
 
 repositoryIssuesCreateAct.name = 'repositoryIssuesCreateAct';
 repositoryIssuesCreateAct.defaults =
@@ -1017,6 +1027,7 @@ let Extension =
 
   // issue
 
+  repositoryIssuesGetAct,
   issuesGet,
   repositoryIssuesCreateAct,
   issuesCreate,
