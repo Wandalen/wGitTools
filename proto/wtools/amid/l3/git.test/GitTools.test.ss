@@ -19222,7 +19222,7 @@ function configResetWithOptionWithGlobal( test )
   }
 }
 
-configResetWithOptionWithGlobal.timeOut = 15000;
+configResetWithOptionWithGlobal.timeOut = 30000;
 
 //
 
