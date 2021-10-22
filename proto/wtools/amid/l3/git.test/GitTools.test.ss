@@ -26044,7 +26044,7 @@ function renormalize( test )
 
 }
 
-renormalize.timeOut = 30000;
+renormalize.timeOut = 60000;
 
 //
 
