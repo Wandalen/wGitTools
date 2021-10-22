@@ -3,8 +3,8 @@ root:
   - wGitTools.out
 consistency:
   ../will.yml: &ref_0
-    hash: 713f54f38e4c15c46fbb66fc2fa29352
-    size: 6883
+    hash: b04bcdce0d48c0e1357d375a417307a3
+    size: 6938
 module:
   wGitTools.out:
     about:
@@ -167,7 +167,6 @@ module:
           - ../proto/wtools/amid/l3/git/l1
           - ../proto/wtools/amid/l3/git/l1/Git.ss
           - ../proto/wtools/amid/l3/git/l1/Md.s
-          - ../proto/wtools/amid/l3/git/l1/Path.ss
           - ../proto/wtools/amid/l3/git/l1/Repo.s
           - ../proto/wtools/amid/l3/git/l3_provider
           - ../proto/wtools/amid/l3/git/l3_provider/Git.s
@@ -178,7 +177,6 @@ module:
           - ../proto/wtools/amid/l3/git.test
           - ../proto/wtools/amid/l3/git.test/GitTools.test.ss
           - ../proto/wtools/amid/l3/git.test/Md.test.s
-          - ../proto/wtools/amid/l3/git.test/Path.test.ss
           - ../proto/wtools/amid/l3/git.test/Repo.test.ss
           - ../proto/wtools/amid/l3/git.test/_asset
           - ../proto/wtools/amid/l3/git.test/_asset/basic
@@ -211,6 +209,10 @@ module:
         enabled: 0
       wremote:
         path: 'npm:///wremote'
+        autoExporting: 0
+        enabled: 0
+      wgitpath:
+        path: 'npm:///wgitpath'
         autoExporting: 0
         enabled: 0
       ini:
@@ -981,6 +983,10 @@ module:
         path: 'npm:///wremote'
         autoExporting: 0
         enabled: 0
+      wgitpath:
+        path: 'npm:///wgitpath'
+        autoExporting: 0
+        enabled: 0
       ini:
         path: 'npm:///ini#2.0.0'
         autoExporting: 0
@@ -1533,5 +1539,5 @@ module:
           - 'build::npm'
     consistency:
       ../will.yml:
-        hash: 713f54f38e4c15c46fbb66fc2fa29352
-        size: 6883
+        hash: b04bcdce0d48c0e1357d375a417307a3
+        size: 6938
