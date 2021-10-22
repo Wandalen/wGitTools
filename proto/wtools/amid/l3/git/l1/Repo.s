@@ -38,7 +38,7 @@ function _request_functor( fo )
     let o = args[ 0 ];
     if( _.strIs( o ) )
     o = { remotePath : o };
-    o = _.routine.options( request, o );
+    _.routine.options( request, o );
     _.assert( args.length === 1 );
     return o;
   }
@@ -135,7 +135,7 @@ function _collectionExportString_functor( fo )
   {
     _.assert( 1 <= args.length && args.length <= 2 );
     let o = args[ 1 ];
-    o = _.routine.options( routine, o );
+    _.routine.options( routine, o );
     o.it = o.it || _.props.extend( null, routine.itDefaults );
     return _.unroll.from([ args[ 0 ], o ]);
   }
@@ -311,11 +311,24 @@ providerAmend.defaults =
 
 //
 
+const repositoryIssuesGetAct = Object.create( null );
+
+repositoryIssuesGetAct.name = 'repositoryIssuesGetAct';
+repositoryIssuesGetAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  state : null,
+};
+
+//
+
 function issuesGet( o )
 {
   _.routine.options( issuesGet, o );
   _.assert( _.str.is( o.remotePath ) || _.aux.is( o.remotePath ) );
 
+  o.state = o.state || 'all';
   o.remotePath = _.git.path.normalize( o.remotePath );
   const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 0, atomic : 0, objects : 1 });
 
@@ -342,10 +355,20 @@ function issuesGet( o )
 
 issuesGet.defaults =
 {
-  remotePath : null,
-  token : null,
-  state : 'all',
+  ... repositoryIssuesGetAct.defaults,
   sync : 0,
+};
+
+//
+
+const repositoryIssuesCreateAct = Object.create( null );
+
+repositoryIssuesCreateAct.name = 'repositoryIssuesCreateAct';
+repositoryIssuesCreateAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  issues : null,
 };
 
 //
@@ -388,9 +411,7 @@ function issuesCreate( o )
 
 issuesCreate.defaults =
 {
-  remotePath : null,
-  token : null,
-  issues : null,
+  ... repositoryIssuesCreateAct.defaults,
   sync : 0,
 };
 
@@ -490,13 +511,12 @@ pullOpenAct.defaults =
 
 function pullOpen( o )
 {
-  let ready = _.take( null );
-  // let ready2 = new _.Consequence();
-  let currentBranch;
+  _.assert( arguments.length === 1 );
+  _.routine.options( pullOpen, o );
+  _.sure( _.str.defined( o.token ), 'Expects token {-o.token-}.' );
+  _.assert( _.str.defined( o.remotePath ) );
+  _.assert( _.str.is( o.srcBranch ) || _.str.is( o.dstBranch ), 'Expects either {-o.srcBranch-} or {-o.dstBranch-}.' );
 
-  if( _.strIs( o ) )
-  o = { remotePath : o };
-  o = _.routine.options( pullOpen, o );
   o.logger = _.logger.maybe( o.logger );
 
   if( o.srcBranch === null )
@@ -504,30 +524,22 @@ function pullOpen( o )
   if( o.dstBranch === null )
   o.dstBranch = currentBranchGet();
 
-  if( !o.token && o.throwing )
-  throw _.errBrief( 'Cannot autorize user without user token.' )
+  const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
 
-  // let parsed = this.objectsParse( o.remotePath );
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+  const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+  const o2 = _.props.extend( null, o );
+  o2.remotePath = parsed;
 
-  ready.then( () =>
-  {
-    if( parsed.service === 'github.com' )
-    return pullOpenOnRemoteServer();
-    if( o.throwing )
-    throw _.err( 'Unknown service' );
-    return null;
-  })
-  .finally( ( err, pr ) =>
+  const ready = provider.pullOpenAct( o2 );
+  ready.finally( ( err, pr ) =>
   {
     if( err )
     {
+      _.errAttend( err );
       if( o.throwing )
       throw _.err( err, '\nFailed to open pull request' );
-      _.errAttend( err );
-      return null;
     }
-    return pr;
+    return pr || false;
   });
 
   if( o.sync )
@@ -542,9 +554,6 @@ function pullOpen( o )
 
   function currentBranchGet()
   {
-    if( currentBranch )
-    return currentBranch;
-
     _.assert( _.strDefined( o.localPath ), 'Expects local path {-o.localPath-}' );
 
     let tag = _.git.tagLocalRetrive
@@ -554,20 +563,9 @@ function pullOpen( o )
     });
 
     if( tag.isBranch )
-    currentBranch = tag.tag;
+    return tag.tag;
     else
-    currentBranch = 'master';
-    return currentBranch;
-  }
-
-  /* */
-
-  function pullOpenOnRemoteServer()
-  {
-    const provider = _.repo.providerForPath({ remotePath : o.remotePath });
-    let o2 = _.props.extend( null, o );
-    o2.remotePath = parsed;
-    return provider.pullOpenAct( o2 ); /* xxx : think how to refactor or reorganize it */
+    return 'master';
   }
 
   // /* aaa : for Dmytro : move out to github provider */ /* Dmytro : moved to provider */
@@ -654,45 +652,37 @@ releaseMakeAct.defaults =
 
 function releaseMake( o )
 {
-  let ready = _.take( null );
-  let currentBranch;
+  _.assert( arguments.length === 1 );
+  _.routine.options( releaseMake, o );
+  _.sure( _.str.defined( o.token ), 'Expects token {-o.token-}.' );
+  _.assert( _.str.defined( o.remotePath ) );
 
-  if( _.strIs( o ) )
-  o = { remotePath : o };
-  o = _.routine.options( releaseMake, o );
-  o.logger = _.logger.maybe( o.logger );
+  const ready = _.take( null );
+  const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
 
-  if( !o.token && o.throwing )
-  throw _.errBrief( 'Cannot autorize user without user token.' )
-
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+  if( o.force )
+  {
+    let o2 = _.mapOnly_( null, o, _.repo.releaseDelete.defaults );
+    o2.throwing = 0;
+    ready.then( () => _.repo.releaseDelete( o2 ) );
+  };
 
   ready.then( () =>
   {
-    if( o.force )
-    {
-      let o2 = _.mapOnly_( null, o, _.repo.releaseDelete.defaults );
-      o2.sync = 1;
-      o2.throwing = 0;
-      _.repo.releaseDelete( o2 );
-    }
-
-    if( parsed.service === 'github.com' )
-    return _releaseMake();
-    if( o.throwing )
-    throw _.err( 'Unknown service' );
-    return null;
-  })
-  .finally( ( err, arg ) =>
+    const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+    let o2 = _.props.extend( null, o );
+    o2.remotePath = parsed;
+    return provider.releaseMakeAct( o2 );
+  });
+  ready.finally( ( err, arg ) =>
   {
     if( err )
     {
+      _.errAttend( err );
       if( o.throwing )
       throw _.err( err, '\nFailed to create release.' );
-      _.errAttend( err );
-      return null;
     }
-    return arg;
+    return arg || false;
   });
 
   if( o.sync )
@@ -702,17 +692,6 @@ function releaseMake( o )
   }
 
   return ready;
-
-  /* */
-
-  function _releaseMake()
-  {
-    const provider = _.repo.providerForPath({ remotePath : o.remotePath });
-    let o2 = _.props.extend( null, o );
-    _.map.supplement( o2, _.repo.releaseMakeAct.defaults );
-    o2.remotePath = parsed;
-    return provider.releaseMakeAct( o2 );
-  }
 }
 
 releaseMake.defaults =
@@ -741,28 +720,19 @@ releaseDeleteAct.defaults =
 
 function releaseDelete( o )
 {
-  let ready = _.take( null );
-  let currentBranch;
-
-  o = _.routine.options( releaseDelete, o );
-  o.logger = _.logger.maybe( o.logger );
-
+  _.assert( arguments.length === 1 );
+  _.routine.options( releaseDelete, o );
+  _.sure( _.str.defined( o.token ), 'Expects token {-o.token-}.' );
+  _.assert( _.str.defined( o.remotePath ) );
   _.assert( _.str.defined( o.localPath ), 'Expects local path {-o.localPath-}.' );
 
-  if( !o.token && o.throwing )
-  throw _.errBrief( 'Cannot autorize user without user token.' )
+  const parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
+  const provider = _.repo.providerForPath({ remotePath : o.remotePath });
+  const o2 = _.props.extend( null, o );
+  o2.remotePath = parsed;
 
-  let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
-
-  ready.then( () =>
-  {
-    if( parsed.service === 'github.com' )
-    return _releaseDelete();
-    if( o.throwing )
-    throw _.err( 'Unknown service' );
-    return null;
-  })
-  .then( ( arg ) =>
+  const ready = provider.releaseDeleteAct( o2 );
+  ready.then( ( arg ) =>
   {
     _.git.tagDeleteTag
     ({
@@ -779,12 +749,11 @@ function releaseDelete( o )
   {
     if( err )
     {
+      _.errAttend( err );
       if( o.throwing )
       throw _.err( err, '\nFailed to delete release.' );
-      _.errAttend( err );
-      return null;
     }
-    return arg;
+    return arg || false;
   });
 
   if( o.sync )
@@ -794,17 +763,6 @@ function releaseDelete( o )
   }
 
   return ready;
-
-  /* */
-
-  function _releaseDelete()
-  {
-    const provider = _.repo.providerForPath({ remotePath : o.remotePath });
-    let o2 = _.props.extend( null, o );
-    _.map.supplement( o2, _.repo.releaseDeleteAct.defaults );
-    o2.remotePath = parsed;
-    return provider.releaseDeleteAct( o2 );
-  }
 }
 
 releaseDelete.defaults =
@@ -820,6 +778,18 @@ releaseDelete.defaults =
 // --
 // repository
 // --
+
+const repositoryInitAct = Object.create( null );
+
+repositoryInitAct.name = 'repositoryInitAct';
+repositoryInitAct.defaults =
+{
+  token : null,
+  remotePath : null,
+  description : null,
+};
+
+//
 
 function repositoryInit( o )
 {
@@ -859,11 +829,20 @@ function repositoryInit( o )
 
 repositoryInit.defaults =
 {
-  remotePath : null,
-  token : null,
-  description : null,
+  ... repositoryInitAct.defaults,
   throwing : 1,
   sync : 0,
+};
+
+//
+
+const repositoryDeleteAct = Object.create( null );
+
+repositoryDeleteAct.name = 'repositoryDeleteAct';
+repositoryDeleteAct.defaults =
+{
+  token : null,
+  remotePath : null,
 };
 
 //
@@ -908,8 +887,7 @@ function repositoryDelete( o )
 
 repositoryDelete.defaults =
 {
-  remotePath : null,
-  token : null,
+  ... repositoryDeleteAct.defaults,
   throwing : 1,
   sync : 0,
 };
@@ -1048,7 +1026,9 @@ let Extension =
 
   // issue
 
+  repositoryIssuesGetAct,
   issuesGet,
+  repositoryIssuesCreateAct,
   issuesCreate,
 
   // pr
@@ -1072,7 +1052,9 @@ let Extension =
 
   // repository
 
+  repositoryInitAct,
   repositoryInit,
+  repositoryDeleteAct,
   repositoryDelete,
 
   // program

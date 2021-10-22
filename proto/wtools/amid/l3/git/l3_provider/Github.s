@@ -78,9 +78,7 @@ function repositoryInitAct( o )
 
 repositoryInitAct.defaults =
 {
-  token : null,
-  remotePath : null,
-  description : null,
+  ... Parent.repositoryInitAct.defaults,
 };
 
 //
@@ -104,8 +102,7 @@ function repositoryDeleteAct( o )
 
 repositoryDeleteAct.defaults =
 {
-  token : null,
-  remotePath : null,
+  ... Parent.repositoryDeleteAct.defaults,
 };
 
 //
@@ -159,9 +156,7 @@ function repositoryIssuesGetAct( o )
 
 repositoryIssuesGetAct.defaults =
 {
-  token : null,
-  remotePath : null,
-  state : null,
+  ... Parent.repositoryIssuesGetAct.defaults,
 };
 
 //
@@ -200,9 +195,7 @@ function repositoryIssuesCreateAct( o )
 
 repositoryIssuesCreateAct.defaults =
 {
-  token : null,
-  remotePath : null,
-  issues : null,
+  ... Parent.repositoryIssuesCreateAct.defaults,
 };
 
 
@@ -239,7 +232,7 @@ function pullListAct( o )
 pullListAct.defaults =
 {
   ... Parent.pullListAct.defaults,
-}
+};
 
 //
 

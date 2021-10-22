@@ -416,7 +416,7 @@ function issuesCreate( test )
 
   /* - */
 
-  repositoryInit( repository );
+  repositoryInit( repository ).delay( 3000 );
   a.ready.then( () =>
   {
     test.case = 'issue - map';
@@ -443,11 +443,11 @@ function issuesCreate( test )
     test.identical( issues[ 0 ].body, 'it\'s issue' );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
-  repositoryInit( repository );
+  repositoryInit( repository ).delay( 3000 );
   a.ready.then( () =>
   {
     test.case = 'issue - array';
@@ -481,11 +481,11 @@ function issuesCreate( test )
     test.identical( issues[ 1 ].body, 'it\'s issue' );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
-  repositoryInit( repository );
+  repositoryInit( repository ).delay( 3000 );
   a.ready.then( () =>
   {
     test.case = 'issue - single map in file';
@@ -514,11 +514,11 @@ function issuesCreate( test )
     test.identical( issues[ 0 ].body, 'it\'s issue' );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
-  repositoryInit( repository );
+  repositoryInit( repository ).delay( 3000 );
   a.ready.then( () =>
   {
     test.case = 'issue - array';
@@ -554,7 +554,7 @@ function issuesCreate( test )
     test.identical( issues[ 1 ].body, 'it\'s issue' );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* - */
 
@@ -599,7 +599,7 @@ function issuesCreate( test )
   }
 }
 
-issuesCreate.timeOut = 90000;
+issuesCreate.timeOut = 120000;
 
 //
 
@@ -866,14 +866,14 @@ function pullOpen( test )
   test.case = 'wrong git service';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.pullOpen
+    _.repo.pullOpen
     ({
       throwing : 1,
       sync : 1,
       token : 'token',
       remotePath : 'https://gitlab.com/user/NewRepo',
-      title : 'master',
-      body : null,
+      descriptionHead : 'master',
+      descriptionBody : null,
       srcBranch : 'doc',
       dstBranch : 'master',
     });
@@ -882,23 +882,23 @@ function pullOpen( test )
   test.case = 'wrong token';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.pullOpen
+    _.repo.pullOpen
     ({
       throwing : 1,
       sync : 1,
       token : 'token',
       remotePath : 'https://github.com/user/NewRepo',
-      title : 'master',
-      body : null,
+      descriptionHead : 'master',
+      descriptionBody : null,
       srcBranch : 'doc',
       dstBranch : 'master',
     });
   })
 
-  test.case = 'without fields title, srcBranch';
+  test.case = 'without fields descriptionHead, srcBranch';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.pullOpen
+    _.repo.pullOpen
     ({
       sync : 1,
       token : 'token',
@@ -910,11 +910,11 @@ function pullOpen( test )
   test.case = 'without token';
   test.shouldThrowErrorSync( () =>
   {
-    _.git.pullOpen
+    _.repo.pullOpen
     ({
       remotePath : 'https://github.com/user/NewRepo',
-      title : 'master',
-      body : null,
+      descriptionHead : 'master',
+      descriptionBody : null,
       srcBranch : 'doc',
       dstBranch : 'master',
     });
