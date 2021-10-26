@@ -3,8 +3,8 @@ root:
   - wGitTools.out
 consistency:
   ../will.yml: &ref_0
-    hash: b04bcdce0d48c0e1357d375a417307a3
-    size: 6938
+    hash: e7257a7aa2ca154a12a7554bab201273
+    size: 6997
 module:
   wGitTools.out:
     about:
@@ -167,17 +167,9 @@ module:
           - ../proto/wtools/amid/l3/git/l1
           - ../proto/wtools/amid/l3/git/l1/Git.ss
           - ../proto/wtools/amid/l3/git/l1/Md.s
-          - ../proto/wtools/amid/l3/git/l1/Repo.s
-          - ../proto/wtools/amid/l3/git/l3_provider
-          - ../proto/wtools/amid/l3/git/l3_provider/Git.s
-          - ../proto/wtools/amid/l3/git/l3_provider/Github.s
-          - ../proto/wtools/amid/l3/git/l3_provider/HardDrive.s
-          - ../proto/wtools/amid/l3/git/l3_provider/Http.s
-          - ../proto/wtools/amid/l3/git/l3_provider/Npm.s
           - ../proto/wtools/amid/l3/git.test
           - ../proto/wtools/amid/l3/git.test/GitTools.test.ss
           - ../proto/wtools/amid/l3/git.test/Md.test.s
-          - ../proto/wtools/amid/l3/git.test/Repo.test.ss
           - ../proto/wtools/amid/l3/git.test/_asset
           - ../proto/wtools/amid/l3/git.test/_asset/basic
           - ../proto/wtools/amid/l3/git.test/_asset/basic/File.txt
@@ -209,6 +201,10 @@ module:
         enabled: 0
       wremote:
         path: 'npm:///wremote'
+        autoExporting: 0
+        enabled: 0
+      wrepobasic:
+        path: 'npm:///wrepobasic'
         autoExporting: 0
         enabled: 0
       wgitpath:
@@ -983,6 +979,10 @@ module:
         path: 'npm:///wremote'
         autoExporting: 0
         enabled: 0
+      wrepobasic:
+        path: 'npm:///wrepobasic'
+        autoExporting: 0
+        enabled: 0
       wgitpath:
         path: 'npm:///wgitpath'
         autoExporting: 0
@@ -1539,5 +1539,5 @@ module:
           - 'build::npm'
     consistency:
       ../will.yml:
-        hash: b04bcdce0d48c0e1357d375a417307a3
-        size: 6938
+        hash: e7257a7aa2ca154a12a7554bab201273
+        size: 6997

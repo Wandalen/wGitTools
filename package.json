@@ -1,6 +1,6 @@
 {
   "name": "wgittools",
-  "version": "0.3.386",
+  "version": "0.3.387",
   "description": "Collection of tools to use git programmatically.",
   "author": "Kostiantyn Wandalen <wanalen@01.school>",
   "license": "MIT",
@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "wTools": "gamma",
+    "wrepobasic": "gamma",
     "wremote": "gamma",
     "wprocess": "gamma",
     "wintrospectorextra": "gamma",
