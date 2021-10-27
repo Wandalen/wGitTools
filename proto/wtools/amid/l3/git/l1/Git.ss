@@ -5313,6 +5313,7 @@ function push( o )
       sync : 1,
       outputPiping : 0,
       inputMirroring : 0,
+      throwingExitCode : 0,
     }).output;
     let tags = output.match( /(\S+)\s->/gm );
     if( !tags )
