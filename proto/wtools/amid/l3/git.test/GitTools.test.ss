@@ -22479,157 +22479,122 @@ push.timeOut = 60000;
 
 function pushCheckOutput( test )
 {
-  let context = this;
   let a = test.assetFor( 'basic' );
-  a.shell.predefined.outputCollecting = 1;
-  a.shell.predefined.currentPath = a.abs( 'repo' );
-  let program;
-
-  let programShell = _.process.starter
-  ({
-    currentPath : a.abs( '.' ),
-    mode : 'shell',
-    throwingExitCode : 1,
-    outputCollecting : 1,
-    sync : 0,
-  });
+  let ready = _.take( null );
 
   /* - */
 
-  begin().then( () =>
+  ready.then( () =>
   {
     test.case = 'push to not added master branch';
-    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    program = programMake({ localPath : a.abs( 'repo' ) });
-    return null;
+    reposMake();
+    programMake({ localPath : a.abs( 'repo' ) });
+    commitAdd();
+    return a.shell( `node ${ a.abs( 'testApp' ) }` );
   });
-
-  commitAdd();
-  start();
-  a.ready.then( ( op ) =>
+  ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
     test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
-
     return null;
   });
 
   /* */
 
-  begin().then( () =>
+  ready.then( () =>
   {
     test.case = 'push to automatically added branch';
-    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    program = programMake({ localPath : a.abs( 'clone' ) });
-    return null;
+    reposMake();
+    programMake({ localPath : a.abs( 'clone' ) });
+    commitAdd();
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git push -u origin master' });
+    a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
+    a.ready.then( () => { a.fileProvider.fileAppend( a.abs( 'clone/file.txt' ), '\nnew line' ); return null });
+    a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
+    return a.shell( `node ${ a.abs( 'testApp' ) }` );
   });
-
-  commitAdd();
-  a.shell( 'git push -u origin master' );
-  a.shell({ currentPath : a.abs( '.' ), execPath : 'git clone main clone' });
-
-  a.ready.then( () =>
-  {
-    a.fileProvider.fileAppend( a.abs( 'clone/file.txt' ), '\nnew line' );
-    return null;
-  });
-  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
-  a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
-
-  start();
-  a.ready.then( ( op ) =>
+  ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
     test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 0 );
     test.identical( _.strCount( op.output, 'master -> master' ), 1 );
-
     return null;
   });
 
   /* */
 
-  begin().then( () =>
+  ready.then( () =>
   {
     test.case = 'several pushes';
-    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    program = programMake({ localPath : a.abs( 'repo' ) });
-    return null;
+    reposMake();
+    programMake({ localPath : a.abs( 'repo' ) });
+    commitAdd();
+    a.shell( `node ${ a.abs( 'testApp' ) }` );
+    return a.shell( `node ${ a.abs( 'testApp' ) }` );
   });
-
-  commitAdd();
-  start();
-  start();
-  a.ready.then( ( op ) =>
+  ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
     test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
     test.identical( _.strCount( op.output, 'Everything up-to-date' ), 1 );
-
     return null;
   });
 
   /* */
 
-  begin().then( () =>
+  ready.then( () =>
   {
     test.case = 'dry - 1, push no changes';
-    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    program = programMake({ localPath : a.abs( 'repo' ), dry : 1 });
-    return null;
+    reposMake();
+    programMake({ localPath : a.abs( 'repo' ), dry : 1 });
+    commitAdd();
+    return a.shell( `node ${ a.abs( 'testApp' ) }` );
   });
-
-  commitAdd();
-  start();
-  a.ready.then( ( op ) =>
+  ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'git push --dry-run -u origin --all' ), 1 );
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
     test.identical( _.strCount( op.output, 'Would set upstream of \'master\' to \'master\' of \'origin\'' ), 1 );
-
     return null;
   });
 
   /* */
 
-  begin().then( () =>
+  ready.then( () =>
   {
     test.case = 'dry - 1, force - 1, push no changes';
-    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    program = programMake({ localPath : a.abs( 'repo' ), dry : 1, force : 1 });
-    return null;
+    reposMake();
+    programMake({ localPath : a.abs( 'repo' ), dry : 1, force : 1 });
+    commitAdd();
+    return a.shell( `node ${ a.abs( 'testApp' ) }` );
   });
-
-  commitAdd();
-  start();
-  a.ready.then( ( op ) =>
+  ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'git push --dry-run -u origin --all' ), 1 );
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
     test.identical( _.strCount( op.output, 'Would set upstream of \'master\' to \'master\' of \'origin\'' ), 1 );
-
     return null;
   });
 
   /* */
 
-  begin().then( () =>
+  ready.then( () =>
   {
     test.case = 'withTags - 1, no unpushed tags exist';
-    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
-    return null;
+    reposMake();
+    programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
+    commitAdd();
+    return a.shell( `node ${ a.abs( 'testApp' ) }` );
   });
-
-  commitAdd();
-  start();
-  a.ready.then( ( op ) =>
+  ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
@@ -22637,23 +22602,20 @@ function pushCheckOutput( test )
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
     test.identical( _.strCount( op.output, />.*git push --tags/ ), 1 );
     test.identical( _.strCount( op.output, 'Everything up-to-date' ), 1 );
-
     return null;
   });
 
   /* */
 
-  begin().then( () =>
+  ready.then( () =>
   {
     test.case = 'withTags - 1, force - 1, no unpushed tags exist';
-    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
-    return null;
+    reposMake();
+    programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    commitAdd();
+    return a.shell( `node ${ a.abs( 'testApp' ) }` );
   });
-
-  commitAdd();
-  start();
-  a.ready.then( ( op ) =>
+  ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, />.*git push -u origin --all --force/ ), 1 );
@@ -22661,26 +22623,22 @@ function pushCheckOutput( test )
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
     test.identical( _.strCount( op.output, />.*git push --tags --force/ ), 1 );
     test.identical( _.strCount( op.output, 'Everything up-to-date' ), 1 );
-
     return null;
   });
 
   /* */
 
-  begin().then( () =>
+  ready.then( () =>
   {
     test.case = 'withTags - 1, tags exist';
-    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
-    return null;
+    reposMake();
+    programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
+    commitAdd();
+    a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000', sync : 0 }) );
+    a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init', sync : 0 }) );
+    return a.shell( `node ${ a.abs( 'testApp' ) }` );
   });
-
-  commitAdd();
-  a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000', sync : 0 }) );
-  a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init', sync : 0 }) );
-
-  start();
-  a.ready.then( ( op ) =>
+  ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
@@ -22688,26 +22646,22 @@ function pushCheckOutput( test )
     test.identical( _.strCount( op.output, />.*git push --tags/ ), 1 );
     test.identical( _.strCount( op.output, /\* \[new tag\]\s+v000 -> v000/ ), 1 );
     test.identical( _.strCount( op.output, /\* \[new tag\]\s+init -> init/ ), 1 );
-
     return null;
   });
 
   /* */
 
-  begin().then( () =>
+  ready.then( () =>
   {
-    test.case = 'withTags - 1, tags exist';
-    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    program = programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
-    return null;
+    test.case = 'withTags - 1, force - 1, tags exist';
+    reposMake();
+    programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    commitAdd();
+    a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000', sync : 0 }) );
+    a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init', sync : 0 }) );
+    return a.shell( `node ${ a.abs( 'testApp' ) }` );
   });
-
-  commitAdd();
-  a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000', sync : 0 }) );
-  a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init', sync : 0 }) );
-
-  start();
-  a.ready.then( ( op ) =>
+  ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
@@ -22715,32 +22669,23 @@ function pushCheckOutput( test )
     test.identical( _.strCount( op.output, />.*git push --tags --force/ ), 1 );
     test.identical( _.strCount( op.output, /\* \[new tag\]\s+v000 -> v000/ ), 1 );
     test.identical( _.strCount( op.output, /\* \[new tag\]\s+init -> init/ ), 1 );
-
     return null;
   });
 
   /* */
 
-  begin().then( () =>
+  ready.then( () =>
   {
     test.case = 'throwing - 0, push to not existed repository';
-    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    program = programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
-    return null;
+    reposMake();
+    programMake({ localPath : a.abs( 'repo' ), throwing : 0 });
+    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' ); return null });
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( 'main' ) ); return null });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit -m init' });
+    return a.shell( `node ${ a.abs( 'testApp' ) }` );
   });
-
-  a.ready.then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
-    a.fileProvider.filesDelete( a.abs( 'main' ) );
-    return null;
-  });
-
-  a.shell( 'git add .' );
-  a.shell( 'git commit -m init' );
-
-  start();
-  a.ready.then( ( op ) =>
+  ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, /fatal: .*\/main\' does not appear to be a git repository/ ), 1 );
@@ -22748,35 +22693,23 @@ function pushCheckOutput( test )
     test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 1 );
     test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 1 );
     test.identical( _.strCount( op.output, 'and the repository exists.' ), 1 );
-
     return null;
   });
 
   /* */
 
-  begin().then( () =>
+  ready.then( () =>
   {
     test.case = 'throwing - 1, push to not existed repository';
-    a.fileProvider.filesDelete( a.abs( 'testApp.js' ) );
-    program = programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
-    return null;
+    reposMake();
+    programMake({ localPath : a.abs( 'repo' ), throwing : 1 });
+    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' ); return null });
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( 'main' ) ); return null });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit -m init' });
+    return a.shellNonThrowing( `node ${ a.abs( 'testApp' ) }` );
   });
-
-  a.ready.then( () =>
-  {
-    a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
-    a.fileProvider.filesDelete( a.abs( 'main' ) );
-    return null;
-  });
-
-  a.shell( 'git add .' );
-  a.shell( 'git commit -m init' );
-
-  a.ready.then( () =>
-  {
-    return programShell({ throwingExitCode : 0, execPath : 'node ' + _.path.nativize( program.filePath/*programPath*/ ) });
-  });
-  a.ready.then( ( op ) =>
+  ready.then( ( op ) =>
   {
     test.notIdentical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, /fatal: .*\/main\' does not appear to be a git repository/ ), 2 );
@@ -22784,17 +22717,16 @@ function pushCheckOutput( test )
     test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 2 );
     test.identical( _.strCount( op.output, 'Please make sure you have the correct access rights' ), 2 );
     test.identical( _.strCount( op.output, 'and the repository exists.' ), 2 );
-
     return null;
   });
 
   /* - */
 
-  return a.ready;
+  return ready;
 
   /* */
 
-  function begin()
+  function reposMake()
   {
     a.ready.then( () =>
     {
@@ -22813,8 +22745,12 @@ function pushCheckOutput( test )
 
   function programMake( options )
   {
-    let locals = { toolsPath : _.module.resolve( 'wTools' ), o : options };
-    return a.program({ entry : testApp, locals });
+    return a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( 'testApp' ) );
+      let locals = { toolsPath : _.module.resolve( 'wTools' ), o : options };
+      return a.program({ entry : testApp, locals });
+    });
   }
 
   /* */
@@ -22828,23 +22764,11 @@ function pushCheckOutput( test )
 
   /* */
 
-  function start()
-  {
-    return a.ready.then( () => programShell( `node ${ _.path.nativize( program.filePath ) }` ) );
-  }
-
-  /* */
-
   function commitAdd()
   {
-    a.ready.then( () =>
-    {
-      a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
-      return null;
-    });
-
-    a.shell( 'git add .' );
-    a.shell( 'git commit -m init' );
+    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' ); return null });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit -m init' });
     return a.ready;
   }
 }
