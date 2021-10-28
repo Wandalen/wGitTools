@@ -22479,8 +22479,10 @@ push.timeOut = 60000;
 
 function pushCheckOutput( test )
 {
-  let a = test.assetFor( 'basic' );
-  let ready = _.take( null );
+  const a = test.assetFor( 'basic' );
+  const ready = _.take( null );
+  const command = `node ${ a.path.nativize( a.abs( 'testApp' ) ) }`;
+
 
   /* - */
 
@@ -22490,7 +22492,7 @@ function pushCheckOutput( test )
     reposMake();
     programMake({ localPath : a.abs( 'repo' ) });
     commitAdd();
-    return a.shell( `node ${ a.abs( 'testApp' ) }` );
+    return a.shell( command );
   });
   ready.then( ( op ) =>
   {
@@ -22514,7 +22516,7 @@ function pushCheckOutput( test )
     a.ready.then( () => { a.fileProvider.fileAppend( a.abs( 'clone/file.txt' ), '\nnew line' ); return null });
     a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git add .' });
     a.shell({ currentPath : a.abs( 'clone' ), execPath : 'git commit -m second' });
-    return a.shell( `node ${ a.abs( 'testApp' ) }` );
+    return a.shell( command );
   });
   ready.then( ( op ) =>
   {
@@ -22534,8 +22536,8 @@ function pushCheckOutput( test )
     reposMake();
     programMake({ localPath : a.abs( 'repo' ) });
     commitAdd();
-    a.shell( `node ${ a.abs( 'testApp' ) }` );
-    return a.shell( `node ${ a.abs( 'testApp' ) }` );
+    a.shell( command );
+    return a.shell( command );
   });
   ready.then( ( op ) =>
   {
@@ -22554,7 +22556,7 @@ function pushCheckOutput( test )
     reposMake();
     programMake({ localPath : a.abs( 'repo' ), dry : 1 });
     commitAdd();
-    return a.shell( `node ${ a.abs( 'testApp' ) }` );
+    return a.shell( command );
   });
   ready.then( ( op ) =>
   {
@@ -22573,7 +22575,7 @@ function pushCheckOutput( test )
     reposMake();
     programMake({ localPath : a.abs( 'repo' ), dry : 1, force : 1 });
     commitAdd();
-    return a.shell( `node ${ a.abs( 'testApp' ) }` );
+    return a.shell( command );
   });
   ready.then( ( op ) =>
   {
@@ -22592,7 +22594,7 @@ function pushCheckOutput( test )
     reposMake();
     programMake({ localPath : a.abs( 'repo' ), withTags : 1 });
     commitAdd();
-    return a.shell( `node ${ a.abs( 'testApp' ) }` );
+    return a.shell( command );
   });
   ready.then( ( op ) =>
   {
@@ -22613,7 +22615,7 @@ function pushCheckOutput( test )
     reposMake();
     programMake({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
     commitAdd();
-    return a.shell( `node ${ a.abs( 'testApp' ) }` );
+    return a.shell( command );
   });
   ready.then( ( op ) =>
   {
@@ -22636,7 +22638,7 @@ function pushCheckOutput( test )
     commitAdd();
     a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000', sync : 0 }) );
     a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init', sync : 0 }) );
-    return a.shell( `node ${ a.abs( 'testApp' ) }` );
+    return a.shell( command );
   });
   ready.then( ( op ) =>
   {
@@ -22659,7 +22661,7 @@ function pushCheckOutput( test )
     commitAdd();
     a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'v000', sync : 0 }) );
     a.ready.then( () => _.git.tagMake({ localPath : a.abs( 'repo' ), tag : 'init', sync : 0 }) );
-    return a.shell( `node ${ a.abs( 'testApp' ) }` );
+    return a.shell( command );
   });
   ready.then( ( op ) =>
   {
@@ -22683,7 +22685,7 @@ function pushCheckOutput( test )
     a.ready.then( () => { a.fileProvider.filesDelete( a.abs( 'main' ) ); return null });
     a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git add .' });
     a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit -m init' });
-    return a.shell( `node ${ a.abs( 'testApp' ) }` );
+    return a.shell( command );
   });
   ready.then( ( op ) =>
   {
@@ -22707,7 +22709,7 @@ function pushCheckOutput( test )
     a.ready.then( () => { a.fileProvider.filesDelete( a.abs( 'main' ) ); return null });
     a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git add .' });
     a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit -m init' });
-    return a.shellNonThrowing( `node ${ a.abs( 'testApp' ) }` );
+    return a.shellNonThrowing( command );
   });
   ready.then( ( op ) =>
   {
