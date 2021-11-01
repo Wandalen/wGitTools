@@ -4648,7 +4648,12 @@ function repositoryMigrateTo( o )
   else
   {
     ready.then( () => shell( `git checkout -b ${ o.dstBranch }` ) );
-    ready.then( () => shell( `git pull ${ remoteName } ${ o.srcBranch } --allow-unrelated-histories --squash` ) );
+    // ready.then( () => shell( `git pull ${ remoteName } ${ o.srcBranch } --allow-unrelated-histories --squash` ) );
+    ready.then( () => shell( `git fetch ${ remoteName }` ) );
+    ready.then( () => shell( `git checkout ${ remoteName }/master` ) );
+    ready.then( () => shell( `git reset --hard ${ o.state2 }` ) );
+    ready.then( () => shell( `git checkout ${ o.dstBranch }` ) );
+    ready.then( () => shell( `git merge --allow-unrelated-histories --squash ${ remoteName } ${ remoteName }/master` ) );
     ready.then( () => shell( `git commit -m ${ o.commitMessage }` ) );
   }
   ready.finally( ( err, arg ) =>
@@ -4691,6 +4696,7 @@ repositoryMigrateTo.defaults =
 {
   srcPath : null,
   localPath : null,
+  state2 : null,
   srcBranch : null,
   dstBranch : null,
   commitMessage : 'sync'
