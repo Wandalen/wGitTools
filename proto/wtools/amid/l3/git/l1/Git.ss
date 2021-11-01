@@ -4612,6 +4612,92 @@ repositoryMerge.defaults =
   logger : 0,
 };
 
+//
+
+function repositoryMigrateTo( o )
+{
+  _.routine.options_( repositoryMigrateTo, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.str.defined( o.localPath ), 'Expects local path to destination repository {-o.localPath-}.' );
+  _.assert( _.str.defined( o.srcPath ) || _.aux.is( o.srcPath ), 'Expects path to source repository {-o.srcPath-}.' );
+
+  /* */
+
+  let error = null;
+  const ready = _.take( null );
+  const shell = _.process.starter
+  ({
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
+    currentPath : o.localPath,
+    outputCollecting : 1,
+  });
+
+  const srcPath = _.git.path.nativize( o.srcPath );
+  if( !o.srcBranch )
+  o.srcBranch = branchFromPath( srcPath ) || 'master';
+  if( !o.dstBranch )
+  o.dstBranch = branchFromPath( o.localPath ) || 'master';
+
+  const remoteName = `_temp-${ _.idWithGuid() }`;
+  ready.then( () => shell( `git remote add ${ remoteName } ${ srcPath }` ) );
+  if( o.ignore )
+  {
+    _.assert( false, 'not implemented' );
+  }
+  else
+  {
+    ready.then( () => shell( `git checkout -b ${ o.dstBranch }` ) );
+    ready.then( () => shell( `git pull ${ remoteName } ${ o.srcBranch } --allow-unrelated-histories --squash` ) );
+    ready.then( () => shell( `git commit -m ${ o.commitMessage }` ) );
+  }
+  ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    error = err;
+    return shell( `git remote remove ${ remoteName }` );
+  });
+  ready.finally( () =>
+  {
+    if( error )
+    throw _.err( error );
+    return true;
+  });
+
+  return ready;
+
+  /* */
+
+  function branchFromPath( path )
+  {
+    const parsed = _.git.path.parse( path );
+    if( parsed.tag )
+    {
+      const tagDescriptor = _.git.tagExplain
+      ({
+        remotePath : path,
+        tag : parsed.tag,
+        remote : 1,
+        local : 0
+      });
+      if( tagDescriptor.isBranch )
+      return parsed.tag;
+    }
+    return null;
+  }
+}
+
+repositoryMigrateTo.defaults =
+{
+  srcPath : null,
+  localPath : null,
+  srcBranch : null,
+  dstBranch : null,
+  commitMessage : 'sync'
+  ignore : null,
+  logger : 0,
+};
+
 // --
 // config
 // --
@@ -6178,6 +6264,7 @@ let Extension =
   repositoryCheckout,
   repositoryStash,
   repositoryMerge,
+  repositorySyncWith,
 
   // config
 
