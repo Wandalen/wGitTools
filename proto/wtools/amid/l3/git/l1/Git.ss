@@ -4646,6 +4646,7 @@ function repositoryMigrateTo( o )
 
   if( !o.commitMessage )
   o.commitMessage = `Merge branch '${ o.srcBranch }' of ${ srcPath } into ${ o.dstBranch }`;
+  _.assert( _.str.is( o.commitMessage ), 'Expects string with commit message {-o.commitMessage-}' );
 
   _.assert( _.longHasAny( [ 'manual', 'ours', 'theirs' ], o.mergeStrategy ) );
 

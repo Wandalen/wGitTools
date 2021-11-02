@@ -19090,6 +19090,131 @@ function repositoryMigrateToWithOptionMergeStrategy( test )
 
 //
 
+function repositoryMigrateToWithOptionCommitMessage( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  begin();
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.identical( _.strCount( op.output, `Merge branch 'master' of ${ srcRepositoryRemote } into master` ), 0 );
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'no commit message';
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'ours',
+      commitMessage : null,
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+    return null;
+  });
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.identical( _.strCount( op.output, `Merge branch 'master' of ${ srcRepositoryRemote } into master` ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.identical( _.strCount( op.output, `Merge branch 'master' of ${ srcRepositoryRemote } into master` ), 0 );
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'no commit message';
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'ours',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+    return null;
+  });
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 1 );
+    test.identical( _.strCount( op.output, `Merge branch 'master' of ${ srcRepositoryRemote } into master` ), 0 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    if( !Config.debug )
+    return null;
+
+    test.case = 'wrong type of commit message';
+    return test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryMigrateTo
+      ({
+        srcPath : srcRepositoryRemote,
+        localPath : a.abs( '.' ),
+        state2 : null,
+        srcBranch : null,
+        dstBranch : null,
+        mergeStrategy : 'ours',
+        commitMessage : [ 'wrong' ],
+      });
+    });
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    return a.shell( `git clone ${ dstRepositoryRemote } ./` );
+  }
+}
+
+//
+
 function configRead( test )
 {
   let context = this;
@@ -26916,6 +27041,7 @@ const Proto =
     repositoryCheckoutRemotePathIsMap,
     repositoryMigrateTo,
     repositoryMigrateToWithOptionMergeStrategy,
+    repositoryMigrateToWithOptionCommitMessage,
 
     // etc
 
