@@ -4388,6 +4388,7 @@ function repositoryClone( o )
       'Could not resolve host',
       'Could not read from remote repository',
       'Failed to connect',
+      'returned error: 429',
     ];
     if( !_.strHasAny( err.originalMessage, errorMsgs ) )
     return false;
