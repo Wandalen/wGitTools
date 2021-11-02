@@ -18935,6 +18935,161 @@ function repositoryMigrateTo( test )
 
 //
 
+function repositoryMigrateToWithOptionMergeStrategy( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'strategy - manual';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'manual',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.true( _.error.is( err ) );
+    _.error.attend( err );
+    test.identical( _.strCount( err.originalMessage, 'Process returned exit code' ), 1 );
+    var exp = 'Launched as "git merge -s recursive --allow-unrelated-histories --squash';
+    test.identical( _.strCount( err.originalMessage, exp ), 1 );
+    test.identical( op, undefined );
+    return null;
+  });
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    var config = a.fileProvider.fileRead( a.abs( 'package.json' ) );
+    test.ge( _.strCount( config, 'wmodulefortesting1' ), 1 );
+    test.ge( _.strCount( config, 'wmodulefortesting2' ), 1 );
+    test.ge( _.strCount( config, '<<<<' ), 1 );
+    test.ge( _.strCount( config, '====' ), 1 );
+    test.ge( _.strCount( config, '>>>>' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'strategy - ours';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'ours',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+    return null;
+  });
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 1 );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'strategy - theirs';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'theirs',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+    return null;
+  });
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 1 );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    if( !Config.debug )
+    return null;
+
+    test.case = 'wrong strategy';
+    return test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryMigrateTo
+      ({
+        srcPath : srcRepositoryRemote,
+        localPath : a.abs( '.' ),
+        state2 : null,
+        srcBranch : null,
+        dstBranch : null,
+        mergeStrategy : 'wrong',
+        commitMessage : '__sync__',
+      });
+    });
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    return a.shell( `git clone ${ dstRepositoryRemote } ./` );
+  }
+}
+
+//
+
 function configRead( test )
 {
   let context = this;
@@ -26760,6 +26915,7 @@ const Proto =
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,
     repositoryMigrateTo,
+    repositoryMigrateToWithOptionMergeStrategy,
 
     // etc
 
