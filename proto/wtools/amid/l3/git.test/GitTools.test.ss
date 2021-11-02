@@ -18849,6 +18849,92 @@ repositoryCheckoutRemotePathIsMap.timeOut = 30000;
 
 //
 
+function repositoryMigrateTo( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'migrate same repository with same branches, no state, branches, message';
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : dstRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : null,
+      dstBranch : null,
+      commitMessage : null,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'migrate same repository with same branches, state - previous commit, no branches, message';
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : dstRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#HEAD~',
+      srcBranch : null,
+      dstBranch : null,
+      commitMessage : null,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'migrate another repository with same branches, no state, branches, message, strategy - ours';
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : null,
+      dstBranch : null,
+      mergeStrategy : 'ours',
+      commitMessage : null,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    return a.shell( `git clone ${ dstRepositoryRemote } ./` );
+  }
+}
+
+//
+
 function configRead( test )
 {
   let context = this;
@@ -26673,6 +26759,7 @@ const Proto =
     repositoryCloneCheckRetryOptions,
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,
+    repositoryMigrateTo,
 
     // etc
 
