@@ -4636,26 +4636,61 @@ function repositoryMigrateTo( o )
 
   const srcPath = _.git.path.nativize( o.srcPath );
   if( !o.srcBranch )
-  o.srcBranch = branchFromPath( srcPath ) || 'master';
+  o.srcBranch = branchFromPath( srcPath, false ) || 'master';
   if( !o.dstBranch )
-  o.dstBranch = branchFromPath( o.localPath ) || 'master';
+  o.dstBranch = branchFromPath( o.localPath, true ) || 'master';
 
-  const remoteName = `_temp-${ _.idWithGuid() }`;
+  let state2 = o.state2;
+  if( o.state2 )
+  state2 = _.git._stateParse( o.state2 ).value;
+
+  if( !o.commitMessage )
+  o.commitMessage = `Merge branch '${ o.srcBranch }' of ${ srcPath } into ${ o.dstBranch }`;
+
+  _.assert( _.longHasAny( [ 'manual', 'ours', 'theirs' ], o.mergeStrategy ) );
+
+  let remoteName = remoteNameGenerate();
+  const config = _.git.configRead( o.localPath );
+  while( `remote "${ remoteName }"` in config )
+  remoteName = remoteNameGenerate();
+
   ready.then( () => shell( `git remote add ${ remoteName } ${ srcPath }` ) );
-  if( o.ignore )
+  if( o.but || o.only )
   {
     _.assert( false, 'not implemented' );
   }
   else
   {
-    ready.then( () => shell( `git checkout -b ${ o.dstBranch }` ) );
-    // ready.then( () => shell( `git pull ${ remoteName } ${ o.srcBranch } --allow-unrelated-histories --squash` ) );
+    ready.then( () =>
+    {
+      return _.git.tagLocalChange
+      ({
+        localPath : o.localPath,
+        tag : o.dstBranch,
+      });
+    });
     ready.then( () => shell( `git fetch ${ remoteName }` ) );
-    ready.then( () => shell( `git checkout ${ remoteName }/master` ) );
-    ready.then( () => shell( `git reset --hard ${ o.state2 }` ) );
+    ready.then( () => shell( `git checkout ${ remoteName }/${ o.srcBranch }` ) );
+    if( state2 )
+    ready.then( () => shell( `git reset --hard ${ state2 }` ) );
     ready.then( () => shell( `git checkout ${ o.dstBranch }` ) );
-    ready.then( () => shell( `git merge --allow-unrelated-histories --squash ${ remoteName } ${ remoteName }/master` ) );
-    ready.then( () => shell( `git commit -m ${ o.commitMessage }` ) );
+    ready.then( () =>
+    {
+      let strategy = '-s recursive';
+      if( o.mergeStrategy !== 'manual' )
+      strategy += ` -X ${ o.mergeStrategy }`;
+      return shell
+      (
+        `git merge ${ strategy } --allow-unrelated-histories --squash ${ remoteName }/${ o.srcBranch } ${ o.dstBranch }`
+      );
+    });
+    ready.then( () => _.git.statusLocal({ localPath : o.localPath }) );
+    ready.then( ( status ) =>
+    {
+      if( status.uncommitted )
+      return shell( `git commit -m "${ o.commitMessage }"` );
+      return null;
+    });
   }
   ready.finally( ( err, arg ) =>
   {
@@ -4674,7 +4709,7 @@ function repositoryMigrateTo( o )
 
   /* */
 
-  function branchFromPath( path )
+  function branchFromPath( path, local )
   {
     const parsed = _.git.path.parse( path );
     if( parsed.tag )
@@ -4682,14 +4717,22 @@ function repositoryMigrateTo( o )
       const tagDescriptor = _.git.tagExplain
       ({
         remotePath : path,
+        localPath : o.localPath,
         tag : parsed.tag,
-        remote : 1,
-        local : 0
+        remote : !local,
+        local,
       });
       if( tagDescriptor.isBranch )
       return parsed.tag;
     }
     return null;
+  }
+
+  /* */
+
+  function remoteNameGenerate()
+  {
+    return `_temp-${ _.idWithGuid() }`;
   }
 }
 
@@ -4700,8 +4743,10 @@ repositoryMigrateTo.defaults =
   state2 : null,
   srcBranch : null,
   dstBranch : null,
-  commitMessage : 'sync'
-  ignore : null,
+  commitMessage : null,
+  mergeStrategy : 'manual', /* Dmytro : to automatically resolve conflicts in similar files, disabled by default */
+  but : null,
+  only : null,
   logger : 0,
 };
 
@@ -6271,7 +6316,7 @@ let Extension =
   repositoryCheckout,
   repositoryStash,
   repositoryMerge,
-  repositorySyncWith,
+  repositoryMigrateTo,
 
   // config
 
