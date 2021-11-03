@@ -4747,6 +4747,186 @@ repositoryMigrateTo.defaults =
   logger : 0,
 };
 
+//
+
+function commitsMigrateTo( o )
+{
+  _.routine.options_( commitsMigrateTo, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.str.defined( o.localPath ), 'Expects local path to destination repository {-o.localPath-}.' );
+  _.assert( _.str.defined( o.srcPath ) || _.aux.is( o.srcPath ), 'Expects path to source repository {-o.srcPath-}.' );
+
+  /* */
+
+  let error = null;
+  const ready = _.take( null );
+  const shell = _.process.starter
+  ({
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
+    currentPath : o.localPath,
+    outputCollecting : 1,
+  });
+
+  const srcPath = _.git.path.nativize( o.srcPath );
+  if( !o.srcBranch )
+  o.srcBranch = branchFromPath( srcPath, false ) || 'master';
+  if( !o.dstBranch )
+  o.dstBranch = branchFromPath( o.localPath, true ) || 'master';
+
+  let state1 = o.state1;
+  let state2 = o.state2;
+  if( o.state1 )
+  state1 = _.git._stateParse( o.state1 ).value;
+  if( o.state2 )
+  state2 = _.git._stateParse( o.state2 ).value;
+  _.assert( _.str.defined( state1 ), 'Expects state {-o.state1-} to start with.' );
+
+  if( !o.onCommitMessage )
+  o.onCommitMessage = ( e ) => e;
+  if( _.str.is( o.onCommitMessage ) )
+  {
+    let msg = o.onCommitMessage;
+    o.onCommitMessage = ( e ) => msg;
+  }
+  _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}' );
+
+  _.assert( _.longHasAny( [ 'manual', 'ours', 'theirs' ], o.mergeStrategy ) );
+
+  let remoteName = remoteNameGenerate();
+  const config = _.git.configRead( o.localPath );
+  while( `remote "${ remoteName }"` in config )
+  remoteName = remoteNameGenerate();
+
+  ready.then( () => shell( `git remote add ${ remoteName } ${ srcPath }` ) );
+  if( o.but || o.only )
+  {
+    _.assert( false, 'not implemented' );
+  }
+  else
+  {
+    ready.then( () =>
+    {
+      return _.git.tagLocalChange
+      ({
+        localPath : o.localPath,
+        tag : o.dstBranch,
+      });
+    });
+    ready.then( () => shell( `git fetch ${ remoteName }` ) );
+    ready.then( () => shell( `git diff --diff-filter=d ${ o.dstBranch }..${ state1 }` ) );
+    ready.then( ( diff ) =>
+    {
+      if( diff.output )
+      throw _.err
+      (
+        `Expects no diffs between ${ o.dstBranch } and ${ o.srcPath }.`
+        + `\nPlease, synchronize states before reflecting of commits.`
+      );
+      return null;
+    });
+
+    /* make commits list in JSON format */
+    ready.then( () =>
+    {
+      const format =
+      '{%n'
+      + '  \\"version\\" : \\"%H\\",%n'
+      + '  \\"author\\" :  \\"%an\\",%n'
+      + '  \\"message\\" : \\"%s\\",%n'
+      + `  \\"date\\" : ${ o.withOriginalDate ? '\\"--date=\\"%ci\\"\\"' : '\\"\\"' }%n`
+      + '},';
+      return shell( `git log ${ state1 }..${ state2 } --format="${ format }"` );
+    });
+    ready.then( ( log ) =>
+    {
+      let commits = log.output;
+      commits = _.str.replaceBegin( commits, '', '[\n' );
+      commits = _.str.replaceEnd( commits, ',\n', '\n]' );
+      return JSON.parse( commits );
+    });
+    ready.then( ( commitsArray ) => writeCommits( commitsArray ) );
+  }
+  ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    error = err;
+    return shell( `git remote remove ${ remoteName }` );
+  });
+  ready.finally( () =>
+  {
+    if( error )
+    throw _.err( error );
+    return true;
+  });
+
+  return ready;
+
+  /* */
+
+  function branchFromPath( path, local )
+  {
+    const parsed = _.git.path.parse( path );
+    if( parsed.tag )
+    {
+      const tagDescriptor = _.git.tagExplain
+      ({
+        remotePath : path,
+        localPath : o.localPath,
+        tag : parsed.tag,
+        remote : !local,
+        local,
+      });
+      if( tagDescriptor.isBranch )
+      return parsed.tag;
+    }
+    return null;
+  }
+
+  /* */
+
+  function remoteNameGenerate()
+  {
+    return `_temp-${ _.idWithGuid() }`;
+  }
+
+  /* */
+
+  function writeCommits( commits )
+  {
+    let con = _.take( null );
+
+    for( let i = commits.length - 1 ; i >= 0 ; i-- )
+    shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].version }`, ready : con })
+    .then( () => _.git.statusLocal({ localPath : o.localPath }) )
+    .then( ( status ) =>
+    {
+      if( !status.uncommitted )
+      return null;
+
+      let commitMessage = o.onCommitMessage( commits[ i ].message );
+      return shell( `git commit -m "${ commitMessage }" ${ commits[ i ].date }` );
+    });
+    return con;
+  }
+}
+
+commitsMigrateTo.defaults =
+{
+  srcPath : null,
+  localPath : null,
+  state1 : null,
+  state2 : null,
+  srcBranch : null,
+  dstBranch : null,
+  onCommitMessage : null,
+  withOriginalDate : null,
+  mergeStrategy : 'manual', /* Dmytro : to automatically resolve conflicts in similar files, disabled by default */
+  but : null,
+  only : null,
+  logger : 0,
+};
+
 // --
 // config
 // --
@@ -6314,6 +6494,7 @@ let Extension =
   repositoryStash,
   repositoryMerge,
   repositoryMigrateTo,
+  commitsMigrateTo,
 
   // config
 
