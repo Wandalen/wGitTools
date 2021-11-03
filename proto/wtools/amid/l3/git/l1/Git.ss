@@ -4655,26 +4655,21 @@ function repositoryMigrateTo( o )
   while( `remote "${ remoteName }"` in config )
   remoteName = remoteNameGenerate();
 
-  ready.then( () => shell( `git remote add ${ remoteName } ${ srcPath }` ) );
+  let tempPath = _.fileProvider.path.tempOpen( o.description );
+  ready.then( () => shell( `git remote add ${ remoteName } ${ tempPath }` ) );
   if( o.but || o.only )
   {
     _.assert( false, 'not implemented' );
   }
   else
   {
-    ready.then( () =>
-    {
-      return _.git.tagLocalChange
-      ({
-        localPath : o.localPath,
-        tag : o.dstBranch,
-      });
-    });
-    ready.then( () => shell( `git fetch ${ remoteName }` ) );
-    ready.then( () => shell( `git checkout ${ remoteName }/${ o.srcBranch }` ) );
+    ready.then( () => _.git.repositoryClone({ localPath : tempPath, remotePath : srcPath }) );
+    ready.then( () => _.git.tagLocalChange({ localPath : tempPath, tag : o.srcBranch }) );
     if( state2 )
-    ready.then( () => shell( `git reset --hard ${ state2 }` ) );
-    ready.then( () => shell( `git checkout ${ o.dstBranch }` ) );
+    ready.then( () => shell({ currentPath : tempPath, execPath : `git reset --hard ${ state2 }` }) );
+
+    ready.then( () => _.git.tagLocalChange({ localPath : o.localPath, tag : o.dstBranch }) );
+    ready.then( () => shell( `git fetch ${ remoteName }` ) );
     ready.then( () =>
     {
       let strategy = '-s recursive';
@@ -4697,6 +4692,7 @@ function repositoryMigrateTo( o )
   {
     if( err )
     error = err;
+    _.fileProvider.path.tempClose( tempPath );
     return shell( `git remote remove ${ remoteName }` );
   });
   ready.finally( () =>
