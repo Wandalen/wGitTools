@@ -4832,10 +4832,11 @@ function commitsMigrateTo( o )
       const format =
       '{%n'
       + '  \\"version\\" : \\"%H\\",%n'
-      + '  \\"author\\" :  \\"%an\\",%n'
       + '  \\"message\\" : \\"%s\\",%n'
       + `  \\"date\\" : ${ o.withOriginalDate ? '\\"--date=\\"%ci\\"\\"' : '\\"\\"' }%n`
       + '},';
+      if( !state2 )
+      state2 = `${ remoteName }/${ o.srcBranch }`
       return shell( `git log ${ state1 }..${ state2 } --format="${ format }"` );
     });
     ready.then( ( log ) =>
