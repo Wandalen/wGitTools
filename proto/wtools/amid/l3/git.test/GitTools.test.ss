@@ -19215,6 +19215,114 @@ function repositoryMigrateToWithOptionCommitMessage( test )
 
 //
 
+function repositoryMigrateToWithOptionState( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  let previousVersion;
+  begin().then( () =>
+  {
+    test.case = 'state - not defined';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    previousVersion = config.version;
+
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'theirs',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.notIdentical( config.version, previousVersion );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'state - hash';
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'theirs',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'state - tag';
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '!v0.0.170',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'theirs',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    return a.shell( `git clone ${ dstRepositoryRemote } ./` );
+  }
+}
+
+//
+
 function configRead( test )
 {
   let context = this;
@@ -27042,6 +27150,7 @@ const Proto =
     repositoryMigrateTo,
     repositoryMigrateToWithOptionMergeStrategy,
     repositoryMigrateToWithOptionCommitMessage,
+    repositoryMigrateToWithOptionState,
 
     // etc
 
