@@ -19917,15 +19917,15 @@ function commitsMigrateToWithOptionMergeStrategy( test )
   {
     test.identical( op, true );
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.178' );
+    test.identical( config.version, '0.0.186' );
     return null;
   });
   a.shell( 'git log -n 20' );
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '__sync__' ), 12 );
-    test.ge( _.strCount( op.output, `Author: ${ user }` ), 12 );
+    test.identical( _.strCount( op.output, '__sync__' ), 2 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 2 );
     return null;
   });
 
