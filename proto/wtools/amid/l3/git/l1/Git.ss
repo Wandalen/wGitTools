@@ -4679,27 +4679,26 @@ function repositoryMigrateTo( o )
   {
     if( status.uncommitted )
     {
-      let pathsStatus;
+      let pathsFromStatus;
       if( o.only || o.but )
-      pathsStatus = pathsProduceFromMessage( status.uncommitted, o.only );
+      pathsFromStatus = pathsProduceFromMessage( status.uncommitted, o.only );
 
       if( o.only )
       {
-        let paths = pathsFilter( pathsStatus, o.only );
-        let exclude = _.arrayAppendArray( null, pathsStatus );
+        let paths = pathsFilter( pathsFromStatus, o.only );
+        let exclude = _.arrayAppendArray( null, pathsFromStatus );
         _.arrayRemovedArrayOnce( exclude, paths );
         filesUnstage( exclude );
-        pathsStatus = paths;
+        pathsFromStatus = paths;
       }
-      debugger;
       if( o.but )
       {
-        let exclude = pathsFilter( pathsStatus, o.but );
+        let exclude = pathsFilter( pathsFromStatus, o.but );
         filesUnstage( exclude );
-        _.arrayRemovedArrayOnce( pathsStatus, exclude );
+        _.arrayRemovedArrayOnce( pathsFromStatus, exclude );
       }
 
-      if( pathsStatus.length )
+      if( pathsFromStatus === undefined || pathsFromStatus.length )
       return shell( `git commit -m "${ o.commitMessage }"` );
     }
     return null;
@@ -4958,7 +4957,6 @@ function commitsMigrateTo( o )
       let commits = log.output;
       commits = _.str.replaceBegin( commits, '', '[\n' );
       commits = _.str.replaceEnd( commits, ',\n', '\n]' );
-      debugger;
       return JSON.parse( commits );
     });
     return ready;
@@ -4970,8 +4968,12 @@ function commitsMigrateTo( o )
   {
     let con = _.take( null );
 
+    let strategy = '';
+    if( o.mergeStrategy !== 'manual' )
+    strategy = `-X ${ o.mergeStrategy }`;
+
     for( let i = commits.length - 1 ; i >= 0 ; i-- )
-    shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].version }`, ready : con })
+    shell({ execPath : `git cherry-pick --strategy=recursive ${ strategy } -n -m 1 ${ commits[ i ].version }`, ready : con })
     .then( () => _.git.statusLocal({ localPath : o.localPath }) )
     .then( ( status ) =>
     {

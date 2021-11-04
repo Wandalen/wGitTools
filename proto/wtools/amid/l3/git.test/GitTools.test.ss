@@ -19344,7 +19344,7 @@ function repositoryMigrateToWithOptionOnly( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'but - string without glob';
+    test.case = 'only - string without glob';
     return _.git.repositoryMigrateTo
     ({
       srcPath : srcRepositoryRemote,
@@ -19380,7 +19380,7 @@ function repositoryMigrateToWithOptionOnly( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'but - string with glob';
+    test.case = 'only - string with glob';
     return _.git.repositoryMigrateTo
     ({
       srcPath : srcRepositoryRemote,
@@ -19416,7 +19416,7 @@ function repositoryMigrateToWithOptionOnly( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'but - array, contains strings with and without glob';
+    test.case = 'only - array, contains strings with and without glob';
     return _.git.repositoryMigrateTo
     ({
       srcPath : srcRepositoryRemote,
@@ -19466,6 +19466,153 @@ function repositoryMigrateToWithOptionOnly( test )
 }
 
 repositoryMigrateToWithOptionOnly.timeOut = 60000;
+
+//
+
+function repositoryMigrateToWithOptionBut( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  let filesBefore;
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
+    test.case = 'but - string without glob';
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'theirs',
+      commitMessage : '__sync__',
+      but : 'package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.true( _.longHas( files, 'was.package.json' ) );
+    test.true( _.longHas( files, 'will.yml' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.notIdentical( filesBefore, filesAfter );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
+    test.case = 'but - string with glob';
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'theirs',
+      commitMessage : '__sync__',
+      but : '*package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.false( _.longHas( files, 'was.package.json' ) );
+    test.true( _.longHas( files, 'will.yml' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.notIdentical( filesBefore, filesAfter );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
+    test.case = 'but - array, contains strings with and without glob';
+    return _.git.repositoryMigrateTo
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'theirs',
+      commitMessage : '__sync__',
+      but : [ '*package.json', 'will.yml' ],
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.false( _.longHas( files, 'was.package.json' ) );
+    test.false( _.longHas( files, 'will.yml' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting1' );
+    test.identical( config.about.version, '0.0.1' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.notIdentical( filesBefore, filesAfter );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+}
+
+repositoryMigrateToWithOptionBut.timeOut = 60000;
 
 //
 
@@ -27930,6 +28077,7 @@ const Proto =
     repositoryMigrateToWithOptionCommitMessage,
     repositoryMigrateToWithOptionState,
     repositoryMigrateToWithOptionOnly,
+    repositoryMigrateToWithOptionBut,
 
     commitsMigrateTo,
     commitsMigrateToWithOptionMergeStrategy,
