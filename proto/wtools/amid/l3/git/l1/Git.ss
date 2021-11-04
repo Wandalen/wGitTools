@@ -4805,47 +4805,10 @@ function commitsMigrateTo( o )
   }
   else
   {
-    ready.then( () =>
-    {
-      return _.git.tagLocalChange
-      ({
-        localPath : o.localPath,
-        tag : o.dstBranch,
-      });
-    });
+    ready.then( () => _.git.tagLocalChange({ localPath : o.localPath, tag : o.dstBranch }) );
     ready.then( () => shell( `git fetch ${ remoteName }` ) );
-    ready.then( () => shell( `git diff --diff-filter=d ${ o.dstBranch }..${ state1 }` ) );
-    ready.then( ( diff ) =>
-    {
-      if( diff.output )
-      throw _.err
-      (
-        `Expects no diffs between ${ o.dstBranch } and ${ o.srcPath }.`
-        + `\nPlease, synchronize states before reflecting of commits.`
-      );
-      return null;
-    });
-
-    /* make commits list in JSON format */
-    ready.then( () =>
-    {
-      const format =
-      '{%n'
-      + '  \\"version\\" : \\"%H\\",%n'
-      + '  \\"message\\" : \\"%s\\",%n'
-      + `  \\"date\\" : ${ o.withOriginalDate ? '\\"--date=\\"%ci\\"\\"' : '\\"\\"' }%n`
-      + '},';
-      if( !state2 )
-      state2 = `${ remoteName }/${ o.srcBranch }`
-      return shell( `git log ${ state1 }..${ state2 } --format="${ format }"` );
-    });
-    ready.then( ( log ) =>
-    {
-      let commits = log.output;
-      commits = _.str.replaceBegin( commits, '', '[\n' );
-      commits = _.str.replaceEnd( commits, ',\n', '\n]' );
-      return JSON.parse( commits );
-    });
+    verifyRepositoriesHasSameFiles()
+    makeCommitDescriptorsArray();
     ready.then( ( commitsArray ) => writeCommits( commitsArray ) );
   }
   ready.finally( ( err, arg ) =>
@@ -4889,6 +4852,65 @@ function commitsMigrateTo( o )
   function remoteNameGenerate()
   {
     return `_temp-${ _.idWithGuid() }`;
+  }
+
+  /* */
+
+  function verifyRepositoriesHasSameFiles()
+  {
+    ready.then( () => shell( `git diff --diff-filter=d ${ o.dstBranch }..${ state1 }` ) );
+    ready.then( ( diff ) =>
+    {
+      if( diff.output )
+      {
+        if( o.mergeStrategy === 'ours' )
+        return shell( `git diff --diff-filter=acm ${ state1 }..${ o.dstBranch }` )
+        else
+        throw _.err
+        (
+          `Expects no diffs between ${ o.dstBranch } and ${ o.srcPath }.`
+          + `\nPlease, synchronize states before reflecting of commits.`
+        );
+      }
+      return null;
+    });
+    ready.then( ( diff ) =>
+    {
+      if( diff && diff.output )
+      throw _.err
+      (
+        `Expects no diffs between ${ o.dstBranch } and ${ o.srcPath }.`
+        + `\nPlease, synchronize states before reflecting of commits.`
+      );
+      return null;
+    });
+    return ready;
+  }
+
+  /* */
+
+  function makeCommitDescriptorsArray()
+  {
+    ready.then( () =>
+    {
+      const format =
+      '{%n'
+      + '  \\"version\\" : \\"%H\\",%n'
+      + '  \\"message\\" : \\"%s\\",%n'
+      + `  \\"date\\" : ${ o.withOriginalDate ? '\\"--date=\\"%ci\\"\\"' : '\\"\\"' }%n`
+      + '},';
+      if( !state2 )
+      state2 = `${ remoteName }/${ o.srcBranch }`
+      return shell( `git log ${ state1 }..${ state2 } --format="${ format }"` );
+    });
+    ready.then( ( log ) =>
+    {
+      let commits = log.output;
+      commits = _.str.replaceBegin( commits, '', '[\n' );
+      commits = _.str.replaceEnd( commits, ',\n', '\n]' );
+      return JSON.parse( commits );
+    });
+    return ready;
   }
 
   /* */
