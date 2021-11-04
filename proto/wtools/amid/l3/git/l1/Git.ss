@@ -4897,7 +4897,7 @@ function commitsMigrateTo( o )
       '{%n'
       + '  \\"version\\" : \\"%H\\",%n'
       + '  \\"message\\" : \\"%s\\",%n'
-      + `  \\"date\\" : ${ o.withOriginalDate ? '\\"--date=\\"%ci\\"\\"' : '\\"\\"' }%n`
+      + `  \\"date\\" : ${ o.withOriginalDate ? '\\"--date=\\\\\\"%ci\\\\\\"\\"' : '\\"\\"' }%n`
       + '},';
       if( !state2 )
       state2 = `${ remoteName }/${ o.srcBranch }`
@@ -4908,6 +4908,7 @@ function commitsMigrateTo( o )
       let commits = log.output;
       commits = _.str.replaceBegin( commits, '', '[\n' );
       commits = _.str.replaceEnd( commits, ',\n', '\n]' );
+      debugger;
       return JSON.parse( commits );
     });
     return ready;
