@@ -14618,7 +14618,7 @@ function repositoryHasTagWithOptionReturnVersion( test )
       sync : 1,
       returnVersion : 1,
     });
-    test.identical( got, 'd1065f64a0bce60b3a533949433895be50d62505' );
+    test.identical( got, '8e2aa80ca350f3c45215abafa07a4f2cd320342a' );
 
     test.case = 'tag - branch, exists only on remote server, local - 0, remote - 1';
     var got = _.git.repositoryHasTag
@@ -14631,7 +14631,7 @@ function repositoryHasTagWithOptionReturnVersion( test )
       sync : 1,
       returnVersion : 1,
     });
-    test.identical( got, 'd1065f64a0bce60b3a533949433895be50d62505' );
+    test.identical( got, '8e2aa80ca350f3c45215abafa07a4f2cd320342a' );
 
     test.case = 'tag - hash, not exists, local - 1, remote - 0';
     var got = _.git.repositoryHasTag
