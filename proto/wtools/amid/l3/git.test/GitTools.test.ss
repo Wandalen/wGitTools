@@ -17492,7 +17492,7 @@ function repositoryDeleteCheckRetryOptions( test )
       _.error.attend( err );
       test.identical( arg, undefined );
       test.identical( _.strCount( err.originalMessage, `Error code : ` ), 1 );
-      var exp = `Attempts is exhausted, made 4 attempts`;
+      var exp = `Attempts exhausted, made 4 attempts`;
       test.identical( _.strCount( err.originalMessage, exp ), 1 );
       return null;
     };
@@ -17528,7 +17528,7 @@ function repositoryDeleteCheckRetryOptions( test )
       _.error.attend( err );
       test.identical( arg, undefined );
       test.identical( _.strCount( err.originalMessage, `Error code : ` ), 1 );
-      var exp = `Attempts is exhausted, made 3 attempts`;
+      var exp = `Attempts exhausted, made 3 attempts`;
       test.identical( _.strCount( err.originalMessage, exp ), 1 );
       return null;
     };
@@ -17565,7 +17565,7 @@ function repositoryDeleteCheckRetryOptions( test )
       _.error.attend( err );
       test.identical( arg, undefined );
       test.identical( _.strCount( err.originalMessage, `Error code : ` ), 1 );
-      var exp = `Attempts is exhausted, made 3 attempts`;
+      var exp = `Attempts exhausted, made 3 attempts`;
       test.identical( _.strCount( err.originalMessage, exp ), 1 );
       return null;
     };
@@ -18013,7 +18013,7 @@ function repositoryCloneCheckRetryOptions( test )
     {
       test.true( _.error.is( err ) );
       test.identical( arg, undefined );
-      var exp = `Attempts is exhausted, made 3 attempts`;
+      var exp = `Attempts exhausted, made 3 attempts`;
       test.identical( _.strCount( err.originalMessage, exp ), 1 );
       test.identical( _.strCount( err.originalMessage, `Could not resolve host` ), 1 );
       return null;
@@ -18039,7 +18039,7 @@ function repositoryCloneCheckRetryOptions( test )
     {
       test.true( _.error.is( err ) );
       test.identical( arg, undefined );
-      test.identical( _.strCount( err.originalMessage, `Attempts is exhausted, made 2 attempts` ), 1 );
+      test.identical( _.strCount( err.originalMessage, `Attempts exhausted, made 2 attempts` ), 1 );
       test.identical( _.strCount( err.originalMessage, `Could not resolve host` ), 1 );
       return null;
     };
