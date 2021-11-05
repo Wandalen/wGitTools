@@ -4688,12 +4688,14 @@ function repositoryMigrateTo( o )
         let paths = pathsFilter( pathsFromStatus, o.only );
         let exclude = _.arrayAppendArray( null, pathsFromStatus );
         _.arrayRemovedArrayOnce( exclude, paths );
+        if( exclude.length )
         filesUnstage( exclude );
         pathsFromStatus = paths;
       }
       if( o.but )
       {
         let exclude = pathsFilter( pathsFromStatus, o.but );
+        if( exclude.length )
         filesUnstage( exclude );
         _.arrayRemovedArrayOnce( pathsFromStatus, exclude );
       }
@@ -4753,6 +4755,7 @@ function repositoryMigrateTo( o )
   {
     const files = msg.split( '\n' );
     files.splice( 0, 1 );
+    _.arrayRemoveOnce( files, '' );
     for( let i = 0 ; i < files.length ; i++ )
     files[ i ] = _.str.remove( files[ i ], /^\s*\w+\s+/ );
     return files;
@@ -4848,18 +4851,11 @@ function commitsMigrateTo( o )
   remoteName = remoteNameGenerate();
 
   ready.then( () => shell( `git remote add ${ remoteName } ${ srcPath }` ) );
-  if( o.but || o.only )
-  {
-    _.assert( false, 'not implemented' );
-  }
-  else
-  {
-    ready.then( () => _.git.tagLocalChange({ localPath : o.localPath, tag : o.dstBranch }) );
-    ready.then( () => shell( `git fetch ${ remoteName }` ) );
-    verifyRepositoriesHasSameFiles()
-    makeCommitDescriptorsArray();
-    ready.then( ( commitsArray ) => writeCommits( commitsArray ) );
-  }
+  ready.then( () => _.git.tagLocalChange({ localPath : o.localPath, tag : o.dstBranch }) );
+  ready.then( () => shell( `git fetch ${ remoteName }` ) );
+  verifyRepositoriesHasSameFiles()
+  makeCommitDescriptorsArray();
+  ready.then( ( commitsArray ) => writeCommits( commitsArray ) );
   ready.finally( ( err, arg ) =>
   {
     if( err )
@@ -4907,30 +4903,24 @@ function commitsMigrateTo( o )
 
   function verifyRepositoriesHasSameFiles()
   {
-    ready.then( () => shell( `git diff --diff-filter=d ${ o.dstBranch }..${ state1 }` ) );
+
+    if( o.mergeStrategy === 'ours' )
+    ready.then( () => shell( `git diff --name-only --diff-filter=acm ${ state1 }..${ o.dstBranch }` ) );
+    else
+    ready.then( () => shell( `git diff --name-only --diff-filter=d ${ o.dstBranch }..${ state1 }` ) );
+
     ready.then( ( diff ) =>
     {
-      if( diff.output )
+      if( diff && diff.output )
       {
-        if( o.mergeStrategy === 'ours' )
-        return shell( `git diff --diff-filter=acm ${ state1 }..${ o.dstBranch }` )
-        else
+        const files = outputDiffPathsFilter( diff.output, false );
+        if( files.length )
         throw _.err
         (
           `Expects no diffs between ${ o.dstBranch } and ${ o.srcPath }.`
           + `\nPlease, synchronize states before reflecting of commits.`
         );
       }
-      return null;
-    });
-    ready.then( ( diff ) =>
-    {
-      if( diff && diff.output )
-      throw _.err
-      (
-        `Expects no diffs between ${ o.dstBranch } and ${ o.srcPath }.`
-        + `\nPlease, synchronize states before reflecting of commits.`
-      );
       return null;
     });
     return ready;
@@ -4974,16 +4964,83 @@ function commitsMigrateTo( o )
 
     for( let i = commits.length - 1 ; i >= 0 ; i-- )
     shell({ execPath : `git cherry-pick --strategy=recursive ${ strategy } -n -m 1 ${ commits[ i ].version }`, ready : con })
-    .then( () => _.git.statusLocal({ localPath : o.localPath }) )
-    .then( ( status ) =>
+    .then( () => shell( `git diff --name-only HEAD` ) )
+    .then( ( diff ) =>
     {
-      if( !status.uncommitted )
-      return null;
+      if( diff.output )
+      {
+        let files = outputDiffPathsFilter( diff.output, true );
 
-      let commitMessage = o.onCommitMessage( commits[ i ].message );
-      return shell( `git commit -m "${ commitMessage }" ${ commits[ i ].date }` );
+        if( files.length )
+        {
+          let commitMessage = o.onCommitMessage( commits[ i ].message );
+          return shell( `git commit -m "${ commitMessage }" ${ commits[ i ].date }` );
+        }
+      }
+      return null;
     });
     return con;
+  }
+
+  /* */
+
+  function outputDiffPathsFilter( output, unstage )
+  {
+    let pathsFromStatus = pathsProduceFromMessage( output );
+    _.arrayRemoveOnce( pathsFromStatus, '' );
+
+    if( o.only )
+    {
+      let paths = pathsFilter( pathsFromStatus, o.only );
+      let exclude = _.arrayAppendArray( null, pathsFromStatus );
+      _.arrayRemovedArrayOnce( exclude, paths );
+      if( unstage && exclude.length )
+      filesUnstage( exclude );
+      pathsFromStatus = paths;
+    }
+    if( o.but )
+    {
+      let exclude = pathsFilter( pathsFromStatus, o.but );
+      if( unstage && exclude.length )
+      filesUnstage( exclude );
+      _.arrayRemovedArrayOnce( pathsFromStatus, exclude );
+    }
+
+    return pathsFromStatus;
+  }
+
+  /* */
+
+  function pathsProduceFromMessage( msg )
+  {
+    const files = msg.split( '\n' );
+    for( let i = 0 ; i < files.length ; i++ )
+    files[ i ] = _.str.remove( files[ i ], /^\s*\w+\s+/ );
+    return files;
+  }
+
+  /* */
+
+  function pathsFilter( paths, selectors )
+  {
+    selectors = _.array.as( selectors );
+    let result = _.array.make();
+    for( let i = 0 ; i < selectors.length ; i++ )
+    {
+      let entries = _.path.globShortFilter({ src : paths, selector : selectors[ i ] });
+      _.arrayAppendArrayOnce( result, entries );
+    }
+    return result;
+  }
+
+  /* */
+
+  function filesUnstage( exclude )
+  {
+    debugger;
+    shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, sync : 1 });
+    shell({ execPath : `git clean -df`, sync : 1 });
+    shell({ execPath : `git checkout ./`, sync : 1 });
   }
 }
 
