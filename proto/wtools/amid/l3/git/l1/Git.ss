@@ -5037,7 +5037,6 @@ function commitsMigrateTo( o )
 
   function filesUnstage( exclude )
   {
-    debugger;
     shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, sync : 1 });
     shell({ execPath : `git clean -df`, sync : 1 });
     shell({ execPath : `git checkout ./`, sync : 1 });
