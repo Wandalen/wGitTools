@@ -14618,7 +14618,7 @@ function repositoryHasTagWithOptionReturnVersion( test )
       sync : 1,
       returnVersion : 1,
     });
-    test.identical( got, 'd1065f64a0bce60b3a533949433895be50d62505' );
+    test.identical( got, '8e2aa80ca350f3c45215abafa07a4f2cd320342a' );
 
     test.case = 'tag - branch, exists only on remote server, local - 0, remote - 1';
     var got = _.git.repositoryHasTag
@@ -14631,7 +14631,7 @@ function repositoryHasTagWithOptionReturnVersion( test )
       sync : 1,
       returnVersion : 1,
     });
-    test.identical( got, 'd1065f64a0bce60b3a533949433895be50d62505' );
+    test.identical( got, '8e2aa80ca350f3c45215abafa07a4f2cd320342a' );
 
     test.case = 'tag - hash, not exists, local - 1, remote - 0';
     var got = _.git.repositoryHasTag
@@ -17492,7 +17492,7 @@ function repositoryDeleteCheckRetryOptions( test )
       _.error.attend( err );
       test.identical( arg, undefined );
       test.identical( _.strCount( err.originalMessage, `Error code : ` ), 1 );
-      var exp = `Attempts is exhausted, made 4 attempts`;
+      var exp = `Attempts exhausted, made 4 attempts`;
       test.identical( _.strCount( err.originalMessage, exp ), 1 );
       return null;
     };
@@ -17528,7 +17528,7 @@ function repositoryDeleteCheckRetryOptions( test )
       _.error.attend( err );
       test.identical( arg, undefined );
       test.identical( _.strCount( err.originalMessage, `Error code : ` ), 1 );
-      var exp = `Attempts is exhausted, made 3 attempts`;
+      var exp = `Attempts exhausted, made 3 attempts`;
       test.identical( _.strCount( err.originalMessage, exp ), 1 );
       return null;
     };
@@ -17565,7 +17565,7 @@ function repositoryDeleteCheckRetryOptions( test )
       _.error.attend( err );
       test.identical( arg, undefined );
       test.identical( _.strCount( err.originalMessage, `Error code : ` ), 1 );
-      var exp = `Attempts is exhausted, made 3 attempts`;
+      var exp = `Attempts exhausted, made 3 attempts`;
       test.identical( _.strCount( err.originalMessage, exp ), 1 );
       return null;
     };
@@ -18013,7 +18013,7 @@ function repositoryCloneCheckRetryOptions( test )
     {
       test.true( _.error.is( err ) );
       test.identical( arg, undefined );
-      var exp = `Attempts is exhausted, made 3 attempts`;
+      var exp = `Attempts exhausted, made 3 attempts`;
       test.identical( _.strCount( err.originalMessage, exp ), 1 );
       test.identical( _.strCount( err.originalMessage, `Could not resolve host` ), 1 );
       return null;
@@ -18039,7 +18039,7 @@ function repositoryCloneCheckRetryOptions( test )
     {
       test.true( _.error.is( err ) );
       test.identical( arg, undefined );
-      test.identical( _.strCount( err.originalMessage, `Attempts is exhausted, made 2 attempts` ), 1 );
+      test.identical( _.strCount( err.originalMessage, `Attempts exhausted, made 2 attempts` ), 1 );
       test.identical( _.strCount( err.originalMessage, `Could not resolve host` ), 1 );
       return null;
     };

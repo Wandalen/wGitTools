@@ -4389,6 +4389,7 @@ function repositoryClone( o )
       'Could not read from remote repository',
       'Failed to connect',
       'returned error: 429',
+      'expected flush after ref listing',
     ];
     if( !_.strHasAny( err.originalMessage, errorMsgs ) )
     return false;
