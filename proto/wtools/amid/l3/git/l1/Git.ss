@@ -4847,8 +4847,6 @@ function repositoryMigrate( o )
   o.onDate = ( e ) => e;
   _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}' );
 
-  _.assert( _.longHasAny( [ 'manual', 'ours', 'theirs' ], o.mergeStrategy ) );
-
   let remoteName = remoteNameGenerate();
   const config = _.git.configRead( o.localPath );
   while( `remote "${ remoteName }"` in config )
@@ -4907,12 +4905,7 @@ function repositoryMigrate( o )
 
   function verifyRepositoriesHasSameFiles()
   {
-
-    if( o.mergeStrategy === 'ours' )
-    ready.then( () => shell( `git diff --name-only --diff-filter=acm ${ state1 }..${ o.dstBranch }` ) );
-    else
     ready.then( () => shell( `git diff --name-only --diff-filter=d ${ o.dstBranch }..${ state1 }` ) );
-
     ready.then( ( diff ) =>
     {
       if( diff && diff.output )
@@ -4962,12 +4955,8 @@ function repositoryMigrate( o )
   {
     let con = _.take( null );
 
-    let strategy = '';
-    if( o.mergeStrategy !== 'manual' )
-    strategy = `-X ${ o.mergeStrategy }`;
-
     for( let i = commits.length - 1 ; i >= 0 ; i-- )
-    shell({ execPath : `git cherry-pick --strategy=recursive ${ strategy } -n -m 1 ${ commits[ i ].version }`, ready : con })
+    shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].version }`, ready : con })
     .then( () => shell( `git diff --name-only HEAD` ) )
     .then( ( diff ) =>
     {
@@ -5060,7 +5049,6 @@ repositoryMigrate.defaults =
   dstBranch : null,
   onCommitMessage : null,
   onDate : null,
-  mergeStrategy : 'manual', /* Dmytro : to automatically resolve conflicts in similar files, disabled by default */
   but : null,
   only : null,
   logger : 0,
