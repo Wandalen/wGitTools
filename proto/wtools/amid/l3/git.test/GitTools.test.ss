@@ -18849,6 +18849,2124 @@ repositoryCheckoutRemotePathIsMap.timeOut = 30000;
 
 //
 
+function repositoryAgree( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'migrate same repository with same branches, no state, branches, message';
+    return _.git.repositoryAgree
+    ({
+      srcPath : dstRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : null,
+      dstBranch : null,
+      commitMessage : null,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'migrate same repository with same branches, state - previous commit, no branches, message';
+    return _.git.repositoryAgree
+    ({
+      srcPath : dstRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#HEAD~',
+      srcBranch : null,
+      dstBranch : null,
+      commitMessage : null,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'migrate another repository with same branches, no state, branches, message, strategy - dst';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : null,
+      dstBranch : null,
+      mergeStrategy : 'dst',
+      commitMessage : null,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+}
+
+//
+
+function repositoryAgreeWithOptionMergeStrategy( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'strategy - manual';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'manual',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.true( _.error.is( err ) );
+    _.error.attend( err );
+    test.identical( _.strCount( err.originalMessage, 'Process returned exit code' ), 1 );
+    var exp = 'Launched as "git merge -s recursive --allow-unrelated-histories --squash';
+    test.identical( _.strCount( err.originalMessage, exp ), 1 );
+    test.identical( op, undefined );
+    return null;
+  });
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    var config = a.fileProvider.fileRead( a.abs( 'package.json' ) );
+    test.ge( _.strCount( config, 'wmodulefortesting1' ), 1 );
+    test.ge( _.strCount( config, 'wmodulefortesting2' ), 1 );
+    test.ge( _.strCount( config, '<<<<' ), 1 );
+    test.ge( _.strCount( config, '====' ), 1 );
+    test.ge( _.strCount( config, '>>>>' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'strategy - dst';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'dst',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+    return null;
+  });
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 1 );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'strategy - src';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+    return null;
+  });
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 1 );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    if( !Config.debug )
+    return null;
+
+    test.case = 'wrong strategy';
+    return test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryAgree
+      ({
+        srcPath : srcRepositoryRemote,
+        localPath : a.abs( '.' ),
+        state2 : null,
+        srcBranch : null,
+        dstBranch : null,
+        mergeStrategy : 'wrong',
+        commitMessage : '__sync__',
+      });
+    });
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+}
+
+//
+
+function repositoryAgreeWithOptionCommitMessage( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  begin();
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.identical( _.strCount( op.output, `Merge branch 'master' of ${ srcRepositoryRemote } into master` ), 0 );
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'no commit message';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'dst',
+      commitMessage : null,
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+    return null;
+  });
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.identical( _.strCount( op.output, `Merge branch 'master' of ${ srcRepositoryRemote } into master` ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.identical( _.strCount( op.output, `Merge branch 'master' of ${ srcRepositoryRemote } into master` ), 0 );
+    return null;
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'no commit message';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'dst',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+    return null;
+  });
+  a.shell( 'git log -n 1' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 1 );
+    test.identical( _.strCount( op.output, `Merge branch 'master' of ${ srcRepositoryRemote } into master` ), 0 );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    if( !Config.debug )
+    return null;
+
+    test.case = 'wrong type of commit message';
+    return test.shouldThrowErrorSync( () =>
+    {
+      return _.git.repositoryAgree
+      ({
+        srcPath : srcRepositoryRemote,
+        localPath : a.abs( '.' ),
+        state2 : null,
+        srcBranch : null,
+        dstBranch : null,
+        mergeStrategy : 'dst',
+        commitMessage : [ 'wrong' ],
+      });
+    });
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+}
+
+//
+
+function repositoryAgreeWithOptionState( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  let previousVersion;
+  begin().then( () =>
+  {
+    test.case = 'state - not defined';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    previousVersion = config.version;
+
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : null,
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.notIdentical( config.version, previousVersion );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'state - hash';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'state - tag';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '!v0.0.170',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+}
+
+//
+
+function repositoryAgreeWithOptionOnly( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  let filesBefore;
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
+    test.case = 'only - string without glob';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+      only : 'package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output.trim(), 'package.json' );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
+    test.case = 'only - string with glob';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+      only : '*package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output.trim(), 'package.json\nwas.package.json' );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
+    test.case = 'only - array, contains strings with and without glob';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+      only : [ '*package.json', 'will.yml' ],
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output.trim(), 'package.json\nwas.package.json\nwill.yml' );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+}
+
+repositoryAgreeWithOptionOnly.timeOut = 60000;
+
+//
+
+function repositoryAgreeWithOptionBut( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  let filesBefore;
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
+    test.case = 'but - string without glob';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+      but : 'package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.true( _.longHas( files, 'was.package.json' ) );
+    test.true( _.longHas( files, 'will.yml' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.notIdentical( filesBefore, filesAfter );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
+    test.case = 'but - string with glob';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+      but : '*package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.false( _.longHas( files, 'was.package.json' ) );
+    test.true( _.longHas( files, 'will.yml' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.notIdentical( filesBefore, filesAfter );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
+    test.case = 'but - array, contains strings with and without glob';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+      but : [ '*package.json', 'will.yml' ],
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.false( _.longHas( files, 'was.package.json' ) );
+    test.false( _.longHas( files, 'will.yml' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting1' );
+    test.identical( config.about.version, '0.0.1' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.notIdentical( filesBefore, filesAfter );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+}
+
+repositoryAgreeWithOptionBut.timeOut = 60000;
+
+//
+
+function repositoryMigrate( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+  const user = a.shell({ currentPath : __dirname, execPath : 'git config --global user.name', sync : 1 }).output.trim();
+
+  /* - */
+
+  begin();
+  migrate( '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.178' );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+
+  /* */
+
+  function migrate( state )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryAgree
+      ({
+        srcPath : srcRepositoryRemote,
+        localPath : a.abs( '.' ),
+        state2 : state,
+        srcBranch : 'master',
+        dstBranch : 'master',
+        mergeStrategy : 'src',
+      });
+    });
+  }
+}
+
+//
+
+function repositoryMigrateWithOptionOnCommitMessage( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+  const user = a.shell({ currentPath : __dirname, execPath : 'git config --global user.name', sync : 1 }).output.trim();
+
+  /* - */
+
+  begin();
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'onCommitMessage - string';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.178' );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'onCommitMessage - function that returns string';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : () => '__sync__',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.178' );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'onCommitMessage - function that returns string concatenated with message';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : ( e ) => '__sync__' + e,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.178' );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, /__sync__\S+/ ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+
+  /* */
+
+  function migrate( strategy, state )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryAgree
+      ({
+        srcPath : srcRepositoryRemote,
+        localPath : a.abs( '.' ),
+        state2 : state,
+        srcBranch : 'master',
+        dstBranch : 'master',
+        mergeStrategy : strategy,
+      });
+    });
+  }
+}
+
+repositoryMigrateWithOptionOnCommitMessage.timeOut = 120000;
+
+//
+
+function repositoryMigrateWithOptionOnDate( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+  const user = a.shell({ currentPath : __dirname, execPath : 'git config --global user.name', sync : 1 }).output.trim();
+
+  /* - */
+
+  begin();
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'onDate returns no date';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : ( e ) => '',
+      onCommitMessage : '__sync__',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.178' );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    const dateMatch = op.output.match( /Date:\s+((\w+)\s+(\w+)\s(\d+)\s(\d+:))/ );
+    const commonDate = dateMatch[ 1 ];
+    test.ge( _.strCount( op.output, commonDate ), 15 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'onDate returns original date';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : ( e ) => e,
+      onCommitMessage : '__sync__',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.178' );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    const dateMatch = op.output.match( /Date:\s+((\w+)\s+(\w+)\s(\d+)\s(\d+:))/ );
+    const commonDate = dateMatch[ 1 ];
+    test.ge( _.strCount( op.output, commonDate ), 0 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'onDate - default';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : null,
+      onCommitMessage : '__sync__',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.178' );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    const dateMatch = op.output.match( /Date:\s+((\w+)\s+(\w+)\s(\d+)\s(\d+:))/ );
+    const commonDate = dateMatch[ 1 ];
+    test.ge( _.strCount( op.output, commonDate ), 0 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+
+  /* */
+
+  function migrate( strategy, state )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryAgree
+      ({
+        srcPath : srcRepositoryRemote,
+        localPath : a.abs( '.' ),
+        state2 : state,
+        srcBranch : 'master',
+        dstBranch : 'master',
+        mergeStrategy : strategy,
+      });
+    });
+  }
+}
+
+repositoryMigrateWithOptionOnDate.timeOut = 60000;
+
+//
+
+function repositoryMigrateWithOptionOnly( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+  const user = a.shell({ currentPath : __dirname, execPath : 'git config --global user.name', sync : 1 }).output.trim();
+
+  /* - */
+
+  let filesBefore;
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    only : [ '*package.json', 'will.yml' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'only - string, file in range of modified files, strategy - src';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      only : 'package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output.trim(), 'package.json' );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 8 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 8 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    only : [ '*package.json', 'will.yml' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'only - string with glob, files in range of modified files, strategy - src';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      only : '*package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output.trim(), 'package.json\nwas.package.json' );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 8 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 8 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    only : [ '*package.json', 'will.yml' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'only - array of strings with and without glob, files in range of modified files, strategy - src';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      only : [ '*package.json', 'will.yml' ],
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output.trim(), 'package.json\nwas.package.json' );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 10 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 10 );
+    return null;
+  });
+
+  /* - */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    only : [ '*package.json', 'will.yml' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'only - string, file in range of modified files, strategy - dst';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      only : 'package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output.trim(), 'package.json' );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 8 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 8 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    only : [ '*package.json', 'will.yml' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'only - string with glob, files in range of modified files, strategy - dst';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      only : '*package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output.trim(), 'package.json\nwas.package.json' );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 8 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 8 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    only : [ '*package.json', 'will.yml' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'only - array of strings with and without glob, files in range of modified files, strategy - dst';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      only : [ '*package.json', 'will.yml' ],
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output.trim(), 'package.json\nwas.package.json' );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 10 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 10 );
+    return null;
+  });
+
+  /* - */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    only : [ '*package.json', 'will.yml' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'only - string, file is out of range of modified files, should throw error';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      only : 'Readme.md',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.true( _.error.is( err ) );
+    _.error.attend( err );
+    test.identical( op, undefined );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 0 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+
+  /* */
+
+  function migrate( o )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryAgree
+      ({
+        srcPath : srcRepositoryRemote,
+        localPath : a.abs( '.' ),
+        srcBranch : 'master',
+        dstBranch : 'master',
+        ... o,
+      });
+    });
+  }
+}
+
+repositoryMigrateWithOptionOnly.timeOut = 180000;
+
+//
+
+function repositoryMigrateWithOptionBut( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+  const user = a.shell({ currentPath : __dirname, execPath : 'git config --global user.name', sync : 1 }).output.trim();
+
+  /* - */
+
+  let filesBefore;
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    but : [ 'package.json' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'but - string, file in range of modified files, strategy - src';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      but : 'package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    let files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.true( _.longHas( files, 'was.package.json' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    but : [ 'package.json' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'but - string with glob, files in range of modified files, strategy - src';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      but : '*package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    let files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.false( _.longHas( files, 'was.package.json' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 9 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 9 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    but : [ 'package.json' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'but - array of strings with and without glob, files in range of modified files, strategy - src';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      but : [ '*package.json', 'will.yml' ],
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    let files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.false( _.longHas( files, 'was.package.json' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 7 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 7 );
+    return null;
+  });
+
+  /* - */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    but : [ 'package.json' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'but - string, file in range of modified files, strategy - dst';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      but : 'package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    let files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.true( _.longHas( files, 'was.package.json' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    but : [ 'package.json' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'but - string with glob, files in range of modified files, strategy - dst';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      but : '*package.json',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    let files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.false( _.longHas( files, 'was.package.json' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 9 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 9 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    but : [ 'package.json' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'but - array of strings with and without glob, files in range of modified files, strategy - dst';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      but : [ '*package.json', 'will.yml' ],
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    let files = op.output.split( '\n' );
+    test.false( _.longHas( files, 'package.json' ) );
+    test.false( _.longHas( files, 'was.package.json' ) );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 7 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 7 );
+    return null;
+  });
+
+  /* - */
+
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    only : [ 'Readme.md' ],
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'but - string, file is out of range of modified files, should throw error';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      but : 'Readme.md',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.true( _.error.is( err ) );
+    _.error.attend( err );
+    test.identical( op, undefined );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting1' );
+    test.identical( config.version, '0.0.186' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting1' );
+    test.identical( config.about.version, '0.0.1' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 0 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+
+  /* */
+
+  function migrate( o )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryAgree
+      ({
+        srcPath : srcRepositoryRemote,
+        localPath : a.abs( '.' ),
+        srcBranch : 'master',
+        dstBranch : 'master',
+        ... o,
+      });
+    });
+  }
+}
+
+repositoryMigrateWithOptionBut.timeOut = 180000;
+
+//
+
+function repositoryMigrateWithOptionsOnlyAndBut( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+  const user = a.shell({ currentPath : __dirname, execPath : 'git config --global user.name', sync : 1 }).output.trim();
+
+  /* - */
+
+  let filesBefore;
+  begin();
+  migrate
+  ({
+    mergeStrategy : 'src',
+    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'only - string, file in range of modified files, strategy - src';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      only : [ '*package.json', 'will.yml', 'Readme.md' ],
+      but : [ 'package.json', 'Readme*' ],
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( op.output.trim(), 'was.package.json' );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 10 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 10 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+
+  /* */
+
+  function migrate( o )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryAgree
+      ({
+        srcPath : srcRepositoryRemote,
+        localPath : a.abs( '.' ),
+        srcBranch : 'master',
+        dstBranch : 'master',
+        ... o,
+      });
+    });
+  }
+}
+
+//
+
 function configRead( test )
 {
   let context = this;
@@ -26673,6 +28791,20 @@ const Proto =
     repositoryCloneCheckRetryOptions,
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,
+
+    repositoryAgree,
+    repositoryAgreeWithOptionMergeStrategy,
+    repositoryAgreeWithOptionCommitMessage,
+    repositoryAgreeWithOptionState,
+    repositoryAgreeWithOptionOnly,
+    repositoryAgreeWithOptionBut,
+
+    repositoryMigrate,
+    repositoryMigrateWithOptionOnCommitMessage,
+    repositoryMigrateWithOptionOnDate,
+    repositoryMigrateWithOptionOnly,
+    repositoryMigrateWithOptionBut,
+    repositoryMigrateWithOptionsOnlyAndBut,
 
     // etc
 

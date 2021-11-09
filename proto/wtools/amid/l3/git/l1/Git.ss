@@ -4614,6 +4614,446 @@ repositoryMerge.defaults =
   logger : 0,
 };
 
+//
+
+function repositoryAgree( o )
+{
+  _.routine.options_( repositoryAgree, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.str.defined( o.localPath ), 'Expects local path to destination repository {-o.localPath-}.' );
+  _.assert( _.str.defined( o.srcPath ) || _.aux.is( o.srcPath ), 'Expects path to source repository {-o.srcPath-}.' );
+
+  /* */
+
+  let error = null;
+  const ready = _.take( null );
+  const shell = _.process.starter
+  ({
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
+    currentPath : o.localPath,
+    outputCollecting : 1,
+  });
+
+  const srcPath = _.git.path.nativize( o.srcPath );
+  if( !o.srcBranch )
+  o.srcBranch = branchFromPath( srcPath, false ) || 'master';
+  if( !o.dstBranch )
+  o.dstBranch = branchFromPath( o.localPath, true ) || 'master';
+
+  let state2 = o.state2;
+  if( o.state2 )
+  state2 = _.git._stateParse( o.state2 ).value;
+
+  if( !o.commitMessage )
+  o.commitMessage = `Merge branch '${ o.srcBranch }' of ${ srcPath } into ${ o.dstBranch }`;
+  _.assert( _.str.is( o.commitMessage ), 'Expects string with commit message {-o.commitMessage-}' );
+
+  _.assert( _.longHasAny( [ 'src', 'dst', 'manual' ], o.mergeStrategy ) );
+
+  let remoteName = remoteNameGenerate();
+  const config = _.git.configRead( o.localPath );
+  while( `remote "${ remoteName }"` in config )
+  remoteName = remoteNameGenerate();
+
+  let tempPath = _.fileProvider.path.tempOpen( o.description );
+  ready.then( () => shell( `git remote add ${ remoteName } ${ tempPath }` ) );
+  ready.then( () => _.git.repositoryClone({ localPath : tempPath, remotePath : srcPath }) );
+  ready.then( () => _.git.tagLocalChange({ localPath : tempPath, tag : o.srcBranch }) );
+  if( state2 )
+  ready.then( () => shell({ currentPath : tempPath, execPath : `git reset --hard ${ state2 }` }) );
+
+  ready.then( () => _.git.tagLocalChange({ localPath : o.localPath, tag : o.dstBranch }) );
+  ready.then( () => shell( `git fetch ${ remoteName }` ) );
+  ready.then( () =>
+  {
+    let strategy = '-s recursive';
+    if( o.mergeStrategy !== 'manual' )
+    strategy += ` -X ${ o.mergeStrategy === 'src' ? 'theirs' : 'ours' }`;
+    return shell
+    (
+      `git merge ${ strategy } --allow-unrelated-histories --squash ${ remoteName }/${ o.srcBranch } ${ o.dstBranch }`
+    );
+  });
+  ready.then( () => _.git.statusLocal({ localPath : o.localPath, explaining : 1, detailing : 1 }) );
+  ready.then( ( status ) =>
+  {
+    if( status.uncommitted )
+    {
+      let pathsFromStatus;
+      if( o.only || o.but )
+      pathsFromStatus = pathsProduceFromMessage( status.uncommitted, o.only );
+
+      if( o.only )
+      {
+        let paths = pathsFilter( pathsFromStatus, o.only );
+        let exclude = _.arrayAppendArray( null, pathsFromStatus );
+        _.arrayRemovedArrayOnce( exclude, paths );
+        if( exclude.length )
+        filesUnstage( exclude );
+        pathsFromStatus = paths;
+      }
+      if( o.but )
+      {
+        let exclude = pathsFilter( pathsFromStatus, o.but );
+        if( exclude.length )
+        filesUnstage( exclude );
+        _.arrayRemovedArrayOnce( pathsFromStatus, exclude );
+      }
+
+      if( pathsFromStatus === undefined || pathsFromStatus.length )
+      return shell( `git commit -m "${ o.commitMessage }"` );
+    }
+    return null;
+  });
+  ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    error = err;
+    _.fileProvider.path.tempClose( tempPath );
+    return shell( `git remote remove ${ remoteName }` );
+  });
+  ready.finally( () =>
+  {
+    if( error )
+    throw _.err( error );
+    return true;
+  });
+
+  return ready;
+
+  /* */
+
+  function branchFromPath( path, local )
+  {
+    const parsed = _.git.path.parse( path );
+    if( parsed.tag )
+    {
+      const tagDescriptor = _.git.tagExplain
+      ({
+        remotePath : path,
+        localPath : o.localPath,
+        tag : parsed.tag,
+        remote : !local,
+        local,
+      });
+      if( tagDescriptor.isBranch )
+      return parsed.tag;
+    }
+    return null;
+  }
+
+  /* */
+
+  function remoteNameGenerate()
+  {
+    return `_temp-${ _.idWithGuid() }`;
+  }
+
+  /* */
+
+  function pathsProduceFromMessage( msg )
+  {
+    const files = msg.split( '\n' );
+    files.splice( 0, 1 );
+    _.arrayRemoveOnce( files, '' );
+    for( let i = 0 ; i < files.length ; i++ )
+    files[ i ] = _.str.remove( files[ i ], /^\s*\w+\s+/ );
+    return files;
+  }
+
+  /* */
+
+  function pathsFilter( paths, selectors )
+  {
+    selectors = _.array.as( selectors );
+    let result = _.array.make();
+    for( let i = 0 ; i < selectors.length ; i++ )
+    {
+      let entries = _.path.globShortFilter({ src : paths, selector : selectors[ i ] });
+      _.arrayAppendArrayOnce( result, entries );
+    }
+    return result;
+  }
+
+  /* */
+
+  function filesUnstage( exclude )
+  {
+    shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, sync : 1 });
+    shell({ execPath : `git clean -df`, sync : 1 });
+    shell({ execPath : `git checkout ./`, sync : 1 });
+  }
+}
+
+repositoryAgree.defaults =
+{
+  srcPath : null,
+  localPath : null,
+  state2 : null,
+  srcBranch : null,
+  dstBranch : null,
+  commitMessage : null,
+  mergeStrategy : 'src', /* can be any of [ 'src', 'dst', 'manual' ] */
+  but : null,
+  only : null,
+  logger : 0,
+};
+
+//
+
+function repositoryMigrate( o )
+{
+  _.routine.options_( repositoryMigrate, o );
+  _.assert( arguments.length === 1, 'Expects single argument' );
+  _.assert( _.str.defined( o.localPath ), 'Expects local path to destination repository {-o.localPath-}.' );
+  _.assert( _.str.defined( o.srcPath ) || _.aux.is( o.srcPath ), 'Expects path to source repository {-o.srcPath-}.' );
+
+  /* */
+
+  let error = null;
+  const ready = _.take( null );
+  const shell = _.process.starter
+  ({
+    logger : _.logger.relativeMaybe( o.logger, -1 ),
+    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
+    currentPath : o.localPath,
+    outputCollecting : 1,
+  });
+
+  const srcPath = _.git.path.nativize( o.srcPath );
+  if( !o.srcBranch )
+  o.srcBranch = branchFromPath( srcPath, false ) || 'master';
+  if( !o.dstBranch )
+  o.dstBranch = branchFromPath( o.localPath, true ) || 'master';
+
+  let state1 = o.state1;
+  let state2 = o.state2;
+  if( o.state1 )
+  state1 = _.git._stateParse( o.state1 ).value;
+  if( o.state2 )
+  state2 = _.git._stateParse( o.state2 ).value;
+  _.assert( _.str.defined( state1 ), 'Expects state {-o.state1-} to start with.' );
+
+  if( !o.onCommitMessage )
+  o.onCommitMessage = ( e ) => e;
+  if( _.str.is( o.onCommitMessage ) )
+  {
+    let msg = o.onCommitMessage;
+    o.onCommitMessage = ( e ) => msg;
+  }
+  _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}' );
+  if( !o.onDate )
+  o.onDate = ( e ) => e;
+  _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}' );
+
+  let remoteName = remoteNameGenerate();
+  const config = _.git.configRead( o.localPath );
+  while( `remote "${ remoteName }"` in config )
+  remoteName = remoteNameGenerate();
+
+  ready.then( () => shell( `git remote add ${ remoteName } ${ srcPath }` ) );
+  ready.then( () => _.git.tagLocalChange({ localPath : o.localPath, tag : o.dstBranch }) );
+  ready.then( () => shell( `git fetch ${ remoteName }` ) );
+  verifyRepositoriesHasSameFiles()
+  makeCommitDescriptorsArray();
+  ready.then( ( commitsArray ) => writeCommits( commitsArray ) );
+  ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    error = err;
+    return shell( `git remote remove ${ remoteName }` );
+  });
+  ready.finally( () =>
+  {
+    if( error )
+    throw _.err( error );
+    return true;
+  });
+
+  return ready;
+
+  /* */
+
+  function branchFromPath( path, local )
+  {
+    const parsed = _.git.path.parse( path );
+    if( parsed.tag )
+    {
+      const tagDescriptor = _.git.tagExplain
+      ({
+        remotePath : path,
+        localPath : o.localPath,
+        tag : parsed.tag,
+        remote : !local,
+        local,
+      });
+      if( tagDescriptor.isBranch )
+      return parsed.tag;
+    }
+    return null;
+  }
+
+  /* */
+
+  function remoteNameGenerate()
+  {
+    return `_temp-${ _.idWithGuid() }`;
+  }
+
+  /* */
+
+  function verifyRepositoriesHasSameFiles()
+  {
+    ready.then( () => shell( `git diff --name-only --diff-filter=d ${ o.dstBranch }..${ state1 }` ) );
+    ready.then( ( diff ) =>
+    {
+      if( diff && diff.output )
+      {
+        const files = outputDiffPathsFilter( diff.output, false );
+        if( files.length )
+        throw _.err
+        (
+          `Expects no diffs between ${ o.dstBranch } and ${ o.srcPath }.`
+          + `\nPlease, synchronize states before reflecting of commits.`
+        );
+      }
+      return null;
+    });
+    return ready;
+  }
+
+  /* */
+
+  function makeCommitDescriptorsArray()
+  {
+    ready.then( () =>
+    {
+      const format =
+      '{%n'
+      + '  \\"version\\" : \\"%H\\",%n'
+      + '  \\"message\\" : \\"%s\\",%n'
+      + `  \\"date\\" : \\"%ci\\"%n`
+      + '},';
+      if( !state2 )
+      state2 = `${ remoteName }/${ o.srcBranch }`
+      return shell( `git log ${ state1 }..${ state2 } --format="${ format }"` );
+    });
+    ready.then( ( log ) =>
+    {
+      let commits = log.output;
+      commits = _.str.replaceBegin( commits, '', '[\n' );
+      commits = _.str.replaceEnd( commits, ',\n', '\n]' );
+      return JSON.parse( commits );
+    });
+    return ready;
+  }
+
+  /* */
+
+  function writeCommits( commits )
+  {
+    let con = _.take( null );
+
+    for( let i = commits.length - 1 ; i >= 0 ; i-- )
+    shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].version }`, ready : con })
+    .then( () => shell( `git diff --name-only HEAD` ) )
+    .then( ( diff ) =>
+    {
+      if( diff.output )
+      {
+        let files = outputDiffPathsFilter( diff.output, true );
+
+        if( files.length )
+        {
+          let date = o.onDate( commits[ i ].date );
+          _.assert( _.str.is( date ), 'Callback {-o.onDate-} should return string date.' );
+          date = date.length > 0 ? `--date="${ date }"` : '';
+          let commitMessage = o.onCommitMessage( commits[ i ].message );
+          return shell( `git commit -m "${ commitMessage }" ${ date }` );
+        }
+      }
+      return null;
+    });
+    return con;
+  }
+
+  /* */
+
+  function outputDiffPathsFilter( output, unstage )
+  {
+    let pathsFromStatus = pathsProduceFromMessage( output );
+    _.arrayRemoveOnce( pathsFromStatus, '' );
+
+    if( o.only )
+    {
+      let paths = pathsFilter( pathsFromStatus, o.only );
+      let exclude = _.arrayAppendArray( null, pathsFromStatus );
+      _.arrayRemovedArrayOnce( exclude, paths );
+      if( unstage && exclude.length )
+      filesUnstage( exclude );
+      pathsFromStatus = paths;
+    }
+    if( o.but )
+    {
+      let exclude = pathsFilter( pathsFromStatus, o.but );
+      if( unstage && exclude.length )
+      filesUnstage( exclude );
+      _.arrayRemovedArrayOnce( pathsFromStatus, exclude );
+    }
+
+    return pathsFromStatus;
+  }
+
+  /* */
+
+  function pathsProduceFromMessage( msg )
+  {
+    const files = msg.split( '\n' );
+    for( let i = 0 ; i < files.length ; i++ )
+    files[ i ] = _.str.remove( files[ i ], /^\s*\w+\s+/ );
+    return files;
+  }
+
+  /* */
+
+  function pathsFilter( paths, selectors )
+  {
+    selectors = _.array.as( selectors );
+    let result = _.array.make();
+    for( let i = 0 ; i < selectors.length ; i++ )
+    {
+      let entries = _.path.globShortFilter({ src : paths, selector : selectors[ i ] });
+      _.arrayAppendArrayOnce( result, entries );
+    }
+    return result;
+  }
+
+  /* */
+
+  function filesUnstage( exclude )
+  {
+    shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, sync : 1 });
+    shell({ execPath : `git clean -df`, sync : 1 });
+    shell({ execPath : `git checkout ./`, sync : 1 });
+  }
+}
+
+repositoryMigrate.defaults =
+{
+  srcPath : null,
+  localPath : null,
+  state1 : null,
+  state2 : null,
+  srcBranch : null,
+  dstBranch : null,
+  onCommitMessage : null,
+  onDate : null,
+  but : null,
+  only : null,
+  logger : 0,
+};
+
 // --
 // config
 // --
@@ -6180,6 +6620,9 @@ let Extension =
   repositoryCheckout,
   repositoryStash,
   repositoryMerge,
+
+  repositoryAgree,
+  repositoryMigrate,
 
   // config
 
