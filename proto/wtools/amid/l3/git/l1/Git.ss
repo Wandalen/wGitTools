@@ -4616,9 +4616,9 @@ repositoryMerge.defaults =
 
 //
 
-function repositoryMigrateTo( o )
+function repositoryAgree( o )
 {
-  _.routine.options_( repositoryMigrateTo, o );
+  _.routine.options_( repositoryAgree, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.str.defined( o.localPath ), 'Expects local path to destination repository {-o.localPath-}.' );
   _.assert( _.str.defined( o.srcPath ) || _.aux.is( o.srcPath ), 'Expects path to source repository {-o.srcPath-}.' );
@@ -4786,7 +4786,7 @@ function repositoryMigrateTo( o )
   }
 }
 
-repositoryMigrateTo.defaults =
+repositoryAgree.defaults =
 {
   srcPath : null,
   localPath : null,
@@ -4802,9 +4802,9 @@ repositoryMigrateTo.defaults =
 
 //
 
-function commitsMigrateTo( o )
+function repositoryMigrate( o )
 {
-  _.routine.options_( commitsMigrateTo, o );
+  _.routine.options_( repositoryMigrate, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.str.defined( o.localPath ), 'Expects local path to destination repository {-o.localPath-}.' );
   _.assert( _.str.defined( o.srcPath ) || _.aux.is( o.srcPath ), 'Expects path to source repository {-o.srcPath-}.' );
@@ -5044,7 +5044,7 @@ function commitsMigrateTo( o )
   }
 }
 
-commitsMigrateTo.defaults =
+repositoryMigrate.defaults =
 {
   srcPath : null,
   localPath : null,
@@ -6626,8 +6626,9 @@ let Extension =
   repositoryCheckout,
   repositoryStash,
   repositoryMerge,
-  repositoryMigrateTo,
-  commitsMigrateTo,
+
+  repositoryAgree,
+  repositoryMigrate,
 
   // config
 

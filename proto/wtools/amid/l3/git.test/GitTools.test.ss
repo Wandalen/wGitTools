@@ -18849,7 +18849,7 @@ repositoryCheckoutRemotePathIsMap.timeOut = 30000;
 
 //
 
-function repositoryMigrateTo( test )
+function repositoryAgree( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -18861,7 +18861,7 @@ function repositoryMigrateTo( test )
   begin().then( () =>
   {
     test.case = 'migrate same repository with same branches, no state, branches, message';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : dstRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -18882,7 +18882,7 @@ function repositoryMigrateTo( test )
   begin().then( () =>
   {
     test.case = 'migrate same repository with same branches, state - previous commit, no branches, message';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : dstRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -18903,7 +18903,7 @@ function repositoryMigrateTo( test )
   begin().then( () =>
   {
     test.case = 'migrate another repository with same branches, no state, branches, message, strategy - ours';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -18937,7 +18937,7 @@ function repositoryMigrateTo( test )
 
 //
 
-function repositoryMigrateToWithOptionMergeStrategy( test )
+function repositoryAgreeWithOptionMergeStrategy( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -18951,7 +18951,7 @@ function repositoryMigrateToWithOptionMergeStrategy( test )
     test.case = 'strategy - manual';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.name, 'wmodulefortesting1' );
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -18993,7 +18993,7 @@ function repositoryMigrateToWithOptionMergeStrategy( test )
     test.case = 'strategy - ours';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.name, 'wmodulefortesting1' );
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19027,7 +19027,7 @@ function repositoryMigrateToWithOptionMergeStrategy( test )
     test.case = 'strategy - theirs';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.name, 'wmodulefortesting1' );
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19064,7 +19064,7 @@ function repositoryMigrateToWithOptionMergeStrategy( test )
     test.case = 'wrong strategy';
     return test.shouldThrowErrorSync( () =>
     {
-      return _.git.repositoryMigrateTo
+      return _.git.repositoryAgree
       ({
         srcPath : srcRepositoryRemote,
         localPath : a.abs( '.' ),
@@ -19094,7 +19094,7 @@ function repositoryMigrateToWithOptionMergeStrategy( test )
 
 //
 
-function repositoryMigrateToWithOptionCommitMessage( test )
+function repositoryAgreeWithOptionCommitMessage( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -19115,7 +19115,7 @@ function repositoryMigrateToWithOptionCommitMessage( test )
   a.ready.then( () =>
   {
     test.case = 'no commit message';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19155,7 +19155,7 @@ function repositoryMigrateToWithOptionCommitMessage( test )
   a.ready.then( () =>
   {
     test.case = 'no commit message';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19191,7 +19191,7 @@ function repositoryMigrateToWithOptionCommitMessage( test )
     test.case = 'wrong type of commit message';
     return test.shouldThrowErrorSync( () =>
     {
-      return _.git.repositoryMigrateTo
+      return _.git.repositoryAgree
       ({
         srcPath : srcRepositoryRemote,
         localPath : a.abs( '.' ),
@@ -19221,7 +19221,7 @@ function repositoryMigrateToWithOptionCommitMessage( test )
 
 //
 
-function repositoryMigrateToWithOptionState( test )
+function repositoryAgreeWithOptionState( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -19238,7 +19238,7 @@ function repositoryMigrateToWithOptionState( test )
     test.identical( config.name, 'wmodulefortesting1' );
     previousVersion = config.version;
 
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19265,7 +19265,7 @@ function repositoryMigrateToWithOptionState( test )
   begin().then( () =>
   {
     test.case = 'state - hash';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19292,7 +19292,7 @@ function repositoryMigrateToWithOptionState( test )
   begin().then( () =>
   {
     test.case = 'state - tag';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19331,7 +19331,7 @@ function repositoryMigrateToWithOptionState( test )
 
 //
 
-function repositoryMigrateToWithOptionOnly( test )
+function repositoryAgreeWithOptionOnly( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -19345,7 +19345,7 @@ function repositoryMigrateToWithOptionOnly( test )
   {
     filesBefore = a.find( a.abs( './' ) );
     test.case = 'only - string without glob';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19381,7 +19381,7 @@ function repositoryMigrateToWithOptionOnly( test )
   {
     filesBefore = a.find( a.abs( './' ) );
     test.case = 'only - string with glob';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19417,7 +19417,7 @@ function repositoryMigrateToWithOptionOnly( test )
   {
     filesBefore = a.find( a.abs( './' ) );
     test.case = 'only - array, contains strings with and without glob';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19465,11 +19465,11 @@ function repositoryMigrateToWithOptionOnly( test )
   }
 }
 
-repositoryMigrateToWithOptionOnly.timeOut = 60000;
+repositoryAgreeWithOptionOnly.timeOut = 60000;
 
 //
 
-function repositoryMigrateToWithOptionBut( test )
+function repositoryAgreeWithOptionBut( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -19483,7 +19483,7 @@ function repositoryMigrateToWithOptionBut( test )
   {
     filesBefore = a.find( a.abs( './' ) );
     test.case = 'but - string without glob';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19522,7 +19522,7 @@ function repositoryMigrateToWithOptionBut( test )
   {
     filesBefore = a.find( a.abs( './' ) );
     test.case = 'but - string with glob';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19561,7 +19561,7 @@ function repositoryMigrateToWithOptionBut( test )
   {
     filesBefore = a.find( a.abs( './' ) );
     test.case = 'but - array, contains strings with and without glob';
-    return _.git.repositoryMigrateTo
+    return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19612,11 +19612,11 @@ function repositoryMigrateToWithOptionBut( test )
   }
 }
 
-repositoryMigrateToWithOptionBut.timeOut = 60000;
+repositoryAgreeWithOptionBut.timeOut = 60000;
 
 //
 
-function commitsMigrateTo( test )
+function repositoryMigrate( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -19632,7 +19632,7 @@ function commitsMigrateTo( test )
   {
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.170' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19680,7 +19680,7 @@ function commitsMigrateTo( test )
   {
     return a.ready.then( () =>
     {
-      return _.git.repositoryMigrateTo
+      return _.git.repositoryAgree
       ({
         srcPath : srcRepositoryRemote,
         localPath : a.abs( '.' ),
@@ -19695,7 +19695,7 @@ function commitsMigrateTo( test )
 
 //
 
-function commitsMigrateToWithOptionMergeStrategy( test )
+function repositoryMigrateWithOptionMergeStrategy( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -19712,7 +19712,7 @@ function commitsMigrateToWithOptionMergeStrategy( test )
     test.case = 'before strategy - theirs, after strategy - manual, no conflicts';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.170' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19749,7 +19749,7 @@ function commitsMigrateToWithOptionMergeStrategy( test )
     test.case = 'before strategy - theirs, after strategy - theirs';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.170' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19786,7 +19786,7 @@ function commitsMigrateToWithOptionMergeStrategy( test )
     test.case = 'before strategy - theirs, after strategy - ours';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.170' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19823,7 +19823,7 @@ function commitsMigrateToWithOptionMergeStrategy( test )
     test.case = 'before strategy - ours, after strategy - manual, no conflicts';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.186' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19862,7 +19862,7 @@ function commitsMigrateToWithOptionMergeStrategy( test )
     test.case = 'before strategy - ours, after strategy - theirs';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.186' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19901,7 +19901,7 @@ function commitsMigrateToWithOptionMergeStrategy( test )
     test.case = 'before strategy - ours, after strategy - ours';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.186' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -19949,7 +19949,7 @@ function commitsMigrateToWithOptionMergeStrategy( test )
   {
     return a.ready.then( () =>
     {
-      return _.git.repositoryMigrateTo
+      return _.git.repositoryAgree
       ({
         srcPath : srcRepositoryRemote,
         localPath : a.abs( '.' ),
@@ -19962,11 +19962,11 @@ function commitsMigrateToWithOptionMergeStrategy( test )
   }
 }
 
-commitsMigrateToWithOptionMergeStrategy.timeOut = 120000;
+repositoryMigrateWithOptionMergeStrategy.timeOut = 120000;
 
 //
 
-function commitsMigrateToWithOptionOnCommitMessage( test )
+function repositoryMigrateWithOptionOnCommitMessage( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -19983,7 +19983,7 @@ function commitsMigrateToWithOptionOnCommitMessage( test )
     test.case = 'onCommitMessage - string';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.170' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20020,7 +20020,7 @@ function commitsMigrateToWithOptionOnCommitMessage( test )
     test.case = 'onCommitMessage - function that returns string';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.170' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20057,7 +20057,7 @@ function commitsMigrateToWithOptionOnCommitMessage( test )
     test.case = 'onCommitMessage - function that returns string concatenated with message';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.170' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20105,7 +20105,7 @@ function commitsMigrateToWithOptionOnCommitMessage( test )
   {
     return a.ready.then( () =>
     {
-      return _.git.repositoryMigrateTo
+      return _.git.repositoryAgree
       ({
         srcPath : srcRepositoryRemote,
         localPath : a.abs( '.' ),
@@ -20118,11 +20118,11 @@ function commitsMigrateToWithOptionOnCommitMessage( test )
   }
 }
 
-commitsMigrateToWithOptionOnCommitMessage.timeOut = 120000;
+repositoryMigrateWithOptionOnCommitMessage.timeOut = 120000;
 
 //
 
-function commitsMigrateToWithOptionWithOriginalDate( test )
+function repositoryMigrateWithOptionWithOriginalDate( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -20139,7 +20139,7 @@ function commitsMigrateToWithOptionWithOriginalDate( test )
     test.case = 'withOriginalDate - 0';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.170' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20180,7 +20180,7 @@ function commitsMigrateToWithOptionWithOriginalDate( test )
     test.case = 'withOriginalDate - 1';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.170' );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20232,7 +20232,7 @@ function commitsMigrateToWithOptionWithOriginalDate( test )
   {
     return a.ready.then( () =>
     {
-      return _.git.repositoryMigrateTo
+      return _.git.repositoryAgree
       ({
         srcPath : srcRepositoryRemote,
         localPath : a.abs( '.' ),
@@ -20245,11 +20245,11 @@ function commitsMigrateToWithOptionWithOriginalDate( test )
   }
 }
 
-commitsMigrateToWithOptionWithOriginalDate.timeOut = 60000;
+repositoryMigrateWithOptionWithOriginalDate.timeOut = 60000;
 
 //
 
-function commitsMigrateToWithOptionOnly( test )
+function repositoryMigrateWithOptionOnly( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -20271,7 +20271,7 @@ function commitsMigrateToWithOptionOnly( test )
   {
     test.case = 'only - string, file in range of modified files, strategy - theirs';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20327,7 +20327,7 @@ function commitsMigrateToWithOptionOnly( test )
   {
     test.case = 'only - string with glob, files in range of modified files, strategy - theirs';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20383,7 +20383,7 @@ function commitsMigrateToWithOptionOnly( test )
   {
     test.case = 'only - array of strings with and without glob, files in range of modified files, strategy - theirs';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20439,7 +20439,7 @@ function commitsMigrateToWithOptionOnly( test )
   {
     test.case = 'only - string, file in range of modified files, strategy - ours';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20495,7 +20495,7 @@ function commitsMigrateToWithOptionOnly( test )
   {
     test.case = 'only - string with glob, files in range of modified files, strategy - ours';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20551,7 +20551,7 @@ function commitsMigrateToWithOptionOnly( test )
   {
     test.case = 'only - array of strings with and without glob, files in range of modified files, strategy - ours';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20607,7 +20607,7 @@ function commitsMigrateToWithOptionOnly( test )
   {
     test.case = 'only - string, file is out of range of modified files, should throw error';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20670,7 +20670,7 @@ function commitsMigrateToWithOptionOnly( test )
   {
     return a.ready.then( () =>
     {
-      return _.git.repositoryMigrateTo
+      return _.git.repositoryAgree
       ({
         srcPath : srcRepositoryRemote,
         localPath : a.abs( '.' ),
@@ -20682,11 +20682,11 @@ function commitsMigrateToWithOptionOnly( test )
   }
 }
 
-commitsMigrateToWithOptionOnly.timeOut = 180000;
+repositoryMigrateWithOptionOnly.timeOut = 180000;
 
 //
 
-function commitsMigrateToWithOptionBut( test )
+function repositoryMigrateWithOptionBut( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -20708,7 +20708,7 @@ function commitsMigrateToWithOptionBut( test )
   {
     test.case = 'but - string, file in range of modified files, strategy - theirs';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20766,7 +20766,7 @@ function commitsMigrateToWithOptionBut( test )
   {
     test.case = 'but - string with glob, files in range of modified files, strategy - theirs';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20824,7 +20824,7 @@ function commitsMigrateToWithOptionBut( test )
   {
     test.case = 'but - array of strings with and without glob, files in range of modified files, strategy - theirs';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20882,7 +20882,7 @@ function commitsMigrateToWithOptionBut( test )
   {
     test.case = 'but - string, file in range of modified files, strategy - ours';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20940,7 +20940,7 @@ function commitsMigrateToWithOptionBut( test )
   {
     test.case = 'but - string with glob, files in range of modified files, strategy - ours';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -20998,7 +20998,7 @@ function commitsMigrateToWithOptionBut( test )
   {
     test.case = 'but - array of strings with and without glob, files in range of modified files, strategy - ours';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -21056,7 +21056,7 @@ function commitsMigrateToWithOptionBut( test )
   {
     test.case = 'but - string, file is out of range of modified files, should throw error';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -21119,7 +21119,7 @@ function commitsMigrateToWithOptionBut( test )
   {
     return a.ready.then( () =>
     {
-      return _.git.repositoryMigrateTo
+      return _.git.repositoryAgree
       ({
         srcPath : srcRepositoryRemote,
         localPath : a.abs( '.' ),
@@ -21131,11 +21131,11 @@ function commitsMigrateToWithOptionBut( test )
   }
 }
 
-commitsMigrateToWithOptionBut.timeOut = 180000;
+repositoryMigrateWithOptionBut.timeOut = 180000;
 
 //
 
-function commitsMigrateToWithOptionsOnlyAndBut( test )
+function repositoryMigrateWithOptionsOnlyAndBut( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -21156,7 +21156,7 @@ function commitsMigrateToWithOptionsOnlyAndBut( test )
   {
     test.case = 'only - string, file in range of modified files, strategy - theirs';
     filesBefore = a.find( a.abs( './' ) );
-    return _.git.commitsMigrateTo
+    return _.git.repositoryMigrate
     ({
       srcPath : srcRepositoryRemote,
       localPath : a.abs( '.' ),
@@ -21220,7 +21220,7 @@ function commitsMigrateToWithOptionsOnlyAndBut( test )
   {
     return a.ready.then( () =>
     {
-      return _.git.repositoryMigrateTo
+      return _.git.repositoryAgree
       ({
         srcPath : srcRepositoryRemote,
         localPath : a.abs( '.' ),
@@ -29059,20 +29059,20 @@ const Proto =
     repositoryCheckout,
     repositoryCheckoutRemotePathIsMap,
 
-    repositoryMigrateTo,
-    repositoryMigrateToWithOptionMergeStrategy,
-    repositoryMigrateToWithOptionCommitMessage,
-    repositoryMigrateToWithOptionState,
-    repositoryMigrateToWithOptionOnly,
-    repositoryMigrateToWithOptionBut,
+    repositoryAgree,
+    repositoryAgreeWithOptionMergeStrategy,
+    repositoryAgreeWithOptionCommitMessage,
+    repositoryAgreeWithOptionState,
+    repositoryAgreeWithOptionOnly,
+    repositoryAgreeWithOptionBut,
 
-    commitsMigrateTo,
-    commitsMigrateToWithOptionMergeStrategy,
-    commitsMigrateToWithOptionOnCommitMessage,
-    commitsMigrateToWithOptionWithOriginalDate,
-    commitsMigrateToWithOptionOnly,
-    commitsMigrateToWithOptionBut,
-    commitsMigrateToWithOptionsOnlyAndBut,
+    repositoryMigrate,
+    repositoryMigrateWithOptionMergeStrategy,
+    repositoryMigrateWithOptionOnCommitMessage,
+    repositoryMigrateWithOptionWithOriginalDate,
+    repositoryMigrateWithOptionOnly,
+    repositoryMigrateWithOptionBut,
+    repositoryMigrateWithOptionsOnlyAndBut,
 
     // etc
 
