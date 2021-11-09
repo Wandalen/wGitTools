@@ -4649,7 +4649,7 @@ function repositoryAgree( o )
   o.commitMessage = `Merge branch '${ o.srcBranch }' of ${ srcPath } into ${ o.dstBranch }`;
   _.assert( _.str.is( o.commitMessage ), 'Expects string with commit message {-o.commitMessage-}' );
 
-  _.assert( _.longHasAny( [ 'manual', 'ours', 'theirs' ], o.mergeStrategy ) );
+  _.assert( _.longHasAny( [ 'src', 'dst', 'manual' ], o.mergeStrategy ) );
 
   let remoteName = remoteNameGenerate();
   const config = _.git.configRead( o.localPath );
@@ -4669,7 +4669,7 @@ function repositoryAgree( o )
   {
     let strategy = '-s recursive';
     if( o.mergeStrategy !== 'manual' )
-    strategy += ` -X ${ o.mergeStrategy }`;
+    strategy += ` -X ${ o.mergeStrategy === 'src' ? 'theirs' : 'ours' }`;
     return shell
     (
       `git merge ${ strategy } --allow-unrelated-histories --squash ${ remoteName }/${ o.srcBranch } ${ o.dstBranch }`
@@ -4794,7 +4794,7 @@ repositoryAgree.defaults =
   srcBranch : null,
   dstBranch : null,
   commitMessage : null,
-  mergeStrategy : 'manual', /* Dmytro : to automatically resolve conflicts in similar files, disabled by default */
+  mergeStrategy : 'src', /* can be any of [ 'src', 'dst', 'manual' ] */
   but : null,
   only : null,
   logger : 0,
