@@ -18902,7 +18902,7 @@ function repositoryAgree( test )
 
   begin().then( () =>
   {
-    test.case = 'migrate another repository with same branches, no state, branches, message, strategy - ours';
+    test.case = 'migrate another repository with same branches, no state, branches, message, strategy - dst';
     return _.git.repositoryAgree
     ({
       srcPath : srcRepositoryRemote,
@@ -18910,7 +18910,7 @@ function repositoryAgree( test )
       state2 : null,
       srcBranch : null,
       dstBranch : null,
-      mergeStrategy : 'ours',
+      mergeStrategy : 'dst',
       commitMessage : null,
     });
   });
@@ -18990,7 +18990,7 @@ function repositoryAgreeWithOptionMergeStrategy( test )
 
   begin().then( () =>
   {
-    test.case = 'strategy - ours';
+    test.case = 'strategy - dst';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.name, 'wmodulefortesting1' );
     return _.git.repositoryAgree
@@ -19000,7 +19000,7 @@ function repositoryAgreeWithOptionMergeStrategy( test )
       state2 : null,
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'ours',
+      mergeStrategy : 'dst',
       commitMessage : '__sync__',
     });
   });
@@ -19024,7 +19024,7 @@ function repositoryAgreeWithOptionMergeStrategy( test )
 
   begin().then( () =>
   {
-    test.case = 'strategy - theirs';
+    test.case = 'strategy - src';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.name, 'wmodulefortesting1' );
     return _.git.repositoryAgree
@@ -19034,7 +19034,7 @@ function repositoryAgreeWithOptionMergeStrategy( test )
       state2 : null,
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
+      mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
   });
@@ -19122,7 +19122,7 @@ function repositoryAgreeWithOptionCommitMessage( test )
       state2 : null,
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'ours',
+      mergeStrategy : 'dst',
       commitMessage : null,
     });
   });
@@ -19162,7 +19162,7 @@ function repositoryAgreeWithOptionCommitMessage( test )
       state2 : null,
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'ours',
+      mergeStrategy : 'dst',
       commitMessage : '__sync__',
     });
   });
@@ -19198,7 +19198,7 @@ function repositoryAgreeWithOptionCommitMessage( test )
         state2 : null,
         srcBranch : null,
         dstBranch : null,
-        mergeStrategy : 'ours',
+        mergeStrategy : 'dst',
         commitMessage : [ 'wrong' ],
       });
     });
@@ -19245,7 +19245,7 @@ function repositoryAgreeWithOptionState( test )
       state2 : null,
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
+      mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
   });
@@ -19272,7 +19272,7 @@ function repositoryAgreeWithOptionState( test )
       state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
+      mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
   });
@@ -19299,7 +19299,7 @@ function repositoryAgreeWithOptionState( test )
       state2 : '!v0.0.170',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
+      mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
   });
@@ -19352,7 +19352,7 @@ function repositoryAgreeWithOptionOnly( test )
       state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
+      mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : 'package.json',
     });
@@ -19388,7 +19388,7 @@ function repositoryAgreeWithOptionOnly( test )
       state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
+      mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : '*package.json',
     });
@@ -19424,7 +19424,7 @@ function repositoryAgreeWithOptionOnly( test )
       state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
+      mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : [ '*package.json', 'will.yml' ],
     });
@@ -19490,7 +19490,7 @@ function repositoryAgreeWithOptionBut( test )
       state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
+      mergeStrategy : 'src',
       commitMessage : '__sync__',
       but : 'package.json',
     });
@@ -19529,7 +19529,7 @@ function repositoryAgreeWithOptionBut( test )
       state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
+      mergeStrategy : 'src',
       commitMessage : '__sync__',
       but : '*package.json',
     });
@@ -19568,7 +19568,7 @@ function repositoryAgreeWithOptionBut( test )
       state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
+      mergeStrategy : 'src',
       commitMessage : '__sync__',
       but : [ '*package.json', 'will.yml' ],
     });
@@ -19640,7 +19640,6 @@ function repositoryMigrate( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : '__sync__',
     });
   });
@@ -19687,282 +19686,11 @@ function repositoryMigrate( test )
         state2 : state,
         srcBranch : 'master',
         dstBranch : 'master',
-        mergeStrategy : 'theirs',
+        mergeStrategy : 'src',
       });
     });
   }
 }
-
-//
-
-function repositoryMigrateWithOptionMergeStrategy( test )
-{
-  const a = test.assetFor( false );
-  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
-  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
-  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
-  const user = a.shell({ currentPath : __dirname, execPath : 'git config --global user.name', sync : 1 }).output.trim();
-
-  /* - */
-
-  begin();
-  migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
-  a.ready.then( () =>
-  {
-    test.case = 'before strategy - theirs, after strategy - manual, no conflicts';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.170' );
-    return _.git.repositoryMigrate
-    ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-      srcBranch : 'master',
-      dstBranch : 'master',
-      mergeStrategy : 'manual',
-      onCommitMessage : '__sync__',
-    });
-  });
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op, true );
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.178' );
-    return null;
-  });
-  a.shell( 'git log -n 20' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '__sync__' ), 15 );
-    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
-    return null;
-  });
-
-  /* */
-
-  begin();
-  migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
-  a.ready.then( () =>
-  {
-    test.case = 'before strategy - theirs, after strategy - theirs';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.170' );
-    return _.git.repositoryMigrate
-    ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-      srcBranch : 'master',
-      dstBranch : 'master',
-      mergeStrategy : 'theirs',
-      onCommitMessage : '__sync__',
-    });
-  });
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op, true );
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.178' );
-    return null;
-  });
-  a.shell( 'git log -n 20' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '__sync__' ), 15 );
-    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
-    return null;
-  });
-
-  /* */
-
-  begin();
-  migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
-  a.ready.then( () =>
-  {
-    test.case = 'before strategy - theirs, after strategy - ours';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.170' );
-    return _.git.repositoryMigrate
-    ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-      srcBranch : 'master',
-      dstBranch : 'master',
-      mergeStrategy : 'ours',
-      onCommitMessage : '__sync__',
-    });
-  });
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op, true );
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.178' );
-    return null;
-  });
-  a.shell( 'git log -n 20' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '__sync__' ), 15 );
-    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
-    return null;
-  });
-
-  /* - */
-
-  begin();
-  migrate( 'ours', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
-  a.ready.then( () =>
-  {
-    test.case = 'before strategy - ours, after strategy - manual, no conflicts';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.186' );
-    return _.git.repositoryMigrate
-    ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-      srcBranch : 'master',
-      dstBranch : 'master',
-      mergeStrategy : 'manual',
-      onCommitMessage : '__sync__',
-    });
-  });
-  a.ready.finally( ( err, op ) =>
-  {
-    test.true( _.error.is( err ) );
-    _.error.attend( err );
-    test.identical( op, undefined );
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.186' );
-    return null;
-  });
-  a.shell( 'git log -n 20' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '__sync__' ), 0 );
-    test.ge( _.strCount( op.output, `Author: ${ user }` ), 0 );
-    return null;
-  });
-
-  /* */
-
-  begin();
-  migrate( 'ours', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
-  a.ready.then( () =>
-  {
-    test.case = 'before strategy - ours, after strategy - theirs';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.186' );
-    return _.git.repositoryMigrate
-    ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-      srcBranch : 'master',
-      dstBranch : 'master',
-      mergeStrategy : 'theirs',
-      onCommitMessage : '__sync__',
-    });
-  });
-  a.ready.finally( ( err, op ) =>
-  {
-    test.true( _.error.is( err ) );
-    _.error.attend( err );
-    test.identical( op, undefined );
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.186' );
-    return null;
-  });
-  a.shell( 'git log -n 20' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '__sync__' ), 0 );
-    test.ge( _.strCount( op.output, `Author: ${ user }` ), 0 );
-    return null;
-  });
-
-  /* */
-
-  begin();
-  migrate( 'ours', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
-  a.ready.then( () =>
-  {
-    test.case = 'before strategy - ours, after strategy - ours';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.186' );
-    return _.git.repositoryMigrate
-    ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-      srcBranch : 'master',
-      dstBranch : 'master',
-      mergeStrategy : 'ours',
-      onCommitMessage : '__sync__',
-    });
-  });
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op, true );
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.186' );
-    return null;
-  });
-  a.shell( 'git log -n 20' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '__sync__' ), 2 );
-    test.ge( _.strCount( op.output, `Author: ${ user }` ), 2 );
-    return null;
-  });
-
-  /* - */
-
-  return a.ready;
-
-  /* */
-
-  function begin()
-  {
-    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
-    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
-    a.shell( `git clone ${ dstRepositoryRemote } ./` );
-    return a.shell( `git reset --hard ${ dstCommit }` );
-  }
-
-  /* */
-
-  function migrate( strategy, state )
-  {
-    return a.ready.then( () =>
-    {
-      return _.git.repositoryAgree
-      ({
-        srcPath : srcRepositoryRemote,
-        localPath : a.abs( '.' ),
-        state2 : state,
-        srcBranch : 'master',
-        dstBranch : 'master',
-        mergeStrategy : strategy,
-      });
-    });
-  }
-}
-
-repositoryMigrateWithOptionMergeStrategy.timeOut = 120000;
 
 //
 
@@ -19977,7 +19705,7 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
   /* - */
 
   begin();
-  migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onCommitMessage - string';
@@ -19991,7 +19719,6 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : '__sync__',
     });
   });
@@ -20014,7 +19741,7 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
   /* */
 
   begin();
-  migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onCommitMessage - function that returns string';
@@ -20028,7 +19755,6 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : () => '__sync__',
     });
   });
@@ -20051,7 +19777,7 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
   /* */
 
   begin();
-  migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onCommitMessage - function that returns string concatenated with message';
@@ -20065,7 +19791,6 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : ( e ) => '__sync__' + e,
     });
   });
@@ -20133,7 +19858,7 @@ function repositoryMigrateWithOptionOnDate( test )
   /* - */
 
   begin();
-  migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onDate returns no date';
@@ -20147,7 +19872,6 @@ function repositoryMigrateWithOptionOnDate( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onDate : ( e ) => '',
       onCommitMessage : '__sync__',
     });
@@ -20174,7 +19898,7 @@ function repositoryMigrateWithOptionOnDate( test )
   /* */
 
   begin();
-  migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onDate returns original date';
@@ -20188,7 +19912,6 @@ function repositoryMigrateWithOptionOnDate( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onDate : ( e ) => e,
       onCommitMessage : '__sync__',
     });
@@ -20215,7 +19938,7 @@ function repositoryMigrateWithOptionOnDate( test )
   /* */
 
   begin();
-  migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onDate - default';
@@ -20229,7 +19952,6 @@ function repositoryMigrateWithOptionOnDate( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onDate : null,
       onCommitMessage : '__sync__',
     });
@@ -20304,13 +20026,13 @@ function repositoryMigrateWithOptionOnly( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'only - string, file in range of modified files, strategy - theirs';
+    test.case = 'only - string, file in range of modified files, strategy - src';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -20320,7 +20042,6 @@ function repositoryMigrateWithOptionOnly( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : '__sync__',
       only : 'package.json',
     });
@@ -20359,13 +20080,13 @@ function repositoryMigrateWithOptionOnly( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'only - string with glob, files in range of modified files, strategy - theirs';
+    test.case = 'only - string with glob, files in range of modified files, strategy - src';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -20375,7 +20096,6 @@ function repositoryMigrateWithOptionOnly( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : '__sync__',
       only : '*package.json',
     });
@@ -20414,13 +20134,13 @@ function repositoryMigrateWithOptionOnly( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'only - array of strings with and without glob, files in range of modified files, strategy - theirs';
+    test.case = 'only - array of strings with and without glob, files in range of modified files, strategy - src';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -20430,7 +20150,6 @@ function repositoryMigrateWithOptionOnly( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : '__sync__',
       only : [ '*package.json', 'will.yml' ],
     });
@@ -20469,13 +20188,13 @@ function repositoryMigrateWithOptionOnly( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'only - string, file in range of modified files, strategy - ours';
+    test.case = 'only - string, file in range of modified files, strategy - dst';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -20485,7 +20204,6 @@ function repositoryMigrateWithOptionOnly( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'ours',
       onCommitMessage : '__sync__',
       only : 'package.json',
     });
@@ -20524,13 +20242,13 @@ function repositoryMigrateWithOptionOnly( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'only - string with glob, files in range of modified files, strategy - ours';
+    test.case = 'only - string with glob, files in range of modified files, strategy - dst';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -20540,7 +20258,6 @@ function repositoryMigrateWithOptionOnly( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'ours',
       onCommitMessage : '__sync__',
       only : '*package.json',
     });
@@ -20579,13 +20296,13 @@ function repositoryMigrateWithOptionOnly( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'only - array of strings with and without glob, files in range of modified files, strategy - ours';
+    test.case = 'only - array of strings with and without glob, files in range of modified files, strategy - dst';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -20595,7 +20312,6 @@ function repositoryMigrateWithOptionOnly( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'ours',
       onCommitMessage : '__sync__',
       only : [ '*package.json', 'will.yml' ],
     });
@@ -20634,7 +20350,7 @@ function repositoryMigrateWithOptionOnly( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
@@ -20650,7 +20366,6 @@ function repositoryMigrateWithOptionOnly( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : '__sync__',
       only : 'Readme.md',
     });
@@ -20734,13 +20449,13 @@ function repositoryMigrateWithOptionBut( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'but - string, file in range of modified files, strategy - theirs';
+    test.case = 'but - string, file in range of modified files, strategy - src';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -20750,7 +20465,6 @@ function repositoryMigrateWithOptionBut( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : '__sync__',
       but : 'package.json',
     });
@@ -20791,13 +20505,13 @@ function repositoryMigrateWithOptionBut( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'but - string with glob, files in range of modified files, strategy - theirs';
+    test.case = 'but - string with glob, files in range of modified files, strategy - src';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -20807,7 +20521,6 @@ function repositoryMigrateWithOptionBut( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : '__sync__',
       but : '*package.json',
     });
@@ -20848,13 +20561,13 @@ function repositoryMigrateWithOptionBut( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'but - array of strings with and without glob, files in range of modified files, strategy - theirs';
+    test.case = 'but - array of strings with and without glob, files in range of modified files, strategy - src';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -20864,7 +20577,6 @@ function repositoryMigrateWithOptionBut( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : '__sync__',
       but : [ '*package.json', 'will.yml' ],
     });
@@ -20905,13 +20617,13 @@ function repositoryMigrateWithOptionBut( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'but - string, file in range of modified files, strategy - ours';
+    test.case = 'but - string, file in range of modified files, strategy - dst';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -20921,7 +20633,6 @@ function repositoryMigrateWithOptionBut( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'ours',
       onCommitMessage : '__sync__',
       but : 'package.json',
     });
@@ -20962,13 +20673,13 @@ function repositoryMigrateWithOptionBut( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'but - string with glob, files in range of modified files, strategy - ours';
+    test.case = 'but - string with glob, files in range of modified files, strategy - dst';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -20978,7 +20689,6 @@ function repositoryMigrateWithOptionBut( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'ours',
       onCommitMessage : '__sync__',
       but : '*package.json',
     });
@@ -21019,13 +20729,13 @@ function repositoryMigrateWithOptionBut( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
   {
-    test.case = 'but - array of strings with and without glob, files in range of modified files, strategy - ours';
+    test.case = 'but - array of strings with and without glob, files in range of modified files, strategy - dst';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -21035,7 +20745,6 @@ function repositoryMigrateWithOptionBut( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'ours',
       onCommitMessage : '__sync__',
       but : [ '*package.json', 'will.yml' ],
     });
@@ -21076,7 +20785,7 @@ function repositoryMigrateWithOptionBut( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ 'Readme.md' ],
   });
@@ -21092,7 +20801,6 @@ function repositoryMigrateWithOptionBut( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : '__sync__',
       but : 'Readme.md',
     });
@@ -21176,12 +20884,12 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
   begin();
   migrate
   ({
-    mergeStrategy : 'theirs',
+    mergeStrategy : 'src',
     state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
   });
   a.ready.then( () =>
   {
-    test.case = 'only - string, file in range of modified files, strategy - theirs';
+    test.case = 'only - string, file in range of modified files, strategy - src';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -21191,7 +20899,6 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
       state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      mergeStrategy : 'theirs',
       onCommitMessage : '__sync__',
       only : [ '*package.json', 'will.yml', 'Readme.md' ],
       but : [ 'package.json', 'Readme*' ],
@@ -29093,7 +28800,6 @@ const Proto =
     repositoryAgreeWithOptionBut,
 
     repositoryMigrate,
-    repositoryMigrateWithOptionMergeStrategy,
     repositoryMigrateWithOptionOnCommitMessage,
     repositoryMigrateWithOptionOnDate,
     repositoryMigrateWithOptionOnly,
