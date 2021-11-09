@@ -4843,6 +4843,9 @@ function repositoryMigrate( o )
     o.onCommitMessage = ( e ) => msg;
   }
   _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}' );
+  if( !o.onDate )
+  o.onDate = ( e ) => e;
+  _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}' );
 
   _.assert( _.longHasAny( [ 'manual', 'ours', 'theirs' ], o.mergeStrategy ) );
 
@@ -4937,7 +4940,7 @@ function repositoryMigrate( o )
       '{%n'
       + '  \\"version\\" : \\"%H\\",%n'
       + '  \\"message\\" : \\"%s\\",%n'
-      + `  \\"date\\" : ${ o.withOriginalDate ? '\\"--date=\\\\\\"%ci\\\\\\"\\"' : '\\"\\"' }%n`
+      + `  \\"date\\" : \\"%ci\\"%n`
       + '},';
       if( !state2 )
       state2 = `${ remoteName }/${ o.srcBranch }`
@@ -4974,8 +4977,11 @@ function repositoryMigrate( o )
 
         if( files.length )
         {
+          let date = o.onDate( commits[ i ].date );
+          _.assert( _.str.is( date ), 'Callback {-o.onDate-} should return string date.' );
+          date = date.length > 0 ? `--date="${ date }"` : '';
           let commitMessage = o.onCommitMessage( commits[ i ].message );
-          return shell( `git commit -m "${ commitMessage }" ${ commits[ i ].date }` );
+          return shell( `git commit -m "${ commitMessage }" ${ date }` );
         }
       }
       return null;
@@ -5053,7 +5059,7 @@ repositoryMigrate.defaults =
   srcBranch : null,
   dstBranch : null,
   onCommitMessage : null,
-  withOriginalDate : null,
+  onDate : null,
   mergeStrategy : 'manual', /* Dmytro : to automatically resolve conflicts in similar files, disabled by default */
   but : null,
   only : null,
