@@ -20122,7 +20122,7 @@ repositoryMigrateWithOptionOnCommitMessage.timeOut = 120000;
 
 //
 
-function repositoryMigrateWithOptionWithOriginalDate( test )
+function repositoryMigrateWithOptionOnDate( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -20136,7 +20136,7 @@ function repositoryMigrateWithOptionWithOriginalDate( test )
   migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
-    test.case = 'withOriginalDate - 0';
+    test.case = 'onDate returns no date';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
@@ -20148,7 +20148,7 @@ function repositoryMigrateWithOptionWithOriginalDate( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'theirs',
-      withOriginalDate : 0,
+      onDate : ( e ) => '',
       onCommitMessage : '__sync__',
     });
   });
@@ -20177,7 +20177,7 @@ function repositoryMigrateWithOptionWithOriginalDate( test )
   migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
-    test.case = 'withOriginalDate - 1';
+    test.case = 'onDate returns original date';
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
     test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
@@ -20189,7 +20189,48 @@ function repositoryMigrateWithOptionWithOriginalDate( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'theirs',
-      withOriginalDate : 1,
+      onDate : ( e ) => e,
+      onCommitMessage : '__sync__',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.178' );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    const dateMatch = op.output.match( /Date:\s+((\w+)\s+(\w+)\s(\d+)\s(\d+:))/ );
+    const commonDate = dateMatch[ 1 ];
+    test.ge( _.strCount( op.output, commonDate ), 0 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  migrate( 'theirs', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'onDate - default';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      mergeStrategy : 'theirs',
+      onDate : null,
       onCommitMessage : '__sync__',
     });
   });
@@ -20245,7 +20286,7 @@ function repositoryMigrateWithOptionWithOriginalDate( test )
   }
 }
 
-repositoryMigrateWithOptionWithOriginalDate.timeOut = 60000;
+repositoryMigrateWithOptionOnDate.timeOut = 60000;
 
 //
 
@@ -20280,7 +20321,6 @@ function repositoryMigrateWithOptionOnly( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'theirs',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       only : 'package.json',
     });
@@ -20336,7 +20376,6 @@ function repositoryMigrateWithOptionOnly( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'theirs',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       only : '*package.json',
     });
@@ -20392,7 +20431,6 @@ function repositoryMigrateWithOptionOnly( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'theirs',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       only : [ '*package.json', 'will.yml' ],
     });
@@ -20448,7 +20486,6 @@ function repositoryMigrateWithOptionOnly( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'ours',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       only : 'package.json',
     });
@@ -20504,7 +20541,6 @@ function repositoryMigrateWithOptionOnly( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'ours',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       only : '*package.json',
     });
@@ -20560,7 +20596,6 @@ function repositoryMigrateWithOptionOnly( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'ours',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       only : [ '*package.json', 'will.yml' ],
     });
@@ -20616,7 +20651,6 @@ function repositoryMigrateWithOptionOnly( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'theirs',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       only : 'Readme.md',
     });
@@ -20717,7 +20751,6 @@ function repositoryMigrateWithOptionBut( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'theirs',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       but : 'package.json',
     });
@@ -20775,7 +20808,6 @@ function repositoryMigrateWithOptionBut( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'theirs',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       but : '*package.json',
     });
@@ -20833,7 +20865,6 @@ function repositoryMigrateWithOptionBut( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'theirs',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       but : [ '*package.json', 'will.yml' ],
     });
@@ -20891,7 +20922,6 @@ function repositoryMigrateWithOptionBut( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'ours',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       but : 'package.json',
     });
@@ -20949,7 +20979,6 @@ function repositoryMigrateWithOptionBut( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'ours',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       but : '*package.json',
     });
@@ -21007,7 +21036,6 @@ function repositoryMigrateWithOptionBut( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'ours',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       but : [ '*package.json', 'will.yml' ],
     });
@@ -21065,7 +21093,6 @@ function repositoryMigrateWithOptionBut( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'theirs',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       but : 'Readme.md',
     });
@@ -21165,7 +21192,6 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
       srcBranch : 'master',
       dstBranch : 'master',
       mergeStrategy : 'theirs',
-      withOriginalDate : 0,
       onCommitMessage : '__sync__',
       only : [ '*package.json', 'will.yml', 'Readme.md' ],
       but : [ 'package.json', 'Readme*' ],
@@ -29069,7 +29095,7 @@ const Proto =
     repositoryMigrate,
     repositoryMigrateWithOptionMergeStrategy,
     repositoryMigrateWithOptionOnCommitMessage,
-    repositoryMigrateWithOptionWithOriginalDate,
+    repositoryMigrateWithOptionOnDate,
     repositoryMigrateWithOptionOnly,
     repositoryMigrateWithOptionBut,
     repositoryMigrateWithOptionsOnlyAndBut,
