@@ -4692,18 +4692,7 @@ function repositoryAgree( o )
     });
   });
 
-  ready.then( () =>
-  {
-    return _.git.statusLocal
-    ({
-      localPath : basePath,
-      unpushedCommits : 0,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      explaining : 1,
-      detailing : 1
-    });
-  });
+  ready.then( () => statusLocalGet() );
   ready.then( ( status ) =>
   {
     if( status.uncommitted )
@@ -4715,7 +4704,7 @@ function repositoryAgree( o )
       if( uncommittedFiles === undefined || uncommittedFiles.length )
       {
         shell({ currentPath : o.localPath, execPath : 'git add .' });
-        return shell( `git commit -m "${ o.commitMessage }"` );
+        return shell({ currentPath : o.localPath, execPath : `git commit -m "${ o.commitMessage }"` });
       }
     }
     return null;
@@ -4745,6 +4734,9 @@ function repositoryAgree( o )
   {
     _.assert( _.str.begins( basePath, o.localPath ), '{-o.dstBase-} should be a subdirectory of {-o.localPath-}' );
 
+    if( !_.fileProvider.fileExists( basePath ) )
+    _.fileProvider.dirMake( basePath );
+
     const isSubrepository = _.git.isRepository({ localPath : basePath });
     shouldRemove = !isSubrepository;
 
@@ -4758,14 +4750,34 @@ function repositoryAgree( o )
           localPath : basePath,
           remote : 0,
           local : 1,
-          sync : 1
         });
       });
-      con.then( () => shell( 'git add .' ) );
-      con.then( () => shell( 'git commit -m Init' ) );
+
+      con.then( () => statusLocalGet() );
+      con.then( ( status ) =>
+      {
+        if( status.uncommitted )
+        return shell({ execPath : [ 'git add .', 'git commit -m Init' ] })
+        return shell({ execPath : 'git commit --allow-empty -m Init' })
+      });
     }
 
     return con;
+  }
+
+  /* */
+
+  function statusLocalGet()
+  {
+    return _.git.statusLocal
+    ({
+      localPath : basePath,
+      unpushedCommits : 0,
+      unpushedTags : 0,
+      unpushedBranches : 0,
+      explaining : 1,
+      detailing : 1
+    });
   }
 
   /* */

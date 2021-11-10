@@ -19933,6 +19933,37 @@ function repositoryAgreeWithOptionDstBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
+    test.case = 'dstBase - nested not existed dir';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      dstBase : 'dev',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.trim().split( '\n' );
+    test.identical( files.length, 19 );
+    test.identical( _.path.common( files ), 'dev/' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.notIdentical( filesBefore, filesAfter );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
     test.case = 'dstBase - nested existed dir, with srcBase';
     return _.git.repositoryAgree
     ({
@@ -19998,6 +20029,80 @@ function repositoryAgreeWithOptionDstBase( test )
     ];
     test.identical( files, exp );
     test.identical( _.path.common( files ), 'proto/proto/' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.notIdentical( filesBefore, filesAfter );
+    return null;
+  });
+
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
+    test.case = 'dstBase - nested not existed dir, with srcBase';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      srcBase : 'proto',
+      dstBase : 'dev',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.trim().split( '\n' );
+    var exp =
+    [
+      'dev/proto/node_modules/wmodulefortesting2',
+      'dev/proto/wtools/testing/Common.s',
+      'dev/proto/wtools/testing/l2/testing2/ModuleForTesting2.s',
+    ];
+    test.identical( files, exp );
+    test.identical( _.path.common( files ), 'dev/proto/' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.notIdentical( filesBefore, filesAfter );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    filesBefore = a.find( a.abs( './' ) );
+    test.case = 'dstBase - nested not existed dir, with only';
+    return _.git.repositoryAgree
+    ({
+      srcPath : srcRepositoryRemote,
+      localPath : a.abs( '.' ),
+      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      dstBase : 'dev',
+      only : './proto/**',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.trim().split( '\n' );
+    var exp =
+    [
+      'dev/proto/node_modules/wmodulefortesting2',
+      'dev/proto/wtools/testing/Common.s',
+      'dev/proto/wtools/testing/l2/testing2/ModuleForTesting2.s',
+    ];
+    test.identical( files, exp );
+    test.identical( _.path.common( files ), 'dev/proto/' );
 
     var filesAfter = a.find( a.abs( './' ) );
     test.notIdentical( filesBefore, filesAfter );
