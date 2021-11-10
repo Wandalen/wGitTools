@@ -4629,10 +4629,11 @@ function repositoryAgree( o )
   const ready = _.take( null );
 
   let basePath = o.localPath;
-  let shouldRemove = false;
-
   if( o.dstBase )
-  ready.then( subrepositoryInitMaybe );
+  basePath = _.git.path.join( o.localPath, o.dstBase );
+  basePath = _.git.path.detrail( basePath );
+  o.localPath = _.git.path.detrail( o.localPath );
+  let shouldRemove = false;
 
   const shell = _.process.starter
   ({
@@ -4641,6 +4642,9 @@ function repositoryAgree( o )
     currentPath : basePath,
     outputCollecting : 1,
   });
+
+  if( basePath !== o.localPath )
+  ready.then( subrepositoryInitMaybe );
 
   const srcPath = _.git.path.nativize( o.srcPath );
   if( !o.srcBranch )
@@ -4688,14 +4692,23 @@ function repositoryAgree( o )
     });
   });
 
-
-  ready.then( () => _.git.statusLocal({ localPath : basePath, explaining : 1, detailing : 1 }) );
+  ready.then( () =>
+  {
+    return _.git.statusLocal
+    ({
+      localPath : basePath,
+      unpushedCommits : 0,
+      unpushedTags : 0,
+      unpushedBranches : 0,
+      explaining : 1,
+      detailing : 1
+    });
+  });
   ready.then( ( status ) =>
   {
     if( status.uncommitted )
     {
       let uncommittedFiles = filesFilter( status.uncommitted );
-
       if( shouldRemove )
       _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
 
@@ -4712,8 +4725,10 @@ function repositoryAgree( o )
     if( err )
     error = err;
     _.fileProvider.path.tempClose( tempPath );
+
     if( !shouldRemove )
     return shell( `git remote remove ${ remoteName }` );
+    return null;
   });
   ready.finally( () =>
   {
@@ -4728,27 +4743,29 @@ function repositoryAgree( o )
 
   function subrepositoryInitMaybe()
   {
-    basePath = _.git.path.join( o.localPath, o.dstBase );
-    if( basePath === o.localPath )
-    return null;
-
     _.assert( _.str.begins( basePath, o.localPath ), '{-o.dstBase-} should be a subdirectory of {-o.localPath-}' );
-    let isSubrepository = _.git.isRepository({ localPath : basePath });
-    if( !isSubrepository )
-    {
-      _.git.repositoryInit
-      ({
-        localPath : basePath,
-        remote : 0,
-        local : 1,
-      });
 
-      shell({ currentPath : basePath, execPath : 'git add .', sync : 1 });
-      shell({ currentPath : basePath, execPath : 'git commit -m Init', sync : 1 });
-    }
+    const isSubrepository = _.git.isRepository({ localPath : basePath });
     shouldRemove = !isSubrepository;
 
-    return null;
+    const con = _.take( null );
+    if( !isSubrepository )
+    {
+      con.then( () =>
+      {
+        return _.git.repositoryInit
+        ({
+          localPath : basePath,
+          remote : 0,
+          local : 1,
+          sync : 1
+        });
+      });
+      con.then( () => shell( 'git add .' ) );
+      con.then( () => shell( 'git commit -m Init' ) );
+    }
+
+    return con;
   }
 
   /* */
