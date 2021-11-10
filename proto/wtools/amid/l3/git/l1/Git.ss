@@ -5027,7 +5027,7 @@ function repositoryMigrate( o )
         });
       });
 
-      con.then( () => statusLocalGet() );
+      con.then( () => statusLocalGet( basePath ) );
       con.then( ( status ) =>
       {
         if( status.uncommitted )
@@ -5041,16 +5041,17 @@ function repositoryMigrate( o )
 
   /* */
 
-  function statusLocalGet()
+  function statusLocalGet( localPath )
   {
     return _.git.statusLocal
     ({
-      localPath : basePath,
+      localPath,
       unpushedCommits : 0,
       unpushedTags : 0,
       unpushedBranches : 0,
       explaining : 1,
-      detailing : 1
+      detailing : 1,
+      sync : 0,
     });
   }
 
@@ -5143,8 +5144,8 @@ function repositoryMigrate( o )
     {
       storeGitDir = () =>
       {
-        _.fileProvider.fileRename( gitDir, tempGitDir );
-        return shell({ currentPath : o.localPath, execPath : `git add .` });
+        _.fileProvider.fileRename( tempGitDir, gitDir );
+        return shell({ currentPath : o.localPath, execPath : `git add . ':!${ tempGitDir }'` });
       }
       restoreGitDir = ( e ) =>
       {
@@ -5159,6 +5160,7 @@ function repositoryMigrate( o )
     .then( ( diff ) =>
     {
       if( diff.output )
+      if( !_.str.begins( commits[ i ].message, 'Merge pull request' ) )
       {
         let files = outputDiffPathsFilter( diff.output, true );
 
@@ -5169,9 +5171,18 @@ function repositoryMigrate( o )
           date = date.length > 0 ? `--date="${ date }"` : '';
           let commitMessage = o.onCommitMessage( commits[ i ].message );
 
-          storeGitDir();
-          return shell({ currentPath : o.localPath, execPath : `git commit -m "${ commitMessage }" ${ date }` })
-          .then( restoreGitDir );
+          return statusLocalGet( o.localPath )
+          .then( ( status ) =>
+          {
+            if( status.uncommitted )
+            {
+              storeGitDir();
+              return shell({ currentPath : o.localPath, execPath : `git commit -m "${ commitMessage }" ${ date }` })
+              .then( restoreGitDir );
+            }
+            return null;
+          });
+
         }
       }
       return null;
