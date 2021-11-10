@@ -4627,11 +4627,18 @@ function repositoryAgree( o )
 
   let error = null;
   const ready = _.take( null );
+
+  let basePath = o.localPath;
+  let shouldRemove = false;
+
+  if( o.dstBase )
+  ready.then( subrepositoryInitMaybe );
+
   const shell = _.process.starter
   ({
     logger : _.logger.relativeMaybe( o.logger, -1 ),
     verbosity : o.logger ? o.logger.verbosity - 1 : 0,
-    currentPath : o.localPath,
+    currentPath : basePath,
     outputCollecting : 1,
   });
 
@@ -4639,7 +4646,7 @@ function repositoryAgree( o )
   if( !o.srcBranch )
   o.srcBranch = branchFromPath( srcPath, false ) || 'master';
   if( !o.dstBranch )
-  o.dstBranch = branchFromPath( o.localPath, true ) || 'master';
+  o.dstBranch = branchFromPath( basePath, true ) || 'master';
 
   let state2 = o.state2;
   if( o.state2 )
@@ -4652,7 +4659,7 @@ function repositoryAgree( o )
   _.assert( _.longHasAny( [ 'src', 'dst', 'manual' ], o.mergeStrategy ) );
 
   let remoteName = remoteNameGenerate();
-  const config = _.git.configRead( o.localPath );
+  const config = _.git.configRead( basePath );
   while( `remote "${ remoteName }"` in config )
   remoteName = remoteNameGenerate();
 
@@ -4663,46 +4670,40 @@ function repositoryAgree( o )
   if( state2 )
   ready.then( () => shell({ currentPath : tempPath, execPath : `git reset --hard ${ state2 }` }) );
 
-  ready.then( () => _.git.tagLocalChange({ localPath : o.localPath, tag : o.dstBranch }) );
+  /* */
+
+  ready.then( () => _.git.tagLocalChange({ localPath : basePath, tag : o.dstBranch }) );
   ready.then( () => shell( `git fetch ${ remoteName }` ) );
   ready.then( () =>
   {
     let strategy = '-s recursive';
     if( o.mergeStrategy !== 'manual' )
     strategy += ` -X ${ o.mergeStrategy === 'src' ? 'theirs' : 'ours' }`;
+    const srcBranch = `${ remoteName }/${ o.srcBranch }`;
+
     return shell
-    (
-      `git merge ${ strategy } --allow-unrelated-histories --squash ${ remoteName }/${ o.srcBranch } ${ o.dstBranch }`
-    );
+    ({
+      execPath : `git merge ${ strategy } --allow-unrelated-histories --squash ${ srcBranch } ${ o.dstBranch }`,
+      currentPath : basePath,
+    });
   });
-  ready.then( () => _.git.statusLocal({ localPath : o.localPath, explaining : 1, detailing : 1 }) );
+
+
+  ready.then( () => _.git.statusLocal({ localPath : basePath, explaining : 1, detailing : 1 }) );
   ready.then( ( status ) =>
   {
     if( status.uncommitted )
     {
-      let pathsFromStatus;
-      if( o.only || o.but )
-      pathsFromStatus = pathsProduceFromMessage( status.uncommitted, o.only );
+      let uncommittedFiles = filesFilter( status.uncommitted );
 
-      if( o.only )
-      {
-        let paths = pathsFilter( pathsFromStatus, o.only );
-        let exclude = _.arrayAppendArray( null, pathsFromStatus );
-        _.arrayRemovedArrayOnce( exclude, paths );
-        if( exclude.length )
-        filesUnstage( exclude );
-        pathsFromStatus = paths;
-      }
-      if( o.but )
-      {
-        let exclude = pathsFilter( pathsFromStatus, o.but );
-        if( exclude.length )
-        filesUnstage( exclude );
-        _.arrayRemovedArrayOnce( pathsFromStatus, exclude );
-      }
+      if( shouldRemove )
+      _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
 
-      if( pathsFromStatus === undefined || pathsFromStatus.length )
-      return shell( `git commit -m "${ o.commitMessage }"` );
+      if( uncommittedFiles === undefined || uncommittedFiles.length )
+      {
+        shell({ currentPath : o.localPath, execPath : 'git add .' });
+        return shell( `git commit -m "${ o.commitMessage }"` );
+      }
     }
     return null;
   });
@@ -4711,6 +4712,7 @@ function repositoryAgree( o )
     if( err )
     error = err;
     _.fileProvider.path.tempClose( tempPath );
+    if( !shouldRemove )
     return shell( `git remote remove ${ remoteName }` );
   });
   ready.finally( () =>
@@ -4721,6 +4723,33 @@ function repositoryAgree( o )
   });
 
   return ready;
+
+  /* */
+
+  function subrepositoryInitMaybe()
+  {
+    basePath = _.git.path.join( o.localPath, o.dstBase );
+    if( basePath === o.localPath )
+    return null;
+
+    _.assert( _.str.begins( basePath, o.localPath ), '{-o.dstBase-} should be a subdirectory of {-o.localPath-}' );
+    let isSubrepository = _.git.isRepository({ localPath : basePath });
+    if( !isSubrepository )
+    {
+      _.git.repositoryInit
+      ({
+        localPath : basePath,
+        remote : 0,
+        local : 1,
+      });
+
+      shell({ currentPath : basePath, execPath : 'git add .', sync : 1 });
+      shell({ currentPath : basePath, execPath : 'git commit -m Init', sync : 1 });
+    }
+    shouldRemove = !isSubrepository;
+
+    return null;
+  }
 
   /* */
 
@@ -4752,6 +4781,55 @@ function repositoryAgree( o )
 
   /* */
 
+  function filesFilter( msg )
+  {
+    if( o.srcBase )
+    {
+      _.assert( !_.git.path.isGlob( o.srcBase ) );
+      let srcBase = o.srcBase;
+      if( _.git.path.isAbsolute( o.srcBase ) )
+      {
+        srcBase = _.git.path.relative( srcPath, srcBase );
+        _.assert( !_.git.path.isDotted( srcBase ) );
+      }
+
+      if( o.only )
+      o.only = _.array.as( o.only );
+      else
+      o.only = _.array.make( 0 );
+
+      if( o.only.length )
+      for( let i = 0 ; i < o.only.length ; i++ )
+      o.only[ i ] = _.git.path.join( srcBase, o.only[ i ] );
+      else
+      o.only.push( _.git.path.join( srcBase, '**' ) );
+    }
+
+    let pathsFromStatus;
+    if( o.only || o.but )
+    pathsFromStatus = pathsProduceFromMessage( msg, o.only );
+
+    if( o.only )
+    {
+      const paths = pathsFilter( pathsFromStatus, o.only );
+      const exclude = _.arrayAppendArray( null, pathsFromStatus );
+      _.arrayRemovedArrayOnce( exclude, paths );
+      if( exclude.length )
+      filesUnstage( exclude );
+      pathsFromStatus = paths;
+    }
+    if( o.but )
+    {
+      const exclude = pathsFilter( pathsFromStatus, o.but );
+      if( exclude.length )
+      filesUnstage( exclude );
+      _.arrayRemovedArrayOnce( pathsFromStatus, exclude );
+    }
+    return pathsFromStatus;
+  }
+
+  /* */
+
   function pathsProduceFromMessage( msg )
   {
     const files = msg.split( '\n' );
@@ -4767,10 +4845,11 @@ function repositoryAgree( o )
   function pathsFilter( paths, selectors )
   {
     selectors = _.array.as( selectors );
-    let result = _.array.make();
+    const result = _.array.make();
     for( let i = 0 ; i < selectors.length ; i++ )
     {
-      let entries = _.path.globShortFilter({ src : paths, selector : selectors[ i ] });
+      const selector = _.str.removeBegin( selectors[ i ], './' );
+      const entries = _.path.globShortFilter({ src : paths, selector });
       _.arrayAppendArrayOnce( result, entries );
     }
     return result;
@@ -4793,6 +4872,8 @@ repositoryAgree.defaults =
   state2 : null,
   srcBranch : null,
   dstBranch : null,
+  srcBase : null,
+  dstBase : null,
   commitMessage : null,
   mergeStrategy : 'src', /* can be any of [ 'src', 'dst', 'manual' ] */
   but : null,
