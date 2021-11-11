@@ -4663,9 +4663,13 @@ function repositoryAgree( o )
   _.assert( _.longHasAny( [ 'src', 'dst', 'manual' ], o.mergeStrategy ) );
 
   let remoteName = remoteNameGenerate();
-  const config = _.git.configRead( basePath );
-  while( `remote "${ remoteName }"` in config )
-  remoteName = remoteNameGenerate();
+  ready.then( () =>
+  {
+    const config = _.git.configRead( basePath );
+    while( `remote "${ remoteName }"` in config )
+    remoteName = remoteNameGenerate();
+    return null;
+  });
 
   let tempPath = _.fileProvider.path.tempOpen( o.description );
   ready.then( () => shell( `git remote add ${ remoteName } ${ tempPath }` ) );
