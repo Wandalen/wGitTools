@@ -5149,7 +5149,6 @@ function repositoryMigrate( o )
       storeGitDir = () =>
       {
         _.fileProvider.fileRename( tempGitDir, gitDir );
-        return shell({ currentPath : o.localPath, execPath : `git add . ':!${ tempGitDir }'` });
       }
       restoreGitDir = ( e ) =>
       {
@@ -5181,6 +5180,7 @@ function repositoryMigrate( o )
             if( status.uncommitted )
             {
               storeGitDir();
+              shell({ currentPath : o.localPath, execPath : `git add . ':!${ _.git.path.nativize( tempGitDir ) }'` });
               return shell({ currentPath : o.localPath, execPath : `git commit -m "${ commitMessage }" ${ date }` })
               .then( restoreGitDir );
             }
