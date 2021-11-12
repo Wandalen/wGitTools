@@ -5141,7 +5141,7 @@ function repositoryMigrate( o )
   {
     let con = _.take( null );
     const gitDir = _.git.path.join( basePath, '.git' );
-    const tempGitDir = _.git.path.join( basePath, '-git' );
+    const tempGitDir = _.git.path.join( o.localPath, '../-git.temp' );
     let storeGitDir = () => {};
     let restoreGitDir = ( e ) => e;
     if( shouldRemove )
@@ -5180,7 +5180,7 @@ function repositoryMigrate( o )
             if( status.uncommitted )
             {
               storeGitDir();
-              shell({ currentPath : o.localPath, execPath : `git add -f . ":!${ _.fileProvider.path.nativize( tempGitDir ) }"` });
+              shell({ currentPath : o.localPath, execPath : `git add .` });
               return shell({ currentPath : o.localPath, execPath : `git commit -m "${ commitMessage }" ${ date }` })
               .then( restoreGitDir );
             }
