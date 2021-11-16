@@ -18863,10 +18863,9 @@ function repositoryAgree( test )
     test.case = 'migrate same repository with same branches, no state, branches, message';
     return _.git.repositoryAgree
     ({
-      srcPath : dstRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : null,
-      srcBranch : null,
+      srcBasePath : dstRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : null,
       dstBranch : null,
       commitMessage : null,
     });
@@ -18884,10 +18883,9 @@ function repositoryAgree( test )
     test.case = 'migrate same repository with same branches, state - previous commit, no branches, message';
     return _.git.repositoryAgree
     ({
-      srcPath : dstRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#HEAD~',
-      srcBranch : null,
+      srcBasePath : dstRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#HEAD~',
       dstBranch : null,
       commitMessage : null,
     });
@@ -18905,10 +18903,9 @@ function repositoryAgree( test )
     test.case = 'migrate another repository with same branches, no state, branches, message, strategy - dst';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : null,
-      srcBranch : null,
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : null,
       dstBranch : null,
       mergeStrategy : 'dst',
       commitMessage : null,
@@ -18953,10 +18950,9 @@ function repositoryAgreeWithOptionMergeStrategy( test )
     test.identical( config.name, 'wmodulefortesting1' );
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : null,
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : null,
       dstBranch : 'master',
       mergeStrategy : 'manual',
       commitMessage : '__sync__',
@@ -18995,10 +18991,9 @@ function repositoryAgreeWithOptionMergeStrategy( test )
     test.identical( config.name, 'wmodulefortesting1' );
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : null,
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : null,
       dstBranch : 'master',
       mergeStrategy : 'dst',
       commitMessage : '__sync__',
@@ -19029,10 +19024,9 @@ function repositoryAgreeWithOptionMergeStrategy( test )
     test.identical( config.name, 'wmodulefortesting1' );
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : null,
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : null,
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -19066,10 +19060,9 @@ function repositoryAgreeWithOptionMergeStrategy( test )
     {
       return _.git.repositoryAgree
       ({
-        srcPath : srcRepositoryRemote,
-        localPath : a.abs( '.' ),
-        state2 : null,
-        srcBranch : null,
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
+        srcState : null,
         dstBranch : null,
         mergeStrategy : 'wrong',
         commitMessage : '__sync__',
@@ -19117,10 +19110,9 @@ function repositoryAgreeWithOptionCommitMessage( test )
     test.case = 'no commit message';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : null,
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : null,
       dstBranch : 'master',
       mergeStrategy : 'dst',
       commitMessage : null,
@@ -19157,10 +19149,9 @@ function repositoryAgreeWithOptionCommitMessage( test )
     test.case = 'no commit message';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : null,
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : null,
       dstBranch : 'master',
       mergeStrategy : 'dst',
       commitMessage : '__sync__',
@@ -19193,10 +19184,9 @@ function repositoryAgreeWithOptionCommitMessage( test )
     {
       return _.git.repositoryAgree
       ({
-        srcPath : srcRepositoryRemote,
-        localPath : a.abs( '.' ),
-        state2 : null,
-        srcBranch : null,
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
+        srcState : null,
         dstBranch : null,
         mergeStrategy : 'dst',
         commitMessage : [ 'wrong' ],
@@ -19240,10 +19230,9 @@ function repositoryAgreeWithOptionState( test )
 
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : null,
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : null,
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -19267,10 +19256,9 @@ function repositoryAgreeWithOptionState( test )
     test.case = 'state - hash';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -19294,10 +19282,9 @@ function repositoryAgreeWithOptionState( test )
     test.case = 'state - tag';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '!v0.0.170',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '!v0.0.170',
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -19347,10 +19334,9 @@ function repositoryAgreeWithOptionOnly( test )
     test.case = 'only - string without glob';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -19383,10 +19369,9 @@ function repositoryAgreeWithOptionOnly( test )
     test.case = 'only - string with glob';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -19419,10 +19404,9 @@ function repositoryAgreeWithOptionOnly( test )
     test.case = 'only - array, contains strings with and without glob';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -19485,10 +19469,9 @@ function repositoryAgreeWithOptionBut( test )
     test.case = 'but - string without glob';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -19524,10 +19507,9 @@ function repositoryAgreeWithOptionBut( test )
     test.case = 'but - string with glob';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -19563,10 +19545,9 @@ function repositoryAgreeWithOptionBut( test )
     test.case = 'but - array, contains strings with and without glob';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -19629,15 +19610,14 @@ function repositoryAgreeWithOptionSrcBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'srcBase - current dir, dot, no only';
+    test.case = 'srcDirPath - current dir, dot, no only';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      srcBase : '.',
+      srcDirPath : '.',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
@@ -19666,15 +19646,14 @@ function repositoryAgreeWithOptionSrcBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'srcBase - current dir, dot with slash, no only';
+    test.case = 'srcDirPath - current dir, dot with slash, no only';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      srcBase : './',
+      srcDirPath : './',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
@@ -19703,15 +19682,14 @@ function repositoryAgreeWithOptionSrcBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'srcBase - nested dir, no only';
+    test.case = 'srcDirPath - nested dir, no only';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      srcBase : './proto',
+      srcDirPath : './proto',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
@@ -19741,15 +19719,14 @@ function repositoryAgreeWithOptionSrcBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'srcBase - current dir, dot, with only';
+    test.case = 'srcDirPath - current dir, dot, with only';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      srcBase : '.',
+      srcDirPath : '.',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : '**/*.s',
@@ -19773,15 +19750,14 @@ function repositoryAgreeWithOptionSrcBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'srcBase - current dir, dot and slash, with only';
+    test.case = 'srcDirPath - current dir, dot and slash, with only';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      srcBase : './',
+      srcDirPath : './',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : '**/*.s',
@@ -19805,15 +19781,14 @@ function repositoryAgreeWithOptionSrcBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'srcBase - nested dir, with only';
+    test.case = 'srcDirPath - nested dir, with only';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      srcBase : 'proto',
+      srcDirPath : 'proto',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : '**/*.s',
@@ -19864,15 +19839,14 @@ function repositoryAgreeWithOptionDstBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'dstBase - current dir';
+    test.case = 'dstDirPath - current dir';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      dstBase : './',
+      dstDirPath : './',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
@@ -19902,15 +19876,14 @@ function repositoryAgreeWithOptionDstBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'dstBase - nested existed dir';
+    test.case = 'dstDirPath - nested existed dir';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      dstBase : 'proto',
+      dstDirPath : 'proto',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
@@ -19933,15 +19906,14 @@ function repositoryAgreeWithOptionDstBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'dstBase - nested not existed dir';
+    test.case = 'dstDirPath - nested not existed dir';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      dstBase : 'dev',
+      dstDirPath : 'dev',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
@@ -19964,16 +19936,15 @@ function repositoryAgreeWithOptionDstBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'dstBase - nested existed dir, with srcBase';
+    test.case = 'dstDirPath - nested existed dir, with srcDirPath';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      srcBase : 'proto',
-      dstBase : 'proto',
+      srcDirPath : 'proto',
+      dstDirPath : 'proto',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
@@ -20002,15 +19973,14 @@ function repositoryAgreeWithOptionDstBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'dstBase - nested existed dir, with only';
+    test.case = 'dstDirPath - nested existed dir, with only';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      dstBase : 'proto',
+      dstDirPath : 'proto',
       only : './proto/**',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -20038,16 +20008,15 @@ function repositoryAgreeWithOptionDstBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'dstBase - nested not existed dir, with srcBase';
+    test.case = 'dstDirPath - nested not existed dir, with srcDirPath';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      srcBase : 'proto',
-      dstBase : 'dev',
+      srcDirPath : 'proto',
+      dstDirPath : 'dev',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
@@ -20076,15 +20045,14 @@ function repositoryAgreeWithOptionDstBase( test )
   begin().then( () =>
   {
     filesBefore = a.find( a.abs( './' ) );
-    test.case = 'dstBase - nested not existed dir, with only';
+    test.case = 'dstDirPath - nested not existed dir, with only';
     return _.git.repositoryAgree
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcBranch : 'master',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       dstBranch : 'master',
-      dstBase : 'dev',
+      dstDirPath : 'dev',
       only : './proto/**',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
@@ -20143,12 +20111,11 @@ function repositoryAgreeWithSingleRepository( test )
     test.case = 'branch has older history, no rewriting';
     return _.git.repositoryAgree
     ({
-      srcPath : dstRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#3e572f8a86482e419f23b2eb387b5b4852e62b1c',
-      srcBranch : 'dev',
+      srcBasePath : dstRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#3e572f8a86482e419f23b2eb387b5b4852e62b1c',
       dstBranch : 'master',
-      dstBase : './',
+      dstDirPath : './',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
@@ -20189,12 +20156,11 @@ function repositoryAgreeWithSingleRepository( test )
     test.case = 'branch has newer history, rewriting';
     return _.git.repositoryAgree
     ({
-      srcPath : dstRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state2 : '#3e572f8a86482e419f23b2eb387b5b4852e62b1c',
-      srcBranch : 'dev',
+      srcBasePath : dstRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#3e572f8a86482e419f23b2eb387b5b4852e62b1c',
       dstBranch : 'master',
-      dstBase : './',
+      dstDirPath : './',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
     });
@@ -20307,10 +20273,9 @@ function repositoryMigrate( test )
     {
       return _.git.repositoryAgree
       ({
-        srcPath : srcRepositoryRemote,
-        localPath : a.abs( '.' ),
-        state2 : state,
-        srcBranch : 'master',
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
+        srcState : state,
         dstBranch : 'master',
         mergeStrategy : 'src',
       });
@@ -20458,10 +20423,9 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
     {
       return _.git.repositoryAgree
       ({
-        srcPath : srcRepositoryRemote,
-        localPath : a.abs( '.' ),
-        state2 : state,
-        srcBranch : 'master',
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
+        srcState : state,
         dstBranch : 'master',
         mergeStrategy : strategy,
       });
@@ -20623,10 +20587,9 @@ function repositoryMigrateWithOptionOnDate( test )
     {
       return _.git.repositoryAgree
       ({
-        srcPath : srcRepositoryRemote,
-        localPath : a.abs( '.' ),
-        state2 : state,
-        srcBranch : 'master',
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
+        srcState : state,
         dstBranch : 'master',
         mergeStrategy : strategy,
       });
@@ -20653,7 +20616,7 @@ function repositoryMigrateWithOptionOnly( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
@@ -20707,7 +20670,7 @@ function repositoryMigrateWithOptionOnly( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
@@ -20761,7 +20724,7 @@ function repositoryMigrateWithOptionOnly( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
@@ -20815,7 +20778,7 @@ function repositoryMigrateWithOptionOnly( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
@@ -20869,7 +20832,7 @@ function repositoryMigrateWithOptionOnly( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
@@ -20923,7 +20886,7 @@ function repositoryMigrateWithOptionOnly( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
@@ -20977,7 +20940,7 @@ function repositoryMigrateWithOptionOnly( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ '*package.json', 'will.yml' ],
   });
   a.ready.then( () =>
@@ -21047,9 +21010,8 @@ function repositoryMigrateWithOptionOnly( test )
     {
       return _.git.repositoryAgree
       ({
-        srcPath : srcRepositoryRemote,
-        localPath : a.abs( '.' ),
-        srcBranch : 'master',
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
         dstBranch : 'master',
         ... o,
       });
@@ -21076,7 +21038,7 @@ function repositoryMigrateWithOptionBut( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
@@ -21132,7 +21094,7 @@ function repositoryMigrateWithOptionBut( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
@@ -21188,7 +21150,7 @@ function repositoryMigrateWithOptionBut( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
@@ -21244,7 +21206,7 @@ function repositoryMigrateWithOptionBut( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
@@ -21300,7 +21262,7 @@ function repositoryMigrateWithOptionBut( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
@@ -21356,7 +21318,7 @@ function repositoryMigrateWithOptionBut( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     but : [ 'package.json' ],
   });
   a.ready.then( () =>
@@ -21412,7 +21374,7 @@ function repositoryMigrateWithOptionBut( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
     only : [ 'Readme.md' ],
   });
   a.ready.then( () =>
@@ -21482,9 +21444,8 @@ function repositoryMigrateWithOptionBut( test )
     {
       return _.git.repositoryAgree
       ({
-        srcPath : srcRepositoryRemote,
-        localPath : a.abs( '.' ),
-        srcBranch : 'master',
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
         dstBranch : 'master',
         ... o,
       });
@@ -21511,7 +21472,7 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
   });
   a.ready.then( () =>
   {
@@ -21581,9 +21542,8 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
     {
       return _.git.repositoryAgree
       ({
-        srcPath : srcRepositoryRemote,
-        localPath : a.abs( '.' ),
-        srcBranch : 'master',
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
         dstBranch : 'master',
         ... o,
       });
@@ -21608,7 +21568,7 @@ function repositoryMigrateWithOptionSrcBase( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
   });
   a.ready.then( () =>
   {
@@ -21662,7 +21622,7 @@ function repositoryMigrateWithOptionSrcBase( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
   });
   a.ready.then( () =>
   {
@@ -21716,7 +21676,7 @@ function repositoryMigrateWithOptionSrcBase( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
   });
   a.ready.then( () =>
   {
@@ -21770,7 +21730,7 @@ function repositoryMigrateWithOptionSrcBase( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
   });
   a.ready.then( () =>
   {
@@ -21825,7 +21785,7 @@ function repositoryMigrateWithOptionSrcBase( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
   });
   a.ready.then( () =>
   {
@@ -21880,7 +21840,7 @@ function repositoryMigrateWithOptionSrcBase( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
   });
   a.ready.then( () =>
   {
@@ -21951,9 +21911,8 @@ function repositoryMigrateWithOptionSrcBase( test )
     {
       return _.git.repositoryAgree
       ({
-        srcPath : srcRepositoryRemote,
-        localPath : a.abs( '.' ),
-        srcBranch : 'master',
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
         dstBranch : 'master',
         ... o,
       });
@@ -21980,11 +21939,11 @@ function repositoryMigrateWithOptionDstBase( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
   });
   a.ready.then( () =>
   {
-    test.case = 'dstBase - current dir';
+    test.case = 'dstDirPath - current dir';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -22034,12 +21993,12 @@ function repositoryMigrateWithOptionDstBase( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-    dstBase : 'proto',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    dstDirPath : 'proto',
   });
   a.ready.then( () =>
   {
-    test.case = 'dstBase - nested dir, dir synchronized';
+    test.case = 'dstDirPath - nested dir, dir synchronized';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -22079,12 +22038,12 @@ function repositoryMigrateWithOptionDstBase( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-    dstBase : 'proto',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    dstDirPath : 'proto',
   });
   a.ready.then( () =>
   {
-    test.case = 'dstBase - nested dir, srcBase, dir synchronized';
+    test.case = 'dstDirPath - nested dir, srcBase, dir synchronized';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -22125,12 +22084,12 @@ function repositoryMigrateWithOptionDstBase( test )
   migrate
   ({
     mergeStrategy : 'src',
-    state2 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-    dstBase : 'proto',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    dstDirPath : 'proto',
   });
   a.ready.then( () =>
   {
-    test.case = 'dstBase - nested dir, srcBase, dir synchronized';
+    test.case = 'dstDirPath - nested dir, srcBase, dir synchronized';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
@@ -22187,9 +22146,8 @@ function repositoryMigrateWithOptionDstBase( test )
     {
       return _.git.repositoryAgree
       ({
-        srcPath : srcRepositoryRemote,
-        localPath : a.abs( '.' ),
-        srcBranch : 'master',
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
         dstBranch : 'master',
         ... o,
       });
