@@ -20226,10 +20226,10 @@ function repositoryMigrate( test )
     test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -20304,10 +20304,10 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
     test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -20340,10 +20340,10 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
     test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : () => '__sync__',
@@ -20376,10 +20376,10 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
     test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : ( e ) => '__sync__' + e,
@@ -20456,10 +20456,10 @@ function repositoryMigrateWithOptionOnDate( test )
     test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onDate : ( e ) => '',
@@ -20496,10 +20496,10 @@ function repositoryMigrateWithOptionOnDate( test )
     test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onDate : ( e ) => e,
@@ -20536,10 +20536,10 @@ function repositoryMigrateWithOptionOnDate( test )
     test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onDate : null,
@@ -20625,10 +20625,10 @@ function repositoryMigrateWithOptionOnly( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -20679,10 +20679,10 @@ function repositoryMigrateWithOptionOnly( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -20733,10 +20733,10 @@ function repositoryMigrateWithOptionOnly( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -20787,10 +20787,10 @@ function repositoryMigrateWithOptionOnly( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -20841,10 +20841,10 @@ function repositoryMigrateWithOptionOnly( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -20895,10 +20895,10 @@ function repositoryMigrateWithOptionOnly( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -20949,10 +20949,10 @@ function repositoryMigrateWithOptionOnly( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -21047,10 +21047,10 @@ function repositoryMigrateWithOptionBut( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -21103,10 +21103,10 @@ function repositoryMigrateWithOptionBut( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -21159,10 +21159,10 @@ function repositoryMigrateWithOptionBut( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -21215,10 +21215,10 @@ function repositoryMigrateWithOptionBut( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -21271,10 +21271,10 @@ function repositoryMigrateWithOptionBut( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -21327,10 +21327,10 @@ function repositoryMigrateWithOptionBut( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -21383,10 +21383,10 @@ function repositoryMigrateWithOptionBut( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -21480,10 +21480,10 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
       onCommitMessage : '__sync__',
@@ -21572,17 +21572,17 @@ function repositoryMigrateWithOptionSrcBase( test )
   });
   a.ready.then( () =>
   {
-    test.case = 'srcBase - current dir, dot, without only';
+    test.case = 'srcDirPath - current dir, dot, without only';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      srcBase : '.',
+      srcDirPath : '.',
       onCommitMessage : '__sync__',
     });
   });
@@ -21626,17 +21626,17 @@ function repositoryMigrateWithOptionSrcBase( test )
   });
   a.ready.then( () =>
   {
-    test.case = 'srcBase - current dir, dot and slash, without only';
+    test.case = 'srcDirPath - current dir, dot and slash, without only';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      srcBase : './',
+      srcDirPath : './',
       onCommitMessage : '__sync__',
     });
   });
@@ -21680,17 +21680,17 @@ function repositoryMigrateWithOptionSrcBase( test )
   });
   a.ready.then( () =>
   {
-    test.case = 'srcBase - nested dir, without only';
+    test.case = 'srcDirPath - nested dir, without only';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      srcBase : './proto',
+      srcDirPath : './proto',
       onCommitMessage : '__sync__',
     });
   });
@@ -21734,17 +21734,17 @@ function repositoryMigrateWithOptionSrcBase( test )
   });
   a.ready.then( () =>
   {
-    test.case = 'srcBase - current dir, dot, with only';
+    test.case = 'srcDirPath - current dir, dot, with only';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      srcBase : '.',
+      srcDirPath : '.',
       onCommitMessage : '__sync__',
       only : [ '*package*', '**.s' ],
     });
@@ -21789,17 +21789,17 @@ function repositoryMigrateWithOptionSrcBase( test )
   });
   a.ready.then( () =>
   {
-    test.case = 'srcBase - current dir, dot and slash, with only';
+    test.case = 'srcDirPath - current dir, dot and slash, with only';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      srcBase : './',
+      srcDirPath : './',
       onCommitMessage : '__sync__',
       only : [ '*package*', '**.s' ],
     });
@@ -21844,17 +21844,17 @@ function repositoryMigrateWithOptionSrcBase( test )
   });
   a.ready.then( () =>
   {
-    test.case = 'srcBase - nested dir, with only';
+    test.case = 'srcDirPath - nested dir, with only';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      srcBase : './proto',
+      srcDirPath : './proto',
       onCommitMessage : '__sync__',
       only : [ '*package*', '**.s' ],
     });
@@ -21947,13 +21947,13 @@ function repositoryMigrateWithOptionDstBase( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      dstBase : '.',
+      dstDirPath : '.',
       onCommitMessage : '__sync__',
     });
   });
@@ -22002,13 +22002,13 @@ function repositoryMigrateWithOptionDstBase( test )
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      dstBase : 'proto',
+      dstDirPath : 'proto',
       onCommitMessage : '__sync__',
     });
   });
@@ -22043,18 +22043,18 @@ function repositoryMigrateWithOptionDstBase( test )
   });
   a.ready.then( () =>
   {
-    test.case = 'dstDirPath - nested dir, srcBase, dir synchronized';
+    test.case = 'dstDirPath - nested dir, srcDirPath, dir synchronized';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      srcBase : 'proto',
-      dstBase : 'proto',
+      srcDirPath : 'proto',
+      dstDirPath : 'proto',
       onCommitMessage : '__sync__',
     });
   });
@@ -22089,17 +22089,17 @@ function repositoryMigrateWithOptionDstBase( test )
   });
   a.ready.then( () =>
   {
-    test.case = 'dstDirPath - nested dir, srcBase, dir synchronized';
+    test.case = 'dstDirPath - nested dir, srcDirPath, dir synchronized';
     filesBefore = a.find( a.abs( './' ) );
     return _.git.repositoryMigrate
     ({
-      srcPath : srcRepositoryRemote,
-      localPath : a.abs( '.' ),
-      state1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      state2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
-      dstBase : 'proto',
+      dstDirPath : 'proto',
       onCommitMessage : '__sync__',
       only : [ '*package*', '**.s' ],
     });
