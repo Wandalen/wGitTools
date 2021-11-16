@@ -4620,19 +4620,19 @@ function repositoryAgree( o )
 {
   _.routine.options_( repositoryAgree, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
-  _.assert( _.str.defined( o.localPath ), 'Expects local path to destination repository {-o.localPath-}.' );
-  _.assert( _.str.defined( o.srcPath ) || _.aux.is( o.srcPath ), 'Expects path to source repository {-o.srcPath-}.' );
+  _.assert( _.str.defined( o.dstBasePath ), 'Expects local path to destination repository {-o.dstBasePath-}.' );
+  _.assert( _.str.defined( o.srcBasePath ) || _.aux.is( o.srcBasePath ), 'Expects path to source repository {-o.srcBasePath-}.' );
 
   /* */
 
   let error = null;
   const ready = _.take( null );
 
-  let basePath = o.localPath;
-  if( o.dstBase )
-  basePath = _.git.path.join( o.localPath, o.dstBase );
+  let basePath = o.dstBasePath;
+  if( o.dstDirPath )
+  basePath = _.git.path.join( o.dstBasePath, o.dstDirPath );
   basePath = _.git.path.detrail( basePath );
-  o.localPath = _.git.path.detrail( o.localPath );
+  o.dstBasePath = _.git.path.detrail( o.dstBasePath );
   let shouldRemove = false;
 
   const shell = _.process.starter
@@ -4643,21 +4643,20 @@ function repositoryAgree( o )
     outputCollecting : 1,
   });
 
-  if( basePath !== o.localPath )
+  if( basePath !== o.dstBasePath )
   ready.then( subrepositoryInitMaybe );
 
-  const srcPath = _.git.path.nativize( o.srcPath );
-  if( !o.srcBranch )
-  o.srcBranch = branchFromPath( srcPath, false ) || 'master';
+  const srcBasePath = _.git.path.nativize( o.srcBasePath );
+  let srcBranch = branchFromPath( srcBasePath, false ) || 'master';
   if( !o.dstBranch )
   o.dstBranch = branchFromPath( basePath, true ) || 'master';
 
-  let state2 = o.state2;
-  if( o.state2 )
-  state2 = _.git._stateParse( o.state2 ).value;
+  let srcState = o.srcState;
+  if( o.srcState )
+  srcState = _.git._stateParse( o.srcState ).value;
 
   if( !o.commitMessage )
-  o.commitMessage = `Merge branch '${ o.srcBranch }' of ${ srcPath } into ${ o.dstBranch }`;
+  o.commitMessage = `Merge branch '${ srcBranch }' of ${ srcBasePath } into ${ o.dstBranch }`;
   _.assert( _.str.is( o.commitMessage ), 'Expects string with commit message {-o.commitMessage-}' );
 
   _.assert( _.longHasAny( [ 'src', 'dst', 'manual' ], o.mergeStrategy ) );
@@ -4673,10 +4672,9 @@ function repositoryAgree( o )
 
   let tempPath = _.fileProvider.path.tempOpen( o.description );
   ready.then( () => shell( `git remote add ${ remoteName } ${ tempPath }` ) );
-  ready.then( () => _.git.repositoryClone({ localPath : tempPath, remotePath : srcPath }) );
-  ready.then( () => _.git.tagLocalChange({ localPath : tempPath, tag : o.srcBranch }) );
-  if( state2 )
-  ready.then( () => shell({ currentPath : tempPath, execPath : `git reset --hard ${ state2 }` }) );
+  ready.then( () => _.git.repositoryClone({ localPath : tempPath, remotePath : srcBasePath }) );
+  if( srcState )
+  ready.then( () => shell({ currentPath : tempPath, execPath : `git reset --hard ${ srcState }` }) );
 
   /* */
 
@@ -4687,11 +4685,11 @@ function repositoryAgree( o )
     let strategy = '-s recursive';
     if( o.mergeStrategy !== 'manual' )
     strategy += ` -X ${ o.mergeStrategy === 'src' ? 'theirs' : 'ours' }`;
-    const srcBranch = `${ remoteName }/${ o.srcBranch }`;
+    const mergeBranch = `${ remoteName }/${ srcBranch }`;
 
     return shell
     ({
-      execPath : `git merge ${ strategy } --allow-unrelated-histories --squash ${ srcBranch } ${ o.dstBranch }`,
+      execPath : `git merge ${ strategy } --allow-unrelated-histories --squash ${ mergeBranch } ${ o.dstBranch }`,
       currentPath : basePath,
     });
   });
@@ -4707,8 +4705,8 @@ function repositoryAgree( o )
 
       if( uncommittedFiles === undefined || uncommittedFiles.length )
       {
-        shell({ currentPath : o.localPath, execPath : 'git add .' });
-        return shell({ currentPath : o.localPath, execPath : `git commit -m "${ o.commitMessage }"` });
+        shell({ currentPath : o.dstBasePath, execPath : 'git add .' });
+        return shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ o.commitMessage }"` });
       }
     }
     return null;
@@ -4736,7 +4734,7 @@ function repositoryAgree( o )
 
   function subrepositoryInitMaybe()
   {
-    _.assert( _.str.begins( basePath, o.localPath ), '{-o.dstBase-} should be a subdirectory of {-o.localPath-}' );
+    _.assert( _.str.begins( basePath, o.dstBasePath ), '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}' );
 
     if( !_.fileProvider.fileExists( basePath ) )
     _.fileProvider.dirMake( basePath );
@@ -4794,7 +4792,7 @@ function repositoryAgree( o )
       const tagDescriptor = _.git.tagExplain
       ({
         remotePath : path,
-        localPath : o.localPath,
+        localPath : o.dstBasePath,
         tag : parsed.tag,
         remote : !local,
         local,
@@ -4816,14 +4814,14 @@ function repositoryAgree( o )
 
   function filesFilter( msg )
   {
-    if( o.srcBase )
+    if( o.srcDirPath )
     {
-      _.assert( !_.git.path.isGlob( o.srcBase ) );
-      let srcBase = o.srcBase;
-      if( _.git.path.isAbsolute( o.srcBase ) )
+      _.assert( !_.git.path.isGlob( o.srcDirPath ) );
+      let srcDirPath = o.srcDirPath;
+      if( _.git.path.isAbsolute( o.srcDirPath ) )
       {
-        srcBase = _.git.path.relative( srcPath, srcBase );
-        _.assert( !_.git.path.isDotted( srcBase ) );
+        srcDirPath = _.git.path.relative( srcBasePath, srcDirPath );
+        _.assert( !_.git.path.isDotted( srcDirPath ) );
       }
 
       if( o.only )
@@ -4833,9 +4831,9 @@ function repositoryAgree( o )
 
       if( o.only.length )
       for( let i = 0 ; i < o.only.length ; i++ )
-      o.only[ i ] = _.git.path.join( srcBase, o.only[ i ] );
+      o.only[ i ] = _.git.path.join( srcDirPath, o.only[ i ] );
       else
-      o.only.push( _.git.path.join( srcBase, '**' ) );
+      o.only.push( _.git.path.join( srcDirPath, '**' ) );
     }
 
     let pathsFromStatus;
@@ -4900,13 +4898,12 @@ function repositoryAgree( o )
 
 repositoryAgree.defaults =
 {
-  srcPath : null,
-  localPath : null,
-  state2 : null,
-  srcBranch : null,
+  srcBasePath : null,
+  dstBasePath : null,
+  srcState : null,
   dstBranch : null,
-  srcBase : null,
-  dstBase : null,
+  srcDirPath : null,
+  dstDirPath : null,
   commitMessage : null,
   mergeStrategy : 'src', /* can be any of [ 'src', 'dst', 'manual' ] */
   but : null,
