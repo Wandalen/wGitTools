@@ -4648,7 +4648,10 @@ function repositoryAgree( o )
 
   const normalized = _.git.path.normalize( o.srcBasePath );
   const srcBasePath = _.git.path.nativize( normalized );
-  let srcBranch = branchFromPath( normalized, false ) || 'master';
+  const srcBasePathIsRepository = _.git.isRepository({ remotePath : normalized });
+  let srcBranch = 'master';
+  if( srcBasePathIsRepository )
+  srcBranch = branchFromPath( normalized, false ) || 'master';
   if( !o.dstBranch )
   o.dstBranch = branchFromPath( basePath, true ) || 'master';
 
@@ -4662,20 +4665,11 @@ function repositoryAgree( o )
 
   _.assert( _.longHasAny( [ 'src', 'dst', 'manual' ], o.mergeStrategy ) );
 
-  let remoteName = remoteNameGenerate();
-  ready.then( () =>
-  {
-    const config = _.git.configRead( basePath );
-    while( `remote "${ remoteName }"` in config )
-    remoteName = remoteNameGenerate();
-    return null;
-  });
-
-  let tempPath = _.fileProvider.path.tempOpen( o.description );
+  let remoteName;
+  remoteNameGenerate().then( ( name ) => { remoteName = name; return null });
+  let tempPath = _.fileProvider.path.tempOpen();
   ready.then( () => shell( `git remote add ${ remoteName } ${ tempPath }` ) );
-  ready.then( () => _.git.repositoryClone({ localPath : tempPath, remotePath : normalized }) );
-  if( srcState )
-  ready.then( () => shell({ currentPath : tempPath, execPath : `git reset --hard ${ srcState }` }) );
+  tempRepositoryPrepare();
 
   /* */
 
@@ -4808,7 +4802,34 @@ function repositoryAgree( o )
 
   function remoteNameGenerate()
   {
-    return `_temp-${ _.idWithGuid() }`;
+    ready.then( () =>
+    {
+      let remoteName = `_temp-${ _.idWithGuid() }`;
+      const config = _.git.configRead( basePath );
+      while( `remote "${ remoteName }"` in config )
+      remoteName = `_temp-${ _.idWithGuid() }`;
+      return remoteName;
+    });
+    return ready;
+  }
+
+  /* */
+
+  function tempRepositoryPrepare()
+  {
+    if( srcBasePathIsRepository )
+    {
+      ready.then( () => _.git.repositoryClone({ localPath : tempPath, remotePath : normalized }) );
+    }
+    else
+    {
+      ready.then( () => _.fileProvider.filesReflect({ dst : tempPath, src : srcBasePath }) );
+      ready.then( () => _.git.repositoryInit({ localPath : tempPath, remote : 0, local : 1 }) );
+      ready.then( () => shell({ currentPath : tempPath, execPath : [ 'git add .', 'git commit -m Init' ] }) );
+    }
+    if( srcState )
+    ready.then( () => shell({ currentPath : tempPath, execPath : `git reset --hard ${ srcState }` }) );
+    return ready;
   }
 
   /* */
