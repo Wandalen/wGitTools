@@ -19007,6 +19007,53 @@ function repositoryAgreeWithLocalRepository( test )
 
 //
 
+function repositoryAgreeWithNotARepository( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'agree directory with same files';
+    return _.git.repositoryAgree
+    ({
+      srcBasePath : a.abs( '../repo' ),
+      dstBasePath : a.abs( '.' ),
+      srcState : null,
+      mergeStrategy : 'src',
+      commitMessage : null,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '../repo' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    a.shell( `git reset --hard ${ dstCommit }` );
+    a.shell( `git clone ${ srcRepositoryRemote } ../repo` );
+    return a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '../repo/.git' ) ); return null });
+  }
+}
+
+//
+
 function repositoryAgreeWithOptionMergeStrategy( test )
 {
   const a = test.assetFor( false );
@@ -30138,6 +30185,7 @@ const Proto =
 
     repositoryAgree,
     repositoryAgreeWithLocalRepository,
+    repositoryAgreeWithNotARepository,
     repositoryAgreeWithOptionMergeStrategy,
     repositoryAgreeWithOptionCommitMessage,
     repositoryAgreeWithOptionSrcState,
