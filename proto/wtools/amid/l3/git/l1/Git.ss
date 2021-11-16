@@ -4646,8 +4646,9 @@ function repositoryAgree( o )
   if( basePath !== o.dstBasePath )
   ready.then( subrepositoryInitMaybe );
 
-  const srcBasePath = _.git.path.nativize( o.srcBasePath );
-  let srcBranch = branchFromPath( srcBasePath, false ) || 'master';
+  const normalized = _.git.path.normalize( o.srcBasePath );
+  const srcBasePath = _.git.path.nativize( normalized );
+  let srcBranch = branchFromPath( normalized, false ) || 'master';
   if( !o.dstBranch )
   o.dstBranch = branchFromPath( basePath, true ) || 'master';
 
@@ -4672,7 +4673,7 @@ function repositoryAgree( o )
 
   let tempPath = _.fileProvider.path.tempOpen( o.description );
   ready.then( () => shell( `git remote add ${ remoteName } ${ tempPath }` ) );
-  ready.then( () => _.git.repositoryClone({ localPath : tempPath, remotePath : srcBasePath }) );
+  ready.then( () => _.git.repositoryClone({ localPath : tempPath, remotePath : normalized }) );
   if( srcState )
   ready.then( () => shell({ currentPath : tempPath, execPath : `git reset --hard ${ srcState }` }) );
 
