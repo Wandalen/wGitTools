@@ -20835,7 +20835,7 @@ function repositoryMigrateWithOptionOnly( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( op.output.trim(), 'package.json' );
@@ -20889,7 +20889,7 @@ function repositoryMigrateWithOptionOnly( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( op.output.trim(), 'package.json\nwas.package.json' );
@@ -20943,7 +20943,7 @@ function repositoryMigrateWithOptionOnly( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( op.output.trim(), 'package.json\nwas.package.json' );
@@ -20997,7 +20997,7 @@ function repositoryMigrateWithOptionOnly( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( op.output.trim(), 'package.json' );
@@ -21051,7 +21051,7 @@ function repositoryMigrateWithOptionOnly( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( op.output.trim(), 'package.json\nwas.package.json' );
@@ -21105,7 +21105,7 @@ function repositoryMigrateWithOptionOnly( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( op.output.trim(), 'package.json\nwas.package.json' );
@@ -21257,7 +21257,7 @@ function repositoryMigrateWithOptionBut( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     let files = op.output.split( '\n' );
@@ -21313,7 +21313,7 @@ function repositoryMigrateWithOptionBut( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     let files = op.output.split( '\n' );
@@ -21369,7 +21369,7 @@ function repositoryMigrateWithOptionBut( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     let files = op.output.split( '\n' );
@@ -21425,7 +21425,7 @@ function repositoryMigrateWithOptionBut( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     let files = op.output.split( '\n' );
@@ -21481,7 +21481,7 @@ function repositoryMigrateWithOptionBut( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     let files = op.output.split( '\n' );
@@ -21537,7 +21537,7 @@ function repositoryMigrateWithOptionBut( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     let files = op.output.split( '\n' );
@@ -21691,7 +21691,7 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( op.output.trim(), 'was.package.json' );
@@ -21786,7 +21786,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     var files = op.output.trim().split( '\n' );
@@ -21840,7 +21840,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     var files = op.output.trim().split( '\n' );
@@ -21894,7 +21894,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     var files = op.output.trim().split( '\n' );
@@ -21949,7 +21949,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     var files = op.output.trim().split( '\n' );
@@ -22004,7 +22004,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     var files = op.output.trim().split( '\n' );
@@ -22059,7 +22059,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     var files = op.output.trim().split( '\n' );
@@ -22157,7 +22157,7 @@ function repositoryMigrateWithOptionDstDirPath( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     var files = op.output.trim().split( '\n' );
@@ -22212,7 +22212,7 @@ function repositoryMigrateWithOptionDstDirPath( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     var files = op.output.trim().split( '\n' );
@@ -22258,7 +22258,7 @@ function repositoryMigrateWithOptionDstDirPath( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     var files = op.output.trim().split( '\n' );
@@ -22304,7 +22304,7 @@ function repositoryMigrateWithOptionDstDirPath( test )
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.finally( ( err, op ) =>
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     var files = op.output.trim().split( '\n' );
