@@ -4944,9 +4944,10 @@ function repositoryMigrate( o )
   if( basePath !== o.dstBasePath )
   ready.then( subrepositoryInitMaybe );
 
-  const srcBasePath = _.git.path.nativize( o.srcBasePath );
+  const normalized = _.git.path.normalize( o.srcBasePath );
+  const srcBasePath = _.git.path.nativize( normalized );
   if( !o.srcBranch )
-  o.srcBranch = branchFromPath( srcBasePath, false ) || 'master';
+  o.srcBranch = branchFromPath( normalized, false ) || 'master';
   if( !o.dstBranch )
   o.dstBranch = branchFromPath( o.dstBasePath, true ) || 'master';
 
