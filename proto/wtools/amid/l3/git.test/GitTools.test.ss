@@ -18934,6 +18934,79 @@ function repositoryAgree( test )
 
 //
 
+function repositoryAgreeWithLocalRepository( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'migrate another repository with same branches, no state, branches, message, strategy - dst';
+    return _.git.repositoryAgree
+    ({
+      srcBasePath : a.abs( '../repo' ),
+      dstBasePath : a.abs( '.' ),
+      srcState : null,
+      dstBranch : null,
+      mergeStrategy : 'dst',
+      commitMessage : null,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'state - hash';
+    return _.git.repositoryAgree
+    ({
+      srcBasePath : a.abs( '../repo' ),
+      dstBasePath : a.abs( '.' ),
+      srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      dstBranch : 'master',
+      mergeStrategy : 'src',
+      commitMessage : '__sync__',
+    });
+  });
+  a.ready.finally( ( err, op ) =>
+  {
+    test.identical( err, undefined );
+    test.identical( op, true );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.170' );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '../repo' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    a.shell( `git reset --hard ${ dstCommit }` );
+    return a.shell( `git clone ${ srcRepositoryRemote } ../repo` );
+  }
+}
+
+//
+
 function repositoryAgreeWithOptionMergeStrategy( test )
 {
   const a = test.assetFor( false );
@@ -29985,6 +30058,7 @@ const Proto =
     repositoryCheckoutRemotePathIsMap,
 
     repositoryAgree,
+    repositoryAgreeWithLocalRepository,
     repositoryAgreeWithOptionMergeStrategy,
     repositoryAgreeWithOptionCommitMessage,
     repositoryAgreeWithOptionState,
