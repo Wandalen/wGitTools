@@ -19284,7 +19284,7 @@ function repositoryAgreeWithOptionCommitMessage( test )
 
 //
 
-function repositoryAgreeWithOptionState( test )
+function repositoryAgreeWithOptionSrcState( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -19670,7 +19670,7 @@ repositoryAgreeWithOptionBut.timeOut = 60000;
 
 //
 
-function repositoryAgreeWithOptionSrcBase( test )
+function repositoryAgreeWithOptionSrcDirPath( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -19895,11 +19895,11 @@ function repositoryAgreeWithOptionSrcBase( test )
   }
 }
 
-repositoryAgreeWithOptionSrcBase.timeOut = 60000;
+repositoryAgreeWithOptionSrcDirPath.timeOut = 60000;
 
 //
 
-function repositoryAgreeWithOptionDstBase( test )
+function repositoryAgreeWithOptionDstDirPath( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -20165,7 +20165,7 @@ function repositoryAgreeWithOptionDstBase( test )
   }
 }
 
-repositoryAgreeWithOptionDstBase.timeOut = 60000;
+repositoryAgreeWithOptionDstDirPath.timeOut = 60000;
 
 //
 
@@ -21705,7 +21705,7 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
 
 //
 
-function repositoryMigrateWithOptionSrcBase( test )
+function repositoryMigrateWithOptionSrcDirPath( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -22072,11 +22072,11 @@ function repositoryMigrateWithOptionSrcBase( test )
   }
 }
 
-repositoryMigrateWithOptionSrcBase.timeOut = 180000;
+repositoryMigrateWithOptionSrcDirPath.timeOut = 180000;
 
 //
 
-function repositoryMigrateWithOptionDstBase( test )
+function repositoryMigrateWithOptionDstDirPath( test )
 {
   const a = test.assetFor( false );
   const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
@@ -22307,7 +22307,7 @@ function repositoryMigrateWithOptionDstBase( test )
   }
 }
 
-repositoryMigrateWithOptionDstBase.timeOut = 180000;
+repositoryMigrateWithOptionDstDirPath.timeOut = 180000;
 
 //
 
@@ -30140,11 +30140,11 @@ const Proto =
     repositoryAgreeWithLocalRepository,
     repositoryAgreeWithOptionMergeStrategy,
     repositoryAgreeWithOptionCommitMessage,
-    repositoryAgreeWithOptionState,
+    repositoryAgreeWithOptionSrcState,
     repositoryAgreeWithOptionOnly,
     repositoryAgreeWithOptionBut,
-    repositoryAgreeWithOptionSrcBase,
-    repositoryAgreeWithOptionDstBase,
+    repositoryAgreeWithOptionSrcDirPath,
+    repositoryAgreeWithOptionDstDirPath,
     repositoryAgreeWithSingleRepository,
 
     repositoryMigrate,
@@ -30154,8 +30154,8 @@ const Proto =
     repositoryMigrateWithOptionOnly,
     repositoryMigrateWithOptionBut,
     repositoryMigrateWithOptionsOnlyAndBut,
-    repositoryMigrateWithOptionSrcBase,
-    repositoryMigrateWithOptionDstBase,
+    repositoryMigrateWithOptionSrcDirPath,
+    repositoryMigrateWithOptionDstDirPath,
 
     // etc
 
