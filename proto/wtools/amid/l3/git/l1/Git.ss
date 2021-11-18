@@ -6299,6 +6299,157 @@ reset_body.defaults =
 const reset = _.routine.unite( reset_head, reset_body );
 
 //
+
+function commitsDates( o )
+{
+  _.assert( arguments.length === 1 );
+  _.routine.options( commitsDates, o );
+  _.assert( _.git.path.isAbsolute( o.localPath ), 'Expects absolute path to repository {-o.localPath-}.' );
+  _.assert( _.str.defined( o.state1 ), 'Expects start commit to modify dates {-o.state1-}.' );
+  _.assert( _.longHas( [ 'now', 'commit' ], o.relative ), 'Expects option {-o.relative-} with value "now" or "commit".' );
+  _.assert( _.number.intIs( o.delta ) || _.str.is( o.delta ) );
+  _.assert( _.number.is( o.periodic ) && o.periodic >= 0 );
+
+  if( o.relative === 'commit' && o.delta === 0 && o.periodic === 0 )
+  return true;
+
+  const ready = _.take( null );
+  const start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    mode : 'shell',
+    outputCollecting : 1,
+    throwingExitCode : 1,
+    inputMirroring : 0,
+    sync : 0,
+  });
+
+  /* */
+
+  let delta = o.delta;
+  if( _.str.is( o.delta ) )
+  delta = Date.parse( `01 Jan 1970 ${ o.delta } GMT` ); /* qqq : for Dmytro : improve */
+
+  const parsed = _.git.path.parse( o.localPath );
+  const tempBranch = `_temp-${ _.idWithGuid() }`;
+
+  if( !o.state2 )
+  o.state2 = `!${ tempBranch }`;
+  const state1 = _.git._stateParse( o.state1 ).value;
+  const state2 = _.git._stateParse( o.state2 ).value;
+
+  let onDate = dateNow;
+  if( o.relative === 'now' && o.delta !== 0 )
+  onDate = dateNowWithDelta;
+
+  ready.then( () => start( `git checkout ${ state1 }~` ) );
+  ready.then( () => start( `git checkout -b ${ tempBranch }` ) );
+  ready.then( () => start( `git pull origin master` ) );
+  ready.then( () => start( `git checkout ${ parsed.tag }` ) );
+  ready.then( () => start( `git reset --hard ${ state1 }~` ) );
+  makeCommitDescriptorsArray();
+  ready.then( ( descriptors ) => writeCommits( descriptors ) );
+  ready.finally( () => start( `git branch --delete --force ${ tempBranch }` ) );
+
+  ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( err );
+    return true;
+  });
+
+  return ready;
+
+  /* */
+
+  function makeCommitDescriptorsArray()
+  {
+    ready.then( () =>
+    {
+      const format =
+      '{%n'
+      + '  \\"version\\" : \\"%H\\",%n'
+      + '  \\"message\\" : \\"%s\\",%n'
+      + `  \\"date\\" : \\"%ci\\"%n`
+      + '},';
+      return start( `git log ${ state1 }~..${ tempBranch } --format="${ format }"` );
+    });
+    ready.then( ( log ) =>
+    {
+      let commits = log.output;
+      commits = _.str.replaceBegin( commits, '', '[\n' );
+      commits = _.str.replaceEnd( commits, ',\n', '\n]' );
+      return JSON.parse( commits );
+    });
+    return ready;
+  }
+
+  /* */
+
+  function writeCommits( commits )
+  {
+    const con = _.take( null );
+    let shouldUpdate = true;
+    for( let i = commits.length - 1 ; i >= 0 ; i-- )
+    start({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].version }`, ready : con })
+    .then( () =>
+    {
+      let date = commits[ i ].date;
+      if( shouldUpdate )
+      date = onDate( commits[ i ].date );
+      if( commits[ i ].version === state2 )
+      shouldUpdate = false;
+      if( date.length )
+      date = `--date="${ date }"`;
+      return start({ execPath : `git commit --allow-empty -m "${ commits[ i ].message }" ${ date }` });
+    });
+    return con;
+  }
+
+  /* */
+
+  function dateNow( date )
+  {
+    return '';
+  }
+
+  /* */
+
+  function dateNowWithDelta( date )
+  {
+    const time = Date.now();
+    const dateObject = new Date( time + delta );
+    return dateObject.toISOString();
+  }
+
+  /* */
+
+  function dateOriginal( date )
+  {
+    return date;
+  }
+
+  /* */
+
+  function dateCommitWithDelta( date )
+  {
+    const time = Date.now( date );
+    const dateObject = new Date( time + delta );
+    return dateObject.toISOString();
+  }
+}
+
+commitsDates.defaults =
+{
+  localPath : null,
+  state1 : null,
+  state2 : null,
+  relative : 'now', // [ 'now', 'commit' ]
+  delta : null,
+  periodic : 0,
+  deviation : 0,
+};
+
 //
 
 function tagList( o )
@@ -6898,6 +7049,8 @@ let Extension =
   pull,
   push,
   reset,
+
+  commitsDates,
 
   // tag
 
