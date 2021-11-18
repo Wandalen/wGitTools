@@ -5332,7 +5332,7 @@ function repositoryHistoryToJson( o )
   + '  \\"email\\" : \\"%ae\\",%n'
   + '  \\"hash\\" : \\"%H\\",%n'
   + '  \\"message\\" : \\"%s\\",%n'
-  + `  \\"date\\" : \\"%ci\\"%n`
+  + `  \\"date\\" : \\"%ai\\"%n`
   + '},';
 
   return _.process.start
@@ -6385,6 +6385,8 @@ function commitsDates( o )
   let onDate = dateNow;
   if( o.relative === 'now' && o.delta !== 0 )
   onDate = dateNowWithDelta;
+  if( o.relative === 'commit' && o.delta !== 0 )
+  onDate = dateCommitWithDelta;
 
   ready.then( () => start( `git checkout ${ state1 }~` ) );
   ready.then( () => start( `git checkout -b ${ tempBranch }` ) );
@@ -6453,7 +6455,7 @@ function commitsDates( o )
 
   function dateCommitWithDelta( date )
   {
-    const time = Date.now( date );
+    const time = Date.parse( date );
     const dateObject = new Date( time + delta );
     return dateObject.toISOString();
   }
