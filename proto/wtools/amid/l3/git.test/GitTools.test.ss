@@ -17259,7 +17259,7 @@ function repositoryInitRemote( test )
     test.identical( op, null );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
@@ -17289,7 +17289,7 @@ function repositoryInitRemote( test )
     test.true( _.git.isRepository({ remotePath : repository }) );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
@@ -17319,7 +17319,7 @@ function repositoryInitRemote( test )
     test.true( _.git.isRepository({ remotePath : repository }) );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
@@ -17351,7 +17351,7 @@ function repositoryInitRemote( test )
     test.true( _.git.isRepository({ remotePath : repository }) );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* - */
 
