@@ -6391,7 +6391,7 @@ function commitsDates( o )
   ready.then( () => start( `git merge ${ parsed.tag } ${ tempBranch }` ) );
   ready.then( () => start( `git checkout ${ parsed.tag }` ) );
   ready.then( () => start( `git reset --hard ${ state1 }~` ) );
-  ready.then( () => _.git.repositoryHistoryToJson({ localPath : o.localPath, state1 : o.state1, state2 : o.state2 }) );
+  ready.then( () => _.git.repositoryHistoryToJson({ localPath : o.localPath, state1 : o.state1, state2 : `!${ tempBranch }` }) );
   ready.then( ( descriptors ) => writeCommits( descriptors ) );
   ready.finally( () => start( `git branch --delete --force ${ tempBranch }` ) );
   ready.finally( ( err, arg ) =>

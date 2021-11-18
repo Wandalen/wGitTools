@@ -28238,12 +28238,87 @@ function commitsDates( test )
 
   begin().then( () =>
   {
+    test.case = 'relative - current, state2 is not last commit';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#af815d4eaaf1df0505da1e1b2e526a7d04cdce7e',
+      relative : 'commit',
+      delta : 0,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.identical( op, originalHistory );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
     test.case = 'relative - now, change date to current';
     return _.git.commitsDates
     ({
       localPath : a.abs( '.' ),
       state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
       state2 : null,
+      relative : 'now',
+      delta : 0,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.le( Date.parse( op[ 12 ].date ), Date.now() );
+    test.ge( Date.parse( op[ 12 ].date ), Date.now() - 20000 );
+    test.le( Date.parse( op[ 0 ].date ), Date.now() );
+    test.ge( Date.parse( op[ 0 ].date ), Date.now() - 20000 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, state2 is not last commit';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#af815d4eaaf1df0505da1e1b2e526a7d04cdce7e',
       relative : 'now',
       delta : 0,
       periodic : 0,
