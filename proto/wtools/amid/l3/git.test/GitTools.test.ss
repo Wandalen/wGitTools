@@ -28067,6 +28067,71 @@ resetWithOptionDry.timeOut = 30000;
 
 //
 
+function commitsDates( test )
+{
+  const a = test.assetFor( false );
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - current, change no date';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'commit',
+      delta : 0,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, change date to current';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'now',
+      delta : 0,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( 1, 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ srcRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ srcCommit }` );
+  }
+}
+
+//
+
 function tagList( test )
 {
   let context = this;
@@ -30227,6 +30292,8 @@ const Proto =
     resetWithOptionRemovingSubrepositories,
     resetWithOptionRemovingIgnored,
     resetWithOptionDry,
+
+    commitsDates,
 
     tagList,
     tagDeleteBranch,
