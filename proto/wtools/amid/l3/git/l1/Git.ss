@@ -6390,10 +6390,9 @@ function commitsDates( o )
   ready.then( () => start( `git pull origin master` ) );
   ready.then( () => start( `git checkout ${ parsed.tag }` ) );
   ready.then( () => start( `git reset --hard ${ state1 }~` ) );
-  makeCommitDescriptorsArray();
+  ready.then( () => _.git.repositoryHistoryToJson({ localPath : o.localPath, state1 : o.state1, state2 : o.state2 }) );
   ready.then( ( descriptors ) => writeCommits( descriptors ) );
   ready.finally( () => start( `git branch --delete --force ${ tempBranch }` ) );
-
   ready.finally( ( err, arg ) =>
   {
     if( err )
@@ -6405,42 +6404,18 @@ function commitsDates( o )
 
   /* */
 
-  function makeCommitDescriptorsArray()
-  {
-    ready.then( () =>
-    {
-      const format =
-      '{%n'
-      + '  \\"version\\" : \\"%H\\",%n'
-      + '  \\"message\\" : \\"%s\\",%n'
-      + `  \\"date\\" : \\"%ci\\"%n`
-      + '},';
-      return start( `git log ${ state1 }~..${ tempBranch } --format="${ format }"` );
-    });
-    ready.then( ( log ) =>
-    {
-      let commits = log.output;
-      commits = _.str.replaceBegin( commits, '', '[\n' );
-      commits = _.str.replaceEnd( commits, ',\n', '\n]' );
-      return JSON.parse( commits );
-    });
-    return ready;
-  }
-
-  /* */
-
   function writeCommits( commits )
   {
     const con = _.take( null );
     let shouldUpdate = true;
     for( let i = commits.length - 1 ; i >= 0 ; i-- )
-    start({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].version }`, ready : con })
+    start({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }`, ready : con })
     .then( () =>
     {
       let date = commits[ i ].date;
       if( shouldUpdate )
       date = onDate( commits[ i ].date );
-      if( commits[ i ].version === state2 )
+      if( commits[ i ].hash === state2 )
       shouldUpdate = false;
       if( date.length )
       date = `--date="${ date }"`;
