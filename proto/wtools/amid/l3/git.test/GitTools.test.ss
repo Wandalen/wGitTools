@@ -17259,7 +17259,7 @@ function repositoryInitRemote( test )
     test.identical( op, null );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
@@ -17289,7 +17289,7 @@ function repositoryInitRemote( test )
     test.true( _.git.isRepository({ remotePath : repository }) );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
@@ -17319,7 +17319,7 @@ function repositoryInitRemote( test )
     test.true( _.git.isRepository({ remotePath : repository }) );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* */
 
@@ -17351,7 +17351,7 @@ function repositoryInitRemote( test )
     test.true( _.git.isRepository({ remotePath : repository }) );
     return null;
   });
-  repositoryDelete( repository );
+  repositoryDelete( repository ).delay( 3000 );
 
   /* - */
 
@@ -17400,7 +17400,7 @@ function repositoryDeleteRemote( test )
     a.reflect();
     return null;
   });
-  repositoryForm();
+  repositoryForm().delay( 3000 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -17418,7 +17418,7 @@ function repositoryDeleteRemote( test )
       dry : 0,
       token,
     });
-  });
+  }).delay( 3000 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.data, undefined );
@@ -17445,7 +17445,7 @@ function repositoryDeleteRemote( test )
         dry : 0,
         token,
       });
-    });
+    }).delay( 3000 );
     a.ready.then( () =>
     {
       return _.git.repositoryInit
