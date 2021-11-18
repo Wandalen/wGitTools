@@ -17400,7 +17400,7 @@ function repositoryDeleteRemote( test )
     a.reflect();
     return null;
   });
-  repositoryForm();
+  repositoryForm().delay( 3000 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
@@ -17418,7 +17418,7 @@ function repositoryDeleteRemote( test )
       dry : 0,
       token,
     });
-  });
+  }).delay( 3000 );
   a.ready.then( ( op ) =>
   {
     test.identical( op.data, undefined );
@@ -17445,7 +17445,7 @@ function repositoryDeleteRemote( test )
         dry : 0,
         token,
       });
-    });
+    }).delay( 3000 );
     a.ready.then( () =>
     {
       return _.git.repositoryInit
