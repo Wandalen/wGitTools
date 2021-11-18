@@ -5315,6 +5315,49 @@ repositoryMigrate.defaults =
   logger : 0,
 };
 
+//
+
+function repositoryHistoryToJson( o )
+{
+  _.assert( arguments.length === 1, 'Expects single argument.' );
+  _.routine.options( repositoryHistoryToJson, o );
+  _.assert( _.str.defined( o.localPath ) );
+
+  let state1 = _.git._stateParse( o.state1 ).value;
+  let state2 = _.git._stateParse( o.state2 ).value;
+
+  const format =
+  '{%n'
+  + '  \\"author\\" : \\"%an\\",%n'
+  + '  \\"hash\\" : \\"%H\\",%n'
+  + '  \\"message\\" : \\"%s\\",%n'
+  + `  \\"date\\" : \\"%ci\\"%n`
+  + '},';
+
+  return _.process.start
+  ({
+    currentPath : o.localPath,
+    execPath : `git log ${ state1 }~..${ state2 } --format="${ format }"`,
+    outputCollecting : 1,
+    throwingExitCode : 1,
+    inputMirroring : 0,
+  })
+  .then( ( log ) =>
+  {
+    let commits = log.output;
+    commits = _.str.replaceBegin( commits, '', '[\n' );
+    commits = _.str.replaceEnd( commits, ',\n', '\n]' );
+    return JSON.parse( commits );
+  });
+}
+
+repositoryHistoryToJson.defaults =
+{
+  localPath : null,
+  state1 : null,
+  state2 : null,
+};
+
 // --
 // config
 // --
@@ -7035,6 +7078,8 @@ let Extension =
 
   repositoryAgree,
   repositoryMigrate,
+
+  repositoryHistoryToJson,
 
   // config
 
