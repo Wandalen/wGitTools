@@ -5329,6 +5329,7 @@ function repositoryHistoryToJson( o )
   const format =
   '{%n'
   + '  \\"author\\" : \\"%an\\",%n'
+  + '  \\"email\\" : \\"%ae\\",%n'
   + '  \\"hash\\" : \\"%H\\",%n'
   + '  \\"message\\" : \\"%s\\",%n'
   + `  \\"date\\" : \\"%ci\\"%n`
@@ -6387,7 +6388,7 @@ function commitsDates( o )
 
   ready.then( () => start( `git checkout ${ state1 }~` ) );
   ready.then( () => start( `git checkout -b ${ tempBranch }` ) );
-  ready.then( () => start( `git pull origin master` ) );
+  ready.then( () => start( `git merge ${ parsed.tag } ${ tempBranch }` ) );
   ready.then( () => start( `git checkout ${ parsed.tag }` ) );
   ready.then( () => start( `git reset --hard ${ state1 }~` ) );
   ready.then( () => _.git.repositoryHistoryToJson({ localPath : o.localPath, state1 : o.state1, state2 : o.state2 }) );
@@ -6419,7 +6420,8 @@ function commitsDates( o )
       shouldUpdate = false;
       if( date.length )
       date = `--date="${ date }"`;
-      return start({ execPath : `git commit --allow-empty -m "${ commits[ i ].message }" ${ date }` });
+      const author = `--author="${ commits[ i ].author } <${ commits[ i ].email }>"`
+      return start( `git commit --allow-empty -m "${ commits[ i ].message }" ${ author } ${ date }` );
     });
     return con;
   }

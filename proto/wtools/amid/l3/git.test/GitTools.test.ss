@@ -22382,8 +22382,14 @@ function repositoryHistoryToJson( test )
     test.identical( op.length, 13 );
     test.identical( op[ 0 ].hash, '8e2aa80ca350f3c45215abafa07a4f2cd320342a' );
     test.identical( op[ 0 ].message, 'version 0.0.186' );
+    test.identical( op[ 0 ].author, 'Kos' );
+    test.identical( op[ 0 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 0 ].date, '2021-10-29 08:07:03 +0300' );
     test.identical( op[ 12 ].hash, 'af36e28bc91b6f18e4babc810bbf5bc758ccf19f' );
     test.identical( op[ 12 ].message, 'version 0.0.180' );
+    test.identical( op[ 12 ].author, 'wandalen' );
+    test.identical( op[ 12 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 12 ].date, '2021-08-12 18:31:34 +0300' );
     return null;
   });
 
@@ -22405,8 +22411,14 @@ function repositoryHistoryToJson( test )
     test.identical( op.length, 10 );
     test.identical( op[ 0 ].hash, 'af815d4eaaf1df0505da1e1b2e526a7d04cdce7e' );
     test.identical( op[ 0 ].message, 'version 0.0.185' );
+    test.identical( op[ 0 ].author, 'wandalen' );
+    test.identical( op[ 0 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 0 ].date, '2021-10-22 10:03:32 +0300' );
     test.identical( op[ 9 ].hash, 'af36e28bc91b6f18e4babc810bbf5bc758ccf19f' );
     test.identical( op[ 9 ].message, 'version 0.0.180' );
+    test.identical( op[ 9 ].author, 'wandalen' );
+    test.identical( op[ 9 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 9 ].date, '2021-08-12 18:31:34 +0300' );
     return null;
   });
 
@@ -22428,8 +22440,14 @@ function repositoryHistoryToJson( test )
     test.identical( op.length, 10 );
     test.identical( op[ 0 ].hash, 'af815d4eaaf1df0505da1e1b2e526a7d04cdce7e' );
     test.identical( op[ 0 ].message, 'version 0.0.185' );
+    test.identical( op[ 0 ].author, 'wandalen' );
+    test.identical( op[ 0 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 0 ].date, '2021-10-22 10:03:32 +0300' );
     test.identical( op[ 9 ].hash, 'af36e28bc91b6f18e4babc810bbf5bc758ccf19f' );
     test.identical( op[ 9 ].message, 'version 0.0.180' );
+    test.identical( op[ 9 ].author, 'wandalen' );
+    test.identical( op[ 9 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 9 ].date, '2021-08-12 18:31:34 +0300' );
     return null;
   });
 
@@ -28165,6 +28183,25 @@ function commitsDates( test )
   const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
   const srcCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
 
+  /* */
+
+  let originalHistory = [];
+  begin().then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    originalHistory = op;
+    return null
+  });
+
   /* - */
 
   begin().then( () =>
@@ -28183,6 +28220,17 @@ function commitsDates( test )
   a.ready.then( ( op ) =>
   {
     test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.identical( op, originalHistory );
     return null;
   });
 
@@ -28203,7 +28251,29 @@ function commitsDates( test )
   });
   a.ready.then( ( op ) =>
   {
-    test.identical( 1, 1 );
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.le( Date.parse( op[ 12 ].date ), Date.now() );
+    test.ge( Date.parse( op[ 12 ].date ), Date.now() - 20000 );
+    test.le( Date.parse( op[ 0 ].date ), Date.now() );
+    test.ge( Date.parse( op[ 0 ].date ), Date.now() - 20000 );
     return null;
   });
 
