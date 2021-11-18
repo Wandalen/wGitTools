@@ -22358,6 +22358,98 @@ repositoryMigrateWithOptionDstDirPath.timeOut = 180000;
 
 //
 
+function repositoryHistoryToJson( test )
+{
+  const a = test.assetFor( false );
+  const srcRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'from commit to head';
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#HEAD',
+    })
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.true( _.array.is( op ) );
+    test.identical( op.length, 13 );
+    test.identical( op[ 0 ].hash, '8e2aa80ca350f3c45215abafa07a4f2cd320342a' );
+    test.identical( op[ 0 ].message, 'version 0.0.186' );
+    test.identical( op[ 12 ].hash, 'af36e28bc91b6f18e4babc810bbf5bc758ccf19f' );
+    test.identical( op[ 12 ].message, 'version 0.0.180' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'from commit to commit, inside history';
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#af815d4eaaf1df0505da1e1b2e526a7d04cdce7e',
+    })
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.true( _.array.is( op ) );
+    test.identical( op.length, 10 );
+    test.identical( op[ 0 ].hash, 'af815d4eaaf1df0505da1e1b2e526a7d04cdce7e' );
+    test.identical( op[ 0 ].message, 'version 0.0.185' );
+    test.identical( op[ 9 ].hash, 'af36e28bc91b6f18e4babc810bbf5bc758ccf19f' );
+    test.identical( op[ 9 ].message, 'version 0.0.180' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'from tag to tag, inside history';
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '!v0.0.180',
+      state2 : '!v0.0.185',
+    })
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.true( _.array.is( op ) );
+    test.identical( op.length, 10 );
+    test.identical( op[ 0 ].hash, 'af815d4eaaf1df0505da1e1b2e526a7d04cdce7e' );
+    test.identical( op[ 0 ].message, 'version 0.0.185' );
+    test.identical( op[ 9 ].hash, 'af36e28bc91b6f18e4babc810bbf5bc758ccf19f' );
+    test.identical( op[ 9 ].message, 'version 0.0.180' );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ srcRemote } ./` );
+    return a.shell( `git reset --hard ${ srcCommit }` );
+  }
+}
+
+//
+
 function configRead( test )
 {
   let context = this;
@@ -30269,6 +30361,8 @@ const Proto =
     repositoryMigrateWithOptionsOnlyAndBut,
     repositoryMigrateWithOptionSrcDirPath,
     repositoryMigrateWithOptionDstDirPath,
+
+    repositoryHistoryToJson,
 
     // etc
 
