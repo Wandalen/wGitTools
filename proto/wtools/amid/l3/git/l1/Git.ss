@@ -6497,7 +6497,7 @@ function commitsDates( o )
 
     function datePeriodicNow( date )
     {
-      let result = startTime + ( counter * period ) + ( Math.random( 2 * deviation ) - deviation );
+      let result = startTime + ( counter * period ) + ( Math.random() * 2 * deviation - deviation );
       counter++;
       return new Date( result ).toISOString();
     }
@@ -6507,7 +6507,7 @@ function commitsDates( o )
       if( startTime === undefined )
       startTime = Date.parse( date );
 
-      let result = startTime + ( counter * period ) + ( Math.random( 2 * deviation ) - deviation );
+      let result = startTime + ( counter * period ) + ( Math.random() * 2 * deviation - deviation );
       counter++;
       return new Date( result ).toString();
     }
