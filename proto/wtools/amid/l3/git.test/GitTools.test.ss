@@ -28742,6 +28742,8 @@ function commitsDatesWithOptionDelta( test )
   }
 }
 
+commitsDatesWithOptionDelta.timeOut = 120000;
+
 //
 
 function commitsDatesWithOptionDeltaAsString( test )
