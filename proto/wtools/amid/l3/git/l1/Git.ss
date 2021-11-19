@@ -6372,7 +6372,7 @@ function commitsDates( o )
 
   let delta = o.delta;
   if( _.str.is( o.delta ) )
-  delta = Date.parse( `01 Jan 1970 ${ o.delta } GMT` ); /* qqq : for Dmytro : improve */
+  delta = getDeltaFromString( o.delta );
 
   const parsed = _.git.path.parse( o.localPath );
   const tempBranch = `_temp-${ _.idWithGuid() }`;
@@ -6404,6 +6404,23 @@ function commitsDates( o )
   });
 
   return ready;
+
+  /* */
+
+  function getDeltaFromString( src )
+  {
+    const negative = _.str.begins( src, '-' );
+    if( negative )
+    src = _.str.removeBegin( src, '-' );
+
+    const parts = src.trim().split( ':' );
+    _.assert( parts.length <= 3 );
+    const hours = _.number.from( parts[ 0 ] );
+    const days = Math.trunc( hours / 24 );
+    let baseDelta = 86400000 * days;
+    parts[ 0 ] = hours - ( days * 24 );
+    return ( baseDelta + Date.parse( `01 Jan 1970 ${ parts.join( ':' ) } GMT` ) ) * ( negative ? -1 : 1 );
+  }
 
   /* */
 
