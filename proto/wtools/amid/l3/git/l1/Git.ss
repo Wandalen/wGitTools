@@ -5001,7 +5001,16 @@ function repositoryMigrate( o )
   ready.then( () => _.git.tagLocalChange({ localPath : basePath, tag : o.dstBranch }) );
   ready.then( () => shell( `git fetch ${ remoteName }` ) );
   verifyRepositoriesHasSameFiles()
-  makeCommitDescriptorsArray();
+
+  ready.then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : basePath,
+      state1 : o.srcState1,
+      state2 : o.srcState2 || `!${ remoteName }/${ o.srcBranch }`,
+    });
+  });
   ready.then( ( commitsArray ) => writeCommits( commitsArray ) );
   ready.finally( ( err, arg ) =>
   {
@@ -5010,7 +5019,7 @@ function repositoryMigrate( o )
     if( shouldRemove )
     {
       _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
-      return null
+      return null;
     }
     else
     {
@@ -5131,32 +5140,6 @@ function repositoryMigrate( o )
 
   /* */
 
-  function makeCommitDescriptorsArray()
-  {
-    ready.then( () =>
-    {
-      const format =
-      '{%n'
-      + '  \\"version\\" : \\"%H\\",%n'
-      + '  \\"message\\" : \\"%s\\",%n'
-      + `  \\"date\\" : \\"%ci\\"%n`
-      + '},';
-      if( !srcState2 )
-      srcState2 = `${ remoteName }/${ o.srcBranch }`
-      return shell( `git log ${ srcState1 }..${ srcState2 } --format="${ format }"` );
-    });
-    ready.then( ( log ) =>
-    {
-      let commits = log.output;
-      commits = _.str.replaceBegin( commits, '', '[\n' );
-      commits = _.str.replaceEnd( commits, ',\n', '\n]' );
-      return JSON.parse( commits );
-    });
-    return ready;
-  }
-
-  /* */
-
   function writeCommits( commits )
   {
     let con = _.take( null );
@@ -5178,7 +5161,7 @@ function repositoryMigrate( o )
     }
 
     for( let i = commits.length - 1 ; i >= 0 ; i-- )
-    shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].version }`, ready : con })
+    shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }`, ready : con })
     .then( () => shell( `git diff --name-only HEAD` ) )
     .then( ( diff ) =>
     {
