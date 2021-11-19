@@ -6352,7 +6352,8 @@ function commitsDates( o )
   _.assert( _.str.defined( o.state1 ), 'Expects start commit to modify dates {-o.state1-}.' );
   _.assert( _.longHas( [ 'now', 'commit' ], o.relative ), 'Expects option {-o.relative-} with value "now" or "commit".' );
   _.assert( _.number.intIs( o.delta ) || _.str.is( o.delta ) );
-  _.assert( _.number.is( o.periodic ) && o.periodic >= 0 );
+  _.assert( _.number.intIs( o.periodic ) || _.str.is( o.periodic ) );
+  _.assert( _.number.intIs( o.deviation ) || _.str.is( o.deviation ) );
 
   if( o.relative === 'commit' && o.delta === 0 && o.periodic === 0 )
   return true;
@@ -6370,10 +6371,7 @@ function commitsDates( o )
 
   /* */
 
-  let delta = o.delta;
-  if( _.str.is( o.delta ) )
-  delta = getDeltaFromString( o.delta );
-
+  let delta = getDelta( o.delta );
   const parsed = _.git.path.parse( o.localPath );
   const tempBranch = `_temp-${ _.idWithGuid() }`;
 
@@ -6383,10 +6381,17 @@ function commitsDates( o )
   const state2 = _.git._stateParse( o.state2 ).value;
 
   let onDate = dateNow;
-  if( o.relative === 'now' && o.delta !== 0 )
-  onDate = dateNowWithDelta;
-  if( o.relative === 'commit' && o.delta !== 0 )
-  onDate = dateCommitWithDelta;
+  if( o.periodic )
+  {
+    onDate = onDatePeriodic_functor();
+  }
+  else
+  {
+    if( o.relative === 'now' && o.delta !== 0 )
+    onDate = dateNowWithDelta;
+    if( o.relative === 'commit' && o.delta !== 0 )
+    onDate = dateCommitWithDelta;
+  }
 
   ready.then( () => start( `git checkout ${ state1 }~` ) );
   ready.then( () => start( `git checkout -b ${ tempBranch }` ) );
@@ -6407,8 +6412,11 @@ function commitsDates( o )
 
   /* */
 
-  function getDeltaFromString( src )
+  function getDelta( src )
   {
+    if( _.number.is( src ) )
+    return src;
+
     const negative = _.str.begins( src, '-' );
     if( negative )
     src = _.str.removeBegin( src, '-' );
@@ -6463,18 +6471,46 @@ function commitsDates( o )
 
   /* */
 
-  function dateOriginal( date )
-  {
-    return date;
-  }
-
-  /* */
-
   function dateCommitWithDelta( date )
   {
     const time = Date.parse( date );
     const dateObject = new Date( time + delta );
     return dateObject.toISOString();
+  }
+
+  /* */
+
+  function onDatePeriodic_functor()
+  {
+    let startTime;
+    if( o.relative === 'now' )
+    startTime = _.time.now();
+    let counter = 0;
+    const period = getDelta( o.periodic );
+    _.assert( period >= 0 );
+    const deviation = getDelta( o.deviation );
+    _.assert( deviation >= 0 );
+
+    if( o.relative === 'now' )
+    return datePeriodicNow;
+    return datePeriodicCommit;
+
+    function datePeriodicNow( date )
+    {
+      let result = startTime + ( counter * period ) + ( Math.random( 2 * deviation ) - deviation );
+      counter++;
+      return new Date( result ).toISOString();
+    }
+
+    function datePeriodicCommit( date )
+    {
+      if( startTime === undefined )
+      startTime = Date.parse( date );
+
+      let result = startTime + ( counter * period ) + ( Math.random( 2 * deviation ) - deviation );
+      counter++;
+      return new Date( result ).toString();
+    }
   }
 }
 
