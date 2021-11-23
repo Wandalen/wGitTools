@@ -2799,16 +2799,17 @@ function statusFull( o )
   o.remotePath = _.git.remotePathFromLocal( o.localPath );
 
   let statusReady = _.take( null );
+  let prsReady = _.take( null );
+
   if( o.remotePath )
   {
     let o2 = _.mapOnly_( null, o, status.defaults );
     o2.sync = 0;
     statusReady = _.git.status( o2 )
-  }
 
-  let prsReady = _.take( null );
-  if( o.prs )
-  prsReady = _.repo.pullList({ remotePath : o.remotePath, throwing : 0, sync : 0, token : o.token });
+    if( o.prs )
+    prsReady = _.repo.pullList({ remotePath : o.remotePath, throwing : 0, sync : 0, token : o.token });
+  }
 
   let ready = _.Consequence.AndKeep( statusReady, prsReady )
   .finally( ( err, arg ) =>
@@ -2816,7 +2817,7 @@ function statusFull( o )
     if( err )
     throw _.err( err );
     let status = arg[ 0 ];
-    statusAdjust( status, arg[ 1 ] ? result : null );
+    statusAdjust( status, arg[ 1 ] ? arg[ 1 ].result.elements : null );
     return result;
   });
 
@@ -2832,7 +2833,6 @@ function statusFull( o )
 
   function statusAdjust( status, prs )
   {
-
     _.props.extend( result, status );
 
     result.prs = prs;
@@ -2866,7 +2866,6 @@ function statusFull( o )
 
     return result;
   }
-
 }
 
 statusFull.defaults =
@@ -2881,7 +2880,7 @@ statusFull.defaults =
   explaining : 1,
   sync : 1,
   token : null,
-}
+};
 
 _.props.supplement( statusFull.defaults, status.defaults );
 
