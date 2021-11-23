@@ -12419,6 +12419,137 @@ statusFullHalfStaged.timeOut = 15000;
 
 //
 
+function statusFullWithPR( test )
+{
+  const a = test.assetFor( 'basic' );
+
+  const token = process.env.PRIVATE_WTOOLS_BOT_TOKEN;
+  if( !token || !_.process.insideTestContainer() || process.platform === 'win32' )
+  return test.true( true );
+
+  const user = 'wtools-bot';
+  const repository = `https://github.com/${ user }/New-${ _.number.intRandom( 1000000 ) }`;
+  begin();
+
+  /* - */
+
+  a.ready.then( () =>
+  {
+    test.case = 'prs - 1';
+    return _.git.statusFull
+    ({
+      localPath : a.abs( '.' ),
+      local : 1,
+      remote : 1,
+      prs : 1,
+      detailing : 1,
+      explaining : 1,
+      sync : 1,
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.prs.length, 1 );
+    test.identical( op.status, 'Has 1 opened pull request(s)' );
+    return null;
+  });
+
+  /* */
+
+  a.ready.then( () =>
+  {
+    test.case = 'prs - 0';
+    return _.git.statusFull
+    ({
+      localPath : a.abs( '.' ),
+      local : 1,
+      remote : 1,
+      prs : 0,
+      detailing : 1,
+      explaining : 1,
+      sync : 1,
+      token,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.prs, null );
+    test.identical( op.status, false );
+    return null;
+  });
+
+  /* */
+
+  a.ready.finally( () => repositoryDelete() );
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.reflect(); return null });
+    a.ready.then( ( op ) => repositoryDelete() );
+    a.ready.then( ( op ) => repositoryInit() );
+    let execPath = `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`;
+    a.shell({ execPath });
+    a.shell({ execPath : 'git add --all' });
+    a.shell({ execPath : 'git commit -m first' });
+    a.shell({ execPath : 'git push -u origin master' });
+    a.shell({ execPath : 'git checkout -b new' });
+    a.ready.then( () => { a.fileProvider.fileAppend( a.abs( 'File.txt' ), 'new line\n' ); return null });
+    a.shell({ execPath : 'git commit -am second' });
+    a.shell({ execPath : 'git push -u origin new' });
+    a.ready.then( () => pullRequestOpen() );
+    return a.ready;
+  }
+
+  /* */
+
+  function repositoryDelete()
+  {
+    return _.git.repositoryDelete
+    ({
+      remotePath : repository,
+      token,
+      throwing : 0,
+    });
+  }
+
+  /* */
+
+  function repositoryInit()
+  {
+    return _.git.repositoryInit
+    ({
+      remotePath : repository,
+      localPath : a.routinePath,
+      throwing : 1,
+      description : 'Test',
+      token,
+    });
+  }
+
+  /* */
+
+  function pullRequestOpen()
+  {
+    return _.repo.pullOpen
+    ({
+      token,
+      remotePath : repository,
+      descriptionHead : 'Test',
+      srcBranch : 'new',
+      dstBranch : 'master',
+    });
+  }
+}
+
+//
+
 function hasLocalChanges( test )
 {
   let context = this;
@@ -30146,6 +30277,7 @@ const Proto =
     statusExplaining,
     statusFull,
     statusFullHalfStaged,
+    statusFullWithPR,
 
     hasLocalChanges,
     hasLocalChangesSpecial,
