@@ -5000,7 +5000,16 @@ function repositoryMigrate( o )
   ready.then( () => _.git.tagLocalChange({ localPath : basePath, tag : o.dstBranch }) );
   ready.then( () => shell( `git fetch ${ remoteName }` ) );
   verifyRepositoriesHasSameFiles()
-  makeCommitDescriptorsArray();
+
+  ready.then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : basePath,
+      state1 : o.srcState1,
+      state2 : o.srcState2 || `!${ remoteName }/${ o.srcBranch }`,
+    });
+  });
   ready.then( ( commitsArray ) => writeCommits( commitsArray ) );
   ready.finally( ( err, arg ) =>
   {
@@ -5009,7 +5018,7 @@ function repositoryMigrate( o )
     if( shouldRemove )
     {
       _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
-      return null
+      return null;
     }
     else
     {
@@ -5130,32 +5139,6 @@ function repositoryMigrate( o )
 
   /* */
 
-  function makeCommitDescriptorsArray()
-  {
-    ready.then( () =>
-    {
-      const format =
-      '{%n'
-      + '  \\"version\\" : \\"%H\\",%n'
-      + '  \\"message\\" : \\"%s\\",%n'
-      + `  \\"date\\" : \\"%ci\\"%n`
-      + '},';
-      if( !srcState2 )
-      srcState2 = `${ remoteName }/${ o.srcBranch }`
-      return shell( `git log ${ srcState1 }..${ srcState2 } --format="${ format }"` );
-    });
-    ready.then( ( log ) =>
-    {
-      let commits = log.output;
-      commits = _.str.replaceBegin( commits, '', '[\n' );
-      commits = _.str.replaceEnd( commits, ',\n', '\n]' );
-      return JSON.parse( commits );
-    });
-    return ready;
-  }
-
-  /* */
-
   function writeCommits( commits )
   {
     let con = _.take( null );
@@ -5177,7 +5160,7 @@ function repositoryMigrate( o )
     }
 
     for( let i = commits.length - 1 ; i >= 0 ; i-- )
-    shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].version }`, ready : con })
+    shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }`, ready : con })
     .then( () => shell( `git diff --name-only HEAD` ) )
     .then( ( diff ) =>
     {
@@ -5312,6 +5295,50 @@ repositoryMigrate.defaults =
   but : null,
   only : null,
   logger : 0,
+};
+
+//
+
+function repositoryHistoryToJson( o )
+{
+  _.assert( arguments.length === 1, 'Expects single argument.' );
+  _.routine.options( repositoryHistoryToJson, o );
+  _.assert( _.str.defined( o.localPath ) );
+
+  let state1 = _.git._stateParse( o.state1 ).value;
+  let state2 = _.git._stateParse( o.state2 ).value;
+
+  const format =
+  '{%n'
+  + '  \\"author\\" : \\"%an\\",%n'
+  + '  \\"email\\" : \\"%ae\\",%n'
+  + '  \\"hash\\" : \\"%H\\",%n'
+  + '  \\"message\\" : \\"%s\\",%n'
+  + `  \\"date\\" : \\"%ai\\"%n`
+  + '},';
+
+  return _.process.start
+  ({
+    currentPath : o.localPath,
+    execPath : `git log ${ state1 }~..${ state2 } --format="${ format }"`,
+    outputCollecting : 1,
+    throwingExitCode : 1,
+    inputMirroring : 0,
+  })
+  .then( ( log ) =>
+  {
+    let commits = log.output;
+    commits = _.str.replaceBegin( commits, '', '[\n' );
+    commits = _.str.replaceEnd( commits, ',\n', '\n]' );
+    return JSON.parse( commits );
+  });
+}
+
+repositoryHistoryToJson.defaults =
+{
+  localPath : null,
+  state1 : null,
+  state2 : null,
 };
 
 // --
@@ -6298,6 +6325,188 @@ reset_body.defaults =
 const reset = _.routine.unite( reset_head, reset_body );
 
 //
+
+function commitsDates( o )
+{
+  _.assert( arguments.length === 1 );
+  _.routine.options( commitsDates, o );
+  _.assert( _.git.path.isAbsolute( o.localPath ), 'Expects absolute path to repository {-o.localPath-}.' );
+  _.assert( _.str.defined( o.state1 ), 'Expects start commit to modify dates {-o.state1-}.' );
+  _.assert( _.longHas( [ 'now', 'commit' ], o.relative ), 'Expects option {-o.relative-} with value "now" or "commit".' );
+  _.assert( _.number.intIs( o.delta ) || _.str.is( o.delta ) );
+  _.assert( _.number.intIs( o.periodic ) || _.str.is( o.periodic ) );
+  _.assert( _.number.intIs( o.deviation ) || _.str.is( o.deviation ) );
+
+  if( o.relative === 'commit' && o.delta === 0 && o.periodic === 0 )
+  return true;
+
+  const ready = _.take( null );
+  const start = _.process.starter
+  ({
+    currentPath : o.localPath,
+    mode : 'shell',
+    outputCollecting : 1,
+    throwingExitCode : 1,
+    inputMirroring : 0,
+    sync : 0,
+  });
+
+  /* */
+
+  let delta = getDelta( o.delta );
+  const parsed = _.git.path.parse( o.localPath );
+  const tempBranch = `_temp-${ _.idWithGuid() }`;
+
+  if( !o.state2 )
+  o.state2 = `!${ tempBranch }`;
+  const state1 = _.git._stateParse( o.state1 ).value;
+  const state2 = _.git._stateParse( o.state2 ).value;
+
+  let onDate = dateNow;
+  if( o.periodic )
+  {
+    onDate = onDatePeriodic_functor();
+  }
+  else
+  {
+    if( o.relative === 'now' && o.delta !== 0 )
+    onDate = dateNowWithDelta;
+    if( o.relative === 'commit' && o.delta !== 0 )
+    onDate = dateCommitWithDelta;
+  }
+
+  ready.then( () => start( `git checkout ${ state1 }~` ) );
+  ready.then( () => start( `git checkout -b ${ tempBranch }` ) );
+  ready.then( () => start( `git merge ${ parsed.tag } ${ tempBranch }` ) );
+  ready.then( () => start( `git checkout ${ parsed.tag }` ) );
+  ready.then( () => start( `git reset --hard ${ state1 }~` ) );
+  ready.then( () => _.git.repositoryHistoryToJson({ localPath : o.localPath, state1 : o.state1, state2 : `!${ tempBranch }` }) );
+  ready.then( ( descriptors ) => writeCommits( descriptors ) );
+  ready.finally( () => start( `git branch --delete --force ${ tempBranch }` ) );
+  ready.finally( ( err, arg ) =>
+  {
+    if( err )
+    throw _.err( err );
+    return true;
+  });
+
+  return ready;
+
+  /* */
+
+  function getDelta( src )
+  {
+    if( _.number.is( src ) )
+    return src;
+
+    const negative = _.str.begins( src, '-' );
+    if( negative )
+    src = _.str.removeBegin( src, '-' );
+
+    const parts = src.trim().split( ':' );
+    _.assert( parts.length <= 3 );
+    const hours = _.number.from( parts[ 0 ] );
+    const days = Math.trunc( hours / 24 );
+    let baseDelta = 86400000 * days;
+    parts[ 0 ] = hours - ( days * 24 );
+    return ( baseDelta + Date.parse( `01 Jan 1970 ${ parts.join( ':' ) } GMT` ) ) * ( negative ? -1 : 1 );
+  }
+
+  /* */
+
+  function writeCommits( commits )
+  {
+    const con = _.take( null );
+    let shouldUpdate = true;
+    for( let i = commits.length - 1 ; i >= 0 ; i-- )
+    start({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }`, ready : con })
+    .then( () =>
+    {
+      let date = commits[ i ].date;
+      if( shouldUpdate )
+      date = onDate( commits[ i ].date );
+      if( commits[ i ].hash === state2 )
+      shouldUpdate = false;
+      if( date.length )
+      date = `--date="${ date }"`;
+      const author = `--author="${ commits[ i ].author } <${ commits[ i ].email }>"`
+      return start( `git commit --allow-empty -m "${ commits[ i ].message }" ${ author } ${ date }` );
+    });
+    return con;
+  }
+
+  /* */
+
+  function dateNow( date )
+  {
+    return '';
+  }
+
+  /* */
+
+  function dateNowWithDelta( date )
+  {
+    const time = Date.now();
+    const dateObject = new Date( time + delta );
+    return dateObject.toISOString();
+  }
+
+  /* */
+
+  function dateCommitWithDelta( date )
+  {
+    const time = Date.parse( date );
+    const dateObject = new Date( time + delta );
+    return dateObject.toISOString();
+  }
+
+  /* */
+
+  function onDatePeriodic_functor()
+  {
+    let startTime;
+    if( o.relative === 'now' )
+    startTime = _.time.now();
+    let counter = 0;
+    const period = getDelta( o.periodic );
+    _.assert( period >= 0 );
+    const deviation = getDelta( o.deviation );
+    _.assert( deviation >= 0 );
+
+    if( o.relative === 'now' )
+    return datePeriodicNow;
+    return datePeriodicCommit;
+
+    function datePeriodicNow( date )
+    {
+      let result = startTime + ( counter * period ) + ( Math.random() * 2 * deviation - deviation );
+      counter++;
+      return new Date( result ).toISOString();
+    }
+
+    function datePeriodicCommit( date )
+    {
+      if( startTime === undefined )
+      startTime = Date.parse( date );
+
+      let result = startTime + ( counter * period ) + ( Math.random() * 2 * deviation - deviation );
+      counter++;
+      return new Date( result ).toString();
+    }
+  }
+}
+
+commitsDates.defaults =
+{
+  localPath : null,
+  state1 : null,
+  state2 : null,
+  relative : 'now', // [ 'now', 'commit' ]
+  delta : null,
+  periodic : 0,
+  deviation : 0,
+};
+
 //
 
 function tagList( o )
@@ -6884,6 +7093,8 @@ let Extension =
   repositoryAgree,
   repositoryMigrate,
 
+  repositoryHistoryToJson,
+
   // config
 
   configRead,
@@ -6897,6 +7108,8 @@ let Extension =
   pull,
   push,
   reset,
+
+  commitsDates,
 
   // tag
 

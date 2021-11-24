@@ -22489,6 +22489,116 @@ repositoryMigrateWithOptionDstDirPath.timeOut = 180000;
 
 //
 
+function repositoryHistoryToJson( test )
+{
+  const a = test.assetFor( false );
+  const srcRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'from commit to head';
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#HEAD',
+    })
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.true( _.array.is( op ) );
+    test.identical( op.length, 13 );
+    test.identical( op[ 0 ].hash, '8e2aa80ca350f3c45215abafa07a4f2cd320342a' );
+    test.identical( op[ 0 ].message, 'version 0.0.186' );
+    test.identical( op[ 0 ].author, 'Kos' );
+    test.identical( op[ 0 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 0 ].date, '2021-10-29 08:07:03 +0300' );
+    test.identical( op[ 12 ].hash, 'af36e28bc91b6f18e4babc810bbf5bc758ccf19f' );
+    test.identical( op[ 12 ].message, 'version 0.0.180' );
+    test.identical( op[ 12 ].author, 'wandalen' );
+    test.identical( op[ 12 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 12 ].date, '2021-08-12 18:31:34 +0300' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'from commit to commit, inside history';
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#af815d4eaaf1df0505da1e1b2e526a7d04cdce7e',
+    })
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.true( _.array.is( op ) );
+    test.identical( op.length, 10 );
+    test.identical( op[ 0 ].hash, 'af815d4eaaf1df0505da1e1b2e526a7d04cdce7e' );
+    test.identical( op[ 0 ].message, 'version 0.0.185' );
+    test.identical( op[ 0 ].author, 'wandalen' );
+    test.identical( op[ 0 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 0 ].date, '2021-10-22 10:03:32 +0300' );
+    test.identical( op[ 9 ].hash, 'af36e28bc91b6f18e4babc810bbf5bc758ccf19f' );
+    test.identical( op[ 9 ].message, 'version 0.0.180' );
+    test.identical( op[ 9 ].author, 'wandalen' );
+    test.identical( op[ 9 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 9 ].date, '2021-08-12 18:31:34 +0300' );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'from tag to tag, inside history';
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '!v0.0.180',
+      state2 : '!v0.0.185',
+    })
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.true( _.array.is( op ) );
+    test.identical( op.length, 10 );
+    test.identical( op[ 0 ].hash, 'af815d4eaaf1df0505da1e1b2e526a7d04cdce7e' );
+    test.identical( op[ 0 ].message, 'version 0.0.185' );
+    test.identical( op[ 0 ].author, 'wandalen' );
+    test.identical( op[ 0 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 0 ].date, '2021-10-22 10:03:32 +0300' );
+    test.identical( op[ 9 ].hash, 'af36e28bc91b6f18e4babc810bbf5bc758ccf19f' );
+    test.identical( op[ 9 ].message, 'version 0.0.180' );
+    test.identical( op[ 9 ].author, 'wandalen' );
+    test.identical( op[ 9 ].email, 'wandalen.me@gmail.com' );
+    test.identical( op[ 9 ].date, '2021-08-12 18:31:34 +0300' );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ srcRemote } ./` );
+    return a.shell( `git reset --hard ${ srcCommit }` );
+  }
+}
+
+//
+
 function configRead( test )
 {
   let context = this;
@@ -28198,6 +28308,1000 @@ resetWithOptionDry.timeOut = 30000;
 
 //
 
+function commitsDates( test )
+{
+  const a = test.assetFor( false );
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+
+  /* */
+
+  let originalHistory = [];
+  begin().then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    originalHistory = op;
+    return null
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, change no date';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'commit',
+      delta : 0,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.identical( op, originalHistory );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, state2 is not last commit';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#af815d4eaaf1df0505da1e1b2e526a7d04cdce7e',
+      relative : 'commit',
+      delta : 0,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.identical( op, originalHistory );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, change date to current';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'now',
+      delta : 0,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.le( Date.parse( op[ 12 ].date ), Date.now() );
+    test.ge( Date.parse( op[ 12 ].date ), Date.now() - 20000 );
+    test.le( Date.parse( op[ 0 ].date ), Date.now() );
+    test.ge( Date.parse( op[ 0 ].date ), Date.now() - 20000 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, state2 is not last commit';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#af815d4eaaf1df0505da1e1b2e526a7d04cdce7e',
+      relative : 'now',
+      delta : 0,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.le( Date.parse( op[ 12 ].date ), Date.now() );
+    test.ge( Date.parse( op[ 12 ].date ), Date.now() - 20000 );
+    test.le( Date.parse( op[ 0 ].date ), Date.parse( originalHistory[ 0 ].date ) );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ srcRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ srcCommit }` );
+  }
+}
+
+//
+
+function commitsDatesWithOptionDelta( test )
+{
+  const a = test.assetFor( false );
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+
+  /* */
+
+  let originalHistory = [];
+  begin().then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    originalHistory = op;
+    return null
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, state2 - to last commit, positive delta, one hour in miliseconds';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'commit',
+      delta : 3600000,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.identical( Date.parse( op[ 12 ].date ) - Date.parse( originalHistory[ 12 ].date ), 3600000 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), 3600000 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, state2 is not last commit, positive delta, one hour in miliseconds';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#af815d4eaaf1df0505da1e1b2e526a7d04cdce7e',
+      relative : 'commit',
+      delta : 3600000,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.identical( Date.parse( op[ 12 ].date ) - Date.parse( originalHistory[ 12 ].date ), 3600000 );
+    test.identical( Date.parse( op[ 0 ].date ), Date.parse( originalHistory[ 0 ].date ) );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, state2 - to last commit, positive delta, one hour in miliseconds';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'now',
+      delta : 3600000,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.ge( Date.parse( op[ 12 ].date ) - Date.now(), 3500000 );
+    test.le( Date.parse( op[ 12 ].date ) - Date.now(), 3600000 );
+    test.ge( Date.parse( op[ 0 ].date ) - Date.now(), 3500000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.now(), 3600000 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, state2 is not last commit, positive delta, one hour in miliseconds';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#af815d4eaaf1df0505da1e1b2e526a7d04cdce7e',
+      relative : 'now',
+      delta : 3600000,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.ge( Date.parse( op[ 12 ].date ) - Date.now(), 3500000 );
+    test.le( Date.parse( op[ 12 ].date ) - Date.now(), 3600000 );
+    test.ge( Date.parse( op[ 0 ].date ), Date.parse( originalHistory[ 0 ].date ) );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, state2 - to last commit, negative delta, one hour in miliseconds';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'commit',
+      delta : -3600000,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.identical( Date.parse( op[ 12 ].date ) - Date.parse( originalHistory[ 12 ].date ), -3600000 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), -3600000 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, state2 is not last commit, positive delta, one hour in miliseconds';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#af815d4eaaf1df0505da1e1b2e526a7d04cdce7e',
+      relative : 'commit',
+      delta : -3600000,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.identical( Date.parse( op[ 12 ].date ) - Date.parse( originalHistory[ 12 ].date ), -3600000 );
+    test.identical( Date.parse( op[ 0 ].date ), Date.parse( originalHistory[ 0 ].date ) );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, state2 - to last commit, positive delta, one hour in miliseconds';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'now',
+      delta : -3600000,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.ge( Date.now() - Date.parse( op[ 12 ].date ), 3500000 );
+    test.le( Date.now() - Date.parse( op[ 12 ].date ), 3700000 );
+    test.ge( Date.now() - Date.parse( op[ 0 ].date ), 3500000 );
+    test.le( Date.now() - Date.parse( op[ 0 ].date ), 3700000 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, state2 is not last commit, positive delta, one hour in miliseconds';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : '#af815d4eaaf1df0505da1e1b2e526a7d04cdce7e',
+      relative : 'now',
+      delta : -3600000,
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.ge( Date.now() - Date.parse( op[ 12 ].date ), 3500000 );
+    test.le( Date.now() - Date.parse( op[ 12 ].date ), 3700000 );
+    test.ge( Date.parse( op[ 0 ].date ), Date.parse( originalHistory[ 0 ].date ) );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ srcRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ srcCommit }` );
+  }
+}
+
+commitsDatesWithOptionDelta.timeOut = 120000;
+
+//
+
+function commitsDatesWithOptionDeltaAsString( test )
+{
+  const a = test.assetFor( false );
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+
+  /* */
+
+  let originalHistory = [];
+  begin().then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    originalHistory = op;
+    return null
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, state2 - to last commit, positive delta, one hour';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'commit',
+      delta : '01:00:00',
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.identical( Date.parse( op[ 12 ].date ) - Date.parse( originalHistory[ 12 ].date ), 3600000 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), 3600000 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, state2 - to last commit, negative delta, one hour';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'commit',
+      delta : '-01:00:00',
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.identical( Date.parse( op[ 12 ].date ) - Date.parse( originalHistory[ 12 ].date ), -3600000 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), -3600000 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, state2 - to last commit, positive delta, two days';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'commit',
+      delta : '48:00:00',
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.identical( Date.parse( op[ 12 ].date ) - Date.parse( originalHistory[ 12 ].date ), 86400000 * 2 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), 86400000 * 2 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, state2 - to last commit, negative delta, one hour in miliseconds';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'commit',
+      delta : '-48:00:00',
+      periodic : 0,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.identical( Date.parse( op[ 12 ].date ) - Date.parse( originalHistory[ 12 ].date ), -86400000 * 2 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), -86400000 * 2 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ srcRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ srcCommit }` );
+  }
+}
+
+//
+
+function commitsDatesWithOptionPeriodic( test )
+{
+  const a = test.assetFor( false );
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+
+  /* */
+
+  let originalHistory = [];
+  begin().then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    originalHistory = op;
+    return null
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, state2 - to last commit, positive delta, periodic - one hour';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'now',
+      delta : '01:00:00',
+      periodic : '01:00:00',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+    test.ge( Date.parse( op[ 11 ].date ) - _.time.now(), 3500000 );
+    test.le( Date.parse( op[ 11 ].date ) - _.time.now(), 3600000 );
+
+    test.identical( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 3600000 );
+    test.identical( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 3600000 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 3600000 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, state2 - to last commit, positive delta, periodic - one hour';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'commit',
+      delta : '01:00:00',
+      periodic : '01:00:00',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+
+    test.identical( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 3600000 );
+    test.identical( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 3600000 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 3600000 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ srcRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ srcCommit }` );
+  }
+}
+
+//
+
+function commitsDatesWithOptionDeviation( test )
+{
+  const a = test.assetFor( false );
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const srcCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+
+  /* */
+
+  let originalHistory = [];
+  begin().then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    originalHistory = op;
+    return null
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, state2 - to last commit, positive delta, periodic - one hour';
+    return _.git.commitsDates
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#af36e28bc91b6f18e4babc810bbf5bc758ccf19f',
+      state2 : null,
+      relative : 'now',
+      delta : '01:00:00',
+      periodic : '01:00:00',
+      deviation : '00:10:00',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8d8d2d753046cad7a90324138e332d3fe1d798d2',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 14 );
+    test.notIdentical( op, originalHistory );
+    test.identical( op[ 13 ], originalHistory[ 13 ] );
+    test.notIdentical( op[ 12 ], originalHistory[ 12 ] );
+    test.identical( op[ 12 ].message, originalHistory[ 12 ].message );
+    test.identical( op[ 12 ].author, originalHistory[ 12 ].author );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
+
+    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2500000 );
+    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4500000 );
+    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2500000 );
+    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4500000 );
+    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4500000 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ srcRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ srcCommit }` );
+  }
+}
+
+//
+
 function tagList( test )
 {
   let context = this;
@@ -30337,6 +31441,8 @@ const Proto =
     repositoryMigrateWithOptionSrcDirPath,
     repositoryMigrateWithOptionDstDirPath,
 
+    repositoryHistoryToJson,
+
     // etc
 
     configRead,
@@ -30359,6 +31465,12 @@ const Proto =
     resetWithOptionRemovingSubrepositories,
     resetWithOptionRemovingIgnored,
     resetWithOptionDry,
+
+    commitsDates,
+    commitsDatesWithOptionDelta,
+    commitsDatesWithOptionDeltaAsString,
+    commitsDatesWithOptionPeriodic,
+    commitsDatesWithOptionDeviation,
 
     tagList,
     tagDeleteBranch,
