@@ -12493,7 +12493,7 @@ function statusFullWithPR( test )
   {
     a.ready.then( () => { a.reflect(); return null });
     a.ready.then( ( op ) => repositoryDelete() );
-    a.ready.then( ( op ) => repositoryInit() );
+    a.ready.then( ( op ) => repositoryInit() ).delay( 3000 );
     let execPath = `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`;
     a.shell({ execPath });
     a.shell({ execPath : 'git add --all' });
