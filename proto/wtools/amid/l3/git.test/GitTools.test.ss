@@ -21289,7 +21289,7 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
   }
 }
 
-repositoryMigrateWithOptionOnDateAsMap.timeOut = 60000;
+repositoryMigrateWithOptionOnDateAsMap.timeOut = 180000;
 
 //
 
