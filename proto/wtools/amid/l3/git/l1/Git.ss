@@ -4987,8 +4987,11 @@ function repositoryMigrate( o )
     o.onCommitMessage = ( e ) => msg;
   }
   _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}' );
+
   if( !o.onDate )
   o.onDate = ( e ) => e;
+  if( _.aux.is( o.onDate ) )
+  o.onDate = _.git._onDate_functor( o.onDate );
   _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}' );
 
   let remoteName = remoteNameGenerate();
@@ -5188,7 +5191,6 @@ function repositoryMigrate( o )
             }
             return null;
           });
-
         }
       }
       return null;
@@ -6349,6 +6351,11 @@ function _getDelta( src )
 function _onDate_functor( o )
 {
   _.assert( arguments.length === 1 );
+  _.routine.options( _onDate_functor, o );
+  _.assert( _.longHas( [ 'now', 'commit' ], o.relative ), 'Expects option {-o.relative-} with value "now" or "commit".' );
+  _.assert( _.number.intIs( o.delta ) || _.str.is( o.delta ) );
+  _.assert( _.number.intIs( o.periodic ) || _.str.is( o.periodic ) );
+  _.assert( _.number.intIs( o.deviation ) || _.str.is( o.deviation ) );
 
   const delta = _getDelta( o.delta );
 
@@ -6428,6 +6435,14 @@ function _onDate_functor( o )
   }
 }
 
+_onDate_functor.defaults =
+{
+  relative : 'now', // [ 'now', 'commit' ]
+  delta : null,
+  periodic : 0,
+  deviation : 0,
+};
+
 //
 
 function commitsDates( o )
@@ -6436,10 +6451,6 @@ function commitsDates( o )
   _.routine.options( commitsDates, o );
   _.assert( _.git.path.isAbsolute( o.localPath ), 'Expects absolute path to repository {-o.localPath-}.' );
   _.assert( _.str.defined( o.state1 ), 'Expects start commit to modify dates {-o.state1-}.' );
-  _.assert( _.longHas( [ 'now', 'commit' ], o.relative ), 'Expects option {-o.relative-} with value "now" or "commit".' );
-  _.assert( _.number.intIs( o.delta ) || _.str.is( o.delta ) );
-  _.assert( _.number.intIs( o.periodic ) || _.str.is( o.periodic ) );
-  _.assert( _.number.intIs( o.deviation ) || _.str.is( o.deviation ) );
 
   if( o.relative === 'commit' && o.delta === 0 && o.periodic === 0 )
   return true;
@@ -6457,7 +6468,8 @@ function commitsDates( o )
 
   /* */
 
-  const delta = _getDelta( o.delta );
+  const onDate = _.git._onDate_functor( o );
+
   const parsed = _.git.path.parse( o.localPath );
   const tempBranch = `_temp-${ _.idWithGuid() }`;
 
@@ -6465,8 +6477,6 @@ function commitsDates( o )
   o.state2 = `!${ tempBranch }`;
   const state1 = _.git._stateParse( o.state1 ).value;
   const state2 = _.git._stateParse( o.state2 ).value;
-
-  const onDate = _.git._onDate_functor( o );
 
   ready.then( () => start( `git checkout ${ state1 }~` ) );
   ready.then( () => start( `git checkout -b ${ tempBranch }` ) );
