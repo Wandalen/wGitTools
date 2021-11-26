@@ -2474,16 +2474,15 @@ function isUpToDateThrowing( test )
 
   a.shell.predefined.mode = 'spawn';
 
-  con
-  .then( () =>
+  con.then( () =>
   {
     test.case = 'setup';
     a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
     a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
     return a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1' )
-  })
+  });
 
-  .then( () =>
+  con.then( () =>
   {
     test.case = 'branch name as hash';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git#master';
@@ -2669,7 +2668,9 @@ The routine isUpToDate should return:
   - False if local repo head is on commit related to tag and differentiatingTags is enabled
   - True if local repo head is on remote tag and differentiatingTags is disabled
   - True if local repo head is on remote tag and differentiatingTags is enabled
-`
+`;
+
+//
 
 function isUptoDateDetailing( test )
 {
@@ -2997,17 +2998,28 @@ function isUptoDateDetailing( test )
   function begin()
   {
     a.ready.then( () => { a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ); return null });
-    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git wModuleForTesting1' );
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.ready.then( () =>
+    {
+      return _.git.repositoryClone
+      ({
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
     return a.ready;
   }
 }
 
-isUptoDateDetailing.timeOut = 120000;
+isUptoDateDetailing.timeOut = 240000;
 isUptoDateDetailing.description =
 `
 - The routine isUpToDate should return a map if detailing is enabled
 - The returned map should contain the reason field in case of false result
-`
+`;
 
 
 //
