@@ -4988,7 +4988,7 @@ function repositoryMigrate( o )
   }
   _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}' );
 
-  if( !o.onDate )
+  if( o.onDate === null )
   o.onDate = ( e ) => e;
   if( _.aux.is( o.onDate ) )
   o.onDate = _.git._onDate_functor( o.onDate );
@@ -6351,7 +6351,7 @@ function _getDelta( src )
 function _onDate_functor( o )
 {
   _.assert( arguments.length === 1 );
-  _.routine.options( _onDate_functor, o );
+  _.mapSupplementNulls( o, _onDate_functor.defaults );
   _.assert( _.longHas( [ 'now', 'commit' ], o.relative ), 'Expects option {-o.relative-} with value "now" or "commit".' );
   _.assert( _.number.intIs( o.delta ) || _.str.is( o.delta ) );
   _.assert( _.number.intIs( o.periodic ) || _.str.is( o.periodic ) );
