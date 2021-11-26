@@ -18257,11 +18257,14 @@ function repositoryCheckout( test )
 
   a.ready.then( () =>
   {
-    a.fileProvider.dirMake( a.abs( '.' ) )
+    a.fileProvider.dirMake( a.abs( '.' ) );
     return _.git.repositoryClone
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      attemptLimit : 4,
+      attemptDelay : 250,
+      attemptDelayMultiplier : 4,
     });
   });
 
@@ -18276,8 +18279,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'master' );
@@ -18295,8 +18298,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'master' );
@@ -18314,8 +18317,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'master' );
@@ -18325,8 +18328,8 @@ function repositoryCheckout( test )
   /* - */
 
   checkout();
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
-  .then( () =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' });
+  a.ready.then( () =>
   {
     test.case = 'remotePath - simple http path, checkout to newly created local branch';
     return _.git.repositoryCheckout
@@ -18335,8 +18338,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'new' );
@@ -18346,8 +18349,8 @@ function repositoryCheckout( test )
   /* */
 
   checkout();
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
-  .then( () =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' });
+  a.ready.then( () =>
   {
     test.case = 'remotePath - global http path, checkout to newly created local branch';
     return _.git.repositoryCheckout
@@ -18356,8 +18359,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'new' );
@@ -18367,8 +18370,8 @@ function repositoryCheckout( test )
   /* */
 
   checkout();
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
-  .then( () =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' });
+  a.ready.then( () =>
   {
     test.case = 'remotePath - global path with several protocols, checkout to newly created local branch';
     return _.git.repositoryCheckout
@@ -18377,8 +18380,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'new' );
@@ -18396,8 +18399,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at d7ef64c' ), 1 );
@@ -18415,8 +18418,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at d7ef64c' ), 1 );
@@ -18434,8 +18437,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at d7ef64c' ), 1 );
@@ -18453,8 +18456,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at v0.0.101' ), 1 );
@@ -18472,8 +18475,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at v0.0.101' ), 1 );
@@ -18491,8 +18494,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at v0.0.101' ), 1 );
@@ -18510,8 +18513,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'dev1' );
@@ -18529,8 +18532,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'dev1' );
@@ -18548,8 +18551,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'dev1' );
@@ -18630,7 +18633,6 @@ function repositoryCheckout( test )
         remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git!unknown',
       };
       test.shouldThrowErrorAsync( () => _.git.repositoryCheckout( o ) );
-
       return null;
     });
   }
