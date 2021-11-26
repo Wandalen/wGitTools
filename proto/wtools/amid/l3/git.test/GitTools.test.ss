@@ -1941,7 +1941,18 @@ function isUpToDate( test )
       a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
       return null;
     });
-    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git wModuleForTesting1' );
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( '.' ) );
+      return _.git.repositoryClone
+      ({
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
     return a.ready;
   }
 }
