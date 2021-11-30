@@ -6405,7 +6405,7 @@ function _onDate_functor( o )
   {
     let startTime;
     if( o.relative === 'now' )
-    startTime = _.time.now();
+    startTime = _.time.now() + delta;
     let counter = 0;
     const period = _getDelta( o.periodic );
     _.assert( period >= 0 );
@@ -6426,7 +6426,7 @@ function _onDate_functor( o )
     function datePeriodicCommit( date )
     {
       if( startTime === undefined )
-      startTime = Date.parse( date );
+      startTime = Date.parse( date ) + delta;
 
       let result = startTime + ( counter * period ) + ( Math.random() * 2 * deviation - deviation );
       counter++;
