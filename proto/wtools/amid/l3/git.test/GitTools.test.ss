@@ -1941,7 +1941,18 @@ function isUpToDate( test )
       a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
       return null;
     });
-    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git wModuleForTesting1' );
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( '.' ) );
+      return _.git.repositoryClone
+      ({
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
     return a.ready;
   }
 }
@@ -2463,16 +2474,15 @@ function isUpToDateThrowing( test )
 
   a.shell.predefined.mode = 'spawn';
 
-  con
-  .then( () =>
+  con.then( () =>
   {
     test.case = 'setup';
     a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) );
     a.fileProvider.dirMake( a.abs( 'wModuleForTesting1' ) );
     return a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git ' + 'wModuleForTesting1' )
-  })
+  });
 
-  .then( () =>
+  con.then( () =>
   {
     test.case = 'branch name as hash';
     let remotePath = 'git+https:///github.com/Wandalen/wModuleForTesting1.git#master';
@@ -2658,7 +2668,9 @@ The routine isUpToDate should return:
   - False if local repo head is on commit related to tag and differentiatingTags is enabled
   - True if local repo head is on remote tag and differentiatingTags is disabled
   - True if local repo head is on remote tag and differentiatingTags is enabled
-`
+`;
+
+//
 
 function isUptoDateDetailing( test )
 {
@@ -2986,17 +2998,28 @@ function isUptoDateDetailing( test )
   function begin()
   {
     a.ready.then( () => { a.fileProvider.filesDelete( a.abs( 'wModuleForTesting1' ) ); return null });
-    a.shell( 'git clone https://github.com/Wandalen/wModuleForTesting1.git wModuleForTesting1' );
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.ready.then( () =>
+    {
+      return _.git.repositoryClone
+      ({
+        localPath : a.abs( 'wModuleForTesting1' ),
+        remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+        attemptLimit : 4,
+        attemptDelay : 250,
+        attemptDelayMultiplier : 4,
+      });
+    });
     return a.ready;
   }
 }
 
-isUptoDateDetailing.timeOut = 120000;
+isUptoDateDetailing.timeOut = 240000;
 isUptoDateDetailing.description =
 `
 - The routine isUpToDate should return a map if detailing is enabled
 - The returned map should contain the reason field in case of false result
-`
+`;
 
 
 //
@@ -12493,7 +12516,7 @@ function statusFullWithPR( test )
   {
     a.ready.then( () => { a.reflect(); return null });
     a.ready.then( ( op ) => repositoryDelete() );
-    a.ready.then( ( op ) => repositoryInit() );
+    a.ready.then( ( op ) => repositoryInit() ).delay( 3000 );
     let execPath = `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`;
     a.shell({ execPath });
     a.shell({ execPath : 'git add --all' });
@@ -18257,11 +18280,14 @@ function repositoryCheckout( test )
 
   a.ready.then( () =>
   {
-    a.fileProvider.dirMake( a.abs( '.' ) )
+    a.fileProvider.dirMake( a.abs( '.' ) );
     return _.git.repositoryClone
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
+      attemptLimit : 4,
+      attemptDelay : 250,
+      attemptDelayMultiplier : 4,
     });
   });
 
@@ -18276,8 +18302,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'master' );
@@ -18295,8 +18321,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'master' );
@@ -18314,8 +18340,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'master' );
@@ -18325,8 +18351,8 @@ function repositoryCheckout( test )
   /* - */
 
   checkout();
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
-  .then( () =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' });
+  a.ready.then( () =>
   {
     test.case = 'remotePath - simple http path, checkout to newly created local branch';
     return _.git.repositoryCheckout
@@ -18335,8 +18361,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'new' );
@@ -18346,8 +18372,8 @@ function repositoryCheckout( test )
   /* */
 
   checkout();
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
-  .then( () =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' });
+  a.ready.then( () =>
   {
     test.case = 'remotePath - global http path, checkout to newly created local branch';
     return _.git.repositoryCheckout
@@ -18356,8 +18382,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'new' );
@@ -18367,8 +18393,8 @@ function repositoryCheckout( test )
   /* */
 
   checkout();
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' })
-  .then( () =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git branch -f new' });
+  a.ready.then( () =>
   {
     test.case = 'remotePath - global path with several protocols, checkout to newly created local branch';
     return _.git.repositoryCheckout
@@ -18377,8 +18403,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'new' );
@@ -18396,8 +18422,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at d7ef64c' ), 1 );
@@ -18415,8 +18441,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at d7ef64c' ), 1 );
@@ -18434,8 +18460,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at d7ef64c' ), 1 );
@@ -18453,8 +18479,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at v0.0.101' ), 1 );
@@ -18472,8 +18498,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at v0.0.101' ), 1 );
@@ -18491,8 +18517,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git status' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'HEAD detached at v0.0.101' ), 1 );
@@ -18510,8 +18536,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'dev1' );
@@ -18529,8 +18555,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'dev1' );
@@ -18548,8 +18574,8 @@ function repositoryCheckout( test )
       localPath : a.abs( 'wModuleForTesting1' ),
     });
   });
-  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' })
-  .then( ( op ) =>
+  a.shell({ currentPath : a.abs( 'wModuleForTesting1' ), execPath : 'git rev-parse --abbrev-ref HEAD' });
+  a.ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
     test.equivalent( op.output, 'dev1' );
@@ -18630,7 +18656,6 @@ function repositoryCheckout( test )
         remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git!unknown',
       };
       test.shouldThrowErrorAsync( () => _.git.repositoryCheckout( o ) );
-
       return null;
     });
   }
@@ -20928,6 +20953,406 @@ function repositoryMigrateWithOptionOnDate( test )
 }
 
 repositoryMigrateWithOptionOnDate.timeOut = 60000;
+
+//
+
+function repositoryMigrateWithOptionOnDateAsMap( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+  const user = a.shell({ currentPath : __dirname, execPath : 'git config --global user.name', sync : 1 }).output.trim();
+
+  /* */
+
+  let originalHistory = [];
+  originalSrcHistoryGet();
+
+  /* - */
+
+  begin();
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'delta - one hour, relative - commit';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : { relative : 'commit', delta : '01:00:00' },
+      onCommitMessage : ( e ) => e,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8e2aa80ca350f3c45215abafa07a4f2cd320342a',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 17 );
+    test.notIdentical( op, originalHistory );
+    test.notIdentical( op[ 10 ], originalHistory[ 12 ] );
+    test.identical( op[ 10 ].message, originalHistory[ 12 ].message );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( Date.parse( op[ 10 ].date ) - Date.parse( originalHistory[ 12 ].date ), 3600000 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), 3600000 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'delta - one hour, relative - now';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : { relative : 'now', delta : '01:00:00' },
+      onCommitMessage : ( e ) => e,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8e2aa80ca350f3c45215abafa07a4f2cd320342a',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 17 );
+    test.notIdentical( op, originalHistory );
+    test.notIdentical( op[ 10 ], originalHistory[ 12 ] );
+    test.identical( op[ 10 ].message, originalHistory[ 12 ].message );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.ge( Date.parse( op[ 12 ].date ) - Date.now(), 3500000 );
+    test.le( Date.parse( op[ 12 ].date ) - Date.now(), 3600000 );
+    test.ge( Date.parse( op[ 0 ].date ) - Date.now(), 3500000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.now(), 3600000 );
+    return null;
+  });
+
+  /* - */
+
+  begin();
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'delta - negative, one hour, relative - commit';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : { relative : 'commit', delta : '-01:00:00' },
+      onCommitMessage : ( e ) => e,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8e2aa80ca350f3c45215abafa07a4f2cd320342a',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 17 );
+    test.notIdentical( op, originalHistory );
+    test.notIdentical( op[ 10 ], originalHistory[ 12 ] );
+    test.identical( op[ 10 ].message, originalHistory[ 12 ].message );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.identical( Date.parse( op[ 10 ].date ) - Date.parse( originalHistory[ 12 ].date ), -3600000 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), -3600000 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'delta - negative, one hour, relative - now';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : { relative : 'now', delta : '-01:00:00' },
+      onCommitMessage : ( e ) => e,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8e2aa80ca350f3c45215abafa07a4f2cd320342a',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 17 );
+    test.notIdentical( op, originalHistory );
+    test.notIdentical( op[ 10 ], originalHistory[ 12 ] );
+    test.identical( op[ 10 ].message, originalHistory[ 12 ].message );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+    test.ge( Date.now() - Date.parse( op[ 12 ].date ), 3500000 );
+    test.le( Date.now() - Date.parse( op[ 12 ].date ), 3700000 );
+    test.ge( Date.now() - Date.parse( op[ 0 ].date ), 3500000 );
+    test.le( Date.now() - Date.parse( op[ 0 ].date ), 3700000 );
+    return null;
+  });
+
+  /* - */
+
+  begin();
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'delta - one hour, relative - commit, periodic - one hour';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : { relative : 'commit', delta : '01:00:00', periodic : '01:00:00' },
+      onCommitMessage : ( e ) => e,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8e2aa80ca350f3c45215abafa07a4f2cd320342a',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 17 );
+    test.notIdentical( op, originalHistory );
+    test.notIdentical( op[ 10 ], originalHistory[ 12 ] );
+    test.identical( op[ 10 ].message, originalHistory[ 12 ].message );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+
+    test.identical( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 3600000 );
+    test.identical( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 3600000 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 3600000 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'delta - one hour, relative - commit, periodic - one hour, deviation - ten minutes';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : { relative : 'commit', delta : '01:00:00', periodic : '01:00:00', deviation : '00:10:00' },
+      onCommitMessage : ( e ) => e,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8e2aa80ca350f3c45215abafa07a4f2cd320342a',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 17 );
+    test.notIdentical( op, originalHistory );
+    test.notIdentical( op[ 10 ], originalHistory[ 12 ] );
+    test.identical( op[ 10 ].message, originalHistory[ 12 ].message );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+
+    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2500000 );
+    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4500000 );
+    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2500000 );
+    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4500000 );
+    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4500000 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'delta - negative, two days, relative - now, periodic - one hour, deviation - ten minutes';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : { relative : 'now', delta : '-48:00:00', periodic : '01:00:00', deviation : '00:10:00' },
+      onCommitMessage : ( e ) => e,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8e2aa80ca350f3c45215abafa07a4f2cd320342a',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 17 );
+    test.notIdentical( op, originalHistory );
+    test.notIdentical( op[ 10 ], originalHistory[ 12 ] );
+    test.identical( op[ 10 ].message, originalHistory[ 12 ].message );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+
+    test.ge( _.time.now() - Date.parse( op[ 14 ].date ), 48 * 3600 * 1000 - 3600 * 1000 );
+    test.le( _.time.now() - Date.parse( op[ 14 ].date ), 48 * 3600 * 1000 + 7200 * 1000 );
+    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2500000 );
+    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4500000 );
+    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2500000 );
+    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4500000 );
+    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4500000 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function originalSrcHistoryGet()
+  {
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ srcRepositoryRemote } ./` );
+    a.shell( `git reset --hard d8c18d24c1d65fab1af6b8d676bba578b58bfad5` );
+    a.ready.then( () =>
+    {
+      return _.git.repositoryHistoryToJson
+      ({
+        localPath : a.abs( '.' ),
+        state1 : `#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd`,
+        state2 : '#HEAD',
+      });
+    });
+    a.ready.then( ( op ) =>
+    {
+      test.identical( op.length, 18 );
+      originalHistory = op;
+      return null
+    });
+    return a.ready;
+  }
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+
+  /* */
+
+  function agree( strategy, state )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryAgree
+      ({
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
+        srcState : state,
+        dstBranch : 'master',
+        mergeStrategy : strategy,
+      });
+    });
+  }
+}
+
+repositoryMigrateWithOptionOnDateAsMap.timeOut = 180000;
 
 //
 
@@ -29276,12 +29701,12 @@ function commitsDatesWithOptionDeviation( test )
     test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
     test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
 
-    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2500000 );
-    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4500000 );
-    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2500000 );
-    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4500000 );
-    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
-    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4500000 );
+    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2000000 );
+    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 5000000 );
+    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2000000 );
+    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 5000000 );
+    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2000000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 5000000 );
     return null;
   });
 
@@ -31435,6 +31860,7 @@ const Proto =
     repositoryMigrateWithLocalRepository,
     repositoryMigrateWithOptionOnCommitMessage,
     repositoryMigrateWithOptionOnDate,
+    repositoryMigrateWithOptionOnDateAsMap,
     repositoryMigrateWithOptionOnly,
     repositoryMigrateWithOptionBut,
     repositoryMigrateWithOptionsOnlyAndBut,
