@@ -2,7 +2,7 @@
   "name": "wgittools",
   "version": "0.3.401",
   "description": "Collection of tools to use git programmatically.",
-  "author": "Kostiantyn Wandalen <wanalen@01.school>",
+  "author": "Kostiantyn Wandalen <wandalen@obox.systems>",
   "license": "MIT",
   "main": "proto/node_modules/wgittools",
   "files": [
