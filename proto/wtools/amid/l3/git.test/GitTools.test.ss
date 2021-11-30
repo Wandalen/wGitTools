@@ -12493,7 +12493,7 @@ function statusFullWithPR( test )
   {
     a.ready.then( () => { a.reflect(); return null });
     a.ready.then( ( op ) => repositoryDelete() );
-    a.ready.then( ( op ) => repositoryInit() );
+    a.ready.then( ( op ) => repositoryInit() ).delay( 3000 );
     let execPath = `git config credential.helper '!f(){ echo "username=${ user }" && echo "password=${ token }"; }; f'`;
     a.shell({ execPath });
     a.shell({ execPath : 'git add --all' });
@@ -29276,12 +29276,12 @@ function commitsDatesWithOptionDeviation( test )
     test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
     test.identical( op[ 0 ].author, originalHistory[ 0 ].author );
 
-    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2500000 );
-    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4500000 );
-    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2500000 );
-    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4500000 );
-    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
-    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4500000 );
+    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2000000 );
+    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 5000000 );
+    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2000000 );
+    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 5000000 );
+    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2000000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 5000000 );
     return null;
   });
 
