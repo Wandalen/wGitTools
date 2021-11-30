@@ -21244,6 +21244,57 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     return null;
   });
 
+  /* */
+
+  begin();
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'delta - negative, two days, relative - now, periodic - one hour, deviation - ten minutes';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : { relative : 'now', delta : '-48:00:00', periodic : '01:00:00', deviation : '00:10:00' },
+      onCommitMessage : ( e ) => e,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8e2aa80ca350f3c45215abafa07a4f2cd320342a',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 17 );
+    test.notIdentical( op, originalHistory );
+    test.notIdentical( op[ 10 ], originalHistory[ 12 ] );
+    test.identical( op[ 10 ].message, originalHistory[ 12 ].message );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+
+    test.ge( _.time.now() - Date.parse( op[ 14 ].date ), 48 * 3600 * 1000 - 3600 * 1000 );
+    test.le( _.time.now() - Date.parse( op[ 14 ].date ), 48 * 3600 * 1000 + 7200 * 1000 );
+    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2500000 );
+    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4500000 );
+    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2500000 );
+    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4500000 );
+    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4500000 );
+    return null;
+  });
+
   /* - */
 
   return a.ready;
