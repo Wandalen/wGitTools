@@ -5008,7 +5008,13 @@ function repositoryMigrate( o )
   srcState2 = _.git._stateParse( o.srcState2 ).value;
 
   if( !o.onCommitMessage )
+  if( !o.editMessage )
   o.onCommitMessage = ( e ) => e;
+  if( o.editMessage )
+  {
+    _.assert( !o.onCommitMessage, 'Expects manual or automated commit message editing, but not both.' );
+    o.onCommitMessage = onCommitData;
+  }
   if( _.str.is( o.onCommitMessage ) )
   {
     let msg = o.onCommitMessage;
@@ -5017,7 +5023,13 @@ function repositoryMigrate( o )
   _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}' );
 
   if( o.onDate === null )
+  if( !o.editDate )
   o.onDate = ( e ) => e;
+  if( o.editDate )
+  {
+    _.assert( !o.onDate, 'Expects manual or automated commit date editing, but not both.' );
+    o.onCommitMessage = onCommitData;
+  }
   if( _.aux.is( o.onDate ) )
   o.onDate = _.git._onDate_functor( o.onDate );
   _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}' );
@@ -5211,10 +5223,10 @@ function repositoryMigrate( o )
 
         if( files.length )
         {
-          let date = o.onDate( commits[ i ].date );
+          let date = o.onDate( commits[ i ].date, 'date', commits[ i ] );
           _.assert( _.str.is( date ), 'Callback {-o.onDate-} should return string date.' );
           date = date.length > 0 ? `--date="${ date }"` : '';
-          let commitMessage = o.onCommitMessage( commits[ i ].message );
+          let commitMessage = o.onCommitMessage( commits[ i ].message, 'message', commits[ i ] );
 
           return statusLocalGet( o.dstBasePath )
           .then( ( status ) =>
@@ -5223,7 +5235,7 @@ function repositoryMigrate( o )
             {
               storeGitDir();
               shell({ currentPath : o.dstBasePath, execPath : `git add .` });
-              return shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ commitMessage }" ${ date }` })
+              return shell({ currentPath : o.dstBasePath, execPath : `git commit -m '${ commitMessage }' ${ date }` })
               .then( restoreGitDir );
             }
             return null;
@@ -5317,6 +5329,31 @@ function repositoryMigrate( o )
     shell({ execPath : `git clean -df`, sync : 1 });
     shell({ execPath : `git checkout ./`, sync : 1 });
   }
+
+  /* */
+
+  function onCommitData( value, key )
+  {
+    const ready = new _.Consequence();
+    const onMsg = ( data ) =>
+    {
+      input.removeListener( 'data', onMsg );
+
+      const message = data.trim();
+      if( _.str.defined( message ) )
+      ready.take( data );
+      else
+      ready.take( value );
+    };
+
+    const input = process.stdin;
+    input.setEncoding( 'utf-8' );
+    logger.log( `Current commit ${ key } : "${ value }".` );
+    logger.log( `Please, input new ${ key }.` );
+    input.on( 'data', onMsg );
+    ready.deasync();
+    return ready.sync();
+  }
 }
 
 repositoryMigrate.defaults =
@@ -5329,10 +5366,14 @@ repositoryMigrate.defaults =
   dstBranch : null,
   srcDirPath : null,
   dstDirPath : null,
-  onCommitMessage : null,
-  onDate : null,
   but : null,
   only : null,
+
+  onCommitMessage : null,
+  onDate : null,
+  editMessage : 0,
+  editDate : 0,
+
   logger : 0,
 };
 
