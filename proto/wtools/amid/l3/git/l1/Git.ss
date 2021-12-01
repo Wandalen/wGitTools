@@ -4645,16 +4645,19 @@ function repositoryAgree( o )
     outputCollecting : 1,
   });
 
-  if( !o.dstBranch )
-  o.dstBranch = branchFromPath( o.dstBasePath, true ) || _.git.tagLocalRetrive({ localPath : basePath });
-  _.sure
-  (
-    _.str.defined( o.dstBranch ),
-    'Expects defined branch in destination repository. Provide it by option {-o.dstBranch-} or in path.'
-  );
-
   if( basePath !== o.dstBasePath )
   ready.then( subrepositoryInitMaybe );
+  ready.then( () =>
+  {
+    if( !o.dstBranch )
+    o.dstBranch = branchFromPath( o.dstBasePath, true ) || _.git.tagLocalRetrive({ localPath : basePath });
+    _.sure
+    (
+      _.str.defined( o.dstBranch ),
+      'Expects defined branch in destination repository. Provide it by option {-o.dstBranch-} or in path.'
+    );
+    return null;
+  });
 
   const normalized = _.git.path.normalize( o.srcBasePath );
   const srcBasePath = _.git.path.nativize( normalized );
@@ -4741,7 +4744,7 @@ function repositoryAgree( o )
   {
     _.assert
     (
-      _.str.begins( parsed.longPath, _.git.path.parse( o.dstBasePath ).longPath ),
+      _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( o.dstBasePath ).longPath ) ),
       '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}.'
     );
 

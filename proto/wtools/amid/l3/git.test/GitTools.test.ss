@@ -19016,13 +19016,13 @@ function repositoryAgree( test )
 
   begin().then( () =>
   {
-    test.case = 'migrate same repository with same branches, no state, branches, message';
+    test.case = 'migrate same repository with same branches, no state, message';
     return _.git.repositoryAgree
     ({
       srcBasePath : dstRepositoryRemote,
       dstBasePath : a.abs( '.' ),
       srcState : null,
-      dstBranch : null,
+      dstBranch : 'master',
       commitMessage : null,
     });
   });
@@ -19036,13 +19036,13 @@ function repositoryAgree( test )
 
   begin().then( () =>
   {
-    test.case = 'migrate same repository with same branches, state - previous commit, no branches, message';
+    test.case = 'migrate same repository with same branches, state - previous commit, no message';
     return _.git.repositoryAgree
     ({
       srcBasePath : dstRepositoryRemote,
       dstBasePath : a.abs( '.' ),
       srcState : '#HEAD~',
-      dstBranch : null,
+      dstBranch : 'master',
       commitMessage : null,
     });
   });
@@ -19056,13 +19056,13 @@ function repositoryAgree( test )
 
   begin().then( () =>
   {
-    test.case = 'migrate another repository with same branches, no state, branches, message, strategy - dst';
+    test.case = 'migrate another repository with same branches, no state, message, strategy - dst';
     return _.git.repositoryAgree
     ({
       srcBasePath : srcRepositoryRemote,
       dstBasePath : a.abs( '.' ),
       srcState : null,
-      dstBranch : null,
+      dstBranch : 'master',
       mergeStrategy : 'dst',
       commitMessage : null,
     });
@@ -19101,13 +19101,13 @@ function repositoryAgreeWithLocalRepository( test )
 
   begin().then( () =>
   {
-    test.case = 'migrate another repository with same branches, no state, branches, message, strategy - dst';
+    test.case = 'migrate another repository with same branches, no state, message, strategy - dst';
     return _.git.repositoryAgree
     ({
       srcBasePath : a.abs( '../repo' ),
       dstBasePath : a.abs( '.' ),
       srcState : null,
-      dstBranch : null,
+      dstBranch : 'master',
       mergeStrategy : 'dst',
       commitMessage : null,
     });
@@ -19178,7 +19178,7 @@ function repositoryAgreeWithNotARepository( test )
     return _.git.repositoryAgree
     ({
       srcBasePath : a.abs( '../repo' ),
-      dstBasePath : a.abs( '.' ),
+      dstBasePath : a.abs( './!master' ),
       srcState : null,
       mergeStrategy : 'src',
       commitMessage : null,
@@ -19339,7 +19339,7 @@ function repositoryAgreeWithOptionMergeStrategy( test )
         srcBasePath : srcRepositoryRemote,
         dstBasePath : a.abs( '.' ),
         srcState : null,
-        dstBranch : null,
+        dstBranch : 'master',
         mergeStrategy : 'wrong',
         commitMessage : '__sync__',
       });
@@ -19484,6 +19484,8 @@ function repositoryAgreeWithOptionCommitMessage( test )
     return a.shell( `git reset --hard ${ dstCommit }` );
   }
 }
+
+repositoryAgreeWithOptionCommitMessage.timeOut = 60000;
 
 //
 
