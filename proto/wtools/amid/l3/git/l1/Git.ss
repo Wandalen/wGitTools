@@ -4621,6 +4621,8 @@ function repositoryAgree( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.str.defined( o.dstBasePath ), 'Expects local path to destination repository {-o.dstBasePath-}.' );
   _.assert( _.str.defined( o.srcBasePath ) || _.aux.is( o.srcBasePath ), 'Expects path to source repository {-o.srcBasePath-}.' );
+  _.assert( _.str.is( o.commitMessage ) || o.commitMessage === null, 'Expects string with commit message {-o.commitMessage-}' );
+  _.assert( _.longHasAny( [ 'src', 'dst', 'manual' ], o.mergeStrategy ) );
 
   /* */
 
@@ -4630,8 +4632,9 @@ function repositoryAgree( o )
   let basePath = o.dstBasePath;
   if( o.dstDirPath )
   basePath = _.git.path.join( o.dstBasePath, o.dstDirPath );
-  basePath = _.git.path.detrail( basePath );
-  o.dstBasePath = _.git.path.detrail( o.dstBasePath );
+  const parsed = _.git.path.parse( basePath );
+  delete parsed.tag;
+  basePath = _.git.path.detrail( _.git.path.str( parsed ) );
   let shouldRemove = false;
 
   const shell = _.process.starter
@@ -4642,33 +4645,38 @@ function repositoryAgree( o )
     outputCollecting : 1,
   });
 
+  if( !o.dstBranch )
+  o.dstBranch = branchFromPath( o.dstBasePath, true ) || _.git.tagLocalRetrive({ localPath : basePath });
+  _.sure
+  (
+    _.str.defined( o.dstBranch ),
+    'Expects defined branch in destination repository. Provide it by option {-o.dstBranch-} or in path.'
+  );
+
   if( basePath !== o.dstBasePath )
   ready.then( subrepositoryInitMaybe );
 
   const normalized = _.git.path.normalize( o.srcBasePath );
   const srcBasePath = _.git.path.nativize( normalized );
   const srcBasePathIsRepository = _.git.isRepository({ remotePath : normalized });
-  let srcBranch = 'master';
-  if( srcBasePathIsRepository )
-  srcBranch = branchFromPath( normalized, false ) || 'master';
-  if( !o.dstBranch )
-  o.dstBranch = branchFromPath( basePath, true ) || 'master';
 
   let srcState = o.srcState;
   if( o.srcState )
   srcState = _.git._stateParse( o.srcState ).value;
 
-  if( !o.commitMessage )
-  o.commitMessage = `Merge branch '${ srcBranch }' of ${ srcBasePath } into ${ o.dstBranch }`;
-  _.assert( _.str.is( o.commitMessage ), 'Expects string with commit message {-o.commitMessage-}' );
-
-  _.assert( _.longHasAny( [ 'src', 'dst', 'manual' ], o.mergeStrategy ) );
-
-  let remoteName;
-  remoteNameGenerate().then( ( name ) => { remoteName = name; return null });
+  let remoteName, srcBranch;
   let tempPath = _.fileProvider.path.tempOpen();
+  remoteNameGenerate().then( ( name ) => { remoteName = name; return null });
   ready.then( () => shell( `git remote add ${ remoteName } ${ tempPath }` ) );
-  tempRepositoryPrepare();
+  srcRepositoryPrepare();
+  ready.then( () =>
+  {
+    if( srcBasePathIsRepository )
+    srcBranch = branchFromPath( normalized, false ) || _.git.tagLocalRetrive({ localPath : tempPath });
+    else
+    srcBranch = 'master';
+    return null;
+  });
 
   /* */
 
@@ -4697,10 +4705,13 @@ function repositoryAgree( o )
       if( shouldRemove )
       _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
 
+      if( !o.commitMessage )
+      o.commitMessage = `Merge branch '${ srcBranch }' of ${ srcBasePath } into ${ o.dstBranch }`;
+
       if( uncommittedFiles === undefined || uncommittedFiles.length )
       {
-        shell({ currentPath : o.dstBasePath, execPath : 'git add .' });
-        return shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ o.commitMessage }"` });
+        shell({ currentPath : basePath, execPath : 'git add .' });
+        return shell({ currentPath : basePath, execPath : `git commit -m "${ o.commitMessage }"` });
       }
     }
     return null;
@@ -4728,7 +4739,11 @@ function repositoryAgree( o )
 
   function subrepositoryInitMaybe()
   {
-    _.assert( _.str.begins( basePath, o.dstBasePath ), '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}' );
+    _.assert
+    (
+      _.str.begins( parsed.longPath, _.git.path.parse( o.dstBasePath ).longPath ),
+      '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}.'
+    );
 
     if( !_.fileProvider.fileExists( basePath ) )
     _.fileProvider.dirMake( basePath );
@@ -4786,12 +4801,12 @@ function repositoryAgree( o )
       const tagDescriptor = _.git.tagExplain
       ({
         remotePath : path,
-        localPath : o.dstBasePath,
+        localPath : basePath,
         tag : parsed.tag,
         remote : !local,
         local,
       });
-      if( tagDescriptor.isBranch )
+      if( tagDescriptor.isBranch && _.str.has( path, _.git.path.tagToken ) )
       return parsed.tag;
     }
     return null;
@@ -4814,7 +4829,7 @@ function repositoryAgree( o )
 
   /* */
 
-  function tempRepositoryPrepare()
+  function srcRepositoryPrepare()
   {
     if( srcBasePathIsRepository )
     {
