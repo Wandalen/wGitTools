@@ -4967,8 +4967,9 @@ function repositoryMigrate( o )
   let basePath = o.dstBasePath;
   if( o.dstDirPath )
   basePath = _.git.path.join( o.dstBasePath, o.dstDirPath );
-  basePath = _.git.path.detrail( basePath );
-  o.dstBasePath = _.git.path.detrail( o.dstBasePath );
+  const parsed = _.git.path.parse( basePath );
+  delete parsed.tag;
+  basePath = _.git.path.detrail( _.git.path.str( parsed ) );
   let shouldRemove = false;
 
   const shell = _.process.starter
@@ -4981,21 +4982,30 @@ function repositoryMigrate( o )
 
   if( basePath !== o.dstBasePath )
   ready.then( subrepositoryInitMaybe );
+  ready.then( () =>
+  {
+    if( !o.dstBranch )
+    o.dstBranch = branchFromPath( o.dstBasePath, true ) || _.git.tagLocalRetrive({ localPath : basePath });
+    _.sure
+    (
+      _.str.defined( o.dstBranch ),
+      'Expects defined branch in destination repository. Provide it by option {-o.dstBranch-} or in path.'
+    );
+    return null;
+  });
 
   const normalized = _.git.path.normalize( o.srcBasePath );
   const srcBasePath = _.git.path.nativize( normalized );
   if( !o.srcBranch )
-  o.srcBranch = branchFromPath( normalized, false ) || 'master';
-  if( !o.dstBranch )
-  o.dstBranch = branchFromPath( o.dstBasePath, true ) || 'master';
+  o.srcBranch = branchFromPath( normalized, false ) || _.git.tagLocalRetrive({ localPath : _.git.path.nativize( normalized ) });
 
   let srcState1 = o.srcState1;
   let srcState2 = o.srcState2;
   if( o.srcState1 )
   srcState1 = _.git._stateParse( o.srcState1 ).value;
+  _.assert( _.str.defined( srcState1 ), 'Expects state {-o.srcState1-} to start with.' );
   if( o.srcState2 )
   srcState2 = _.git._stateParse( o.srcState2 ).value;
-  _.assert( _.str.defined( srcState1 ), 'Expects state {-o.srcState1-} to start with.' );
 
   if( !o.onCommitMessage )
   o.onCommitMessage = ( e ) => e;
@@ -5059,7 +5069,11 @@ function repositoryMigrate( o )
 
   function subrepositoryInitMaybe()
   {
-    _.assert( _.str.begins( basePath, o.dstBasePath ), '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}' );
+    _.assert
+    (
+      _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( o.dstBasePath ).longPath ) ),
+      '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}.'
+    );
 
     if( !_.fileProvider.fileExists( basePath ) )
     _.fileProvider.dirMake( basePath );
@@ -5123,7 +5137,12 @@ function repositoryMigrate( o )
         remote : !local,
         local,
       });
-      if( tagDescriptor.isBranch )
+
+      if
+      (
+        tagDescriptor.isBranch
+        && ( _.str.has( path, _.git.path.tagToken ) || !_.longHasAny( parsed.protocols, [ 'hd', 'file' ] ) )
+      )
       return parsed.tag;
     }
     return null;
