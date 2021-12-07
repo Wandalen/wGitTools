@@ -5044,6 +5044,7 @@ function repositoryMigrate( o )
   ready.then( () => shell( `git fetch ${ remoteName }` ) );
   verifyRepositoriesHasSameFiles()
 
+  let commitsArray = [];
   ready.then( () =>
   {
     return _.git.repositoryHistoryToJson
@@ -5053,7 +5054,17 @@ function repositoryMigrate( o )
       state2 : o.srcState2 || `!${ remoteName }/${ o.srcBranch }`,
     });
   });
-  ready.then( ( commitsArray ) => writeCommits( commitsArray ) );
+  ready.then( ( commits ) =>
+  {
+    commitsArray = commits;
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : basePath,
+      state1 : '#HEAD',
+      state2 : '#HEAD',
+    });
+  });
+  ready.then( ( head ) => writeCommits( head, commitsArray ) );
   ready.finally( ( err, arg ) =>
   {
     if( err )
@@ -5191,8 +5202,13 @@ function repositoryMigrate( o )
 
   /* */
 
-  function writeCommits( commits )
+  function writeCommits( head, commits )
   {
+    const headDate = Date.parse( head[ 0 ].date );
+    const length = commits.length;
+    const commitStartDate = Date.parse( o.onDate( commits[ length - 1 ].date, 'date', commits[ length - 1 ] ) );
+    _.assert( headDate <= commitStartDate, 'New commit should be newer than last commit in branch.' );
+
     let con = _.take( null );
     const gitDir = _.git.path.join( basePath, '.git' );
     const tempGitDir = _.git.path.join( o.dstBasePath, '../-git.temp' );
@@ -5211,7 +5227,7 @@ function repositoryMigrate( o )
       };
     }
 
-    for( let i = commits.length - 1 ; i >= 0 ; i-- )
+    for( let i = length - 1 ; i >= 0 ; i-- )
     shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }`, ready : con })
     .then( () => shell( `git diff --name-only HEAD` ) )
     .then( ( diff ) =>
