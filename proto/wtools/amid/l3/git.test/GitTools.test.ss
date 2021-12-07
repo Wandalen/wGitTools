@@ -20794,6 +20794,87 @@ repositoryMigrateWithOptionOnCommitMessage.timeOut = 120000;
 
 //
 
+function repositoryMigrateWithOptionOnCommitMessageManual( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+  const user = a.shell({ currentPath : __dirname, execPath : 'git config --global user.name', sync : 1 }).output.trim();
+
+  /* - */
+
+  begin();
+  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'onCommitMessage - string';
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : 'manual',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.178' );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+
+  /* */
+
+  function migrate( strategy, state )
+  {
+    return a.ready.then( () =>
+    {
+      return _.git.repositoryAgree
+      ({
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
+        srcState : state,
+        dstBranch : 'master',
+        mergeStrategy : strategy,
+      });
+    });
+  }
+}
+
+repositoryMigrateWithOptionOnCommitMessageManual.experimental = 1;
+repositoryMigrateWithOptionOnCommitMessageManual.timeOut = 300000;
+
+//
+
 function repositoryMigrateWithOptionOnDate( test )
 {
   const a = test.assetFor( false );
@@ -20978,8 +21059,6 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
   a.ready.then( () =>
   {
     test.case = 'delta - one hour, relative - commit';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
       srcBasePath : srcRepositoryRemote,
@@ -21022,8 +21101,6 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
   a.ready.then( () =>
   {
     test.case = 'delta - one hour, relative - now';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
       srcBasePath : srcRepositoryRemote,
@@ -21068,8 +21145,6 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
   a.ready.then( () =>
   {
     test.case = 'delta - negative, one hour, relative - commit';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
       srcBasePath : srcRepositoryRemote,
@@ -21112,8 +21187,6 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
   a.ready.then( () =>
   {
     test.case = 'delta - negative, one hour, relative - now';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
       srcBasePath : srcRepositoryRemote,
@@ -21158,8 +21231,6 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
   a.ready.then( () =>
   {
     test.case = 'delta - one hour, relative - commit, periodic - one hour';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
       srcBasePath : srcRepositoryRemote,
@@ -21204,8 +21275,6 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
   a.ready.then( () =>
   {
     test.case = 'delta - one hour, relative - commit, periodic - one hour, deviation - ten minutes';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
       srcBasePath : srcRepositoryRemote,
@@ -21238,11 +21307,11 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
 
     test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2500000 );
-    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4500000 );
+    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4600000 );
     test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2500000 );
-    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4500000 );
+    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4600000 );
     test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
-    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4500000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4600000 );
     return null;
   });
 
@@ -21253,8 +21322,6 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
   a.ready.then( () =>
   {
     test.case = 'delta - negative, two days, relative - now, periodic - one hour, deviation - ten minutes';
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.version, '0.0.170' );
     return _.git.repositoryMigrate
     ({
       srcBasePath : srcRepositoryRemote,
@@ -21289,13 +21356,45 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.ge( _.time.now() - Date.parse( op[ 14 ].date ), 48 * 3600 * 1000 - 3600 * 1000 );
     test.le( _.time.now() - Date.parse( op[ 14 ].date ), 48 * 3600 * 1000 + 7200 * 1000 );
     test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2500000 );
-    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4500000 );
+    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4600000 );
     test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2500000 );
-    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4500000 );
+    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4600000 );
     test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
-    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4500000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4600000 );
     return null;
   });
+
+  /* - */
+
+  if( Config.debug )
+  {
+    begin();
+    agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+    a.ready.then( () =>
+    {
+      test.case = 'periodic - one hour, deviation - two hours, should throw error';
+      var onErrorCallback = ( err, arg ) =>
+      {
+        test.true( _.error.is( err ) );
+        test.identical( arg, undefined );
+        test.identical( err.originalMessage, 'Deviation cannot be bigger than period.' );
+      };
+      return test.shouldThrowErrorSync( () =>
+      {
+        return _.git.repositoryMigrate
+        ({
+          srcBasePath : srcRepositoryRemote,
+          dstBasePath : a.abs( '.' ),
+          srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+          srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+          srcBranch : 'master',
+          dstBranch : 'master',
+          onDate : { relative : 'now', delta : '-48:00:00', periodic : '01:00:00', deviation : '02:00:00' },
+          onCommitMessage : ( e ) => e,
+        });
+      }, onErrorCallback );
+    });
+  }
 
   /* - */
 
@@ -31861,6 +31960,7 @@ const Proto =
     repositoryMigrate,
     repositoryMigrateWithLocalRepository,
     repositoryMigrateWithOptionOnCommitMessage,
+    repositoryMigrateWithOptionOnCommitMessageManual,
     repositoryMigrateWithOptionOnDate,
     repositoryMigrateWithOptionOnDateAsMap,
     repositoryMigrateWithOptionOnly,
