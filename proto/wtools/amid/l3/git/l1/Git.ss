@@ -6574,13 +6574,15 @@ function commitsDates( o )
   const state1 = _.git._stateParse( o.state1 ).value;
   const state2 = _.git._stateParse( o.state2 ).value;
 
+  let descriptors;
   ready.then( () => start( `git checkout ${ state1 }~` ) );
   ready.then( () => start( `git checkout -b ${ tempBranch }` ) );
   ready.then( () => start( `git merge ${ parsed.tag } ${ tempBranch }` ) );
   ready.then( () => start( `git checkout ${ parsed.tag }` ) );
-  ready.then( () => start( `git reset --hard ${ state1 }~` ) );
   ready.then( () => _.git.repositoryHistoryToJson({ localPath : o.localPath, state1 : o.state1, state2 : `!${ tempBranch }` }) );
-  ready.then( ( descriptors ) => writeCommits( descriptors ) );
+  ready.then( ( commits ) => descriptors = commits );
+  ready.then( () => start( `git reset --hard ${ state1 }~` ) );
+  ready.then( () => writeCommits( descriptors ) );
   ready.finally( () => start( `git branch --delete --force ${ tempBranch }` ) );
   ready.finally( ( err, arg ) =>
   {
