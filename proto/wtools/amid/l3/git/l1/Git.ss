@@ -5020,7 +5020,7 @@ function repositoryMigrate( o )
     let msg = o.onCommitMessage;
     o.onCommitMessage = ( e ) => msg;
   }
-  _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}' );
+  _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}.' );
 
   if( o.onDate === null )
   if( !o.editDate )
@@ -5032,7 +5032,7 @@ function repositoryMigrate( o )
   }
   if( _.aux.is( o.onDate ) )
   o.onDate = _.git._onDate_functor( o.onDate );
-  _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}' );
+  _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}.' );
 
   let remoteName = remoteNameGenerate();
   const config = _.git.configRead( o.dstBasePath );
@@ -5203,7 +5203,7 @@ function repositoryMigrate( o )
       storeGitDir = () =>
       {
         _.fileProvider.fileRename( tempGitDir, gitDir );
-      }
+      };
       restoreGitDir = ( e ) =>
       {
         _.fileProvider.fileRename( gitDir, tempGitDir );
@@ -5216,6 +5216,7 @@ function repositoryMigrate( o )
     .then( () => shell( `git diff --name-only HEAD` ) )
     .then( ( diff ) =>
     {
+      console.log( 'here' );
       if( diff.output )
       if( !_.str.begins( commits[ i ].message, 'Merge pull request' ) )
       {
@@ -6489,6 +6490,7 @@ function _onDate_functor( o )
     _.assert( period >= 0 );
     const deviation = _getDelta( o.deviation );
     _.assert( deviation >= 0 );
+    _.assert( deviation <= period, 'Deviation cannot be bigger than period.' );
 
     if( o.relative === 'now' )
     return datePeriodicNow;
