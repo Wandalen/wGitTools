@@ -5206,7 +5206,7 @@ function repositoryMigrate( o )
   {
     const headDate = Date.parse( head[ 0 ].date );
     const length = commits.length;
-    const commitStartDate = Date.parse( o.onDate( commits[ length - 1 ].date, 'date', commits[ length - 1 ] ) );
+    const commitStartDate = Date.parse( o.onDate( commits[ length - 1 ].date, 'date', commits[ length - 1 ] ) ) || _.time.now();
     _.assert( headDate <= commitStartDate, 'New commit should be newer than last commit in branch.' );
 
     let con = _.take( null );

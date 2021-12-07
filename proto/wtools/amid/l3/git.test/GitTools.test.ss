@@ -20497,7 +20497,7 @@ function repositoryMigrate( test )
   /* - */
 
   begin();
-  migrate( '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  agree( '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
@@ -20545,9 +20545,9 @@ function repositoryMigrate( test )
 
   /* */
 
-  function migrate( state )
+  function agree( state )
   {
-    return a.ready.then( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryAgree
       ({
@@ -20558,6 +20558,19 @@ function repositoryMigrate( test )
         mergeStrategy : 'src',
       });
     });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
   }
 }
 
@@ -20626,7 +20639,7 @@ function repositoryMigrateWithLocalRepository( test )
 
   function migrate( state )
   {
-    return a.ready.then( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryAgree
       ({
@@ -20637,6 +20650,19 @@ function repositoryMigrateWithLocalRepository( test )
         mergeStrategy : 'src',
       });
     });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
   }
 }
 
@@ -20776,7 +20802,7 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
 
   function migrate( strategy, state )
   {
-    return a.ready.then( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryAgree
       ({
@@ -20787,6 +20813,19 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
         mergeStrategy : strategy,
       });
     });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
   }
 }
 
@@ -20856,7 +20895,7 @@ function repositoryMigrateWithOptionOnCommitMessageManual( test )
 
   function migrate( strategy, state )
   {
-    return a.ready.then( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryAgree
       ({
@@ -20867,6 +20906,19 @@ function repositoryMigrateWithOptionOnCommitMessageManual( test )
         mergeStrategy : strategy,
       });
     });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
   }
 }
 
@@ -21021,7 +21073,7 @@ function repositoryMigrateWithOptionOnDate( test )
 
   function migrate( strategy, state )
   {
-    return a.ready.then( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryAgree
       ({
@@ -21032,6 +21084,19 @@ function repositoryMigrateWithOptionOnDate( test )
         mergeStrategy : strategy,
       });
     });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
   }
 }
 
@@ -21439,7 +21504,7 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
 
   function agree( strategy, state )
   {
-    return a.ready.then( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryAgree
       ({
@@ -21450,6 +21515,20 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
         mergeStrategy : strategy,
       });
     });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        state2 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
   }
 }
 
@@ -21862,7 +21941,7 @@ function repositoryMigrateWithOptionOnly( test )
 
   function migrate( o )
   {
-    return a.ready.then( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryAgree
       ({
@@ -21872,6 +21951,19 @@ function repositoryMigrateWithOptionOnly( test )
         ... o,
       });
     });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
   }
 }
 
@@ -22296,7 +22388,7 @@ function repositoryMigrateWithOptionBut( test )
 
   function migrate( o )
   {
-    return a.ready.then( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryAgree
       ({
@@ -22306,6 +22398,19 @@ function repositoryMigrateWithOptionBut( test )
         ... o,
       });
     });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
   }
 }
 
@@ -22394,7 +22499,7 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
 
   function migrate( o )
   {
-    return a.ready.then( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryAgree
       ({
@@ -22404,6 +22509,19 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
         ... o,
       });
     });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
   }
 }
 
@@ -22763,7 +22881,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
 
   function migrate( o )
   {
-    return a.ready.then( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryAgree
       ({
@@ -22773,6 +22891,19 @@ function repositoryMigrateWithOptionSrcDirPath( test )
         ... o,
       });
     });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
   }
 }
 
@@ -22998,7 +23129,7 @@ function repositoryMigrateWithOptionDstDirPath( test )
 
   function migrate( o )
   {
-    return a.ready.then( () =>
+    a.ready.then( () =>
     {
       return _.git.repositoryAgree
       ({
@@ -23008,6 +23139,19 @@ function repositoryMigrateWithOptionDstDirPath( test )
         ... o,
       });
     });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
   }
 }
 
