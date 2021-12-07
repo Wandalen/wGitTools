@@ -21459,6 +21459,36 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
         });
       }, onErrorCallback );
     });
+
+    /* */
+
+    begin();
+    agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+    a.ready.then( () =>
+    {
+      test.case = 'delta - negative, new commit should be older than last commit in branch';
+      var onErrorCallback = ( err, arg ) =>
+      {
+        test.true( _.error.is( err ) );
+        test.identical( arg, undefined );
+        var exp = 'New commit should be newer than last commit in branch.';
+        test.identical( err.originalMessage, exp );
+      };
+      return test.shouldThrowErrorAsync( () =>
+      {
+        return _.git.repositoryMigrate
+        ({
+          srcBasePath : srcRepositoryRemote,
+          dstBasePath : a.abs( '.' ),
+          srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+          srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+          srcBranch : 'master',
+          dstBranch : 'master',
+          onDate : { relative : 'commit', delta : '-48:00:00', periodic : '00:00:00', deviation : '00:00:00' },
+          onCommitMessage : ( e ) => e,
+        });
+      }, onErrorCallback );
+    });
   }
 
   /* - */
@@ -23145,7 +23175,7 @@ function repositoryMigrateWithOptionDstDirPath( test )
       const delta = start - _.time.now() - 3600000;
       return _.git.commitsDates
       ({
-        localPath : a.abs( '.' ),
+        localPath : a.abs( o.dstDirPath || '.' ),
         state1 : '#HEAD',
         relative : 'commit',
         delta,

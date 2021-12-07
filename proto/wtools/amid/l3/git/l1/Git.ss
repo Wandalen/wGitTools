@@ -5059,7 +5059,7 @@ function repositoryMigrate( o )
     commitsArray = commits;
     return _.git.repositoryHistoryToJson
     ({
-      localPath : basePath,
+      localPath : o.dstBasePath,
       state1 : '#HEAD',
       state2 : '#HEAD',
     });
@@ -5232,7 +5232,6 @@ function repositoryMigrate( o )
     .then( () => shell( `git diff --name-only HEAD` ) )
     .then( ( diff ) =>
     {
-      console.log( 'here' );
       if( diff.output )
       if( !_.str.begins( commits[ i ].message, 'Merge pull request' ) )
       {
