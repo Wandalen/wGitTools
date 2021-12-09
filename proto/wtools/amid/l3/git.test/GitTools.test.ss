@@ -21335,6 +21335,52 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
     test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
 
+    test.identical( Date.parse( op[ 13 ].date ) - Date.parse( originalHistory[ 15 ].date ), 2 * 3600000 );
+    test.identical( Date.parse( op[ 11 ].date ) - Date.parse( originalHistory[ 13 ].date ), 4 * 3600000 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), 15 * 3600000 );
+    for( let i = 0 ; i < op.length ; i++ )
+    test.identical( op[ i ].date, op[ i ].commiterDate );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'delta - one hour, relative - fromFirst, periodic - one hour';
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : { relative : 'fromFirst', delta : '01:00:00', periodic : '01:00:00' },
+      onCommitMessage : ( e ) => e,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8e2aa80ca350f3c45215abafa07a4f2cd320342a',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 17 );
+    test.notIdentical( op, originalHistory );
+    test.notIdentical( op[ 10 ], originalHistory[ 12 ] );
+    test.identical( op[ 10 ].message, originalHistory[ 12 ].message );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+
     test.identical( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 3600000 );
     test.identical( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 3600000 );
     test.identical( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 3600000 );
@@ -21359,6 +21405,56 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
       srcBranch : 'master',
       dstBranch : 'master',
       onDate : { relative : 'commit', delta : '01:00:00', periodic : '01:00:00', deviation : '00:10:00' },
+      onCommitMessage : ( e ) => e,
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#8e2aa80ca350f3c45215abafa07a4f2cd320342a',
+      state2 : '#HEAD',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.length, 17 );
+    test.notIdentical( op, originalHistory );
+    test.notIdentical( op[ 10 ], originalHistory[ 12 ] );
+    test.identical( op[ 10 ].message, originalHistory[ 12 ].message );
+    test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
+    test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
+
+
+    test.ge( Date.parse( op[ 13 ].date ) - Date.parse( originalHistory[ 15 ].date ), 2 * 3600000 - 12000000 );
+    test.le( Date.parse( op[ 13 ].date ) - Date.parse( originalHistory[ 15 ].date ), 2 * 3600000 + 12000000 );
+    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( originalHistory[ 13 ].date ), 4 * 3600000 - 12000000 );
+    test.le( Date.parse( op[ 11 ].date ) - Date.parse( originalHistory[ 13 ].date ), 4 * 3600000 + 12000000 );
+    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), 15 * 3600000 - 12000000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), 15 * 3600000 + 12000000 );
+    for( let i = 0 ; i < op.length ; i++ )
+    test.identical( op[ i ].date, op[ i ].commiterDate );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.ready.then( () =>
+  {
+    test.case = 'delta - one hour, relative - fromFirst, periodic - one hour, deviation - ten minutes';
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onDate : { relative : 'fromFirst', delta : '01:00:00', periodic : '01:00:00', deviation : '00:10:00' },
       onCommitMessage : ( e ) => e,
     });
   });
@@ -21498,7 +21594,7 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
           srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
           srcBranch : 'master',
           dstBranch : 'master',
-          onDate : { relative : 'commit', delta : '-48:00:00', periodic : '00:00:00', deviation : '00:00:00' },
+          onDate : { relative : 'fromFirst', delta : '-48:00:00', periodic : '00:00:00', deviation : '00:00:00' },
           onCommitMessage : ( e ) => e,
         });
       }, onErrorCallback );
@@ -21576,7 +21672,7 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
   }
 }
 
-repositoryMigrateWithOptionOnDateAsMap.timeOut = 180000;
+repositoryMigrateWithOptionOnDateAsMap.timeOut = 240000;
 
 //
 
