@@ -550,75 +550,74 @@ function tagLocalRetrive( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
-  if( !_.git.isRepository({ localPath : o.localPath }) )
-  return false;
-
-  let gitPath = path.join( o.localPath, '.git' );
-
-  if( !localProvider.fileExists( gitPath ) )
-  return false;
-
-  let currentTag = localProvider.fileRead( path.join( gitPath, 'HEAD' ) );
-  let r = /^ref: refs\/heads\/(.+)\s*$/;
-
-  let found = r.exec( currentTag );
-  if( found )
+  let found;
+  const ready = _.git.isRepository({ localPath : o.localPath, sync : 0 });
+  ready.then( ( isRepository ) =>
   {
-    currentTag = found[ 1 ].trim();
-  }
-  else
+    if( isRepository )
+    {
+      let gitPath = path.join( o.localPath, '.git' );
+
+      if( !localProvider.fileExists( gitPath ) )
+      return false;
+
+      let currentTag = localProvider.fileRead( path.join( gitPath, 'HEAD' ) );
+      let r = /^ref: refs\/heads\/(.+)\s*$/;
+
+      found = r.exec( currentTag );
+      if( found )
+      {
+        return found[ 1 ].trim();
+      }
+      else
+      {
+        return _.git.repositoryVersionToTag
+        ({
+          localPath : o.localPath,
+          version : currentTag.trim(),
+          local : 1,
+          remote : 0,
+          sync : 0,
+        })
+        .then( ( tag ) =>
+        {
+          if( tag.length )
+          return ( _.strIs( tag ) ? tag : tag[ 0 ] );
+          else
+          return '';
+        });
+      }
+    }
+    return false;
+  });
+  ready.then( ( currentTag ) =>
   {
-    let tag = _.git.repositoryVersionToTag
-    ({
-      localPath : o.localPath,
-      version : currentTag.trim(),
-      local : 1,
-      remote : 0,
-    });
+    if( o.detailing )
+    {
+      let result = Object.create( null );
+      result.tag = currentTag;
+      result.isTag = !found && !!currentTag;
+      result.isBranch = !!found;
 
-    if( tag.length )
-    currentTag = _.strIs( tag ) ? tag : tag[ 0 ];
-    else
-    currentTag = '';
-  }
+      return result;
+    }
+    return currentTag;
+  });
 
-  // if( !found )
-  // {
-  //   let tag = _.git.repositoryVersionToTag
-  //   ({
-  //     localPath : o.localPath,
-  //     version : currentTag.trim(),
-  //     local : 1,
-  //     remote : 0,
-  //   });
-  //
-  //   if( !tag.length )
-  //   currentTag = '';
-  //   else
-  //   currentTag = _.strIs( tag ) ? tag : tag[ 0 ];
-  // }
-  // else
-  // {
-  //   currentTag = found[ 1 ].trim();
-  // }
-
-  if( o.detailing )
+  if( o.sync )
   {
-    let result = Object.create( null );
-    result.tag = currentTag;
-    result.isTag = !found && !!currentTag;
-    result.isBranch = !!found;
-
-    return result;
+    ready.deasync();
+    return ready.sync();
   }
 
-  return currentTag;
+  return ready;
 }
 
 var defaults = tagLocalRetrive.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.logger = 0;
 defaults.detailing = 0;
+defaults.sync = 1;
 
 //
 
