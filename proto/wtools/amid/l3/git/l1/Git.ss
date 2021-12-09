@@ -5069,6 +5069,7 @@ function repositoryMigrate( o )
   {
     if( err )
     error = err;
+    delete process.env.GIT_COMMITTER_DATE;
     if( shouldRemove )
     {
       _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
@@ -5243,6 +5244,7 @@ function repositoryMigrate( o )
           _.assert( _.str.is( date ), 'Callback {-o.onDate-} should return string date.' );
           date = date.length > 0 ? `--date="${ date }"` : '';
           let commitMessage = o.onCommitMessage( commits[ i ].message, 'message', commits[ i ] );
+          process.env.GIT_COMMITTER_DATE = date;
 
           return statusLocalGet( o.dstBasePath )
           .then( ( status ) =>
@@ -5410,7 +5412,8 @@ function repositoryHistoryToJson( o )
   + '  \\"email\\" : \\"%ae\\",%n'
   + '  \\"hash\\" : \\"%H\\",%n'
   + '  \\"message\\" : \\"%s\\",%n'
-  + `  \\"date\\" : \\"%ai\\"%n`
+  + `  \\"date\\" : \\"%ai\\",%n`
+  + `  \\"commiterDate\\" : \\"%ci\\"%n`
   + '},';
 
   return _.process.start
