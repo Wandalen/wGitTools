@@ -5092,7 +5092,10 @@ function repositoryMigrate( o )
   ready.finally( ( err, arg ) =>
   {
     if( err )
-    error = err;
+    {
+      _.error.attend( err );
+      error = err;
+    }
     delete process.env.GIT_COMMITTER_DATE;
     if( shouldRemove )
     {
@@ -5107,10 +5110,7 @@ function repositoryMigrate( o )
   ready.finally( () =>
   {
     if( error )
-    {
-      _.error.attend( error );
-      throw _.err( error );
-    }
+    throw _.err( error );
     return true;
   });
 
