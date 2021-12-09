@@ -6473,33 +6473,52 @@ function _onDate_functor( o )
 {
   _.assert( arguments.length === 1 );
   _.mapSupplementNulls( o, _onDate_functor.defaults );
-  _.assert( _.longHas( [ 'now', 'commit' ], o.relative ), 'Expects option {-o.relative-} with value "now" or "commit".' );
+  _.assert
+  (
+    _.longHas( [ 'now', 'commit', 'fromFirst' ], o.relative ),
+    () => 'Expects option {-o.relative-} with value "now" or "commit".'
+  );
   _.assert( _.number.intIs( o.delta ) || _.str.is( o.delta ) );
   _.assert( _.number.intIs( o.periodic ) || _.str.is( o.periodic ) );
   _.assert( _.number.intIs( o.deviation ) || _.str.is( o.deviation ) );
 
   const delta = _getDelta( o.delta );
 
-  let onDate = dateNow;
   if( o.periodic )
   {
-    onDate = onDatePeriodic_functor();
+    return onDatePeriodic_functor();
   }
   else
   {
-    if( o.relative === 'now' && delta !== 0 )
-    onDate = dateNowWithDelta;
-    if( o.relative === 'commit' && delta !== 0 )
-    onDate = dateCommitWithDelta;
-  }
+    if( o.relative === 'now' )
+    {
+      if( delta === 0 )
+      return dateNow;
+      else
+      return dateNowWithDelta;
+    }
 
-  return onDate;
+    if( o.relative === 'commit' || o.relative === 'fromFirst' )
+    {
+      if( delta === 0 )
+      return dateCommit;
+      else
+      return dateCommitWithDelta;
+    }
+  }
 
   /* */
 
   function dateNow( date )
   {
     return '';
+  }
+
+  /* */
+
+  function dateCommit( date )
+  {
+    return date;
   }
 
   /* */
@@ -6536,16 +6555,26 @@ function _onDate_functor( o )
 
     if( o.relative === 'now' )
     return datePeriodicNow;
+    if( o.relative === 'fromFirst' )
+    return datePeriodicCommitStrict;
     return datePeriodicCommit;
 
     function datePeriodicNow( date )
     {
       let result = startTime + ( counter * period ) + ( Math.random() * 2 * deviation - deviation );
       counter++;
-      return new Date( result ).toISOString();
+      return new Date( result ).toString();
     }
 
     function datePeriodicCommit( date )
+    {
+      const time = Date.parse( date ) + delta;
+      let result = time + ( counter * period ) + ( Math.random() * 2 * deviation - deviation );
+      counter++;
+      return new Date( result ).toString();
+    }
+
+    function datePeriodicCommitStrict( date )
     {
       if( startTime === undefined )
       startTime = Date.parse( date ) + delta;
@@ -6559,7 +6588,7 @@ function _onDate_functor( o )
 
 _onDate_functor.defaults =
 {
-  relative : 'now', // [ 'now', 'commit' ]
+  relative : 'now', // [ 'now', 'commit', 'fromFirst' ]
   delta : null,
   periodic : 0,
   deviation : 0,

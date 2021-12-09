@@ -21335,9 +21335,9 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
     test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
 
-    test.identical( Date.parse( op[ 13 ].date ) - Date.parse( originalHistory[ 15 ].date ), 2 * 3600000 );
-    test.identical( Date.parse( op[ 11 ].date ) - Date.parse( originalHistory[ 13 ].date ), 4 * 3600000 );
-    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), 15 * 3600000 );
+    test.identical( Date.parse( op[ 13 ].date ) - Date.parse( originalHistory[ 15 ].date ), 2 * 3600000 + 3600000 );
+    test.identical( Date.parse( op[ 11 ].date ) - Date.parse( originalHistory[ 13 ].date ), 4 * 3600000 + 3600000 );
+    test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), 15 * 3600000 + 3600000 );
     for( let i = 0 ; i < op.length ; i++ )
     test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
