@@ -4814,7 +4814,7 @@ function repositoryAgree( o )
       unpushedTags : 0,
       unpushedBranches : 0,
       explaining : 1,
-      detailing : 1
+      detailing : 1,
     });
   }
 
@@ -5107,7 +5107,10 @@ function repositoryMigrate( o )
   ready.finally( () =>
   {
     if( error )
-    throw _.err( error );
+    {
+      _.error.attend( error );
+      throw _.err( error );
+    }
     return true;
   });
 
@@ -5229,12 +5232,8 @@ function repositoryMigrate( o )
 
   function writeCommits( head, commits )
   {
-    const headDate = Date.parse( head[ 0 ].date );
     const length = commits.length;
-    const commitStartDate = Date.parse( o.onDate( commits[ length - 1 ].date, 'date', commits[ length - 1 ] ) ) || _.time.now();
-    _.assert( headDate <= commitStartDate, 'New commit should be newer than last commit in branch.' );
 
-    let con = _.take( null );
     const gitDir = _.git.path.join( basePath, '.git' );
     const tempGitDir = _.git.path.join( o.dstBasePath, '../-git.temp' );
     let storeGitDir = () => {};
@@ -5252,40 +5251,70 @@ function repositoryMigrate( o )
       };
     }
 
-    for( let i = length - 1 ; i >= 0 ; i-- )
-    shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }`, ready : con })
-    .then( () => shell( `git diff --name-only HEAD` ) )
-    .then( ( diff ) =>
+    const con = _.take( null );
+    con.then( () => o.onDate( commits[ length - 1 ].date, 'date', commits[ length - 1 ] ) );
+    con.then( ( startCommitDate ) =>
     {
-      if( diff.output )
-      if( !_.str.begins( commits[ i ].message, 'Merge pull request' ) )
-      {
-        let files = outputDiffPathsFilter( diff.output, true );
-
-        if( files.length )
-        {
-          let date = o.onDate( commits[ i ].date, 'date', commits[ i ] );
-          _.assert( _.str.is( date ), 'Callback {-o.onDate-} should return string date.' );
-          date = date.length > 0 ? `--date="${ date }"` : '';
-          let commitMessage = o.onCommitMessage( commits[ i ].message, 'message', commits[ i ] );
-          process.env.GIT_COMMITTER_DATE = date;
-
-          return statusLocalGet( o.dstBasePath )
-          .then( ( status ) =>
-          {
-            if( status.uncommitted )
-            {
-              storeGitDir();
-              shell({ currentPath : o.dstBasePath, execPath : `git add .` });
-              return shell({ currentPath : o.dstBasePath, execPath : `git commit -m '${ commitMessage }' ${ date }` })
-              .then( restoreGitDir );
-            }
-            return null;
-          });
-        }
-      }
+      const headDate = Date.parse( head[ 0 ].date );
+      const commitStartDate = Date.parse( startCommitDate ) || _.time.now();
+      _.assert( headDate <= commitStartDate, 'New commit should be newer than last commit in branch.' );
       return null;
     });
+
+    let commitMessage, date;
+    for( let i = length - 1 ; i >= 0 ; i-- )
+    {
+      con.then( () => shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }` }) );
+      con.then( () => shell( `git diff --name-only HEAD` ) );
+      con.then( ( diff ) =>
+      {
+        if( diff.output )
+        if( !_.str.begins( commits[ i ].message, 'Merge pull request' ) )
+        {
+          if( !outputDiffPathsFilter( diff.output, true ).length )
+          return null;
+
+          let dateCon = o.onDate( commits[ i ].date, 'date', commits[ i ] );
+          let commitMessageCon = o.onCommitMessage( commits[ i ].message, 'message', commits[ i ] );
+          return _.Consequence.And( dateCon, commitMessageCon );
+        }
+        return null;
+      });
+      con.then( ( commitData ) =>
+      {
+        if( commitData )
+        {
+          _.assert( _.str.is( commitData[ 0 ] ), 'Callback {-o.onDate-} should return string date.' );
+          date = commitData[ 0 ].length > 0 ? `--date="${ commitData[ 0 ] }"` : '';
+          commitMessage = commitData[ 1 ];
+          process.env.GIT_COMMITTER_DATE = date;
+          return statusLocalGet( o.dstBasePath );
+        }
+        return null;
+      });
+      con.then( ( status ) =>
+      {
+        if( status && status.uncommitted )
+        {
+          const con2 = _.take( null );
+          con2.then( () =>
+          {
+            storeGitDir();
+            return null;
+          });
+          con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git add .` }) );
+          con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git commit -m '${ commitMessage }' ${ date }` }) );
+          con2.then( () =>
+          {
+            restoreGitDir();
+            return null;
+          });
+          return con2;
+        }
+        return null;
+      });
+    }
+
     return con;
   }
 
@@ -5376,16 +5405,14 @@ function repositoryMigrate( o )
 
   function onCommitData( value, key )
   {
-    const ready = new _.Consequence();
+    const con = new _.Consequence();
     const onMsg = ( data ) =>
     {
-      input.removeListener( 'data', onMsg );
-
       const message = data.trim();
       if( _.str.defined( message ) )
-      ready.take( data );
+      con.take( message );
       else
-      ready.take( value );
+      con.take( value );
     };
 
     const input = process.stdin;
@@ -5393,8 +5420,11 @@ function repositoryMigrate( o )
     logger.log( `Current commit ${ key } : "${ value }".` );
     logger.log( `Please, input new ${ key }.` );
     input.on( 'data', onMsg );
-    ready.deasync();
-    return ready.sync();
+    return con.then( ( data ) =>
+    {
+      input.removeListener( 'data', onMsg );
+      return data;
+    });
   }
 }
 
@@ -6527,7 +6557,7 @@ function _onDate_functor( o )
   {
     const time = Date.now();
     const dateObject = new Date( time + delta );
-    return dateObject.toISOString();
+    return dateObject.toString();
   }
 
   /* */
@@ -6536,7 +6566,7 @@ function _onDate_functor( o )
   {
     const time = Date.parse( date );
     const dateObject = new Date( time + delta );
-    return dateObject.toISOString();
+    return dateObject.toString();
   }
 
   /* */
