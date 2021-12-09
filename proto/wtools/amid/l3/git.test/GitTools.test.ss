@@ -21156,6 +21156,8 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
     test.identical( Date.parse( op[ 10 ].date ) - Date.parse( originalHistory[ 12 ].date ), 3600000 );
     test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), 3600000 );
+    for( let i = 0 ; i < op.length ; i++ )
+    test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
   });
 
@@ -21200,6 +21202,8 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.le( Date.parse( op[ 12 ].date ) - Date.now(), 3600000 );
     test.ge( Date.parse( op[ 0 ].date ) - Date.now(), 3500000 );
     test.le( Date.parse( op[ 0 ].date ) - Date.now(), 3600000 );
+    for( let i = 0 ; i < op.length ; i++ )
+    test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
   });
 
@@ -21242,6 +21246,8 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
     test.identical( Date.parse( op[ 10 ].date ) - Date.parse( originalHistory[ 12 ].date ), -3600000 );
     test.identical( Date.parse( op[ 0 ].date ) - Date.parse( originalHistory[ 0 ].date ), -3600000 );
+    for( let i = 0 ; i < op.length ; i++ )
+    test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
   });
 
@@ -21286,6 +21292,8 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.le( Date.now() - Date.parse( op[ 12 ].date ), 3700000 );
     test.ge( Date.now() - Date.parse( op[ 0 ].date ), 3500000 );
     test.le( Date.now() - Date.parse( op[ 0 ].date ), 3700000 );
+    for( let i = 0 ; i < op.length ; i++ )
+    test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
   });
 
@@ -21330,6 +21338,8 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.identical( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 3600000 );
     test.identical( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 3600000 );
     test.identical( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 3600000 );
+    for( let i = 0 ; i < op.length ; i++ )
+    test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
   });
 
@@ -21377,6 +21387,8 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4600000 );
     test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
     test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4600000 );
+    for( let i = 0 ; i < op.length ; i++ )
+    test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
   });
 
@@ -21418,7 +21430,7 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
     test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
 
-    test.ge( _.time.now() - Date.parse( op[ 14 ].date ), 48 * 3600 * 1000 - 3600 * 1000 );
+    test.ge( _.time.now() - Date.parse( op[ 14 ].date ), 48 * 3600 * 1000 - 7200 * 1000 );
     test.le( _.time.now() - Date.parse( op[ 14 ].date ), 48 * 3600 * 1000 + 7200 * 1000 );
     test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2500000 );
     test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4600000 );
@@ -21426,6 +21438,8 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4600000 );
     test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
     test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4600000 );
+    for( let i = 0 ; i < op.length ; i++ )
+    test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
   });
 
