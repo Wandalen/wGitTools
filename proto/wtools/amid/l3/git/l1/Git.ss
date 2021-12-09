@@ -6585,7 +6585,11 @@ function commitsDates( o )
   ready.then( ( commits ) => descriptors = commits );
   ready.then( () => start( `git reset --hard ${ state1 }~` ) );
   ready.then( () => writeCommits( descriptors ) );
-  ready.finally( () => start( `git branch --delete --force ${ tempBranch }` ) );
+  ready.finally( () =>
+  {
+    delete process.env.GIT_COMMITTER_DATE;
+    return start( `git branch --delete --force ${ tempBranch }` )
+  });
   ready.finally( ( err, arg ) =>
   {
     if( err )
@@ -6611,7 +6615,10 @@ function commitsDates( o )
       if( commits[ i ].hash === state2 )
       shouldUpdate = false;
       if( date.length )
-      date = `--date="${ date }"`;
+      {
+        date = `--date="${ date }"`;
+        process.env.GIT_COMMITTER_DATE = date;
+      }
       const author = `--author="${ commits[ i ].author } <${ commits[ i ].email }>"`
       return start( `git commit --allow-empty -m "${ commits[ i ].message }" ${ author } ${ date }` );
     });
