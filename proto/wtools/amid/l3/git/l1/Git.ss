@@ -452,46 +452,71 @@ function tagLocalChange( o )
   _.routine.options_( tagLocalChange, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let localTag = _.git.tagLocalRetrive
+  const ready = _.git.tagLocalRetrive
   ({
     localPath : o.localPath,
+    sync : 0,
     logger : o.logger
   });
+  ready.then( ( localTag ) =>
+  {
+    if( localTag === false )
+    return false;
 
-  if( localTag === false )
-  return false;
+    if( localTag === o.tag )
+    return true;
 
-  if( localTag === o.tag )
-  return true;
+    let start = _.process.starter
+    ({
+      logger : _.logger.relativeMaybe( o.logger, -1 ),
+      verbosity : o.logger ? o.logger.verbosity - 1 : 0,
+      sync : 0,
+      deasync : 0,
+      outputCollecting : 1,
+      currentPath : o.localPath,
+    });
 
-  let start = _.process.starter
-  ({
-    logger : _.logger.relativeMaybe( o.logger, -1 ),
-    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
-    sync : 1,
-    deasync : 0,
-    outputCollecting : 1,
-    currentPath : o.localPath,
+    let localChanges = false;
+    const con = _.take( null );
+    con.then( () => start( 'git status' ) );
+    con.then( ( result ) =>
+    {
+      localChanges = _.strHas( result.output, 'Changes to be committed' );
+      return null;
+    });
+    con.then( () =>
+    {
+      if( localChanges )
+      return start( 'git stash' );
+      return null;
+    });
+
+    con.then( () => start( 'git checkout ' + o.tag ) );
+
+    con.then( () =>
+    {
+      if( localChanges )
+      return start( 'git pop' );
+      return null;
+    });
+
+    return con.then( () => true );
   });
 
-  let result = start( 'git status' );
-  let localChanges = _.strHas( result.output, 'Changes to be committed' );
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
 
-  if( localChanges )
-  start( 'git stash' );
-
-  start( 'git checkout ' + o.tag );
-
-  if( localChanges )
-  start( 'git pop' );
-
-  return true;
+  return ready;
 }
 
 var defaults = tagLocalChange.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.tag = null
 defaults.logger = 0;
+defaults.sync = 1;
 
 //
 
