@@ -29151,6 +29151,8 @@ function commitsDates( test )
     test.ge( Date.parse( op[ 12 ].date ), Date.now() - 20000 );
     test.le( Date.parse( op[ 0 ].date ), Date.now() );
     test.ge( Date.parse( op[ 0 ].date ), Date.now() - 20000 );
+    for( let i = 0 ; i < op.length ; i++ )
+    test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
   });
 
@@ -29193,6 +29195,8 @@ function commitsDates( test )
     test.le( Date.parse( op[ 12 ].date ), Date.now() );
     test.ge( Date.parse( op[ 12 ].date ), Date.now() - 20000 );
     test.le( Date.parse( op[ 0 ].date ), Date.parse( originalHistory[ 0 ].date ) );
+    for( let i = 0 ; i < op.length ; i++ )
+    test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
   });
 
