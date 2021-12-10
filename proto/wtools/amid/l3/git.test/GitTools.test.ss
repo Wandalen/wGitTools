@@ -14583,7 +14583,7 @@ function repositoryHasTagRemotePathIsMap( test )
   }
 }
 
-repositoryHasTagRemotePathIsMap.timeOut = 60000;
+repositoryHasTagRemotePathIsMap.timeOut = 120000;
 
 //
 
