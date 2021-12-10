@@ -5481,6 +5481,8 @@ function repositoryHistoryToJson( o )
   .then( ( log ) =>
   {
     let commits = log.output;
+    if( process.platform === 'win32' )
+    commits = _.str.replace( commits, /\\/, '\\\\' );
     commits = _.str.replaceBegin( commits, '', '[\n' );
     commits = _.str.replaceEnd( commits, ',\n', '\n]' );
     return JSON.parse( commits );
