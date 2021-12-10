@@ -452,46 +452,71 @@ function tagLocalChange( o )
   _.routine.options_( tagLocalChange, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let localTag = _.git.tagLocalRetrive
+  const ready = _.git.tagLocalRetrive
   ({
     localPath : o.localPath,
+    sync : 0,
     logger : o.logger
   });
+  ready.then( ( localTag ) =>
+  {
+    if( localTag === false )
+    return false;
 
-  if( localTag === false )
-  return false;
+    if( localTag === o.tag )
+    return true;
 
-  if( localTag === o.tag )
-  return true;
+    let start = _.process.starter
+    ({
+      logger : _.logger.relativeMaybe( o.logger, -1 ),
+      verbosity : o.logger ? o.logger.verbosity - 1 : 0,
+      sync : 0,
+      deasync : 0,
+      outputCollecting : 1,
+      currentPath : o.localPath,
+    });
 
-  let start = _.process.starter
-  ({
-    logger : _.logger.relativeMaybe( o.logger, -1 ),
-    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
-    sync : 1,
-    deasync : 0,
-    outputCollecting : 1,
-    currentPath : o.localPath,
+    let localChanges = false;
+    const con = _.take( null );
+    con.then( () => start( 'git status' ) );
+    con.then( ( result ) =>
+    {
+      localChanges = _.strHas( result.output, 'Changes to be committed' );
+      return null;
+    });
+    con.then( () =>
+    {
+      if( localChanges )
+      return start( 'git stash' );
+      return null;
+    });
+
+    con.then( () => start( 'git checkout ' + o.tag ) );
+
+    con.then( () =>
+    {
+      if( localChanges )
+      return start( 'git pop' );
+      return null;
+    });
+
+    return con.then( () => true );
   });
 
-  let result = start( 'git status' );
-  let localChanges = _.strHas( result.output, 'Changes to be committed' );
+  if( o.sync )
+  {
+    ready.deasync();
+    return ready.sync();
+  }
 
-  if( localChanges )
-  start( 'git stash' );
-
-  start( 'git checkout ' + o.tag );
-
-  if( localChanges )
-  start( 'git pop' );
-
-  return true;
+  return ready;
 }
 
 var defaults = tagLocalChange.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.tag = null
 defaults.logger = 0;
+defaults.sync = 1;
 
 //
 
@@ -550,75 +575,74 @@ function tagLocalRetrive( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.strIs( o.localPath ), 'Expects local path' );
 
-  if( !_.git.isRepository({ localPath : o.localPath }) )
-  return false;
-
-  let gitPath = path.join( o.localPath, '.git' );
-
-  if( !localProvider.fileExists( gitPath ) )
-  return false;
-
-  let currentTag = localProvider.fileRead( path.join( gitPath, 'HEAD' ) );
-  let r = /^ref: refs\/heads\/(.+)\s*$/;
-
-  let found = r.exec( currentTag );
-  if( found )
+  let found;
+  const ready = _.git.isRepository({ localPath : o.localPath, sync : 0 });
+  ready.then( ( isRepository ) =>
   {
-    currentTag = found[ 1 ].trim();
-  }
-  else
+    if( isRepository )
+    {
+      let gitPath = path.join( o.localPath, '.git' );
+
+      if( !localProvider.fileExists( gitPath ) )
+      return false;
+
+      let currentTag = localProvider.fileRead( path.join( gitPath, 'HEAD' ) );
+      let r = /^ref: refs\/heads\/(.+)\s*$/;
+
+      found = r.exec( currentTag );
+      if( found )
+      {
+        return found[ 1 ].trim();
+      }
+      else
+      {
+        return _.git.repositoryVersionToTag
+        ({
+          localPath : o.localPath,
+          version : currentTag.trim(),
+          local : 1,
+          remote : 0,
+          sync : 0,
+        })
+        .then( ( tag ) =>
+        {
+          if( tag.length )
+          return ( _.strIs( tag ) ? tag : tag[ 0 ] );
+          else
+          return '';
+        });
+      }
+    }
+    return false;
+  });
+  ready.then( ( currentTag ) =>
   {
-    let tag = _.git.repositoryVersionToTag
-    ({
-      localPath : o.localPath,
-      version : currentTag.trim(),
-      local : 1,
-      remote : 0,
-    });
+    if( o.detailing )
+    {
+      let result = Object.create( null );
+      result.tag = currentTag;
+      result.isTag = !found && !!currentTag;
+      result.isBranch = !!found;
 
-    if( tag.length )
-    currentTag = _.strIs( tag ) ? tag : tag[ 0 ];
-    else
-    currentTag = '';
-  }
+      return result;
+    }
+    return currentTag;
+  });
 
-  // if( !found )
-  // {
-  //   let tag = _.git.repositoryVersionToTag
-  //   ({
-  //     localPath : o.localPath,
-  //     version : currentTag.trim(),
-  //     local : 1,
-  //     remote : 0,
-  //   });
-  //
-  //   if( !tag.length )
-  //   currentTag = '';
-  //   else
-  //   currentTag = _.strIs( tag ) ? tag : tag[ 0 ];
-  // }
-  // else
-  // {
-  //   currentTag = found[ 1 ].trim();
-  // }
-
-  if( o.detailing )
+  if( o.sync )
   {
-    let result = Object.create( null );
-    result.tag = currentTag;
-    result.isTag = !found && !!currentTag;
-    result.isBranch = !!found;
-
-    return result;
+    ready.deasync();
+    return ready.sync();
   }
 
-  return currentTag;
+  return ready;
 }
 
 var defaults = tagLocalRetrive.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.logger = 0;
 defaults.detailing = 0;
+defaults.sync = 1;
 
 //
 
@@ -4621,6 +4645,8 @@ function repositoryAgree( o )
   _.assert( arguments.length === 1, 'Expects single argument' );
   _.assert( _.str.defined( o.dstBasePath ), 'Expects local path to destination repository {-o.dstBasePath-}.' );
   _.assert( _.str.defined( o.srcBasePath ) || _.aux.is( o.srcBasePath ), 'Expects path to source repository {-o.srcBasePath-}.' );
+  _.assert( _.str.is( o.commitMessage ) || o.commitMessage === null, 'Expects string with commit message {-o.commitMessage-}' );
+  _.assert( _.longHasAny( [ 'src', 'dst', 'manual' ], o.mergeStrategy ) );
 
   /* */
 
@@ -4630,8 +4656,9 @@ function repositoryAgree( o )
   let basePath = o.dstBasePath;
   if( o.dstDirPath )
   basePath = _.git.path.join( o.dstBasePath, o.dstDirPath );
-  basePath = _.git.path.detrail( basePath );
-  o.dstBasePath = _.git.path.detrail( o.dstBasePath );
+  const parsed = _.git.path.parse( basePath );
+  delete parsed.tag;
+  basePath = _.git.path.detrail( _.git.path.str( parsed ) );
   let shouldRemove = false;
 
   const shell = _.process.starter
@@ -4644,31 +4671,39 @@ function repositoryAgree( o )
 
   if( basePath !== o.dstBasePath )
   ready.then( subrepositoryInitMaybe );
+  ready.then( () =>
+  {
+    if( !o.dstBranch )
+    o.dstBranch = branchFromPath( o.dstBasePath, true ) || _.git.tagLocalRetrive({ localPath : basePath });
+    _.sure
+    (
+      _.str.defined( o.dstBranch ),
+      'Expects defined branch in destination repository. Provide it by option {-o.dstBranch-} or in path.'
+    );
+    return null;
+  });
 
   const normalized = _.git.path.normalize( o.srcBasePath );
   const srcBasePath = _.git.path.nativize( normalized );
   const srcBasePathIsRepository = _.git.isRepository({ remotePath : normalized });
-  let srcBranch = 'master';
-  if( srcBasePathIsRepository )
-  srcBranch = branchFromPath( normalized, false ) || 'master';
-  if( !o.dstBranch )
-  o.dstBranch = branchFromPath( basePath, true ) || 'master';
 
   let srcState = o.srcState;
   if( o.srcState )
   srcState = _.git._stateParse( o.srcState ).value;
 
-  if( !o.commitMessage )
-  o.commitMessage = `Merge branch '${ srcBranch }' of ${ srcBasePath } into ${ o.dstBranch }`;
-  _.assert( _.str.is( o.commitMessage ), 'Expects string with commit message {-o.commitMessage-}' );
-
-  _.assert( _.longHasAny( [ 'src', 'dst', 'manual' ], o.mergeStrategy ) );
-
-  let remoteName;
-  remoteNameGenerate().then( ( name ) => { remoteName = name; return null });
+  let remoteName, srcBranch;
   let tempPath = _.fileProvider.path.tempOpen();
+  remoteNameGenerate().then( ( name ) => { remoteName = name; return null });
   ready.then( () => shell( `git remote add ${ remoteName } ${ tempPath }` ) );
-  tempRepositoryPrepare();
+  srcRepositoryPrepare();
+  ready.then( () =>
+  {
+    if( srcBasePathIsRepository )
+    srcBranch = branchFromPath( normalized, false ) || _.git.tagLocalRetrive({ localPath : tempPath });
+    else
+    srcBranch = 'master';
+    return null;
+  });
 
   /* */
 
@@ -4697,10 +4732,13 @@ function repositoryAgree( o )
       if( shouldRemove )
       _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
 
+      if( !o.commitMessage )
+      o.commitMessage = `Merge branch '${ srcBranch }' of ${ srcBasePath } into ${ o.dstBranch }`;
+
       if( uncommittedFiles === undefined || uncommittedFiles.length )
       {
-        shell({ currentPath : o.dstBasePath, execPath : 'git add .' });
-        return shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ o.commitMessage }"` });
+        shell({ currentPath : basePath, execPath : 'git add .' });
+        return shell({ currentPath : basePath, execPath : `git commit -m "${ o.commitMessage }"` });
       }
     }
     return null;
@@ -4728,7 +4766,11 @@ function repositoryAgree( o )
 
   function subrepositoryInitMaybe()
   {
-    _.assert( _.str.begins( basePath, o.dstBasePath ), '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}' );
+    _.assert
+    (
+      _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( o.dstBasePath ).longPath ) ),
+      '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}.'
+    );
 
     if( !_.fileProvider.fileExists( basePath ) )
     _.fileProvider.dirMake( basePath );
@@ -4772,7 +4814,7 @@ function repositoryAgree( o )
       unpushedTags : 0,
       unpushedBranches : 0,
       explaining : 1,
-      detailing : 1
+      detailing : 1,
     });
   }
 
@@ -4786,12 +4828,12 @@ function repositoryAgree( o )
       const tagDescriptor = _.git.tagExplain
       ({
         remotePath : path,
-        localPath : o.dstBasePath,
+        localPath : basePath,
         tag : parsed.tag,
         remote : !local,
         local,
       });
-      if( tagDescriptor.isBranch )
+      if( tagDescriptor.isBranch && _.str.has( path, _.git.path.tagToken ) )
       return parsed.tag;
     }
     return null;
@@ -4814,7 +4856,7 @@ function repositoryAgree( o )
 
   /* */
 
-  function tempRepositoryPrepare()
+  function srcRepositoryPrepare()
   {
     if( srcBasePathIsRepository )
     {
@@ -4949,8 +4991,9 @@ function repositoryMigrate( o )
   let basePath = o.dstBasePath;
   if( o.dstDirPath )
   basePath = _.git.path.join( o.dstBasePath, o.dstDirPath );
-  basePath = _.git.path.detrail( basePath );
-  o.dstBasePath = _.git.path.detrail( o.dstBasePath );
+  const parsed = _.git.path.parse( basePath );
+  delete parsed.tag;
+  basePath = _.git.path.detrail( _.git.path.str( parsed ) );
   let shouldRemove = false;
 
   const shell = _.process.starter
@@ -4963,36 +5006,57 @@ function repositoryMigrate( o )
 
   if( basePath !== o.dstBasePath )
   ready.then( subrepositoryInitMaybe );
+  ready.then( () =>
+  {
+    if( !o.dstBranch )
+    o.dstBranch = branchFromPath( o.dstBasePath, true ) || _.git.tagLocalRetrive({ localPath : basePath });
+    _.sure
+    (
+      _.str.defined( o.dstBranch ),
+      'Expects defined branch in destination repository. Provide it by option {-o.dstBranch-} or in path.'
+    );
+    return null;
+  });
 
   const normalized = _.git.path.normalize( o.srcBasePath );
   const srcBasePath = _.git.path.nativize( normalized );
   if( !o.srcBranch )
-  o.srcBranch = branchFromPath( normalized, false ) || 'master';
-  if( !o.dstBranch )
-  o.dstBranch = branchFromPath( o.dstBasePath, true ) || 'master';
+  o.srcBranch = branchFromPath( normalized, false ) || _.git.tagLocalRetrive({ localPath : _.git.path.nativize( normalized ) });
 
   let srcState1 = o.srcState1;
   let srcState2 = o.srcState2;
   if( o.srcState1 )
   srcState1 = _.git._stateParse( o.srcState1 ).value;
+  _.assert( _.str.defined( srcState1 ), 'Expects state {-o.srcState1-} to start with.' );
   if( o.srcState2 )
   srcState2 = _.git._stateParse( o.srcState2 ).value;
-  _.assert( _.str.defined( srcState1 ), 'Expects state {-o.srcState1-} to start with.' );
 
   if( !o.onCommitMessage )
+  if( !o.editMessage )
   o.onCommitMessage = ( e ) => e;
+  if( o.editMessage )
+  {
+    _.assert( !o.onCommitMessage, 'Expects manual or automated commit message editing, but not both.' );
+    o.onCommitMessage = onCommitData;
+  }
   if( _.str.is( o.onCommitMessage ) )
   {
     let msg = o.onCommitMessage;
     o.onCommitMessage = ( e ) => msg;
   }
-  _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}' );
+  _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}.' );
 
   if( o.onDate === null )
+  if( !o.editDate )
   o.onDate = ( e ) => e;
+  if( o.editDate )
+  {
+    _.assert( !o.onDate, 'Expects manual or automated commit date editing, but not both.' );
+    o.onCommitMessage = onCommitData;
+  }
   if( _.aux.is( o.onDate ) )
   o.onDate = _.git._onDate_functor( o.onDate );
-  _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}' );
+  _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}.' );
 
   let remoteName = remoteNameGenerate();
   const config = _.git.configRead( o.dstBasePath );
@@ -5004,6 +5068,7 @@ function repositoryMigrate( o )
   ready.then( () => shell( `git fetch ${ remoteName }` ) );
   verifyRepositoriesHasSameFiles()
 
+  let commitsArray = [];
   ready.then( () =>
   {
     return _.git.repositoryHistoryToJson
@@ -5013,11 +5078,25 @@ function repositoryMigrate( o )
       state2 : o.srcState2 || `!${ remoteName }/${ o.srcBranch }`,
     });
   });
-  ready.then( ( commitsArray ) => writeCommits( commitsArray ) );
+  ready.then( ( commits ) =>
+  {
+    commitsArray = commits;
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : o.dstBasePath,
+      state1 : '#HEAD',
+      state2 : '#HEAD',
+    });
+  });
+  ready.then( ( head ) => writeCommits( head, commitsArray ) );
   ready.finally( ( err, arg ) =>
   {
     if( err )
-    error = err;
+    {
+      _.error.attend( err );
+      error = err;
+    }
+    delete process.env.GIT_COMMITTER_DATE;
     if( shouldRemove )
     {
       _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
@@ -5041,7 +5120,11 @@ function repositoryMigrate( o )
 
   function subrepositoryInitMaybe()
   {
-    _.assert( _.str.begins( basePath, o.dstBasePath ), '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}' );
+    _.assert
+    (
+      _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( o.dstBasePath ).longPath ) ),
+      '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}.'
+    );
 
     if( !_.fileProvider.fileExists( basePath ) )
     _.fileProvider.dirMake( basePath );
@@ -5105,7 +5188,12 @@ function repositoryMigrate( o )
         remote : !local,
         local,
       });
-      if( tagDescriptor.isBranch )
+
+      if
+      (
+        tagDescriptor.isBranch
+        && ( _.str.has( path, _.git.path.tagToken ) || !_.longHasAny( parsed.protocols, [ 'hd', 'file' ] ) )
+      )
       return parsed.tag;
     }
     return null;
@@ -5142,9 +5230,10 @@ function repositoryMigrate( o )
 
   /* */
 
-  function writeCommits( commits )
+  function writeCommits( head, commits )
   {
-    let con = _.take( null );
+    const length = commits.length;
+
     const gitDir = _.git.path.join( basePath, '.git' );
     const tempGitDir = _.git.path.join( o.dstBasePath, '../-git.temp' );
     let storeGitDir = () => {};
@@ -5154,7 +5243,7 @@ function repositoryMigrate( o )
       storeGitDir = () =>
       {
         _.fileProvider.fileRename( tempGitDir, gitDir );
-      }
+      };
       restoreGitDir = ( e ) =>
       {
         _.fileProvider.fileRename( gitDir, tempGitDir );
@@ -5162,39 +5251,70 @@ function repositoryMigrate( o )
       };
     }
 
-    for( let i = commits.length - 1 ; i >= 0 ; i-- )
-    shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }`, ready : con })
-    .then( () => shell( `git diff --name-only HEAD` ) )
-    .then( ( diff ) =>
+    const con = _.take( null );
+    con.then( () => o.onDate( commits[ length - 1 ].date, 'date', commits[ length - 1 ] ) );
+    con.then( ( startCommitDate ) =>
     {
-      if( diff.output )
-      if( !_.str.begins( commits[ i ].message, 'Merge pull request' ) )
-      {
-        let files = outputDiffPathsFilter( diff.output, true );
-
-        if( files.length )
-        {
-          let date = o.onDate( commits[ i ].date );
-          _.assert( _.str.is( date ), 'Callback {-o.onDate-} should return string date.' );
-          date = date.length > 0 ? `--date="${ date }"` : '';
-          let commitMessage = o.onCommitMessage( commits[ i ].message );
-
-          return statusLocalGet( o.dstBasePath )
-          .then( ( status ) =>
-          {
-            if( status.uncommitted )
-            {
-              storeGitDir();
-              shell({ currentPath : o.dstBasePath, execPath : `git add .` });
-              return shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ commitMessage }" ${ date }` })
-              .then( restoreGitDir );
-            }
-            return null;
-          });
-        }
-      }
+      const headDate = Date.parse( head[ 0 ].date );
+      const commitStartDate = Date.parse( startCommitDate ) || _.time.now();
+      _.assert( headDate <= commitStartDate, 'New commit should be newer than last commit in branch.' );
       return null;
     });
+
+    let commitMessage, date;
+    for( let i = length - 1 ; i >= 0 ; i-- )
+    {
+      con.then( () => shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }` }) );
+      con.then( () => shell( `git diff --name-only HEAD` ) );
+      con.then( ( diff ) =>
+      {
+        if( diff.output )
+        if( !_.str.begins( commits[ i ].message, 'Merge pull request' ) )
+        {
+          if( !outputDiffPathsFilter( diff.output, true ).length )
+          return null;
+
+          let dateCon = o.onDate( commits[ i ].date, 'date', commits[ i ] );
+          let commitMessageCon = o.onCommitMessage( commits[ i ].message, 'message', commits[ i ] );
+          return _.Consequence.And( dateCon, commitMessageCon );
+        }
+        return null;
+      });
+      con.then( ( commitData ) =>
+      {
+        if( commitData )
+        {
+          _.assert( _.str.is( commitData[ 0 ] ), 'Callback {-o.onDate-} should return string date.' );
+          date = commitData[ 0 ].length > 0 ? `--date="${ commitData[ 0 ] }"` : '';
+          commitMessage = commitData[ 1 ];
+          process.env.GIT_COMMITTER_DATE = date;
+          return statusLocalGet( o.dstBasePath );
+        }
+        return null;
+      });
+      con.then( ( status ) =>
+      {
+        if( status && status.uncommitted )
+        {
+          const con2 = _.take( null );
+          con2.then( () =>
+          {
+            storeGitDir();
+            return null;
+          });
+          con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git add .` }) );
+          con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ commitMessage }" ${ date }` }) );
+          con2.then( () =>
+          {
+            restoreGitDir();
+            return null;
+          });
+          return con2;
+        }
+        return null;
+      });
+    }
+
     return con;
   }
 
@@ -5280,6 +5400,32 @@ function repositoryMigrate( o )
     shell({ execPath : `git clean -df`, sync : 1 });
     shell({ execPath : `git checkout ./`, sync : 1 });
   }
+
+  /* */
+
+  function onCommitData( value, key )
+  {
+    const con = new _.Consequence();
+    const onMsg = ( data ) =>
+    {
+      const message = data.trim();
+      if( _.str.defined( message ) )
+      con.take( message );
+      else
+      con.take( value );
+    };
+
+    const input = process.stdin;
+    input.setEncoding( 'utf-8' );
+    logger.log( `Current commit ${ key } : "${ value }".` );
+    logger.log( `Please, input new ${ key }.` );
+    input.on( 'data', onMsg );
+    return con.then( ( data ) =>
+    {
+      input.removeListener( 'data', onMsg );
+      return data;
+    });
+  }
 }
 
 repositoryMigrate.defaults =
@@ -5292,10 +5438,14 @@ repositoryMigrate.defaults =
   dstBranch : null,
   srcDirPath : null,
   dstDirPath : null,
-  onCommitMessage : null,
-  onDate : null,
   but : null,
   only : null,
+
+  onCommitMessage : null,
+  onDate : null,
+  editMessage : 0,
+  editDate : 0,
+
   logger : 0,
 };
 
@@ -5316,7 +5466,8 @@ function repositoryHistoryToJson( o )
   + '  \\"email\\" : \\"%ae\\",%n'
   + '  \\"hash\\" : \\"%H\\",%n'
   + '  \\"message\\" : \\"%s\\",%n'
-  + `  \\"date\\" : \\"%ai\\"%n`
+  + `  \\"date\\" : \\"%ai\\",%n`
+  + `  \\"commiterDate\\" : \\"%ci\\"%n`
   + '},';
 
   return _.process.start
@@ -5330,6 +5481,8 @@ function repositoryHistoryToJson( o )
   .then( ( log ) =>
   {
     let commits = log.output;
+    if( process.platform === 'win32' )
+    commits = _.str.replace( commits, /\\/, '\\\\' );
     commits = _.str.replaceBegin( commits, '', '[\n' );
     commits = _.str.replaceEnd( commits, ',\n', '\n]' );
     return JSON.parse( commits );
@@ -6352,27 +6505,39 @@ function _onDate_functor( o )
 {
   _.assert( arguments.length === 1 );
   _.mapSupplementNulls( o, _onDate_functor.defaults );
-  _.assert( _.longHas( [ 'now', 'commit' ], o.relative ), 'Expects option {-o.relative-} with value "now" or "commit".' );
+  _.assert
+  (
+    _.longHas( [ 'now', 'commit', 'fromFirst' ], o.relative ),
+    () => 'Expects option {-o.relative-} with value "now" or "commit".'
+  );
   _.assert( _.number.intIs( o.delta ) || _.str.is( o.delta ) );
   _.assert( _.number.intIs( o.periodic ) || _.str.is( o.periodic ) );
   _.assert( _.number.intIs( o.deviation ) || _.str.is( o.deviation ) );
 
   const delta = _getDelta( o.delta );
 
-  let onDate = dateNow;
   if( o.periodic )
   {
-    onDate = onDatePeriodic_functor();
+    return onDatePeriodic_functor();
   }
   else
   {
-    if( o.relative === 'now' && delta !== 0 )
-    onDate = dateNowWithDelta;
-    if( o.relative === 'commit' && delta !== 0 )
-    onDate = dateCommitWithDelta;
-  }
+    if( o.relative === 'now' )
+    {
+      if( delta === 0 )
+      return dateNow;
+      else
+      return dateNowWithDelta;
+    }
 
-  return onDate;
+    if( o.relative === 'commit' || o.relative === 'fromFirst' )
+    {
+      if( delta === 0 )
+      return dateCommit;
+      else
+      return dateCommitWithDelta;
+    }
+  }
 
   /* */
 
@@ -6383,11 +6548,18 @@ function _onDate_functor( o )
 
   /* */
 
+  function dateCommit( date )
+  {
+    return date;
+  }
+
+  /* */
+
   function dateNowWithDelta( date )
   {
     const time = Date.now();
     const dateObject = new Date( time + delta );
-    return dateObject.toISOString();
+    return dateObject.toString();
   }
 
   /* */
@@ -6396,7 +6568,7 @@ function _onDate_functor( o )
   {
     const time = Date.parse( date );
     const dateObject = new Date( time + delta );
-    return dateObject.toISOString();
+    return dateObject.toString();
   }
 
   /* */
@@ -6411,19 +6583,30 @@ function _onDate_functor( o )
     _.assert( period >= 0 );
     const deviation = _getDelta( o.deviation );
     _.assert( deviation >= 0 );
+    _.assert( deviation <= period, 'Deviation cannot be bigger than period.' );
 
     if( o.relative === 'now' )
     return datePeriodicNow;
+    if( o.relative === 'fromFirst' )
+    return datePeriodicCommitStrict;
     return datePeriodicCommit;
 
     function datePeriodicNow( date )
     {
       let result = startTime + ( counter * period ) + ( Math.random() * 2 * deviation - deviation );
       counter++;
-      return new Date( result ).toISOString();
+      return new Date( result ).toString();
     }
 
     function datePeriodicCommit( date )
+    {
+      const time = Date.parse( date ) + delta;
+      let result = time + ( counter * period ) + ( Math.random() * 2 * deviation - deviation );
+      counter++;
+      return new Date( result ).toString();
+    }
+
+    function datePeriodicCommitStrict( date )
     {
       if( startTime === undefined )
       startTime = Date.parse( date ) + delta;
@@ -6437,7 +6620,7 @@ function _onDate_functor( o )
 
 _onDate_functor.defaults =
 {
-  relative : 'now', // [ 'now', 'commit' ]
+  relative : 'now', // [ 'now', 'commit', 'fromFirst' ]
   delta : null,
   periodic : 0,
   deviation : 0,
@@ -6478,14 +6661,20 @@ function commitsDates( o )
   const state1 = _.git._stateParse( o.state1 ).value;
   const state2 = _.git._stateParse( o.state2 ).value;
 
+  let descriptors;
   ready.then( () => start( `git checkout ${ state1 }~` ) );
   ready.then( () => start( `git checkout -b ${ tempBranch }` ) );
   ready.then( () => start( `git merge ${ parsed.tag } ${ tempBranch }` ) );
   ready.then( () => start( `git checkout ${ parsed.tag }` ) );
-  ready.then( () => start( `git reset --hard ${ state1 }~` ) );
   ready.then( () => _.git.repositoryHistoryToJson({ localPath : o.localPath, state1 : o.state1, state2 : `!${ tempBranch }` }) );
-  ready.then( ( descriptors ) => writeCommits( descriptors ) );
-  ready.finally( () => start( `git branch --delete --force ${ tempBranch }` ) );
+  ready.then( ( commits ) => descriptors = commits );
+  ready.then( () => start( `git reset --hard ${ state1 }~` ) );
+  ready.then( () => writeCommits( descriptors ) );
+  ready.finally( () =>
+  {
+    delete process.env.GIT_COMMITTER_DATE;
+    return start( `git branch --delete --force ${ tempBranch }` )
+  });
   ready.finally( ( err, arg ) =>
   {
     if( err )
@@ -6511,7 +6700,10 @@ function commitsDates( o )
       if( commits[ i ].hash === state2 )
       shouldUpdate = false;
       if( date.length )
-      date = `--date="${ date }"`;
+      {
+        date = `--date="${ date }"`;
+        process.env.GIT_COMMITTER_DATE = date;
+      }
       const author = `--author="${ commits[ i ].author } <${ commits[ i ].email }>"`
       return start( `git commit --allow-empty -m "${ commits[ i ].message }" ${ author } ${ date }` );
     });
