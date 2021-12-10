@@ -5303,7 +5303,7 @@ function repositoryMigrate( o )
             return null;
           });
           con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git add .` }) );
-          con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git commit -m '${ commitMessage }' ${ date }` }) );
+          con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ commitMessage }" ${ date }` }) );
           con2.then( () =>
           {
             restoreGitDir();
