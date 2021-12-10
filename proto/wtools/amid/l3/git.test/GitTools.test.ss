@@ -14817,7 +14817,7 @@ function repositoryHasTagWithOptionReturnVersion( test )
   }
 }
 
-repositoryHasTagWithOptionReturnVersion.timeOut = 60000;
+repositoryHasTagWithOptionReturnVersion.timeOut = 120000;
 
 //
 
