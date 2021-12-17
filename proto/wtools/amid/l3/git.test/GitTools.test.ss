@@ -21476,12 +21476,12 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
     test.notIdentical( op[ 0 ], originalHistory[ 0 ] );
     test.identical( op[ 0 ].message, originalHistory[ 0 ].message );
 
-    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2500000 );
-    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4600000 );
-    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2500000 );
-    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4600000 );
-    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
-    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4600000 );
+    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2400000 );
+    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 5000000 );
+    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2400000 );
+    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 5000000 );
+    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2400000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 5000000 );
     for( let i = 0 ; i < op.length ; i++ )
     test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
@@ -21527,12 +21527,12 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
 
     test.ge( _.time.now() - Date.parse( op[ 14 ].date ), 48 * 3600 * 1000 - 7200 * 1000 );
     test.le( _.time.now() - Date.parse( op[ 14 ].date ), 48 * 3600 * 1000 + 7200 * 1000 );
-    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2500000 );
-    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 4600000 );
-    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2500000 );
-    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 4600000 );
-    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2500000 );
-    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 4600000 );
+    test.ge( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 2400000 );
+    test.le( Date.parse( op[ 11 ].date ) - Date.parse( op[ 12 ].date ), 5000000 );
+    test.ge( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 2400000 );
+    test.le( Date.parse( op[ 10 ].date ) - Date.parse( op[ 11 ].date ), 5000000 );
+    test.ge( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 2400000 );
+    test.le( Date.parse( op[ 0 ].date ) - Date.parse( op[ 1 ].date ), 5000000 );
     for( let i = 0 ; i < op.length ; i++ )
     test.identical( op[ i ].date, op[ i ].commiterDate );
     return null;
