@@ -4766,9 +4766,10 @@ function repositoryAgree( o )
 
   function subrepositoryInitMaybe()
   {
+    const dstBasePath = _.git.path.normalize( o.dstBasePath );
     _.assert
     (
-      _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( o.dstBasePath ).longPath ) ),
+      _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( dstBasePath ).longPath ) ),
       '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}.'
     );
 
@@ -5120,9 +5121,10 @@ function repositoryMigrate( o )
 
   function subrepositoryInitMaybe()
   {
+    const dstBasePath = _.git.path.normalize( o.dstBasePath );
     _.assert
     (
-      _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( o.dstBasePath ).longPath ) ),
+      _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( dstBasePath ).longPath ) ),
       '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}.'
     );
 
