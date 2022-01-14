@@ -23630,6 +23630,153 @@ function repositoryMigrateWithOptionLogger( test )
 
 //
 
+function repositoryMigrateWithOptionDry( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+  const user = a.shell({ currentPath : __dirname, execPath : 'git config --global user.name', sync : 1 }).output.trim();
+
+  /* - */
+
+  begin({ srcRepositoryRemote, dry : 0 });
+  agree( '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 0 );
+    return null;
+  });
+  a.shell( 'node testApp' );
+  a.ready.then( ( op ) =>
+  {
+    test.case = 'logger - 2';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'List of commits to migrate :' ), 1 );
+    test.identical( _.strCount( op.output, 'author' ), 18 );
+    test.identical( _.strCount( op.output, 'email' ), 18 );
+    test.identical( _.strCount( op.output, 'hash' ), 18 );
+    test.identical( _.strCount( op.output, 'message' ), 18 );
+    test.identical( _.strCount( op.output, 'date' ), 18 );
+    test.identical( _.strCount( op.output, 'commiterDate' ), 18 );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
+  /* */
+
+  begin({ srcRepositoryRemote, dry : 1 });
+  agree( '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 0 );
+    return null;
+  });
+  a.shell( 'node testApp' );
+  a.ready.then( ( op ) =>
+  {
+    test.case = 'logger - 2';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'List of commits to migrate :' ), 1 );
+    test.identical( _.strCount( op.output, 'author' ), 18 );
+    test.identical( _.strCount( op.output, 'email' ), 18 );
+    test.identical( _.strCount( op.output, 'hash' ), 18 );
+    test.identical( _.strCount( op.output, 'message' ), 18 );
+    test.identical( _.strCount( op.output, 'date' ), 18 );
+    test.identical( _.strCount( op.output, 'commiterDate' ), 18 );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 0 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin( locals )
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    a.shell( `git reset --hard ${ dstCommit }` );
+    a.ready.then( () => a.program({ entry : testApp, locals }) );
+    return a.ready;
+  }
+
+  /* */
+
+  function agree( state )
+  {
+    a.ready.then( () =>
+    {
+      return _.git.repositoryAgree
+      ({
+        srcBasePath : srcRepositoryRemote,
+        dstBasePath : a.abs( '.' ),
+        srcState : state,
+        dstBranch : 'master',
+        mergeStrategy : 'src',
+      });
+    });
+    a.ready.then( () =>
+    {
+      const start = Date.parse( '2021-08-11 14:09:46 +0300' );
+      const delta = start - _.time.now() - 3600000;
+      return _.git.commitsDates
+      ({
+        localPath : a.abs( '.' ),
+        state1 : '#HEAD',
+        relative : 'commit',
+        delta,
+      });
+    });
+    return a.ready;
+  }
+
+  /* */
+
+  function testApp()
+  {
+    const _ = require( toolsPath );
+    _.include( 'wGitTools' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : __dirname,
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      onCommitMessage : '__sync__',
+      logger : 2,
+      dry,
+    });
+  }
+}
+
+//
+
 function repositoryHistoryToJson( test )
 {
   const a = test.assetFor( false );
@@ -32589,6 +32736,7 @@ const Proto =
     repositoryMigrateWithOptionSrcDirPath,
     repositoryMigrateWithOptionDstDirPath,
     repositoryMigrateWithOptionLogger,
+    repositoryMigrateWithOptionDry,
 
     repositoryHistoryToJson,
 
