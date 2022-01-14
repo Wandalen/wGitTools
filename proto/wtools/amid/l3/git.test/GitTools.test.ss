@@ -23628,6 +23628,8 @@ function repositoryMigrateWithOptionLogger( test )
   }
 }
 
+repositoryMigrateWithOptionLogger.timeOut = 60000;
+
 //
 
 function repositoryMigrateWithOptionDry( test )
