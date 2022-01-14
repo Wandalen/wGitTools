@@ -20486,6 +20486,103 @@ function repositoryAgreeWithSingleRepository( test )
 
 //
 
+function repositoryAgreeWithOptionLogger( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  begin({ srcRepositoryRemote, logger : 0 }).then( () =>
+  {
+    test.case = 'logger - 0';
+    return null;
+  });
+  a.shell( 'node testApp' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'doc/ModuleForTesting2.md' ), 1 );
+    test.identical( _.strCount( op.output, 'out/wModuleForTesting2.out.will.yml' ), 1 );
+    test.identical( _.strCount( op.output, 'proto/node_modules/wmodulefortesting2' ), 1 );
+    test.identical( _.strCount( op.output, 'proto/wtools/testing/l2/testing2/ModuleForTesting2.s' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin({ srcRepositoryRemote, logger : 1 }).then( () =>
+  {
+    test.case = 'logger - 1';
+    return null;
+  });
+  a.shell( 'node testApp' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'doc/ModuleForTesting2.md' ), 1 );
+    test.identical( _.strCount( op.output, 'out/wModuleForTesting2.out.will.yml' ), 1 );
+    test.identical( _.strCount( op.output, 'proto/node_modules/wmodulefortesting2' ), 1 );
+    test.identical( _.strCount( op.output, 'proto/wtools/testing/l2/testing2/ModuleForTesting2.s' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin({ srcRepositoryRemote, logger : 2 }).then( () =>
+  {
+    test.case = 'logger - 2';
+    return null;
+  });
+  a.shell( 'node testApp' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'doc/ModuleForTesting2.md' ), 2 );
+    test.identical( _.strCount( op.output, 'out/wModuleForTesting2.out.will.yml' ), 2 );
+    test.identical( _.strCount( op.output, 'proto/node_modules/wmodulefortesting2' ), 2 );
+    test.identical( _.strCount( op.output, 'proto/wtools/testing/l2/testing2/ModuleForTesting2.s' ), 2 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin( locals )
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    a.shell( `git reset --hard ${ dstCommit }` );
+    a.ready.then( () => a.program({ entry : testApp, locals }));
+    return a.ready;
+  }
+
+  function testApp()
+  {
+    const _ = require( toolsPath );
+    _.include( 'wGitTools' );
+
+    return _.git.repositoryAgree
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : __dirname,
+      srcState : null,
+      dstBranch : 'master',
+      mergeStrategy : 'dst',
+      commitMessage : null,
+      logger,
+    });
+  }
+}
+
+//
+
 function repositoryMigrate( test )
 {
   const a = test.assetFor( false );
@@ -32114,7 +32211,6 @@ renormalizeAudit.timeOut = 15000;
 
 const Proto =
 {
-
   name : 'Tools.mid.GitTools',
   abstract : 0,
   silencing : 1,
@@ -32243,6 +32339,7 @@ const Proto =
     repositoryAgreeWithOptionSrcDirPath,
     repositoryAgreeWithOptionDstDirPath,
     repositoryAgreeWithSingleRepository,
+    repositoryAgreeWithOptionLogger,
 
     repositoryMigrate,
     repositoryMigrateWithLocalRepository,
@@ -32297,8 +32394,7 @@ const Proto =
     renormalizeAudit,
 
   },
-
-}
+};
 
 //
 
