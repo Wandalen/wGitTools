@@ -4661,12 +4661,13 @@ function repositoryAgree( o )
   basePath = _.git.path.detrail( _.git.path.str( parsed ) );
   let shouldRemove = false;
 
+  const logger = _.logger.relativeMaybe( o.logger, -1 );
   const shell = _.process.starter
   ({
-    logger : _.logger.relativeMaybe( o.logger, -1 ),
-    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
+    logger,
     currentPath : basePath,
-    outputCollecting : 1,
+    inputMirroring : 0,
+    outputCollecting : 0,
   });
 
   if( basePath !== o.dstBasePath )
@@ -4709,40 +4710,54 @@ function repositoryAgree( o )
 
   ready.then( () => _.git.tagLocalChange({ localPath : basePath, tag : o.dstBranch }) );
   ready.then( () => shell( `git fetch ${ remoteName }` ) );
+
+  if( logger )
   ready.then( () =>
   {
-    let strategy = '-s recursive';
-    if( o.mergeStrategy !== 'manual' )
-    strategy += ` -X ${ o.mergeStrategy === 'src' ? 'theirs' : 'ours' }`;
-    const mergeBranch = `${ remoteName }/${ srcBranch }`;
-
+    logger.log( 'Files that will be merged :' );
     return shell
     ({
-      execPath : `git merge ${ strategy } --allow-unrelated-histories --squash ${ mergeBranch } ${ o.dstBranch }`,
-      currentPath : basePath,
+      execPath : `git diff --name-only ${ o.dstBranch }..${ remoteName }/${ srcBranch }`,
+      outputCollecting : 1
     });
   });
-
-  ready.then( () => statusLocalGet() );
-  ready.then( ( status ) =>
+  if( !o.dry )
   {
-    if( status.uncommitted )
+    ready.then( () =>
     {
-      let uncommittedFiles = filesFilter( status.uncommitted );
-      if( shouldRemove )
-      _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
+      let strategy = '-s recursive';
+      if( o.mergeStrategy !== 'manual' )
+      strategy += ` -X ${ o.mergeStrategy === 'src' ? 'theirs' : 'ours' }`;
+      const mergeBranch = `${ remoteName }/${ srcBranch }`;
 
-      if( !o.commitMessage )
-      o.commitMessage = `Merge branch '${ srcBranch }' of ${ srcBasePath } into ${ o.dstBranch }`;
+      return shell
+      ({
+        execPath : `git merge ${ strategy } --allow-unrelated-histories --squash ${ mergeBranch } ${ o.dstBranch }`,
+        currentPath : basePath,
+      });
+    });
 
-      if( uncommittedFiles === undefined || uncommittedFiles.length )
+    ready.then( () => statusLocalGet() );
+    ready.then( ( status ) =>
+    {
+      if( status.uncommitted )
       {
-        shell({ currentPath : basePath, execPath : 'git add .' });
-        return shell({ currentPath : basePath, execPath : `git commit -m "${ o.commitMessage }"` });
+        let uncommittedFiles = filesFilter( status.uncommitted );
+        if( shouldRemove )
+        _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
+
+        if( !o.commitMessage )
+        o.commitMessage = `Merge branch '${ srcBranch }' of ${ srcBasePath } into ${ o.dstBranch }`;
+
+        if( uncommittedFiles === undefined || uncommittedFiles.length )
+        {
+          shell({ currentPath : basePath, execPath : 'git add .' });
+          return shell({ currentPath : basePath, execPath : `git commit -m "${ o.commitMessage }"` });
+        }
       }
-    }
-    return null;
-  });
+      return null;
+    });
+  }
   ready.finally( ( err, arg ) =>
   {
     if( err )
@@ -4973,6 +4988,7 @@ repositoryAgree.defaults =
   but : null,
   only : null,
   logger : 0,
+  dry : 0,
 };
 
 //
