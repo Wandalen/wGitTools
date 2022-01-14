@@ -6,6 +6,7 @@
 const _ = _global_.wTools;
 _.git = _.git || Object.create( null );
 let Ini = null;
+let Prompt = null;
 
 // --
 // dichotomy
@@ -5038,7 +5039,7 @@ function repositoryMigrate( o )
   if( o.editMessage )
   {
     _.assert( !o.onCommitMessage, 'Expects manual or automated commit message editing, but not both.' );
-    o.onCommitMessage = onCommitData;
+    o.onCommitMessage = onCommitData_functor();
   }
   if( _.str.is( o.onCommitMessage ) )
   {
@@ -5053,7 +5054,7 @@ function repositoryMigrate( o )
   if( o.editDate )
   {
     _.assert( !o.onDate, 'Expects manual or automated commit date editing, but not both.' );
-    o.onCommitMessage = onCommitData;
+    o.onCommitMessage = onCommitData_functor();
   }
   if( _.aux.is( o.onDate ) )
   o.onDate = _.git._onDate_functor( o.onDate );
@@ -5405,28 +5406,25 @@ function repositoryMigrate( o )
 
   /* */
 
-  function onCommitData( value, key )
+  function onCommitData_functor()
   {
-    const con = new _.Consequence();
-    const onMsg = ( data ) =>
-    {
-      const message = data.trim();
-      if( _.str.defined( message ) )
-      con.take( message );
-      else
-      con.take( value );
-    };
+    const Prompt = require( 'prompts' );
+    const localLogger = logger ? logger : console;
 
-    const input = process.stdin;
-    input.setEncoding( 'utf-8' );
-    logger.log( `Current commit ${ key } : "${ value }".` );
-    logger.log( `Please, input new ${ key }.` );
-    input.on( 'data', onMsg );
-    return con.then( ( data ) =>
+    /* */
+
+    return async function onCommitData( value, key )
     {
-      input.removeListener( 'data', onMsg );
-      return data;
-    });
+      localLogger.log( `Current commit ${ key } : "${ value }".` );
+      const response = await Prompt
+      ({
+        type: 'text',
+        name: 'data',
+        message: `Please, input new ${ key } :`,
+      });
+
+      return response.data || value;
+    }
   }
 }
 
