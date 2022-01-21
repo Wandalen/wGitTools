@@ -4649,12 +4649,13 @@ function repositoryAgree( o )
   basePath = _.git.path.detrail( _.git.path.str( parsed ) );
   let shouldRemove = false;
 
+  const logger = _.logger.relativeMaybe( o.logger, -1 );
   const shell = _.process.starter
   ({
-    logger : _.logger.relativeMaybe( o.logger, -1 ),
-    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
+    logger,
     currentPath : basePath,
-    outputCollecting : 1,
+    inputMirroring : 0,
+    outputCollecting : 0,
   });
 
   if( basePath !== o.dstBasePath )
@@ -4696,41 +4697,56 @@ function repositoryAgree( o )
   /* */
 
   ready.then( () => _.git.tagLocalChange({ localPath : basePath, tag : o.dstBranch }) );
-  ready.then( () => shell( `git fetch ${ remoteName }` ) );
+  ready.then( () => shell({ execPath : `git fetch ${ remoteName }`, outputPiping : 0 }) );
+
+  if( logger )
   ready.then( () =>
   {
-    let strategy = '-s recursive';
-    if( o.mergeStrategy !== 'manual' )
-    strategy += ` -X ${ o.mergeStrategy === 'src' ? 'theirs' : 'ours' }`;
-    const mergeBranch = `${ remoteName }/${ srcBranch }`;
-
+    logger.log( 'Files that will be merged :' );
     return shell
     ({
-      execPath : `git merge ${ strategy } --allow-unrelated-histories --squash ${ mergeBranch } ${ o.dstBranch }`,
-      currentPath : basePath,
+      execPath : `git diff --name-only ${ o.dstBranch }..${ remoteName }/${ srcBranch }`,
+      outputCollecting : 1
     });
   });
-
-  ready.then( () => statusLocalGet() );
-  ready.then( ( status ) =>
+  if( !o.dry )
   {
-    if( status.uncommitted )
+    ready.then( () =>
     {
-      let uncommittedFiles = filesFilter( status.uncommitted );
-      if( shouldRemove )
-      _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
+      let strategy = '-s recursive';
+      if( o.mergeStrategy !== 'manual' )
+      strategy += ` -X ${ o.mergeStrategy === 'src' ? 'theirs' : 'ours' }`;
+      const mergeBranch = `${ remoteName }/${ srcBranch }`;
 
-      if( !o.commitMessage )
-      o.commitMessage = `Merge branch '${ srcBranch }' of ${ srcBasePath } into ${ o.dstBranch }`;
+      return shell
+      ({
+        execPath : `git merge ${ strategy } --allow-unrelated-histories --squash ${ mergeBranch } ${ o.dstBranch }`,
+        currentPath : basePath,
+        outputPiping : 0,
+      });
+    });
 
-      if( uncommittedFiles === undefined || uncommittedFiles.length )
+    ready.then( () => statusLocalGet() );
+    ready.then( ( status ) =>
+    {
+      if( status.uncommitted )
       {
-        shell({ currentPath : basePath, execPath : 'git add .' });
-        return shell({ currentPath : basePath, execPath : `git commit -m "${ o.commitMessage }"` });
+        let uncommittedFiles = filesFilter( status.uncommitted );
+        if( shouldRemove )
+        _.fileProvider.filesDelete( _.git.path.join( basePath, '.git' ) );
+
+        if( !o.commitMessage )
+        o.commitMessage = `Merge branch '${ srcBranch }' of ${ srcBasePath } into ${ o.dstBranch }`;
+
+        if( uncommittedFiles === undefined || uncommittedFiles.length )
+        {
+          shell({ currentPath : basePath, execPath : 'git add .' });
+          return shell({ currentPath : basePath, execPath : `git commit -m "${ o.commitMessage }"`, outputPiping : 0 });
+        }
       }
-    }
-    return null;
-  });
+      return null;
+    });
+  }
   ready.finally( ( err, arg ) =>
   {
     if( err )
@@ -4961,6 +4977,7 @@ repositoryAgree.defaults =
   but : null,
   only : null,
   logger : 0,
+  dry : 0,
 };
 
 //
@@ -4985,12 +5002,13 @@ function repositoryMigrate( o )
   basePath = _.git.path.detrail( _.git.path.str( parsed ) );
   let shouldRemove = false;
 
+  const logger = _.logger.relativeMaybe( o.logger, -1 );
   const shell = _.process.starter
   ({
-    logger : _.logger.relativeMaybe( o.logger, -1 ),
-    verbosity : o.logger ? o.logger.verbosity - 1 : 0,
+    logger,
     currentPath : basePath,
-    outputCollecting : 1,
+    outputCollecting : 0,
+    inputMirroring : 0,
   });
 
   if( basePath !== o.dstBasePath )
@@ -5054,7 +5072,7 @@ function repositoryMigrate( o )
 
   ready.then( () => shell( `git remote add ${ remoteName } ${ srcBasePath }` ) );
   ready.then( () => _.git.tagLocalChange({ localPath : basePath, tag : o.dstBranch }) );
-  ready.then( () => shell( `git fetch ${ remoteName }` ) );
+  ready.then( () => shell({ execPath : `git fetch ${ remoteName }`, outputPiping : 0 }) );
   verifyRepositoriesHasSameFiles()
 
   let commitsArray = [];
@@ -5067,17 +5085,28 @@ function repositoryMigrate( o )
       state2 : o.srcState2 || `!${ remoteName }/${ o.srcBranch }`,
     });
   });
+  if( logger )
   ready.then( ( commits ) =>
   {
-    commitsArray = commits;
-    return _.git.repositoryHistoryToJson
-    ({
-      localPath : o.dstBasePath,
-      state1 : '#HEAD',
-      state2 : '#HEAD',
-    });
+    logger.log( 'List of commits to migrate :' );
+    logger.log( _.entity.exportJson( commits ) );
+    return commits;
   });
-  ready.then( ( head ) => writeCommits( head, commitsArray ) );
+
+  if( !o.dry )
+  {
+    ready.then( ( commits ) =>
+    {
+      commitsArray = commits;
+      return _.git.repositoryHistoryToJson
+      ({
+        localPath : o.dstBasePath,
+        state1 : '#HEAD',
+        state2 : '#HEAD',
+      });
+    });
+    ready.then( ( head ) => writeCommits( head, commitsArray ) );
+  }
   ready.finally( ( err, arg ) =>
   {
     if( err )
@@ -5200,7 +5229,14 @@ function repositoryMigrate( o )
 
   function verifyRepositoriesHasSameFiles()
   {
-    ready.then( () => shell( `git diff --name-only --diff-filter=d ${ o.dstBranch }..${ srcState1 }` ) );
+    ready.then( () =>
+    {
+      return shell
+      ({
+        execPath : `git diff --name-only --diff-filter=d ${ o.dstBranch }..${ srcState1 }`,
+        outputCollecting : 1
+      });
+    });
     ready.then( ( diff ) =>
     {
       if( diff && diff.output )
@@ -5255,7 +5291,7 @@ function repositoryMigrate( o )
     for( let i = length - 1 ; i >= 0 ; i-- )
     {
       con.then( () => shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }` }) );
-      con.then( () => shell( `git diff --name-only HEAD` ) );
+      con.then( () => shell({ execPath : `git diff --name-only HEAD`, outputCollecting : 1, outputPiping : 0 }) );
       con.then( ( diff ) =>
       {
         if( diff.output )
@@ -5293,7 +5329,15 @@ function repositoryMigrate( o )
             return null;
           });
           con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git add .` }) );
-          con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ commitMessage }" ${ date }` }) );
+          con2.then( () =>
+          {
+            return shell
+            ({
+              currentPath : o.dstBasePath,
+              execPath : `git commit -m "${ commitMessage }" ${ date }`,
+              outputPiping : 0
+            });
+          });
           con2.then( () =>
           {
             restoreGitDir();
@@ -5437,6 +5481,7 @@ repositoryMigrate.defaults =
   editDate : 0,
 
   logger : 0,
+  dry : 0,
 };
 
 //
@@ -5467,6 +5512,7 @@ function repositoryHistoryToJson( o )
     outputCollecting : 1,
     throwingExitCode : 1,
     inputMirroring : 0,
+    outputPiping : 0,
   })
   .then( ( log ) =>
   {
