@@ -3380,11 +3380,11 @@ function isRepository( test )
     test.identical( got, true );
 
     test.case = 'global path to repository with tag';
-    var got = _.git.isRepository({ localPath : a.path.globalFromPreferred( a.abs( 'clone/!master' ) )  });
+    var got = _.git.isRepository({ localPath : a.path.globalFromPreferred( a.abs( 'clone/!master' ) ) });
     test.identical( got, true );
 
     test.case = 'global path to repository with hash';
-    var got = _.git.isRepository({ localPath : a.path.globalFromPreferred( a.abs( 'clone/#b9be3d9c10ae6f0f065bb4cf1577b743ddba3720' ) )  });
+    var got = _.git.isRepository({ localPath : a.path.globalFromPreferred( a.abs( 'clone/#b9be3d9c10ae6f0f065bb4cf1577b743ddba3720' ) ) });
     test.identical( got, true );
 
     test.case = 'not cloned';
