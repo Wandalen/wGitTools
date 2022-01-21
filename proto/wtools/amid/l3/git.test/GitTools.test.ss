@@ -3313,196 +3313,124 @@ function isRepository( test )
   let context = this;
   let a = test.assetFor( 'basic' );
 
-  a.shell.predefined.currentPath = a.abs( 'clone' );
+  /* - */
 
-  a.shell2 = _.process.starter
-  ({
-    currentPath : a.abs( 'repo' ),
-    ready : a.ready
-  })
-
-  a.fileProvider.dirMake( a.abs( '.' ) )
-  prepareRepo()
-
-  .then( () =>
+  prepareRepo().then( () =>
   {
-    test.case = 'not cloned, only remotePath'
+    test.case = 'check local bare repository';
     var got = _.git.isRepository({ remotePath : a.abs( 'repo' ) });
     test.identical( got, true );
+
+    test.case = 'simple https path';
     var got = _.git.isRepository({ remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git' });
     test.identical( got, true );
-    var got = _.git.isRepository({ remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting1.git#master' });
+
+    test.case = 'simple https path with tag';
+    var got = _.git.isRepository({ remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git!master' });
     test.identical( got, true );
-    var got = _.git.isRepository({ remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting1.git/out/wModuleForTesting1#master' });
+
+    test.case = 'simple https path with hash';
+    var got = _.git.isRepository({ remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git#b9be3d9c10ae6f0f065bb4cf1577b743ddba3720' });
     test.identical( got, true );
-    var got = _.git.isRepository({ remotePath : 'https://github.com/Wandalen/wModuleForTesting2.git' });
+
+    test.case = 'global path';
+    var got = _.git.isRepository({ remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting1.git' });
     test.identical( got, true );
-    var got = _.git.isRepository({ remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting2.git#master' });
+
+    test.case = 'global path with tag';
+    var got = _.git.isRepository({ remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting1.git!master' });
     test.identical( got, true );
-    var got = _.git.isRepository({ remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting2.git/out/wModuleForTesting2#master' });
+
+    test.case = 'global path with hash';
+    var got = _.git.isRepository({ remotePath : 'git+https://github.com/Wandalen/wModuleForTesting1.git#b9be3d9c10ae6f0f065bb4cf1577b743ddba3720' });
     test.identical( got, true );
-    var got = _.git.isRepository({ remotePath : 'git+https:///github.com/Wandalen/wSomeModule.git/out/wSomeModule#master' });
+
+    test.case = 'global path with with subpath';
+    var got = _.git.isRepository({ remotePath : 'git+https:///github.com/Wandalen/wModuleForTesting1.git/out/wModuleForTesting1!master' });
+    test.identical( got, true );
+
+    test.case = 'simple https path, not a repository';
+    var got = _.git.isRepository({ remotePath : 'https://github.com/Wandalen/unknown-module.git' });
     test.identical( got, false );
+
     /* qqq : ask
     git ls-remote https://github.com/x/y.git
     */
     return null;
-  })
+  });
 
-  .then( () =>
+  /* */
+
+  begin().then( () =>
   {
-    test.case = 'not cloned'
+    test.case = 'path to repository';
     var got = _.git.isRepository({ localPath : a.abs( 'clone' ) });
+    test.identical( got, true );
+
+    test.case = 'path to repository with tag';
+    var got = _.git.isRepository({ localPath : a.abs( 'clone/!master' ) });
+    test.identical( got, true );
+
+    test.case = 'path to repository with hash';
+    var got = _.git.isRepository({ localPath : a.abs( 'clone/#b9be3d9c10ae6f0f065bb4cf1577b743ddba3720' ) });
+    test.identical( got, true );
+
+    test.case = 'global path to repository';
+    var got = _.git.isRepository({ localPath : a.path.globalFromPreferred( a.abs( 'clone' ) ) });
+    test.identical( got, true );
+
+    test.case = 'global path to repository with tag';
+    var got = _.git.isRepository({ localPath : a.path.globalFromPreferred( a.abs( 'clone/!master' ) )  });
+    test.identical( got, true );
+
+    test.case = 'global path to repository with hash';
+    var got = _.git.isRepository({ localPath : a.path.globalFromPreferred( a.abs( 'clone/#b9be3d9c10ae6f0f065bb4cf1577b743ddba3720' ) )  });
+    test.identical( got, true );
+
+    test.case = 'not cloned';
+    var got = _.git.isRepository({ localPath : a.abs( 'clone2' ) });
     test.identical( got, false );
-    var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : a.abs( 'repo' ) });
-    test.identical( got, false );
+
     return null;
-  })
+  });
 
   /* */
 
-  // begin()
-  // .then( () =>
-  // {
-  //   test.case = 'check after fresh clone'
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ) });
-  //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : a.abs( 'repo' ) });
-  //   test.identical( got, true );
-  //   return null;
-  // })
-  /* */
-  // begin()
-  // .then( () =>
-  // {
-  //   test.case = 'cloned, other remote'
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ) });
-  //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : remotePath });
-  //   test.identical( got, false );
-  //   return null;
-  // })
-  /* */
-  // begin()
-  // .then( () =>
-  // {
-  //   test.case = 'cloned, provided remote is not a repo'
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ) });
-  //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : remotePath2 });
-  //   test.identical( got, false );
-  //   return null;
-  // })
-  /* */
-  // begin2()
-  // .then( () =>
-  // {
-  //   test.case = 'cloned, provided global remote path to repo'
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ) });
-  //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : remotePathGlobal });
-  //   test.identical( got, true );
-  //   return null;
-  // })
-  /* */
-  // begin2()
-  // .then( () =>
-  // {
-  //   test.case = 'cloned, provided wrong global remote path to repo'
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ) });
-  //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : remotePathGlobal2 });
-  //   test.identical( got, false );
-  //   return null;
-  // })
-  /* */
-  // begin2()
-  // .then( () =>
-  // {
-  //   test.case = 'cloned, provided global remote path to repo with out file'
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ) });
-  //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : remotePathGlobalWithOut });
-  //   test.identical( got, true );
-  //   return null;
-  // })
-  /* */
-  // begin2()
-  // .then( () =>
-  // {
-  //   test.case = 'cloned, provided global remote path to repo with out file'
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ) });
-  //   test.identical( got, true );
-  //   var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : remotePathGlobalWithOut2 });
-  //   test.identical( got, false );
-  //   return null;
-  // })
-  /* */
-  // /* -async- */
-  /* */
-  // begin2()
-  // .then( () =>
-  // {
-  //   test.case = 'cloned, provided local path to repo'
-  //   return _.git.isRepository({ localPath : a.abs( 'clone' ), sync : 0 })
-  //   .then( ( got ) =>
-  //   {
-  //     test.identical( got, true );
-  //     return null;
-  //   })
-  // })
-  // .then( () =>
-  // {
-  //   test.case = 'cloned, provided global local & remote paths to repo'
-  //   return _.git.isRepository({ localPath : a.abs( 'clone' ), sync : 0, remotePath : remotePathGlobal })
-  //   .then( ( got ) =>
-  //   {
-  //     test.identical( got, true );
-  //     return null;
-  //   })
-  // })
-  /* */
-  // /* */
-  /* */
-  // begin2()
-  // .then( () =>
-  // {
-  //   test.case = 'cloned, provided global remote path to repo with out file'
-  //   return _.git.isRepository({ localPath : a.abs( 'clone' ), sync : 0 })
-  //   .then( ( got ) =>
-  //   {
-  //     test.identical( got, true );
-  //     return null;
-  //   })
-  // })
-  // .then( () =>
-  // {
-  //   test.case = 'cloned, provided global remote path to repo with out file'
-  //   return _.git.isRepository({ localPath : a.abs( 'clone' ), sync : 0, remotePath : remotePathGlobalWithOut2 })
-  //   .then( ( got ) =>
-  //   {
-  //     test.identical( got, false );
-  //     return null;
-  //   })
-  // })
+  begin().then( () =>
+  {
+    test.case = 'valid remote';
+    var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : a.abs( 'repo' ) });
+    test.identical( got, true );
 
-  /* */
+    test.case = 'another remote';
+    var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : a.abs( 'repo2' ) });
+    test.identical( got, false );
 
-  return a.ready;
+    test.case = 'invalid remote';
+    var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : a.abs( 'repo3' ) });
+    test.identical( got, false );
+
+    test.case = 'global remote';
+    var got = _.git.isRepository({ localPath : a.abs( 'clone' ), remotePath : a.path.globalFromPreferred( a.abs( 'repo' ) ) });
+    test.identical( got, true );
+    return null;
+  });
 
   /* - */
 
+  return a.ready;
+
+  /* */
+
   function prepareRepo()
   {
-    a.ready.then( () =>
-    {
-      a.fileProvider.filesDelete( a.abs( 'repo' ) );
-      a.fileProvider.dirMake( a.abs( 'repo' ) );
-      return null;
-    })
-
-    a.shell2( 'git init --bare' );
-
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( 'repo' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( 'repo' ) ); return null });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git init --bare' });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( 'repo2' ) ); return null });
+    a.shell({ currentPath : a.abs( 'repo2' ), execPath : 'git init --bare' });
     return a.ready;
   }
 
@@ -3510,33 +3438,8 @@ function isRepository( test )
 
   function begin()
   {
-    a.ready.then( () =>
-    {
-      test.case = 'clean clone';
-      a.fileProvider.filesDelete( a.abs( 'clone' ) );
-      return _.process.start
-      ({
-        execPath : 'git clone ' + a.path.nativize( a.abs( 'repo' ) ) + ' ' + 'clone',
-        currentPath : a.abs( '.' ),
-      })
-    })
-
-    return a.ready;
-  }
-
-  function begin2()
-  {
-    a.ready.then( () =>
-    {
-      test.case = 'clean clone';
-      a.fileProvider.filesDelete( a.abs( 'clone' ) );
-      return _.process.start
-      ({
-        execPath : 'git clone ' + remotePath + ' ' + 'clone',
-        currentPath : a.abs( '.' ),
-      })
-    })
-
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( 'clone' ) ); return null })
+    a.shell( `git clone ${ a.path.nativize( a.abs( 'repo' ) ) } clone` );
     return a.ready;
   }
 }
