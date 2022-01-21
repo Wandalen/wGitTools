@@ -1,6 +1,6 @@
 {
   "name": "wgittools",
-  "version": "0.3.407",
+  "version": "0.3.408",
   "description": "Collection of tools to use git programmatically.",
   "author": "Kostiantyn Wandalen <wandalen@obox.systems>",
   "license": "MIT",
@@ -33,9 +33,9 @@
     "wfilesbasic": "",
     "wfilesarchive": "",
     "wCopyable": "",
+    "prompts": "=2.4.2",
     "ini": "=2.0.0",
-    "@octokit/rest": "=18.5.2",
-    "prompts": "=2.4.2"
+    "@octokit/rest": "=18.5.2"
   },
   "devDependencies": {
     "wTesting": "",

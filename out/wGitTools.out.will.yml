@@ -3,8 +3,8 @@ root:
   - wGitTools.out
 consistency:
   ../will.yml: &ref_0
-    hash: 3a07780be4db623b7bbe81b5bcaecfe9
-    size: 6864
+    hash: 021e12d76d9df2b1269b31f11ebf99d1
+    size: 6923
 module:
   wGitTools.out:
     about:
@@ -212,11 +212,15 @@ module:
         autoExporting: 0
         enabled: 0
       ini:
-        path: 'npm:///ini#2.0.0'
+        path: 'npm:///ini!2.0.0'
         autoExporting: 0
         enabled: 0
       '@octokit':
-        path: 'npm:///@octokit/rest#=18.5.2'
+        path: 'npm:///@octokit/rest!18.5.2'
+        autoExporting: 0
+        enabled: 0
+      prompts:
+        path: 'npm:///prompts!2.4.2'
         autoExporting: 0
         enabled: 0
       wTesting:
@@ -226,7 +230,7 @@ module:
         criterion:
           development: 1
       eslint:
-        path: 'npm:///eslint#7.1.0'
+        path: 'npm:///eslint!7.32.0'
         autoExporting: 0
         enabled: 0
         criterion:
@@ -979,11 +983,15 @@ module:
         autoExporting: 0
         enabled: 0
       ini:
-        path: 'npm:///ini#2.0.0'
+        path: 'npm:///ini!2.0.0'
         autoExporting: 0
         enabled: 0
       '@octokit':
-        path: 'npm:///@octokit/rest#=18.5.2'
+        path: 'npm:///@octokit/rest!18.5.2'
+        autoExporting: 0
+        enabled: 0
+      prompts:
+        path: 'npm:///prompts!2.4.2'
         autoExporting: 0
         enabled: 0
       wTesting:
@@ -993,7 +1001,7 @@ module:
         criterion:
           development: 1
       eslint:
-        path: 'npm:///eslint#7.1.0'
+        path: 'npm:///eslint!7.32.0'
         autoExporting: 0
         enabled: 0
         criterion:
@@ -1521,5 +1529,5 @@ module:
           - 'build::npm'
     consistency:
       ../will.yml:
-        hash: 3a07780be4db623b7bbe81b5bcaecfe9
-        size: 6864
+        hash: 021e12d76d9df2b1269b31f11ebf99d1
+        size: 6923
