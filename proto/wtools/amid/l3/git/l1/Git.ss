@@ -1464,7 +1464,6 @@ var defaults = hasRemote.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
 defaults.sync = 1;
-// defaults.verbosity = 0;
 
 //
 
@@ -1472,97 +1471,87 @@ function isRepository( o )
 {
   let self = this;
   let path = _.git.path;
-  // let path = _.uri;
 
   _.routine.options_( isRepository, o );
   _.assert( arguments.length === 1, 'Expects single argument' );
 
-  let ready = _.Consequence.Try( () =>
+  if( o.localPath !== null )
+  o.localPath = pathNormalize( o.localPath );
+  if( o.remotePath !== null )
+  o.remotePath = pathNormalize( o.remotePath );
+
+  let ready = _.take( false );
+  if( o.localPath !== null )
+  ready.then( () => _.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) ) );
+
+  if( o.remotePath !== null )
   {
-    if( o.localPath === null )
-    return false;
-    return _.fileProvider.fileExists( path.join( o.localPath, '.git/config' ) );
-  });
-
-  if( o.remotePath === null )
-  return end();
-
-  let remoteParsed = o.remotePath;
-
-  ready.then( ( exists ) =>
-  {
-    if( !exists && o.localPath )
-    return false;
-    if( path.isGlobal( o.remotePath ) )
+    ready.then( ( exists ) =>
     {
-      // remoteParsed = self.pathParse( o.remotePath ).remoteVcsPath;
-      let parsed = _.git.path.parse({ remotePath : o.remotePath, full : 1, atomic : 0 });
-      let remoteVcsPathParsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
-      remoteVcsPathParsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
-      let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
-      remoteParsed = _.git.path.nativize( remoteVcsPath );
-    }
+      if( !exists && o.localPath )
+      return false;
+      return remoteIsRepository( o.remotePath );
+    });
+    ready.then( ( isRepo ) =>
+    {
+      if( !isRepo || o.localPath === null )
+      return isRepo;
+      return localHasRightOrigin( o.remotePath );
+    });
+  }
 
-    return remoteIsRepository( remoteParsed );
-  });
-
-  ready.then( ( isRepo ) =>
-  {
-    if( !isRepo || o.localPath === null )
-    return isRepo;
-
-    return localHasRightOrigin();
-  })
-
-  return end();
+  if( o.sync )
+  return ready.syncMaybe();
+  return ready;
 
   /* */
 
-  function remoteIsRepository()
+  function pathNormalize( remotePath )
+  {
+    let parsed = _.git.path.parse({ remotePath, full : 1, atomic : 0 });
+    let remoteVcsPathParsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
+    remoteVcsPathParsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
+    let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
+    if( path.isGlobal( remoteVcsPath ) )
+    return _.git.path.nativize( remoteVcsPath );
+    return remoteVcsPath;
+  }
+
+  /* */
+
+  function remoteIsRepository( remotePath )
   {
     let ready = _.Consequence.Try( () =>
     {
       return _.process.start
       ({
-        execPath : 'git ls-remote ' + remoteParsed,
+        execPath : `git ls-remote ${ remotePath }`,
         mode : 'shell', /* aaa : for Dmytro : why? random?? */ /* Dmytro : not random, we use `shell` for commands in all module, mode `spawn` has some old routines */
         throwingExitCode : 0,
         outputPiping : 0,
         stdio : 'ignore',
         sync : o.sync,
         deasync : 0,
-        inputMirroring : 1,
+        inputMirroring : 0,
         outputCollecting : 0
       });
-    })
-    ready.then( ( got ) =>
-    {
-      return got.exitCode === 0;
     });
-
-    if( o.sync )
-    return ready.syncMaybe();
-    return ready;
+    return ready.then( ( op ) =>
+    {
+      return op.exitCode === 0;
+    });
   }
 
   /* */
 
-  function localHasRightOrigin()
+  function localHasRightOrigin( remotePath )
   {
     let config = configRead( o.localPath );
-    let originPath = config[ 'remote "origin"' ].url
+    let originPath = config[ 'remote "origin"' ].url;
     if( !path.isGlobal( originPath ) )
-    originPath = path.normalize( originPath )
-    return originPath === remoteParsed;
-  }
-
-  /* */
-
-  function end()
-  {
-    if( o.sync )
-    return ready.syncMaybe();
-    return ready;
+    originPath = path.normalize( originPath );
+    remotePath = path.normalize( remotePath );
+    return originPath === remotePath;
   }
 }
 
@@ -1570,7 +1559,6 @@ var defaults = isRepository.defaults = Object.create( null );
 defaults.localPath = null;
 defaults.remotePath = null;
 defaults.sync = 1;
-// defaults.verbosity = 0;
 
 //
 
