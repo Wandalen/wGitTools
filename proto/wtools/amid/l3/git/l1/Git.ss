@@ -6673,10 +6673,15 @@ function commitsDates( o )
   if( o.relative === 'commit' && o.delta === 0 && o.periodic === 0 )
   return true;
 
+  const parsed = _.git.path.parse( o.localPath );
+
+  const localParsed = _.map.extend( null, parsed );
+  delete localParsed.tag;
+  const localPath = _.git.path.str( localParsed );
   const ready = _.take( null );
   const start = _.process.starter
   ({
-    currentPath : o.localPath,
+    currentPath : localPath,
     mode : 'shell',
     outputCollecting : 1,
     throwingExitCode : 1,
@@ -6688,7 +6693,6 @@ function commitsDates( o )
 
   const onDate = _.git._onDate_functor( o );
 
-  const parsed = _.git.path.parse( o.localPath );
   const tempBranch = `_temp-${ _.idWithGuid() }`;
 
   if( !o.state2 )
@@ -6701,7 +6705,7 @@ function commitsDates( o )
   ready.then( () => start( `git checkout -b ${ tempBranch }` ) );
   ready.then( () => start( `git merge ${ parsed.tag } ${ tempBranch }` ) );
   ready.then( () => start( `git checkout ${ parsed.tag }` ) );
-  ready.then( () => _.git.repositoryHistoryToJson({ localPath : o.localPath, state1 : o.state1, state2 : `!${ tempBranch }` }) );
+  ready.then( () => _.git.repositoryHistoryToJson({ localPath, state1 : o.state1, state2 : `!${ tempBranch }` }) );
   ready.then( ( commits ) => descriptors = commits );
   ready.then( () => start( `git reset --hard ${ state1 }~` ) );
   ready.then( () => writeCommits( descriptors ) );
