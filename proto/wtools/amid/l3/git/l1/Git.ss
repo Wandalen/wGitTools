@@ -5068,7 +5068,7 @@ function repositoryMigrate( o )
   _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}.' );
 
   let remoteName = remoteNameGenerate();
-  const config = _.git.configRead( o.dstBasePath );
+  const config = _.git.configRead( basePath );
   while( `remote "${ remoteName }"` in config )
   remoteName = remoteNameGenerate();
 
@@ -5102,7 +5102,7 @@ function repositoryMigrate( o )
       commitsArray = commits;
       return _.git.repositoryHistoryToJson
       ({
-        localPath : o.dstBasePath,
+        localPath : basePath,
         state1 : '#HEAD',
         state2 : '#HEAD',
       });
@@ -5204,7 +5204,7 @@ function repositoryMigrate( o )
       const tagDescriptor = _.git.tagExplain
       ({
         remotePath : path,
-        localPath : o.dstBasePath,
+        localPath : basePath,
         tag : parsed.tag,
         remote : !local,
         local,
@@ -5263,7 +5263,7 @@ function repositoryMigrate( o )
     const length = commits.length;
 
     const gitDir = _.git.path.join( basePath, '.git' );
-    const tempGitDir = _.git.path.join( o.dstBasePath, '../-git.temp' );
+    const tempGitDir = _.git.path.join( basePath, '../-git.temp' );
     let storeGitDir = () => {};
     let restoreGitDir = ( e ) => e;
     if( shouldRemove )
@@ -5316,7 +5316,7 @@ function repositoryMigrate( o )
           date = commitData[ 0 ].length > 0 ? `--date="${ commitData[ 0 ] }"` : '';
           commitMessage = commitData[ 1 ];
           process.env.GIT_COMMITTER_DATE = date;
-          return statusLocalGet( o.dstBasePath );
+          return statusLocalGet( basePath );
         }
         return null;
       });
@@ -5330,12 +5330,12 @@ function repositoryMigrate( o )
             storeGitDir();
             return null;
           });
-          con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git add .` }) );
+          con2.then( () => shell({ currentPath : basePath, execPath : `git add .` }) );
           con2.then( () =>
           {
             return shell
             ({
-              currentPath : o.dstBasePath,
+              currentPath : basePath,
               execPath : `git commit -m "${ commitMessage }" ${ date }`,
               outputPiping : 0
             });
