@@ -4748,10 +4748,27 @@ function repositoryAgree( o )
         o.commitMessage = `Merge branch '${ srcBranch }' of ${ srcBasePath } into ${ o.dstBranch }`;
 
         if( uncommittedFiles === undefined || uncommittedFiles.length )
+        return _.git.repositoryHistoryToJson
+        ({
+          localPath : tempPath,
+          state1 : '#HEAD',
+          state2 : '#HEAD',
+        });
+      }
+      return null;
+    });
+    ready.then( ( data ) =>
+    {
+      if( data )
+      {
+        let date = '';
+        if( data[ 0 ].date )
         {
-          shell({ currentPath : o.dstBasePath, execPath : 'git add .' });
-          return shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ o.commitMessage }"`, outputPiping : 0 });
+          process.env.GIT_COMMITTER_DATE = data[ 0 ].date;
+          date = `--date="${ data[ 0 ].date }"`;
         }
+        shell({ currentPath : o.dstBasePath, execPath : 'git add .' });
+        return shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ o.commitMessage }" ${ date }`, outputPiping : 0 });
       }
       return null;
     });
@@ -4881,7 +4898,14 @@ function repositoryAgree( o )
     {
       ready.then( () => _.fileProvider.filesReflect({ dst : tempPath, src : srcBasePath }) );
       ready.then( () => _.git.repositoryInit({ localPath : tempPath, remote : 0, local : 1 }) );
-      ready.then( () => shell({ currentPath : tempPath, execPath : [ 'git add .', 'git commit -m Init' ] }) );
+      ready.then( () =>
+      {
+        return shell
+        ({
+          currentPath : tempPath,
+          execPath : [ 'git add .', 'git commit -m Init', 'git commit --allow-empty -m "Indexed"' ]
+        });
+      });
     }
     if( srcState )
     ready.then( () => shell({ currentPath : tempPath, execPath : `git reset --hard ${ srcState }` }) );
@@ -5344,7 +5368,7 @@ function repositoryMigrate( o )
           _.assert( _.str.is( commitData[ 0 ] ), 'Callback {-o.onDate-} should return string date.' );
           date = commitData[ 0 ].length > 0 ? `--date="${ commitData[ 0 ] }"` : '';
           commitMessage = commitData[ 1 ];
-          process.env.GIT_COMMITTER_DATE = date;
+          process.env.GIT_COMMITTER_DATE = commitData[ 0 ] || '';
           return statusLocalGet( basePath );
         }
         return null;
@@ -6769,8 +6793,8 @@ function commitsDates( o )
       shouldUpdate = false;
       if( date.length )
       {
-        date = `--date="${ date }"`;
         process.env.GIT_COMMITTER_DATE = date;
+        date = `--date="${ date }"`;
       }
       const author = `--author="${ commits[ i ].author } <${ commits[ i ].email }>"`
       return start( `git commit --allow-empty -m "${ commits[ i ].message }" ${ author } ${ date }` );
