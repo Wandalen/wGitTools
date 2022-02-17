@@ -3391,6 +3391,10 @@ function isRepository( test )
     var got = _.git.isRepository({ localPath : a.abs( 'clone2' ) });
     test.identical( got, false );
 
+    test.case = 'path to repository';
+    var got = _.git.isRepository({ localPath : '/' });
+    test.identical( got, false );
+
     return null;
   });
 

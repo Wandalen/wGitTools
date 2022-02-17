@@ -1511,7 +1511,8 @@ function isRepository( o )
   {
     let parsed = _.git.path.parse({ remotePath, full : 1, atomic : 0 });
     let remoteVcsPathParsed = _.mapBut_( null, parsed, { localVcsPath : null, tag : null, hash : null, query : null } );
-    remoteVcsPathParsed.longPath = _.strRemoveEnd( parsed.longPath, '/' );
+    if( remoteVcsPathParsed.longPath !== _.git.path.rootToken )
+    remoteVcsPathParsed.longPath = _.strRemoveEnd( parsed.longPath, _.git.path.rootToken );
     let remoteVcsPath = _.git.path.str( remoteVcsPathParsed );
     if( path.isGlobal( remoteVcsPath ) )
     return _.git.path.nativize( remoteVcsPath );
@@ -5450,9 +5451,9 @@ function repositoryMigrate( o )
       localLogger.log( `Current commit ${ key } : "${ value }".` );
       const response = await Prompt
       ({
-        type: 'text',
-        name: 'data',
-        message: `Please, input new ${ key } :`,
+        type : 'text',
+        name : 'data',
+        message : `Please, input new ${ key } :`,
       });
 
       return response.data || value;
