@@ -5253,7 +5253,6 @@ function repositoryMigrate( o )
       ({
         execPath : `git diff --name-only --diff-filter=d ${ o.dstBranch }..${ srcState1 }`,
         outputCollecting : 1,
-        currentPath : o.dstBasePath,
       });
     });
     ready.then( ( diff ) =>
@@ -5309,7 +5308,20 @@ function repositoryMigrate( o )
     let commitMessage, date;
     for( let i = length - 1 ; i >= 0 ; i-- )
     {
-      con.then( () => shell({ execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }` }) );
+      con.then( () =>
+      {
+        return shell
+        ({
+          execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }`,
+          throwingExitCode : 0,
+        });
+      });
+      con.then( ( op ) =>
+      {
+        if( op.exitCode !== 0 )
+        return shell( `git add .` );
+        return null;
+      });
       con.then( () => shell({ execPath : `git diff --name-only HEAD`, outputCollecting : 1, outputPiping : 0 }) );
       con.then( ( diff ) =>
       {
