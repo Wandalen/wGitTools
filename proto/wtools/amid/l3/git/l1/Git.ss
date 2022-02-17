@@ -4748,25 +4748,38 @@ function repositoryAgree( o )
         o.commitMessage = `Merge branch '${ srcBranch }' of ${ srcBasePath } into ${ o.dstBranch }`;
 
         if( uncommittedFiles === undefined || uncommittedFiles.length )
-        return _.git.repositoryHistoryToJson
-        ({
-          localPath : tempPath,
-          state1 : '#HEAD',
-          state2 : '#HEAD',
-        });
+        {
+          const srcHeadDescriptorCon = _.git.repositoryHistoryToJson
+          ({
+            localPath : tempPath,
+            state1 : '#HEAD',
+            state2 : '#HEAD',
+          });
+          const dstHeadDescriptorCon = _.git.repositoryHistoryToJson
+          ({
+            localPath : o.dstBasePath,
+            state1 : '#HEAD',
+            state2 : '#HEAD',
+          });
+          return _.Consequence.And( srcHeadDescriptorCon, dstHeadDescriptorCon );
+        }
       }
       return null;
     });
-    ready.then( ( data ) =>
+    ready.then( ( descriptors ) =>
     {
-      if( data )
+      if( descriptors )
       {
-        let date = '';
-        if( data[ 0 ].date )
-        {
-          process.env.GIT_COMMITTER_DATE = data[ 0 ].date;
-          date = `--date="${ data[ 0 ].date }"`;
-        }
+        const onDate = _.git._onDate_functor({ relative : o.relative, delta : o.delta || 0 });
+        let date = onDate( descriptors[ 0 ][ 0 ].date );
+
+        const srcHeadDate = Date.parse( date );
+        const dstHeadDate = Date.parse( descriptors[ 1 ][ 0 ].date );
+
+        _.sure( srcHeadDate > dstHeadDate, 'The new commit should be newer than the last one.' );
+
+        process.env.GIT_COMMITTER_DATE = date;
+        date = `--date="${ date }"`;
         shell({ currentPath : o.dstBasePath, execPath : 'git add .' });
         return shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ o.commitMessage }" ${ date }`, outputPiping : 0 });
       }
@@ -4778,6 +4791,7 @@ function repositoryAgree( o )
     if( err )
     error = err;
     _.fileProvider.path.tempClose( tempPath );
+    delete process.env.GIT_COMMITTER_DATE;
 
     if( !shouldRemove )
     return shell( `git remote remove ${ remoteName }` );
@@ -5008,6 +5022,8 @@ repositoryAgree.defaults =
   dstDirPath : null,
   commitMessage : null,
   mergeStrategy : 'src', /* can be any of [ 'src', 'dst', 'manual' ] */
+  relative : 'commit',
+  delta : null,
   but : null,
   only : null,
   logger : 0,
