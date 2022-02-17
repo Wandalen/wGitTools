@@ -5455,9 +5455,9 @@ function repositoryMigrate( o )
       localLogger.log( `Current commit ${ key } : "${ value }".` );
       const response = await Prompt
       ({
-        type: 'text',
-        name: 'data',
-        message: `Please, input new ${ key } :`,
+        type : 'text',
+        name : 'data',
+        message : `Please, input new ${ key } :`,
       });
 
       return response.data || value;
