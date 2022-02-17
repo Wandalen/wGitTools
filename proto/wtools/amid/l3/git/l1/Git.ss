@@ -4629,6 +4629,15 @@ repositoryMerge.defaults =
 
 //
 
+function _tagStrip( src )
+{
+  const parsed = _.git.path.parse( src );
+  delete parsed.tag;
+  return _.git.path.str( parsed );
+}
+
+//
+
 function repositoryAgree( o )
 {
   _.routine.options_( repositoryAgree, o );
@@ -4644,11 +4653,10 @@ function repositoryAgree( o )
   const ready = _.take( null );
 
   let basePath = o.dstBasePath;
+  o.dstBasePath = _tagStrip( basePath );
   if( o.dstDirPath )
   basePath = _.git.path.join( o.dstBasePath, o.dstDirPath );
-  const parsed = _.git.path.parse( basePath );
-  delete parsed.tag;
-  basePath = _.git.path.detrail( _.git.path.str( parsed ) );
+  basePath = _.git.path.detrail( _tagStrip( basePath ) );
   let shouldRemove = false;
 
   const logger = _.logger.relativeMaybe( o.logger, -1 );
@@ -4698,7 +4706,7 @@ function repositoryAgree( o )
 
   /* */
 
-  ready.then( () => _.git.tagLocalChange({ localPath : basePath, tag : o.dstBranch }) );
+  ready.then( () => _.git.tagLocalChange({ localPath : o.dstBasePath, tag : o.dstBranch }) );
   ready.then( () => shell({ execPath : `git fetch ${ remoteName }`, outputPiping : 0 }) );
 
   if( logger )
@@ -4723,7 +4731,6 @@ function repositoryAgree( o )
       return shell
       ({
         execPath : `git merge ${ strategy } --allow-unrelated-histories --squash ${ mergeBranch } ${ o.dstBranch }`,
-        currentPath : basePath,
         outputPiping : 0,
       });
     });
@@ -4742,8 +4749,8 @@ function repositoryAgree( o )
 
         if( uncommittedFiles === undefined || uncommittedFiles.length )
         {
-          shell({ currentPath : basePath, execPath : 'git add .' });
-          return shell({ currentPath : basePath, execPath : `git commit -m "${ o.commitMessage }"`, outputPiping : 0 });
+          shell({ currentPath : o.dstBasePath, execPath : 'git add .' });
+          return shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ o.commitMessage }"`, outputPiping : 0 });
         }
       }
       return null;
@@ -4773,6 +4780,7 @@ function repositoryAgree( o )
   function subrepositoryInitMaybe()
   {
     const dstBasePath = _.git.path.normalize( o.dstBasePath );
+    const parsed = _.git.path.parse( basePath );
     _.assert
     (
       _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( dstBasePath ).longPath ) ),
@@ -4997,11 +5005,10 @@ function repositoryMigrate( o )
   const ready = _.take( null );
 
   let basePath = o.dstBasePath;
+  o.dstBasePath = _tagStrip( basePath );
   if( o.dstDirPath )
   basePath = _.git.path.join( o.dstBasePath, o.dstDirPath );
-  const parsed = _.git.path.parse( basePath );
-  delete parsed.tag;
-  basePath = _.git.path.detrail( _.git.path.str( parsed ) );
+  basePath = _.git.path.detrail( _tagStrip( basePath ) );
   let shouldRemove = false;
 
   const logger = _.logger.relativeMaybe( o.logger, -1 );
@@ -5067,10 +5074,8 @@ function repositoryMigrate( o )
   o.onDate = _.git._onDate_functor( o.onDate );
   _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}.' );
 
-  let remoteName = remoteNameGenerate();
-  const config = _.git.configRead( basePath );
-  while( `remote "${ remoteName }"` in config )
-  remoteName = remoteNameGenerate();
+  let remoteName;
+  remoteNameGenerate().then( ( name ) => { remoteName = name; return null });
 
   ready.then( () => shell( `git remote add ${ remoteName } ${ srcBasePath }` ) );
   ready.then( () => _.git.tagLocalChange({ localPath : basePath, tag : o.dstBranch }) );
@@ -5141,6 +5146,7 @@ function repositoryMigrate( o )
   function subrepositoryInitMaybe()
   {
     const dstBasePath = _.git.path.normalize( o.dstBasePath );
+    const parsed = _.git.path.parse( basePath );
     _.assert
     (
       _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( dstBasePath ).longPath ) ),
@@ -5170,8 +5176,9 @@ function repositoryMigrate( o )
       con.then( ( status ) =>
       {
         if( status.uncommitted )
-        return shell({ execPath : [ 'git add .', 'git commit -m Init' ] })
-        return shell({ execPath : 'git commit --allow-empty -m Init' })
+        shell( 'git add .' );
+        shell({ execPath : 'git commit --allow-empty -m Init' })
+        return shell({ execPath : 'git commit --allow-empty -m "Indexed"' })
       });
     }
 
@@ -5222,9 +5229,18 @@ function repositoryMigrate( o )
 
   /* */
 
+
   function remoteNameGenerate()
   {
-    return `_temp-${ _.idWithGuid() }`;
+    ready.then( () =>
+    {
+      let remoteName = `_temp-${ _.idWithGuid() }`;
+      const config = _.git.configRead( basePath );
+      while( `remote "${ remoteName }"` in config )
+      remoteName = `_temp-${ _.idWithGuid() }`;
+      return remoteName;
+    });
+    return ready;
   }
 
   /* */
@@ -5236,7 +5252,8 @@ function repositoryMigrate( o )
       return shell
       ({
         execPath : `git diff --name-only --diff-filter=d ${ o.dstBranch }..${ srcState1 }`,
-        outputCollecting : 1
+        outputCollecting : 1,
+        currentPath : o.dstBasePath,
       });
     });
     ready.then( ( diff ) =>
