@@ -4638,6 +4638,22 @@ function _tagStrip( src )
 
 //
 
+function _statusLocalGet( localPath )
+{
+  return _.git.statusLocal
+  ({
+    localPath,
+    unpushedCommits : 0,
+    unpushedTags : 0,
+    unpushedBranches : 0,
+    explaining : 1,
+    detailing : 1,
+    sync : 0,
+  });
+}
+
+//
+
 function repositoryAgree( o )
 {
   _.routine.options_( repositoryAgree, o );
@@ -4735,7 +4751,7 @@ function repositoryAgree( o )
       });
     });
 
-    ready.then( () => statusLocalGet() );
+    ready.then( () => _statusLocalGet( basePath ) );
     ready.then( ( status ) =>
     {
       if( status.uncommitted )
@@ -4837,7 +4853,7 @@ function repositoryAgree( o )
         });
       });
 
-      con.then( () => statusLocalGet() );
+      con.then( () => _statusLocalGet( basePath ) );
       con.then( ( status ) =>
       {
         if( status.uncommitted )
@@ -4847,21 +4863,6 @@ function repositoryAgree( o )
     }
 
     return con;
-  }
-
-  /* */
-
-  function statusLocalGet()
-  {
-    return _.git.statusLocal
-    ({
-      localPath : basePath,
-      unpushedCommits : 0,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      explaining : 1,
-      detailing : 1,
-    });
   }
 
   /* */
@@ -5147,7 +5148,7 @@ function repositoryMigrate( o )
       commitsArray = commits;
       return _.git.repositoryHistoryToJson
       ({
-        localPath : basePath,
+        localPath : o.dstBasePath,
         state1 : '#HEAD',
         state2 : '#HEAD',
       });
@@ -5212,7 +5213,7 @@ function repositoryMigrate( o )
         });
       });
 
-      con.then( () => statusLocalGet( basePath ) );
+      con.then( () => _statusLocalGet( basePath ) );
       con.then( ( status ) =>
       {
         if( status.uncommitted )
@@ -5223,22 +5224,6 @@ function repositoryMigrate( o )
     }
 
     return con;
-  }
-
-  /* */
-
-  function statusLocalGet( localPath )
-  {
-    return _.git.statusLocal
-    ({
-      localPath,
-      unpushedCommits : 0,
-      unpushedTags : 0,
-      unpushedBranches : 0,
-      explaining : 1,
-      detailing : 1,
-      sync : 0,
-    });
   }
 
   /* */
@@ -5385,7 +5370,7 @@ function repositoryMigrate( o )
           date = commitData[ 0 ].length > 0 ? `--date="${ commitData[ 0 ] }"` : '';
           commitMessage = commitData[ 1 ];
           process.env.GIT_COMMITTER_DATE = commitData[ 0 ] || '';
-          return statusLocalGet( basePath );
+          return _statusLocalGet( basePath );
         }
         return null;
       });
@@ -5399,15 +5384,18 @@ function repositoryMigrate( o )
             storeGitDir();
             return null;
           });
-          con2.then( () => shell({ currentPath : basePath, execPath : `git add .` }) );
-          con2.then( () =>
+          con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git add .` }) );
+          con2.then( () => _statusLocalGet( o.dstBasePath ) );
+          con2.then( ( status ) =>
           {
+            if( status && status.uncommitted )
             return shell
             ({
-              currentPath : basePath,
+              currentPath : o.dstBasePath,
               execPath : `git commit -m "${ commitMessage }" ${ date }`,
               outputPiping : 0
             });
+            return null;
           });
           con2.then( () =>
           {
@@ -6647,7 +6635,7 @@ function _onDate_functor( o )
 
   function dateNow( date )
   {
-    return '';
+    return new Date().toString();
   }
 
   /* */

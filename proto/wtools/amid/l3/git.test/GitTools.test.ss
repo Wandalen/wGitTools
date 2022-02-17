@@ -19038,6 +19038,7 @@ function repositoryAgreeWithLocalRepository( test )
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.ready.finally( ( err, op ) =>
@@ -19447,6 +19448,7 @@ function repositoryAgreeWithOptionSrcState( test )
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.ready.finally( ( err, op ) =>
@@ -19473,6 +19475,7 @@ function repositoryAgreeWithOptionSrcState( test )
       dstBranch : 'master',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.ready.finally( ( err, op ) =>
@@ -19526,6 +19529,7 @@ function repositoryAgreeWithOptionOnly( test )
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : 'package.json',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -19561,6 +19565,7 @@ function repositoryAgreeWithOptionOnly( test )
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : '*package.json',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -19596,6 +19601,7 @@ function repositoryAgreeWithOptionOnly( test )
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : [ '*package.json', 'will.yml' ],
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -19661,6 +19667,7 @@ function repositoryAgreeWithOptionBut( test )
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       but : 'package.json',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -19699,6 +19706,7 @@ function repositoryAgreeWithOptionBut( test )
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       but : '*package.json',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -19737,6 +19745,7 @@ function repositoryAgreeWithOptionBut( test )
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       but : [ '*package.json', 'will.yml' ],
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -19805,6 +19814,7 @@ function repositoryAgreeWithOptionSrcDirPath( test )
       srcDirPath : '.',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -19841,6 +19851,7 @@ function repositoryAgreeWithOptionSrcDirPath( test )
       srcDirPath : './',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -19877,6 +19888,7 @@ function repositoryAgreeWithOptionSrcDirPath( test )
       srcDirPath : './proto',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -19915,6 +19927,7 @@ function repositoryAgreeWithOptionSrcDirPath( test )
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : '**/*.s',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -19946,6 +19959,7 @@ function repositoryAgreeWithOptionSrcDirPath( test )
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : '**/*.s',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -19977,6 +19991,7 @@ function repositoryAgreeWithOptionSrcDirPath( test )
       mergeStrategy : 'src',
       commitMessage : '__sync__',
       only : '**/*.s',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -20034,6 +20049,7 @@ function repositoryAgreeWithOptionDstDirPath( test )
       dstDirPath : './',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -20071,6 +20087,7 @@ function repositoryAgreeWithOptionDstDirPath( test )
       dstDirPath : 'proto',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -20101,6 +20118,7 @@ function repositoryAgreeWithOptionDstDirPath( test )
       dstDirPath : 'dev',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -20132,6 +20150,7 @@ function repositoryAgreeWithOptionDstDirPath( test )
       dstDirPath : 'proto',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -20169,6 +20188,7 @@ function repositoryAgreeWithOptionDstDirPath( test )
       only : './proto/**',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -20204,6 +20224,7 @@ function repositoryAgreeWithOptionDstDirPath( test )
       dstDirPath : 'dev',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -20241,6 +20262,7 @@ function repositoryAgreeWithOptionDstDirPath( test )
       only : './proto/**',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -20303,6 +20325,7 @@ function repositoryAgreeWithSingleRepository( test )
       dstDirPath : './',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -20348,6 +20371,7 @@ function repositoryAgreeWithSingleRepository( test )
       dstDirPath : './',
       mergeStrategy : 'src',
       commitMessage : '__sync__',
+      relative : 'now',
     });
   });
   a.shell( 'git diff --name-only HEAD~..HEAD' );
@@ -20485,6 +20509,7 @@ function repositoryAgreeWithOptionLogger( test )
       dstBranch : 'master',
       mergeStrategy : 'dst',
       commitMessage : null,
+      relative : 'now',
       logger,
     });
   }
@@ -20584,6 +20609,7 @@ function repositoryAgreeWithOptionDry( test )
       dstBranch : 'master',
       mergeStrategy : 'dst',
       commitMessage : null,
+      relative : 'now',
       logger : 2,
       dry,
     });
@@ -20662,6 +20688,8 @@ function repositoryMigrate( test )
         srcState : state,
         dstBranch : 'master',
         mergeStrategy : 'src',
+        relative : 'commit',
+        delta : '1980:00:00',
       });
     });
     a.ready.then( () =>
@@ -20693,7 +20721,7 @@ function repositoryMigrateWithLocalRepository( test )
   /* - */
 
   begin();
-  migrate( '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  agree( '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
@@ -20743,7 +20771,7 @@ function repositoryMigrateWithLocalRepository( test )
 
   /* */
 
-  function migrate( state )
+  function agree( state )
   {
     a.ready.then( () =>
     {
@@ -20754,6 +20782,8 @@ function repositoryMigrateWithLocalRepository( test )
         srcState : state,
         dstBranch : 'master',
         mergeStrategy : 'src',
+        relative : 'commit',
+        delta : '1980:00:00',
       });
     });
     a.ready.then( () =>
@@ -20785,7 +20815,7 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
   /* - */
 
   begin();
-  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onCommitMessage - string';
@@ -20821,7 +20851,7 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
   /* */
 
   begin();
-  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onCommitMessage - function that returns string';
@@ -20857,7 +20887,7 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
   /* */
 
   begin();
-  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onCommitMessage - function that returns string concatenated with message';
@@ -20906,7 +20936,7 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
 
   /* */
 
-  function migrate( strategy, state )
+  function agree( strategy, state )
   {
     a.ready.then( () =>
     {
@@ -20917,6 +20947,8 @@ function repositoryMigrateWithOptionOnCommitMessage( test )
         srcState : state,
         dstBranch : 'master',
         mergeStrategy : strategy,
+        relative : 'commit',
+        delta : '1980:00:00',
       });
     });
     a.ready.then( () =>
@@ -20950,7 +20982,7 @@ function repositoryMigrateWithOptionOnCommitMessageManual( test )
   /* - */
 
   begin();
-  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onCommitMessage - string';
@@ -20999,7 +21031,7 @@ function repositoryMigrateWithOptionOnCommitMessageManual( test )
 
   /* */
 
-  function migrate( strategy, state )
+  function agree( strategy, state )
   {
     a.ready.then( () =>
     {
@@ -21010,6 +21042,8 @@ function repositoryMigrateWithOptionOnCommitMessageManual( test )
         srcState : state,
         dstBranch : 'master',
         mergeStrategy : strategy,
+        relative : 'commit',
+        delta : '1980:00:00',
       });
     });
     a.ready.then( () =>
@@ -21044,7 +21078,7 @@ function repositoryMigrateWithOptionOnDate( test )
   /* - */
 
   begin();
-  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onDate returns no date';
@@ -21084,7 +21118,7 @@ function repositoryMigrateWithOptionOnDate( test )
   /* */
 
   begin();
-  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onDate returns original date';
@@ -21124,7 +21158,7 @@ function repositoryMigrateWithOptionOnDate( test )
   /* */
 
   begin();
-  migrate( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  agree( 'src', '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
     test.case = 'onDate - default';
@@ -21177,7 +21211,7 @@ function repositoryMigrateWithOptionOnDate( test )
 
   /* */
 
-  function migrate( strategy, state )
+  function agree( strategy, state )
   {
     a.ready.then( () =>
     {
@@ -21188,6 +21222,8 @@ function repositoryMigrateWithOptionOnDate( test )
         srcState : state,
         dstBranch : 'master',
         mergeStrategy : strategy,
+        relative : 'commit',
+        delta : '1980:00:00',
       });
     });
     a.ready.then( () =>
@@ -21699,7 +21735,7 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
           srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
           srcBranch : 'master',
           dstBranch : 'master',
-          onDate : { relative : 'fromFirst', delta : '-48:00:00', periodic : '00:00:00', deviation : '00:00:00' },
+          onDate : { relative : 'fromFirst', delta : '-4800:00:00', periodic : '00:00:00', deviation : '00:00:00' },
           onCommitMessage : ( e ) => e,
         });
       }, onErrorCallback );
@@ -21758,6 +21794,8 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
         srcState : state,
         dstBranch : 'master',
         mergeStrategy : strategy,
+        relative : 'commit',
+        delta : '1980:00:00',
       });
     });
     a.ready.then( () =>
@@ -21793,7 +21831,7 @@ function repositoryMigrateWithOptionOnly( test )
 
   let filesBefore;
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -21847,7 +21885,7 @@ function repositoryMigrateWithOptionOnly( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -21901,7 +21939,7 @@ function repositoryMigrateWithOptionOnly( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -21955,7 +21993,7 @@ function repositoryMigrateWithOptionOnly( test )
   /* - */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22009,7 +22047,7 @@ function repositoryMigrateWithOptionOnly( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22063,7 +22101,7 @@ function repositoryMigrateWithOptionOnly( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22117,7 +22155,7 @@ function repositoryMigrateWithOptionOnly( test )
   /* - */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22184,7 +22222,7 @@ function repositoryMigrateWithOptionOnly( test )
 
   /* */
 
-  function migrate( o )
+  function agree( o )
   {
     a.ready.then( () =>
     {
@@ -22193,6 +22231,8 @@ function repositoryMigrateWithOptionOnly( test )
         srcBasePath : srcRepositoryRemote,
         dstBasePath : a.abs( '.' ),
         dstBranch : 'master',
+        relative : 'commit',
+        delta : '1980:00:00',
         ... o,
       });
     });
@@ -22228,7 +22268,7 @@ function repositoryMigrateWithOptionBut( test )
 
   let filesBefore;
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22284,7 +22324,7 @@ function repositoryMigrateWithOptionBut( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22340,7 +22380,7 @@ function repositoryMigrateWithOptionBut( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22396,7 +22436,7 @@ function repositoryMigrateWithOptionBut( test )
   /* - */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22452,7 +22492,7 @@ function repositoryMigrateWithOptionBut( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22508,7 +22548,7 @@ function repositoryMigrateWithOptionBut( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22564,7 +22604,7 @@ function repositoryMigrateWithOptionBut( test )
   /* - */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22631,7 +22671,7 @@ function repositoryMigrateWithOptionBut( test )
 
   /* */
 
-  function migrate( o )
+  function agree( o )
   {
     a.ready.then( () =>
     {
@@ -22640,6 +22680,8 @@ function repositoryMigrateWithOptionBut( test )
         srcBasePath : srcRepositoryRemote,
         dstBasePath : a.abs( '.' ),
         dstBranch : 'master',
+        relative : 'commit',
+        delta : '1980:00:00',
         ... o,
       });
     });
@@ -22675,7 +22717,7 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
 
   let filesBefore;
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22742,7 +22784,7 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
 
   /* */
 
-  function migrate( o )
+  function agree( o )
   {
     a.ready.then( () =>
     {
@@ -22751,6 +22793,8 @@ function repositoryMigrateWithOptionsOnlyAndBut( test )
         srcBasePath : srcRepositoryRemote,
         dstBasePath : a.abs( '.' ),
         dstBranch : 'master',
+        relative : 'commit',
+        delta : '1980:00:00',
         ... o,
       });
     });
@@ -22784,7 +22828,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
 
   let filesBefore;
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22838,7 +22882,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22892,7 +22936,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -22946,7 +22990,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
   /* - */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -23001,7 +23045,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -23056,7 +23100,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
   /* */
 
   begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -23124,7 +23168,7 @@ function repositoryMigrateWithOptionSrcDirPath( test )
 
   /* */
 
-  function migrate( o )
+  function agree( o )
   {
     a.ready.then( () =>
     {
@@ -23133,6 +23177,8 @@ function repositoryMigrateWithOptionSrcDirPath( test )
         srcBasePath : srcRepositoryRemote,
         dstBasePath : a.abs( '.' ),
         dstBranch : 'master',
+        relative : 'commit',
+        delta : '1980:00:00',
         ... o,
       });
     });
@@ -23167,153 +23213,153 @@ function repositoryMigrateWithOptionDstDirPath( test )
   /* - */
 
   let filesBefore;
-  begin();
-  migrate
-  ({
-    mergeStrategy : 'src',
-    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-  });
-  a.ready.then( () =>
-  {
-    test.case = 'dstDirPath - current dir';
-    filesBefore = a.find( a.abs( './' ) );
-    return _.git.repositoryMigrate
-    ({
-      srcBasePath : srcRepositoryRemote,
-      dstBasePath : a.abs( '.' ),
-      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-      srcBranch : 'master',
-      dstBranch : 'master',
-      dstDirPath : '.',
-      onCommitMessage : '__sync__',
-    });
-  });
-  a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    var files = op.output.trim().split( '\n' );
-    test.identical( files.length, 3 );
-
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-    test.identical( config.name, 'wmodulefortesting2' );
-    test.identical( config.version, '0.0.178' );
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
-    test.identical( config.name, 'wmodulefortesting2' );
-    test.identical( config.version, '0.0.178' );
-    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
-    test.identical( config.about.name, 'wModuleForTesting2' );
-    test.identical( config.about.version, '0.1.0' );
-
-    var filesAfter = a.find( a.abs( './' ) );
-    test.identical( filesBefore, filesAfter );
-    return null;
-  });
-  a.shell( 'git log -n 20' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '__sync__' ), 15 );
-    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
-    return null;
-  });
+  // begin();
+  // agree
+  // ({
+  //   mergeStrategy : 'src',
+  //   srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+  // });
+  // a.ready.then( () =>
+  // {
+  //   test.case = 'dstDirPath - current dir';
+  //   filesBefore = a.find( a.abs( './' ) );
+  //   return _.git.repositoryMigrate
+  //   ({
+  //     srcBasePath : srcRepositoryRemote,
+  //     dstBasePath : a.abs( '.' ),
+  //     srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+  //     srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+  //     srcBranch : 'master',
+  //     dstBranch : 'master',
+  //     dstDirPath : '.',
+  //     onCommitMessage : '__sync__',
+  //   });
+  // });
+  // a.shell( 'git diff --name-only HEAD~..HEAD' );
+  // a.ready.then( ( op ) =>
+  // {
+  //   test.identical( op.exitCode, 0 );
+  //   var files = op.output.trim().split( '\n' );
+  //   test.identical( files.length, 3 );
+  //
+  //   var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+  //   test.identical( config.name, 'wmodulefortesting2' );
+  //   test.identical( config.version, '0.0.178' );
+  //   var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+  //   test.identical( config.name, 'wmodulefortesting2' );
+  //   test.identical( config.version, '0.0.178' );
+  //   var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+  //   test.identical( config.about.name, 'wModuleForTesting2' );
+  //   test.identical( config.about.version, '0.1.0' );
+  //
+  //   var filesAfter = a.find( a.abs( './' ) );
+  //   test.identical( filesBefore, filesAfter );
+  //   return null;
+  // });
+  // a.shell( 'git log -n 20' );
+  // a.ready.then( ( op ) =>
+  // {
+  //   test.identical( op.exitCode, 0 );
+  //   test.identical( _.strCount( op.output, '__sync__' ), 15 );
+  //   test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+  //   return null;
+  // });
+  //
+  // /* */
+  //
+  // begin();
+  // agree
+  // ({
+  //   mergeStrategy : 'src',
+  //   srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+  //   dstDirPath : 'proto',
+  // });
+  // a.ready.then( () =>
+  // {
+  //   test.case = 'dstDirPath - nested dir, dir synchronized';
+  //   filesBefore = a.find( a.abs( './' ) );
+  //   return _.git.repositoryMigrate
+  //   ({
+  //     srcBasePath : srcRepositoryRemote,
+  //     dstBasePath : a.abs( '.' ),
+  //     srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+  //     srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+  //     srcBranch : 'master',
+  //     dstBranch : 'master',
+  //     dstDirPath : 'proto',
+  //     onCommitMessage : '__sync__',
+  //   });
+  // });
+  // a.shell( 'git diff --name-only HEAD~..HEAD' );
+  // a.ready.then( ( op ) =>
+  // {
+  //   test.identical( op.exitCode, 0 );
+  //   var files = op.output.trim().split( '\n' );
+  //   test.identical( files.length, 3 );
+  //
+  //   var filesAfter = a.find( a.abs( './' ) );
+  //   test.identical( filesBefore, filesAfter );
+  //   return null;
+  // });
+  // a.shell( 'git log -n 20' );
+  // a.ready.then( ( op ) =>
+  // {
+  //   test.identical( op.exitCode, 0 );
+  //   test.identical( _.strCount( op.output, '__sync__' ), 15 );
+  //   test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+  //   return null;
+  // });
+  //
+  // /* */
+  //
+  // begin();
+  // agree
+  // ({
+  //   mergeStrategy : 'src',
+  //   srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+  //   dstDirPath : 'proto',
+  // });
+  // a.ready.then( () =>
+  // {
+  //   test.case = 'dstDirPath - nested dir, srcDirPath, dir synchronized';
+  //   filesBefore = a.find( a.abs( './' ) );
+  //   return _.git.repositoryMigrate
+  //   ({
+  //     srcBasePath : srcRepositoryRemote,
+  //     dstBasePath : a.abs( '.' ),
+  //     srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+  //     srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+  //     srcBranch : 'master',
+  //     dstBranch : 'master',
+  //     srcDirPath : 'proto',
+  //     dstDirPath : 'proto',
+  //     onCommitMessage : '__sync__',
+  //   });
+  // });
+  // a.shell( 'git diff --name-only HEAD~..HEAD' );
+  // a.ready.then( ( op ) =>
+  // {
+  //   test.identical( op.exitCode, 0 );
+  //   var files = op.output.trim().split( '\n' );
+  //   test.identical( files.length, 19 );
+  //
+  //   var filesAfter = a.find( a.abs( './' ) );
+  //   test.identical( filesBefore, filesAfter );
+  //   return null;
+  // });
+  // a.shell( 'git log -n 20' );
+  // a.ready.then( ( op ) =>
+  // {
+  //   test.identical( op.exitCode, 0 );
+  //   test.identical( _.strCount( op.output, '__sync__' ), 0 );
+  //   test.ge( _.strCount( op.output, `Author: ${ user }` ), 0 );
+  //   return null;
+  // });
 
   /* */
 
   begin();
-  migrate
-  ({
-    mergeStrategy : 'src',
-    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-    dstDirPath : 'proto',
-  });
-  a.ready.then( () =>
-  {
-    test.case = 'dstDirPath - nested dir, dir synchronized';
-    filesBefore = a.find( a.abs( './' ) );
-    return _.git.repositoryMigrate
-    ({
-      srcBasePath : srcRepositoryRemote,
-      dstBasePath : a.abs( '.' ),
-      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-      srcBranch : 'master',
-      dstBranch : 'master',
-      dstDirPath : 'proto',
-      onCommitMessage : '__sync__',
-    });
-  });
-  a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    var files = op.output.trim().split( '\n' );
-    test.identical( files.length, 3 );
-
-    var filesAfter = a.find( a.abs( './' ) );
-    test.identical( filesBefore, filesAfter );
-    return null;
-  });
-  a.shell( 'git log -n 20' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '__sync__' ), 15 );
-    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
-    return null;
-  });
-
-  /* */
-
-  begin();
-  migrate
-  ({
-    mergeStrategy : 'src',
-    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-    dstDirPath : 'proto',
-  });
-  a.ready.then( () =>
-  {
-    test.case = 'dstDirPath - nested dir, srcDirPath, dir synchronized';
-    filesBefore = a.find( a.abs( './' ) );
-    return _.git.repositoryMigrate
-    ({
-      srcBasePath : srcRepositoryRemote,
-      dstBasePath : a.abs( '.' ),
-      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-      srcBranch : 'master',
-      dstBranch : 'master',
-      srcDirPath : 'proto',
-      dstDirPath : 'proto',
-      onCommitMessage : '__sync__',
-    });
-  });
-  a.shell( 'git diff --name-only HEAD~..HEAD' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    var files = op.output.trim().split( '\n' );
-    test.identical( files.length, 19 );
-
-    var filesAfter = a.find( a.abs( './' ) );
-    test.identical( filesBefore, filesAfter );
-    return null;
-  });
-  a.shell( 'git log -n 20' );
-  a.ready.then( ( op ) =>
-  {
-    test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, '__sync__' ), 0 );
-    test.ge( _.strCount( op.output, `Author: ${ user }` ), 0 );
-    return null;
-  });
-
-  /* */
-
-  begin();
-  migrate
+  agree
   ({
     mergeStrategy : 'src',
     srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
@@ -23372,7 +23418,7 @@ function repositoryMigrateWithOptionDstDirPath( test )
 
   /* */
 
-  function migrate( o )
+  function agree( o )
   {
     a.ready.then( () =>
     {
@@ -23381,6 +23427,8 @@ function repositoryMigrateWithOptionDstDirPath( test )
         srcBasePath : srcRepositoryRemote,
         dstBasePath : a.abs( '.' ),
         dstBranch : 'master',
+        relative : 'commit',
+        delta : '1980:00:00',
         ... o,
       });
     });
@@ -23498,6 +23546,8 @@ function repositoryMigrateWithOptionLogger( test )
         srcState : state,
         dstBranch : 'master',
         mergeStrategy : 'src',
+        relative : 'commit',
+        delta : '1980:00:00',
       });
     });
     a.ready.then( () =>
@@ -23646,6 +23696,8 @@ function repositoryMigrateWithOptionDry( test )
         srcState : state,
         dstBranch : 'master',
         mergeStrategy : 'src',
+        relative : 'commit',
+        delta : '1980:00:00',
       });
     });
     a.ready.then( () =>
