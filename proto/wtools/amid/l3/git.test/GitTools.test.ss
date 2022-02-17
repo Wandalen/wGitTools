@@ -20618,6 +20618,234 @@ function repositoryAgreeWithOptionDry( test )
 
 //
 
+function repositoryAgreeWithOptionDelay( test )
+{
+  const a = test.assetFor( false );
+  const dstRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting1.git';
+  const dstCommit = '8e2aa80ca350f3c45215abafa07a4f2cd320342a';
+  const srcRepositoryRemote = 'https://github.com/Wandalen/wModuleForTesting2.git';
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, delta - 0';
+    return _.git.repositoryAgree
+    ({
+      srcBasePath : dstRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#HEAD~',
+      dstBranch : 'master',
+      commitMessage : null,
+      relative : 'commit',
+      delta : 0,
+    });
+  });
+  a.ready.then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#HEAD',
+      state2 : '#HEAD',
+    });
+    return null;
+  });
+  a.ready.then( ( commits ) =>
+  {
+    const head = commits[ 0 ];
+    test.identical( head.date, '2021-12-17 10:10:57 +0200' );
+    test.identical( head.date, head.commiterDate );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, delta - -1h';
+    return _.git.repositoryAgree
+    ({
+      srcBasePath : dstRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#HEAD~',
+      dstBranch : 'master',
+      commitMessage : null,
+      relative : 'commit',
+      delta : '-01:00:00',
+    });
+  });
+  a.ready.then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#HEAD',
+      state2 : '#HEAD',
+    });
+    return null;
+  });
+  a.ready.then( ( commits ) =>
+  {
+    const head = commits[ 0 ];
+    test.identical( head.date, '2021-12-17 09:10:57 +0200' );
+    test.identical( head.date, head.commiterDate );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - commit, delta - -1h';
+    return _.git.repositoryAgree
+    ({
+      srcBasePath : dstRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#HEAD~',
+      dstBranch : 'master',
+      commitMessage : null,
+      relative : 'commit',
+      delta : '01:00:00',
+    });
+  });
+  a.ready.then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#HEAD',
+      state2 : '#HEAD',
+    });
+    return null;
+  });
+  a.ready.then( ( commits ) =>
+  {
+    const head = commits[ 0 ];
+    test.identical( head.date, '2021-12-17 11:10:57 +0200' );
+    test.identical( head.date, head.commiterDate );
+    return null;
+  });
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, delta - 0';
+    return _.git.repositoryAgree
+    ({
+      srcBasePath : dstRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#HEAD~',
+      dstBranch : 'master',
+      commitMessage : null,
+      relative : 'now',
+      delta : 0,
+    });
+  });
+  a.ready.then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#HEAD',
+      state2 : '#HEAD',
+    });
+    return null;
+  });
+  a.ready.then( ( commits ) =>
+  {
+    const head = commits[ 0 ];
+    test.ge( Date.parse( head.date ) + 20000, _.time.now() );
+    test.identical( head.date, head.commiterDate );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, delta - -1h';
+    return _.git.repositoryAgree
+    ({
+      srcBasePath : dstRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#HEAD~',
+      dstBranch : 'master',
+      commitMessage : null,
+      relative : 'now',
+      delta : '-01:00:00',
+    });
+  });
+  a.ready.then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#HEAD',
+      state2 : '#HEAD',
+    });
+    return null;
+  });
+  a.ready.then( ( commits ) =>
+  {
+    const head = commits[ 0 ];
+    test.ge( Date.parse( head.date ) + 20000, _.time.now() - 3600000 );
+    test.identical( head.date, head.commiterDate );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'relative - now, delta - -1h';
+    return _.git.repositoryAgree
+    ({
+      srcBasePath : dstRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState : '#HEAD~',
+      dstBranch : 'master',
+      commitMessage : null,
+      relative : 'now',
+      delta : '01:00:00',
+    });
+  });
+  a.ready.then( () =>
+  {
+    return _.git.repositoryHistoryToJson
+    ({
+      localPath : a.abs( '.' ),
+      state1 : '#HEAD',
+      state2 : '#HEAD',
+    });
+    return null;
+  });
+  a.ready.then( ( commits ) =>
+  {
+    const head = commits[ 0 ];
+    test.ge( Date.parse( head.date ) + 20000, _.time.now() + 3600000 );
+    test.identical( head.date, head.commiterDate );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.shell( `git clone ${ dstRepositoryRemote } ./` );
+    return a.shell( `git reset --hard ${ dstCommit }` );
+  }
+}
+
+//
+
 function repositoryMigrate( test )
 {
   const a = test.assetFor( false );
@@ -23213,148 +23441,148 @@ function repositoryMigrateWithOptionDstDirPath( test )
   /* - */
 
   let filesBefore;
-  // begin();
-  // agree
-  // ({
-  //   mergeStrategy : 'src',
-  //   srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-  // });
-  // a.ready.then( () =>
-  // {
-  //   test.case = 'dstDirPath - current dir';
-  //   filesBefore = a.find( a.abs( './' ) );
-  //   return _.git.repositoryMigrate
-  //   ({
-  //     srcBasePath : srcRepositoryRemote,
-  //     dstBasePath : a.abs( '.' ),
-  //     srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-  //     srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-  //     srcBranch : 'master',
-  //     dstBranch : 'master',
-  //     dstDirPath : '.',
-  //     onCommitMessage : '__sync__',
-  //   });
-  // });
-  // a.shell( 'git diff --name-only HEAD~..HEAD' );
-  // a.ready.then( ( op ) =>
-  // {
-  //   test.identical( op.exitCode, 0 );
-  //   var files = op.output.trim().split( '\n' );
-  //   test.identical( files.length, 3 );
-  //
-  //   var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
-  //   test.identical( config.name, 'wmodulefortesting2' );
-  //   test.identical( config.version, '0.0.178' );
-  //   var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
-  //   test.identical( config.name, 'wmodulefortesting2' );
-  //   test.identical( config.version, '0.0.178' );
-  //   var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
-  //   test.identical( config.about.name, 'wModuleForTesting2' );
-  //   test.identical( config.about.version, '0.1.0' );
-  //
-  //   var filesAfter = a.find( a.abs( './' ) );
-  //   test.identical( filesBefore, filesAfter );
-  //   return null;
-  // });
-  // a.shell( 'git log -n 20' );
-  // a.ready.then( ( op ) =>
-  // {
-  //   test.identical( op.exitCode, 0 );
-  //   test.identical( _.strCount( op.output, '__sync__' ), 15 );
-  //   test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
-  //   return null;
-  // });
-  //
-  // /* */
-  //
-  // begin();
-  // agree
-  // ({
-  //   mergeStrategy : 'src',
-  //   srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-  //   dstDirPath : 'proto',
-  // });
-  // a.ready.then( () =>
-  // {
-  //   test.case = 'dstDirPath - nested dir, dir synchronized';
-  //   filesBefore = a.find( a.abs( './' ) );
-  //   return _.git.repositoryMigrate
-  //   ({
-  //     srcBasePath : srcRepositoryRemote,
-  //     dstBasePath : a.abs( '.' ),
-  //     srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-  //     srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-  //     srcBranch : 'master',
-  //     dstBranch : 'master',
-  //     dstDirPath : 'proto',
-  //     onCommitMessage : '__sync__',
-  //   });
-  // });
-  // a.shell( 'git diff --name-only HEAD~..HEAD' );
-  // a.ready.then( ( op ) =>
-  // {
-  //   test.identical( op.exitCode, 0 );
-  //   var files = op.output.trim().split( '\n' );
-  //   test.identical( files.length, 3 );
-  //
-  //   var filesAfter = a.find( a.abs( './' ) );
-  //   test.identical( filesBefore, filesAfter );
-  //   return null;
-  // });
-  // a.shell( 'git log -n 20' );
-  // a.ready.then( ( op ) =>
-  // {
-  //   test.identical( op.exitCode, 0 );
-  //   test.identical( _.strCount( op.output, '__sync__' ), 15 );
-  //   test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
-  //   return null;
-  // });
-  //
-  // /* */
-  //
-  // begin();
-  // agree
-  // ({
-  //   mergeStrategy : 'src',
-  //   srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-  //   dstDirPath : 'proto',
-  // });
-  // a.ready.then( () =>
-  // {
-  //   test.case = 'dstDirPath - nested dir, srcDirPath, dir synchronized';
-  //   filesBefore = a.find( a.abs( './' ) );
-  //   return _.git.repositoryMigrate
-  //   ({
-  //     srcBasePath : srcRepositoryRemote,
-  //     dstBasePath : a.abs( '.' ),
-  //     srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
-  //     srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
-  //     srcBranch : 'master',
-  //     dstBranch : 'master',
-  //     srcDirPath : 'proto',
-  //     dstDirPath : 'proto',
-  //     onCommitMessage : '__sync__',
-  //   });
-  // });
-  // a.shell( 'git diff --name-only HEAD~..HEAD' );
-  // a.ready.then( ( op ) =>
-  // {
-  //   test.identical( op.exitCode, 0 );
-  //   var files = op.output.trim().split( '\n' );
-  //   test.identical( files.length, 19 );
-  //
-  //   var filesAfter = a.find( a.abs( './' ) );
-  //   test.identical( filesBefore, filesAfter );
-  //   return null;
-  // });
-  // a.shell( 'git log -n 20' );
-  // a.ready.then( ( op ) =>
-  // {
-  //   test.identical( op.exitCode, 0 );
-  //   test.identical( _.strCount( op.output, '__sync__' ), 0 );
-  //   test.ge( _.strCount( op.output, `Author: ${ user }` ), 0 );
-  //   return null;
-  // });
+  begin();
+  agree
+  ({
+    mergeStrategy : 'src',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'dstDirPath - current dir';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      dstDirPath : '.',
+      onCommitMessage : '__sync__',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.trim().split( '\n' );
+    test.identical( files.length, 3 );
+
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'was.package.json' ) );
+    test.identical( config.name, 'wmodulefortesting2' );
+    test.identical( config.version, '0.0.178' );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'will.yml' ) );
+    test.identical( config.about.name, 'wModuleForTesting2' );
+    test.identical( config.about.version, '0.1.0' );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  agree
+  ({
+    mergeStrategy : 'src',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    dstDirPath : 'proto',
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'dstDirPath - nested dir, dir synchronized';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      dstDirPath : 'proto',
+      onCommitMessage : '__sync__',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.trim().split( '\n' );
+    test.identical( files.length, 3 );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  agree
+  ({
+    mergeStrategy : 'src',
+    srcState : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+    dstDirPath : 'proto',
+  });
+  a.ready.then( () =>
+  {
+    test.case = 'dstDirPath - nested dir, srcDirPath, dir synchronized';
+    filesBefore = a.find( a.abs( './' ) );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
+      srcBranch : 'master',
+      dstBranch : 'master',
+      srcDirPath : 'proto',
+      dstDirPath : 'proto',
+      onCommitMessage : '__sync__',
+    });
+  });
+  a.shell( 'git diff --name-only HEAD~..HEAD' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    var files = op.output.trim().split( '\n' );
+    test.identical( files.length, 19 );
+
+    var filesAfter = a.find( a.abs( './' ) );
+    test.identical( filesBefore, filesAfter );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 0 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 0 );
+    return null;
+  });
 
   /* */
 
@@ -32684,6 +32912,7 @@ const Proto =
     repositoryAgreeWithSingleRepository,
     repositoryAgreeWithOptionLogger,
     repositoryAgreeWithOptionDry,
+    repositoryAgreeWithOptionDelay,
 
     repositoryMigrate,
     repositoryMigrateWithLocalRepository,
