@@ -4890,7 +4890,12 @@ function repositoryAgree( o )
         process.env.GIT_COMMITTER_DATE = date;
         date = `--date="${ date }"`;
         shell({ currentPath : o.dstBasePath, execPath : 'git add .' });
-        return shell({ currentPath : o.dstBasePath, execPath : `git commit -m "${ o.commitMessage }" ${ date }`, outputPiping : 0 });
+        return shell
+        ({
+          currentPath : o.dstBasePath,
+          execPath : `git commit -m "${ o.commitMessage }" ${ date }`,
+          outputPiping : 0,
+        });
       }
       return null;
     });
@@ -5095,7 +5100,8 @@ function repositoryMigrate( o )
   const normalized = _.git.path.normalize( o.srcBasePath );
   const srcBasePath = _.git.path.nativize( normalized );
   if( !o.srcBranch )
-  o.srcBranch = _branchFromPath( basePath, normalized, false ) || _.git.tagLocalRetrive({ localPath : _.git.path.nativize( normalized ) });
+  o.srcBranch =
+  _branchFromPath( basePath, normalized, false ) || _.git.tagLocalRetrive({ localPath : _.git.path.nativize( normalized ) });
 
   let srcState1 = o.srcState1;
   let srcState2 = o.srcState2;
