@@ -3,8 +3,8 @@ root:
   - wGitTools.out
 consistency:
   ../will.yml: &ref_0
-    hash: 021e12d76d9df2b1269b31f11ebf99d1
-    size: 6923
+    hash: 028de352e8b7264b02938a3f1b4abeb6
+    size: 6925
 module:
   wGitTools.out:
     about:
@@ -1529,5 +1529,5 @@ module:
           - 'build::npm'
     consistency:
       ../will.yml:
-        hash: 021e12d76d9df2b1269b31f11ebf99d1
-        size: 6923
+        hash: 028de352e8b7264b02938a3f1b4abeb6
+        size: 6925
