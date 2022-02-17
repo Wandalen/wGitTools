@@ -4652,6 +4652,95 @@ function _statusLocalGet( localPath )
   });
 }
 
+
+//
+
+function _subrepositoryInitMaybe( dstBasePath, basePath )
+{
+  dstBasePath = _.git.path.normalize( dstBasePath );
+  const parsed = _.git.path.parse( basePath );
+
+  _.assert
+  (
+    _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( dstBasePath ).longPath ) ),
+    '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}.'
+  );
+
+  if( !_.fileProvider.fileExists( basePath ) )
+  _.fileProvider.dirMake( basePath );
+
+  const isSubrepository = _.git.isRepository({ localPath : basePath });
+
+  const con = _.take( null );
+  if( !isSubrepository )
+  {
+    con.then( () =>
+    {
+      return _.git.repositoryInit
+      ({
+        localPath : basePath,
+        remote : 0,
+        local : 1,
+      });
+    });
+
+    con.then( () => _statusLocalGet( basePath ) );
+    con.then( ( status ) =>
+    {
+      const shell = _.process.starter
+      ({
+        logger,
+        currentPath : basePath,
+        inputMirroring : 0,
+        outputCollecting : 0,
+      });
+      if( status.uncommitted )
+      shell( 'git add .' );
+      shell({ execPath : 'git commit --allow-empty -m Init' })
+      return shell({ execPath : 'git commit --allow-empty -m "Indexed"' })
+    });
+  }
+
+  return con.then( () => isSubrepository );
+}
+
+//
+
+function _branchFromPath( basePath, path, local )
+{
+  const parsed = _.git.path.parse( path );
+  if( parsed.tag )
+  {
+    const tagDescriptor = _.git.tagExplain
+    ({
+      remotePath : path,
+      localPath : basePath,
+      tag : parsed.tag,
+      remote : !local,
+      local,
+    });
+
+    if
+    (
+      tagDescriptor.isBranch
+      && ( _.str.has( path, _.git.path.tagToken ) || !_.longHasAny( parsed.protocols, [ 'hd', 'file' ] ) )
+    )
+    return parsed.tag;
+  }
+  return null;
+}
+
+//
+
+function _remoteNameGenerate( basePath )
+{
+  let remoteName = `_temp-${ _.idWithGuid() }`;
+  const config = _.git.configRead( basePath );
+  while( `remote "${ remoteName }"` in config )
+  remoteName = `_temp-${ _.idWithGuid() }`;
+  return remoteName;
+}
+
 //
 
 function repositoryAgree( o )
@@ -4685,11 +4774,14 @@ function repositoryAgree( o )
   });
 
   if( basePath !== o.dstBasePath )
-  ready.then( subrepositoryInitMaybe );
+  {
+    ready.then( () => _subrepositoryInitMaybe( o.dstBasePath, basePath ) );
+    ready.then( ( isSubrepository ) => shouldRemove = !isSubrepository );
+  }
   ready.then( () =>
   {
     if( !o.dstBranch )
-    o.dstBranch = branchFromPath( o.dstBasePath, true ) || _.git.tagLocalRetrive({ localPath : basePath });
+    o.dstBranch = _branchFromPath( basePath, o.dstBasePath, true ) || _.git.tagLocalRetrive({ localPath : basePath });
     _.sure
     (
       _.str.defined( o.dstBranch ),
@@ -4708,13 +4800,14 @@ function repositoryAgree( o )
 
   let remoteName, srcBranch;
   let tempPath = _.fileProvider.path.tempOpen();
-  remoteNameGenerate().then( ( name ) => { remoteName = name; return null });
+  ready.then( () => _remoteNameGenerate( basePath ) )
+  ready.then( ( name ) => { remoteName = name; return null });
   ready.then( () => shell( `git remote add ${ remoteName } ${ tempPath }` ) );
   srcRepositoryPrepare();
   ready.then( () =>
   {
     if( srcBasePathIsRepository )
-    srcBranch = branchFromPath( normalized, false ) || _.git.tagLocalRetrive({ localPath : tempPath });
+    srcBranch = _branchFromPath( basePath, normalized, false ) || _.git.tagLocalRetrive({ localPath : tempPath });
     else
     srcBranch = 'master';
     return null;
@@ -4821,85 +4914,6 @@ function repositoryAgree( o )
   });
 
   return ready;
-
-  /* */
-
-  function subrepositoryInitMaybe()
-  {
-    const dstBasePath = _.git.path.normalize( o.dstBasePath );
-    const parsed = _.git.path.parse( basePath );
-    _.assert
-    (
-      _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( dstBasePath ).longPath ) ),
-      '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}.'
-    );
-
-    if( !_.fileProvider.fileExists( basePath ) )
-    _.fileProvider.dirMake( basePath );
-
-    const isSubrepository = _.git.isRepository({ localPath : basePath });
-    shouldRemove = !isSubrepository;
-
-    const con = _.take( null );
-    if( !isSubrepository )
-    {
-      con.then( () =>
-      {
-        return _.git.repositoryInit
-        ({
-          localPath : basePath,
-          remote : 0,
-          local : 1,
-        });
-      });
-
-      con.then( () => _statusLocalGet( basePath ) );
-      con.then( ( status ) =>
-      {
-        if( status.uncommitted )
-        return shell({ execPath : [ 'git add .', 'git commit -m Init' ] })
-        return shell({ execPath : 'git commit --allow-empty -m Init' })
-      });
-    }
-
-    return con;
-  }
-
-  /* */
-
-  function branchFromPath( path, local )
-  {
-    const parsed = _.git.path.parse( path );
-    if( parsed.tag )
-    {
-      const tagDescriptor = _.git.tagExplain
-      ({
-        remotePath : path,
-        localPath : basePath,
-        tag : parsed.tag,
-        remote : !local,
-        local,
-      });
-      if( tagDescriptor.isBranch && _.str.has( path, _.git.path.tagToken ) )
-      return parsed.tag;
-    }
-    return null;
-  }
-
-  /* */
-
-  function remoteNameGenerate()
-  {
-    ready.then( () =>
-    {
-      let remoteName = `_temp-${ _.idWithGuid() }`;
-      const config = _.git.configRead( basePath );
-      while( `remote "${ remoteName }"` in config )
-      remoteName = `_temp-${ _.idWithGuid() }`;
-      return remoteName;
-    });
-    return ready;
-  }
 
   /* */
 
@@ -5062,11 +5076,14 @@ function repositoryMigrate( o )
   });
 
   if( basePath !== o.dstBasePath )
-  ready.then( subrepositoryInitMaybe );
+  {
+    ready.then( () => _subrepositoryInitMaybe( o.dstBasePath, basePath ) );
+    ready.then( ( isSubrepository ) => shouldRemove = !isSubrepository );
+  }
   ready.then( () =>
   {
     if( !o.dstBranch )
-    o.dstBranch = branchFromPath( o.dstBasePath, true ) || _.git.tagLocalRetrive({ localPath : basePath });
+    o.dstBranch = _branchFromPath( basePath, o.dstBasePath, true ) || _.git.tagLocalRetrive({ localPath : basePath });
     _.sure
     (
       _.str.defined( o.dstBranch ),
@@ -5078,7 +5095,7 @@ function repositoryMigrate( o )
   const normalized = _.git.path.normalize( o.srcBasePath );
   const srcBasePath = _.git.path.nativize( normalized );
   if( !o.srcBranch )
-  o.srcBranch = branchFromPath( normalized, false ) || _.git.tagLocalRetrive({ localPath : _.git.path.nativize( normalized ) });
+  o.srcBranch = _branchFromPath( basePath, normalized, false ) || _.git.tagLocalRetrive({ localPath : _.git.path.nativize( normalized ) });
 
   let srcState1 = o.srcState1;
   let srcState2 = o.srcState2;
@@ -5116,7 +5133,8 @@ function repositoryMigrate( o )
   _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}.' );
 
   let remoteName;
-  remoteNameGenerate().then( ( name ) => { remoteName = name; return null });
+  ready.then( () => _remoteNameGenerate( basePath ) )
+  ready.then( ( name ) => { remoteName = name; return null });
 
   ready.then( () => shell( `git remote add ${ remoteName } ${ srcBasePath }` ) );
   ready.then( () => _.git.tagLocalChange({ localPath : basePath, tag : o.dstBranch }) );
@@ -5183,77 +5201,6 @@ function repositoryMigrate( o )
   return ready;
 
   /* */
-
-  function subrepositoryInitMaybe()
-  {
-    const dstBasePath = _.git.path.normalize( o.dstBasePath );
-    const parsed = _.git.path.parse( basePath );
-    _.assert
-    (
-      _.str.begins( parsed.longPath, _.git.path.detrail( _.git.path.parse( dstBasePath ).longPath ) ),
-      '{-o.dstDirPath-} should be a subdirectory of {-o.dstBasePath-}.'
-    );
-
-    if( !_.fileProvider.fileExists( basePath ) )
-    _.fileProvider.dirMake( basePath );
-
-    const isSubrepository = _.git.isRepository({ localPath : basePath });
-    shouldRemove = !isSubrepository;
-
-    const con = _.take( null );
-    if( !isSubrepository )
-    {
-      con.then( () =>
-      {
-        return _.git.repositoryInit
-        ({
-          localPath : basePath,
-          remote : 0,
-          local : 1,
-        });
-      });
-
-      con.then( () => _statusLocalGet( basePath ) );
-      con.then( ( status ) =>
-      {
-        if( status.uncommitted )
-        shell( 'git add .' );
-        shell({ execPath : 'git commit --allow-empty -m Init' })
-        return shell({ execPath : 'git commit --allow-empty -m "Indexed"' })
-      });
-    }
-
-    return con;
-  }
-
-  /* */
-
-  function branchFromPath( path, local )
-  {
-    const parsed = _.git.path.parse( path );
-    if( parsed.tag )
-    {
-      const tagDescriptor = _.git.tagExplain
-      ({
-        remotePath : path,
-        localPath : basePath,
-        tag : parsed.tag,
-        remote : !local,
-        local,
-      });
-
-      if
-      (
-        tagDescriptor.isBranch
-        && ( _.str.has( path, _.git.path.tagToken ) || !_.longHasAny( parsed.protocols, [ 'hd', 'file' ] ) )
-      )
-      return parsed.tag;
-    }
-    return null;
-  }
-
-  /* */
-
 
   function remoteNameGenerate()
   {
