@@ -20627,6 +20627,7 @@ function repositoryAgreeWithOptionDelay( test )
 
   /* - */
 
+  let originalHead;
   begin().then( () =>
   {
     test.case = 'relative - commit, delta - 0';
@@ -20654,6 +20655,7 @@ function repositoryAgreeWithOptionDelay( test )
   a.ready.then( ( commits ) =>
   {
     const head = commits[ 0 ];
+    originalHead = head;
     test.identical( head.date, '2021-12-17 10:10:57 +0200' );
     test.identical( head.date, head.commiterDate );
     return null;
@@ -20688,7 +20690,7 @@ function repositoryAgreeWithOptionDelay( test )
   a.ready.then( ( commits ) =>
   {
     const head = commits[ 0 ];
-    test.identical( head.date, '2021-12-17 09:10:57 +0200' );
+    test.identical( Date.parse( originalHead.date ) - Date.parse( head.date ), 3600000 );
     test.identical( head.date, head.commiterDate );
     return null;
   });
@@ -20722,7 +20724,7 @@ function repositoryAgreeWithOptionDelay( test )
   a.ready.then( ( commits ) =>
   {
     const head = commits[ 0 ];
-    test.identical( head.date, '2021-12-17 11:10:57 +0200' );
+    test.identical( Date.parse( head.date ) - Date.parse( originalHead.date ), 3600000 );
     test.identical( head.date, head.commiterDate );
     return null;
   });
