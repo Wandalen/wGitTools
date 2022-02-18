@@ -1702,7 +1702,7 @@ function versionsPull( test )
   return a.ready;
 }
 
-versionsPull.routineTimeOut = 30000;
+versionsPull.routineTimeOut = 60000;
 
 //
 
