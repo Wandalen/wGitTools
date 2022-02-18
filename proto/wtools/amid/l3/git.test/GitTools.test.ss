@@ -18192,9 +18192,9 @@ function repositoryCheckout( test )
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
-      attemptLimit : 4,
-      attemptDelay : 250,
-      attemptDelayMultiplier : 4,
+      attemptLimit : 8,
+      attemptDelay : 500,
+      attemptDelayMultiplier : 2,
     });
   });
 
