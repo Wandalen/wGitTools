@@ -20299,7 +20299,7 @@ function repositoryAgreeWithOptionDstDirPath( test )
   }
 }
 
-repositoryAgreeWithOptionDstDirPath.timeOut = 60000;
+repositoryAgreeWithOptionDstDirPath.timeOut = 120000;
 
 //
 
