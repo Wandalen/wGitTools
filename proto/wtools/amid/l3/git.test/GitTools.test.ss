@@ -27727,7 +27727,7 @@ function pushCheckOutput( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
-    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, 'ranch \'master\' set up to track ' ), 1 );
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
     return null;
   });
@@ -27751,7 +27751,7 @@ function pushCheckOutput( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
-    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, 'ranch \'master\' set up to track ' ), 1 );
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 0 );
     test.identical( _.strCount( op.output, 'master -> master' ), 1 );
     return null;
@@ -27772,7 +27772,7 @@ function pushCheckOutput( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
-    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, 'ranch \'master\' set up to track ' ), 1 );
     test.identical( _.strCount( op.output, 'Everything up-to-date' ), 1 );
     return null;
   });
@@ -27829,7 +27829,7 @@ function pushCheckOutput( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, />.*git push -u origin --all/ ), 1 );
-    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, 'ranch \'master\' set up to track ' ), 1 );
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
     test.identical( _.strCount( op.output, />.*git push --tags/ ), 1 );
     test.identical( _.strCount( op.output, 'Everything up-to-date' ), 1 );
@@ -27850,7 +27850,7 @@ function pushCheckOutput( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, />.*git push -u origin --all --force/ ), 1 );
-    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, 'ranch \'master\' set up to track ' ), 1 );
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
     test.identical( _.strCount( op.output, />.*git push --tags --force/ ), 1 );
     test.identical( _.strCount( op.output, 'Everything up-to-date' ), 1 );
@@ -27872,7 +27872,7 @@ function pushCheckOutput( test )
   ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, 'ranch \'master\' set up to track ' ), 1 );
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
     test.identical( _.strCount( op.output, />.*git push --tags/ ), 1 );
     test.identical( _.strCount( op.output, /\* \[new tag\]\s+v000 -> v000/ ), 1 );
@@ -27895,7 +27895,7 @@ function pushCheckOutput( test )
   ready.then( ( op ) =>
   {
     test.identical( op.exitCode, 0 );
-    test.identical( _.strCount( op.output, 'Branch \'master\' set up to track remote branch \'master\' from \'origin\'' ), 1 );
+    test.identical( _.strCount( op.output, 'ranch \'master\' set up to track ' ), 1 );
     test.identical( _.strCount( op.output, /\[new branch\]\s+ master -> master/ ), 1 );
     test.identical( _.strCount( op.output, />.*git push --tags --force/ ), 1 );
     test.identical( _.strCount( op.output, /\* \[new tag\]\s+v000 -> v000/ ), 1 );
