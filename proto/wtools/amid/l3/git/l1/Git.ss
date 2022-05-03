@@ -6526,6 +6526,8 @@ const reset = _.routine.unite( reset_head, reset_body );
 
 //
 
+let millisecondsConvert = null;
+
 function _getDelta( src )
 {
   if( _.number.is( src ) )
@@ -6535,13 +6537,38 @@ function _getDelta( src )
   if( negative )
   src = _.str.removeBegin( src, '-' );
 
-  const parts = src.trim().split( ':' );
-  _.assert( parts.length <= 3 );
-  const hours = _.number.from( parts[ 0 ] );
-  const days = Math.trunc( hours / 24 );
-  let baseDelta = 86400000 * days;
-  parts[ 0 ] = hours - ( days * 24 );
-  return ( baseDelta + Date.parse( `01 Jan 1970 ${ parts.join( ':' ) } GMT` ) ) * ( negative ? -1 : 1 );
+  let parts = src.trim().split( ':' );
+
+  if( parts.length === 3 )
+  {
+    const hours = _.number.from( parts[ 0 ] );
+    const days = Math.trunc( hours / 24 );
+    let baseDelta = 86400000 * days;
+    parts[ 0 ] = hours - ( days * 24 );
+    return ( baseDelta + Date.parse( `01 Jan 1970 ${ parts.join( ':' ) } GMT` ) ) * ( negative ? -1 : 1 );
+  }
+
+  _.assert( parts.length <= 1 );
+
+  if( millisecondsConvert === null )
+  {
+    const unitsBaseRatio =
+    {
+      default : 'ms',
+      ms : 1,
+      s : 1000,
+      m : 60 * 1000,
+      h : 60 * 60 * 1000,
+      d : 24 * 60 * 60 * 1000,
+    };
+    millisecondsConvert = _.units.unitsConvert_functor({ unitsBaseRatio });
+  }
+
+  parts = parts[ 0 ].split( /\s+/ );
+  let result = 0;
+  for( let i = 0 ; i < parts.length ; i++ )
+  result += millisecondsConvert({ src : parts[ i ] });
+  return result * ( negative ? -1 : 1 );
 }
 
 //
