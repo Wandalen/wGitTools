@@ -307,8 +307,8 @@ submodule:
   wgitpath:
     path: 'npm:///wgitpath'
     enabled: 0
-  wunits:
-    path: 'npm:///wunits'
+  wunit:
+    path: 'npm:///wunit'
     enabled: 0
   ini:
     path: 'npm:///ini!2.0.0'

@@ -211,8 +211,8 @@ module:
         path: 'npm:///wgitpath'
         autoExporting: 0
         enabled: 0
-      wunits:
-        path: 'npm:///wunits'
+      wunit:
+        path: 'npm:///wunit'
         autoExporting: 0
         enabled: 0
       ini:
@@ -986,8 +986,8 @@ module:
         path: 'npm:///wgitpath'
         autoExporting: 0
         enabled: 0
-      wunits:
-        path: 'npm:///wunits'
+      wunit:
+        path: 'npm:///wunit'
         autoExporting: 0
         enabled: 0
       ini:
