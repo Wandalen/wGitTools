@@ -1702,7 +1702,7 @@ function versionsPull( test )
   return a.ready;
 }
 
-versionsPull.routineTimeOut = 30000;
+versionsPull.routineTimeOut = 60000;
 
 //
 
@@ -18192,9 +18192,9 @@ function repositoryCheckout( test )
     ({
       localPath : a.abs( 'wModuleForTesting1' ),
       remotePath : 'https://github.com/Wandalen/wModuleForTesting1.git',
-      attemptLimit : 4,
-      attemptDelay : 250,
-      attemptDelayMultiplier : 4,
+      attemptLimit : 8,
+      attemptDelay : 500,
+      attemptDelayMultiplier : 2,
     });
   });
 
@@ -20299,7 +20299,7 @@ function repositoryAgreeWithOptionDstDirPath( test )
   }
 }
 
-repositoryAgreeWithOptionDstDirPath.timeOut = 60000;
+repositoryAgreeWithOptionDstDirPath.timeOut = 120000;
 
 //
 
