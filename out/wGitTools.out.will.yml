@@ -3,8 +3,8 @@ root:
   - wGitTools.out
 consistency:
   ../will.yml: &ref_0
-    hash: 028de352e8b7264b02938a3f1b4abeb6
-    size: 6925
+    hash: 43c5d4ad917b58078f1e1b0386d5b37e
+    size: 6974
 module:
   wGitTools.out:
     about:
@@ -209,6 +209,10 @@ module:
         enabled: 0
       wgitpath:
         path: 'npm:///wgitpath'
+        autoExporting: 0
+        enabled: 0
+      wunits:
+        path: 'npm:///wunits'
         autoExporting: 0
         enabled: 0
       ini:
@@ -982,6 +986,10 @@ module:
         path: 'npm:///wgitpath'
         autoExporting: 0
         enabled: 0
+      wunits:
+        path: 'npm:///wunits'
+        autoExporting: 0
+        enabled: 0
       ini:
         path: 'npm:///ini!2.0.0'
         autoExporting: 0
@@ -1529,5 +1537,5 @@ module:
           - 'build::npm'
     consistency:
       ../will.yml:
-        hash: 028de352e8b7264b02938a3f1b4abeb6
-        size: 6925
+        hash: 43c5d4ad917b58078f1e1b0386d5b37e
+        size: 6974
