@@ -24,9 +24,9 @@
     "url": "https://github.com/Wandalen/wGitTools/issues"
   },
   "dependencies": {
-    "wunit": "",
     "wTools": "",
     "wrepobasic": "",
+    "wunits": "",
     "wremote": "",
     "wprocess": "",
     "wintrospectorextra": "",
