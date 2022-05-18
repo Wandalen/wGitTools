@@ -20635,7 +20635,7 @@ function repositoryAgreeWithOptionDelay( test )
     ({
       srcBasePath : dstRepositoryRemote,
       dstBasePath : a.abs( '.' ),
-      srcState : '#HEAD~',
+      srcState : '#711c1496422c88395a2d83c4f9c91512322a3b99~',
       dstBranch : 'master',
       commitMessage : null,
       relative : 'commit',
@@ -20670,7 +20670,7 @@ function repositoryAgreeWithOptionDelay( test )
     ({
       srcBasePath : dstRepositoryRemote,
       dstBasePath : a.abs( '.' ),
-      srcState : '#HEAD~',
+      srcState : '#711c1496422c88395a2d83c4f9c91512322a3b99~',
       dstBranch : 'master',
       commitMessage : null,
       relative : 'commit',
@@ -20704,7 +20704,7 @@ function repositoryAgreeWithOptionDelay( test )
     ({
       srcBasePath : dstRepositoryRemote,
       dstBasePath : a.abs( '.' ),
-      srcState : '#HEAD~',
+      srcState : '#711c1496422c88395a2d83c4f9c91512322a3b99~',
       dstBranch : 'master',
       commitMessage : null,
       relative : 'commit',
