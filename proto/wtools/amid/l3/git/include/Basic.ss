@@ -16,7 +16,7 @@ if( typeof module !== 'undefined' )
   _.include( 'wRemote' );
   _.include( 'wRepoBasic' );
   _.include( 'wGitPath' );
-  _.include( 'wUnits' );
+  _.include( 'wUnit' );
 
   module[ 'exports' ] = _global_.wTools;
 }
