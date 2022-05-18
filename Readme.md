@@ -107,4 +107,3 @@ origin	https://github.com/USER/Test-repo.git (push)
 ```
 
 Also, check your Github repositories. The new repository `Test-repo` should exist.
-
