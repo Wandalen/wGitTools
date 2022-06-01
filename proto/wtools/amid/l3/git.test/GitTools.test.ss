@@ -27411,6 +27411,263 @@ pullCheckOutput.timeOut = 60000;
 
 //
 
+function pullAllBranches( test )
+{
+  const context = this;
+  const a = test.assetFor( 'basic' );
+
+  /* - */
+
+  begin().then( () =>
+  {
+    test.case = 'pull changes, second branch is synchronized';
+    return null;
+  });
+
+  a.ready.then( () =>
+  {
+    return _.git.pull
+    ({
+      localPath : a.abs( 'repo' ),
+      sync : 0
+    });
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git branch' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '* master' ), 1 );
+    test.identical( _.strCount( op.output, '* new' ), 0 );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout master' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git log' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'master_init' ), 1 );
+    test.identical( _.strCount( op.output, 'master_commit' ), 1 );
+    test.identical( _.strCount( op.output, 'new_commit1' ), 0 );
+    test.identical( _.strCount( op.output, 'new_commit2' ), 0 );
+    return null;
+  });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout new' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git log' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'master_init' ), 1 );
+    test.identical( _.strCount( op.output, 'master_commit' ), 0 );
+    test.identical( _.strCount( op.output, 'new_commit1' ), 1 );
+    test.identical( _.strCount( op.output, 'new_commit2' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'pull changes, second branch is not synchronized, no switch on different branch';
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout new' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git reset --hard HEAD~' });
+
+  a.ready.then( () =>
+  {
+    return _.git.pull
+    ({
+      localPath : a.abs( 'repo' ),
+      sync : 0
+    });
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git branch' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '* master' ), 0 );
+    test.identical( _.strCount( op.output, '* new' ), 1 );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout master' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git log' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'master_init' ), 1 );
+    test.identical( _.strCount( op.output, 'master_commit' ), 1 );
+    test.identical( _.strCount( op.output, 'new_commit1' ), 0 );
+    test.identical( _.strCount( op.output, 'new_commit2' ), 0 );
+    return null;
+  });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout new' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git log' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'master_init' ), 1 );
+    test.identical( _.strCount( op.output, 'master_commit' ), 0 );
+    test.identical( _.strCount( op.output, 'new_commit1' ), 1 );
+    test.identical( _.strCount( op.output, 'new_commit2' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'pull changes, second branch is not synchronized, no switch on different branch, no each branch pulling';
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout new' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git reset --hard HEAD~' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout master' });
+
+  a.ready.then( () =>
+  {
+    return _.git.pull
+    ({
+      localPath : a.abs( 'repo' ),
+      sync : 0
+    });
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git branch' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '* master' ), 1 );
+    test.identical( _.strCount( op.output, '* new' ), 0 );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout master' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git log' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'master_init' ), 1 );
+    test.identical( _.strCount( op.output, 'master_commit' ), 1 );
+    test.identical( _.strCount( op.output, 'new_commit1' ), 0 );
+    test.identical( _.strCount( op.output, 'new_commit2' ), 0 );
+    return null;
+  });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout new' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git log' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'master_init' ), 1 );
+    test.identical( _.strCount( op.output, 'master_commit' ), 0 );
+    test.identical( _.strCount( op.output, 'new_commit1' ), 1 );
+    test.identical( _.strCount( op.output, 'new_commit2' ), 0 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'pull changes, second branch is not synchronized, no switch on different branch, each branch pulling';
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout new' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git reset --hard HEAD~' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout master' });
+
+  a.ready.then( () =>
+  {
+    return _.git.pull
+    ({
+      localPath : a.abs( 'repo' ),
+      eachBranch : 1,
+      sync : 0
+    });
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git branch' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '* master' ), 1 );
+    test.identical( _.strCount( op.output, '* new' ), 0 );
+    return null;
+  });
+
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout master' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git log' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'master_init' ), 1 );
+    test.identical( _.strCount( op.output, 'master_commit' ), 1 );
+    test.identical( _.strCount( op.output, 'new_commit1' ), 0 );
+    test.identical( _.strCount( op.output, 'new_commit2' ), 0 );
+    return null;
+  });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout new' });
+  a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git log' });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'master_init' ), 1 );
+    test.identical( _.strCount( op.output, 'master_commit' ), 0 );
+    test.identical( _.strCount( op.output, 'new_commit1' ), 1 );
+    test.identical( _.strCount( op.output, 'new_commit2' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () =>
+    {
+      a.fileProvider.filesDelete( a.abs( 'main' ) );
+      a.fileProvider.filesDelete( a.abs( 'repo' ) );
+      return null;
+    });
+
+    a.ready.then( () =>
+    {
+      a.fileProvider.dirMake( a.abs( 'main' ) );
+      a.fileProvider.dirMake( a.abs( 'repo' ) );
+      a.fileProvider.fileWrite( a.abs( 'repo/file.txt' ), 'file.txt' );
+      return null;
+    });
+    a.shell({ currentPath : a.abs( 'main' ), execPath : 'git init --bare' });
+
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git init' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git remote add origin ../main' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit -m master_init' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git push -u origin master' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout -b new' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit --allow-empty -m new_commit1' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit --allow-empty -m new_commit2' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git push -u origin new' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git checkout master' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git commit --allow-empty -m master_commit' });
+    a.shell({ currentPath : a.abs( 'repo' ), execPath : 'git push' });
+    return a.ready;
+  }
+}
+
+pullAllBranches.timeOut = 60000;
+
+//
+
 function push( test )
 {
   let context = this;
@@ -33236,6 +33493,7 @@ const Proto =
     diffSameStates,
     pull,
     pullCheckOutput,
+    pullAllBranches,
     push,
     pushCheckOutput,
     pushTags,
