@@ -6149,14 +6149,67 @@ function pull( o )
     ready,
   });
 
-  start( `git pull` );
+  if( o.eachBranch )
+  {
+    let branchesDescriptor = branchesDescriptorGet();
+    for( let i = 0 ; i < branchesDescriptor.branches.length ; i++ )
+    {
+      const branch = branchesDescriptor.branches[ i ];
+      start( `git checkout ${ branch }` );
+      start( `git pull` );
+    }
+    start( `git checkout ${ branchesDescriptor.currentBranch }` );
+  }
+  else
+  {
+    start( `git pull` );
+  }
 
   if( o.sync )
   {
     ready.deasync();
     return ready.sync();
   }
+
   return ready;
+
+  /* */
+
+  function branchesDescriptorGet()
+  {
+    const process = start
+    ({
+      execPath : 'git branch',
+      sync : 1,
+      ready : _.take( null ),
+    });
+    const result =
+    {
+      currentBranch : null,
+      branches : [],
+    };
+    const branches = _.str.split
+    ({
+      src : process.output,
+      delimeter : '\n',
+      preservingEmpty : 0,
+    });
+    for( let i = 0; i < branches.length; i++ )
+    {
+      if( _.str.begins( branches[ i ], '* ' ) )
+      {
+        branches[ i ] = branches[ i ].substring( 2 ).trim();
+        result.currentBranch = branches[ i ];
+        result.branches.push( branches[ i ] );
+      }
+      else
+      {
+        branches[ i ] = branches[ i ].trim();
+        result.branches.push( branches[ i ] );
+      }
+    }
+    return result;
+  }
 }
 
 pull.defaults =
@@ -6164,6 +6217,7 @@ pull.defaults =
   localPath : null,
   dry : 0,
   sync : 1,
+  eachBranch : 0,
   logger : null,
   throwing : 0,
 };
