@@ -31113,6 +31113,8 @@ function commitsDatesWithOptionDeltaAsStringUnits( test )
   }
 }
 
+commitsDatesWithOptionDeltaAsStringUnits.timeOut = 60000;
+
 //
 
 function commitsDatesWithOptionPeriodic( test )
