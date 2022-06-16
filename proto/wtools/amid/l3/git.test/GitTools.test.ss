@@ -23968,6 +23968,8 @@ function repositoryMigrateWithOptionDry( test )
   }
 }
 
+repositoryMigrateWithOptionDry.timeOut = 60000;
+
 //
 
 function repositoryHistoryToJson( test )
