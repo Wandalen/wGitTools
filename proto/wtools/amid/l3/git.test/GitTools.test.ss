@@ -20846,6 +20846,8 @@ function repositoryAgreeWithOptionDelay( test )
   }
 }
 
+repositoryAgreeWithOptionDelay.timeOut = 60000;
+
 //
 
 function repositoryMigrate( test )
@@ -23815,7 +23817,7 @@ function repositoryMigrateWithOptionLogger( test )
   }
 }
 
-repositoryMigrateWithOptionLogger.timeOut = 60000;
+repositoryMigrateWithOptionLogger.timeOut = 120000;
 
 //
 
@@ -23965,6 +23967,8 @@ function repositoryMigrateWithOptionDry( test )
     });
   }
 }
+
+repositoryMigrateWithOptionDry.timeOut = 60000;
 
 //
 
@@ -31110,6 +31114,8 @@ function commitsDatesWithOptionDeltaAsStringUnits( test )
     return a.shell( `git reset --hard ${ srcCommit }` );
   }
 }
+
+commitsDatesWithOptionDeltaAsStringUnits.timeOut = 60000;
 
 //
 
