@@ -23817,7 +23817,7 @@ function repositoryMigrateWithOptionLogger( test )
   }
 }
 
-repositoryMigrateWithOptionLogger.timeOut = 60000;
+repositoryMigrateWithOptionLogger.timeOut = 120000;
 
 //
 
