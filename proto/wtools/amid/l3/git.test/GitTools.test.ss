@@ -20846,6 +20846,8 @@ function repositoryAgreeWithOptionDelay( test )
   }
 }
 
+repositoryAgreeWithOptionDelay.timeOut = 60000;
+
 //
 
 function repositoryMigrate( test )
