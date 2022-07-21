@@ -5097,11 +5097,13 @@ function repositoryMigrate( o )
     return null;
   });
 
-  const normalized = _.git.path.normalize( o.srcBasePath );
-  const srcBasePath = _.git.path.nativize( normalized );
+  const srcNormalized = _.git.path.normalize( o.srcBasePath );
+  const srcNativized = _.git.path.nativize( srcNormalized );
   if( !o.srcBranch )
   o.srcBranch =
-  _branchFromPath( basePath, normalized, false ) || _.git.tagLocalRetrive({ localPath : _.git.path.nativize( normalized ) });
+  _branchFromPath( basePath, srcNormalized, false )
+  || _.git.tagLocalRetrive({ localPath : _.git.path.nativize( srcNormalized ) });
+  const srcBasePath = _tagStrip( srcNativized );
 
   let srcState1 = o.srcState1;
   let srcState2 = o.srcState2;
@@ -5143,7 +5145,7 @@ function repositoryMigrate( o )
   ready.then( ( name ) => { remoteName = name; return null });
 
   ready.then( () => shell( `git remote add ${ remoteName } ${ srcBasePath }` ) );
-  ready.then( () => _.git.tagLocalChange({ localPath : basePath, tag : o.dstBranch }) );
+  ready.then( () => _.git.tagLocalChange({ localPath : basePath, tag : o.dstBranch, sync : 0 }) );
   ready.then( () => shell({ execPath : `git fetch ${ remoteName }`, outputPiping : 0 }) );
   verifyRepositoriesHasSameFiles()
 
