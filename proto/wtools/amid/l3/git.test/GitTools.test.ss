@@ -20952,7 +20952,11 @@ function repositoryMigrateWithLocalRepository( test )
 
   /* - */
 
-  begin();
+  begin().then( () =>
+  {
+    test.case = 'sync branches `master` of local repositories, branches as options';
+    return null;
+  });
   agree( '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
   a.ready.then( () =>
   {
@@ -20966,6 +20970,44 @@ function repositoryMigrateWithLocalRepository( test )
       srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
       srcBranch : 'master',
       dstBranch : 'master',
+      onCommitMessage : '__sync__',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.178' );
+    return null;
+  });
+  a.shell( 'git log -n 20' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'sync different branches of local repositories, branches in paths';
+    return null;
+  });
+  agree( '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd' );
+  a.shell({ currentPath : a.abs( '../repo' ), execPath : 'git checkout -b dev origin/dev' })
+  a.shell({ currentPath : a.abs( '../repo' ), execPath : 'git checkout master' })
+  a.ready.then( () =>
+  {
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : a.abs( '../repo!dev' ),
+      dstBasePath : a.abs( '.' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
       onCommitMessage : '__sync__',
     });
   });
