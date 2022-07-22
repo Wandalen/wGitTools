@@ -4758,9 +4758,9 @@ function repositoryAgree( o )
   const ready = _.take( null );
 
   let basePath = o.dstBasePath;
-  o.dstBasePath = _tagStrip( basePath );
+  let dstBasePathStripped = _.git.path.detrail( _tagStrip( basePath ) );
   if( o.dstDirPath )
-  basePath = _.git.path.join( o.dstBasePath, o.dstDirPath );
+  basePath = _.git.path.join( dstBasePathStripped, o.dstDirPath );
   basePath = _.git.path.detrail( _tagStrip( basePath ) );
   let shouldRemove = false;
 
@@ -4773,9 +4773,9 @@ function repositoryAgree( o )
     outputCollecting : 0,
   });
 
-  if( basePath !== o.dstBasePath )
+  if( basePath !== dstBasePathStripped )
   {
-    ready.then( () => _subrepositoryInitMaybe( o.dstBasePath, basePath ) );
+    ready.then( () => _subrepositoryInitMaybe( dstBasePathStripped, basePath ) );
     ready.then( ( isSubrepository ) => shouldRemove = !isSubrepository );
   }
   ready.then( () =>
@@ -4815,7 +4815,7 @@ function repositoryAgree( o )
 
   /* */
 
-  ready.then( () => _.git.tagLocalChange({ localPath : o.dstBasePath, tag : o.dstBranch }) );
+  ready.then( () => _.git.tagLocalChange({ localPath : dstBasePathStripped, tag : o.dstBranch }) );
   ready.then( () => shell({ execPath : `git fetch ${ remoteName }`, outputPiping : 0 }) );
 
   if( logger )
@@ -4866,7 +4866,7 @@ function repositoryAgree( o )
           });
           const dstHeadDescriptorCon = _.git.repositoryHistoryToJson
           ({
-            localPath : o.dstBasePath,
+            localPath : dstBasePathStripped,
             state1 : '#HEAD',
             state2 : '#HEAD',
           });
@@ -4889,10 +4889,10 @@ function repositoryAgree( o )
 
         process.env.GIT_COMMITTER_DATE = date;
         date = `--date="${ date }"`;
-        shell({ currentPath : o.dstBasePath, execPath : 'git add .' });
+        shell({ currentPath : dstBasePathStripped, execPath : 'git add .' });
         return shell
         ({
-          currentPath : o.dstBasePath,
+          currentPath : dstBasePathStripped,
           execPath : `git commit -m "${ o.commitMessage }" ${ date }`,
           outputPiping : 0,
         });
@@ -5065,7 +5065,7 @@ function repositoryMigrate( o )
   const ready = _.take( null );
 
   let basePath = o.dstBasePath;
-  o.dstBasePath = _tagStrip( basePath );
+  let dstBasePathStripped = _.git.path.detrail( _tagStrip( basePath ) );
   if( o.dstDirPath )
   basePath = _.git.path.join( o.dstBasePath, o.dstDirPath );
   basePath = _.git.path.detrail( _tagStrip( basePath ) );
@@ -5080,9 +5080,9 @@ function repositoryMigrate( o )
     inputMirroring : 0,
   });
 
-  if( basePath !== o.dstBasePath )
+  if( basePath !== dstBasePathStripped )
   {
-    ready.then( () => _subrepositoryInitMaybe( o.dstBasePath, basePath ) );
+    ready.then( () => _subrepositoryInitMaybe( dstBasePathStripped, basePath ) );
     ready.then( ( isSubrepository ) => shouldRemove = !isSubrepository );
   }
   ready.then( () =>
@@ -5174,7 +5174,7 @@ function repositoryMigrate( o )
       commitsArray = commits;
       return _.git.repositoryHistoryToJson
       ({
-        localPath : o.dstBasePath,
+        localPath : dstBasePathStripped,
         state1 : '#HEAD',
         state2 : '#HEAD',
       });
@@ -5339,14 +5339,14 @@ function repositoryMigrate( o )
             storeGitDir();
             return null;
           });
-          con2.then( () => shell({ currentPath : o.dstBasePath, execPath : `git add .` }) );
-          con2.then( () => _statusLocalGet( o.dstBasePath ) );
+          con2.then( () => shell({ currentPath : dstBasePathStripped, execPath : `git add .` }) );
+          con2.then( () => _statusLocalGet( dstBasePathStripped ) );
           con2.then( ( status ) =>
           {
             if( status && status.uncommitted )
             return shell
             ({
-              currentPath : o.dstBasePath,
+              currentPath : dstBasePathStripped,
               execPath : `git commit -m "${ commitMessage }" ${ date }`,
               outputPiping : 0
             });
