@@ -21027,6 +21027,46 @@ function repositoryMigrateWithLocalRepository( test )
     return null;
   });
 
+  /* */
+
+  begin().then( () =>
+  {
+    test.case = 'sync different branches of local repositories, branches in paths';
+    return null;
+  });
+  a.shell( 'git switch -c dev1 origin/dev1' );
+  a.shell( `git reset --hard ${ dstCommit }` );
+  agree( '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd', 'dev1' );
+  a.shell({ currentPath : a.abs( '../repo' ), execPath : 'git checkout -b dev origin/dev' })
+  a.shell({ currentPath : a.abs( '../repo' ), execPath : 'git checkout master' })
+  a.ready.then( () =>
+  {
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.170' );
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : a.abs( '../repo!dev' ),
+      dstBasePath : a.abs( './!dev1' ),
+      srcState1 : '#f68a59ec46b14b1f19b1e3e660e924b9f1f674dd',
+      onCommitMessage : '__sync__',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    var config = a.fileProvider.fileReadUnknown( a.abs( 'package.json' ) );
+    test.identical( config.version, '0.0.178' );
+    return null;
+  });
+  a.shell( 'git log -n 20 --branches dev1 --not master' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '__sync__' ), 15 );
+    test.ge( _.strCount( op.output, `Author: ${ user }` ), 15 );
+    return null;
+  });
+
   /* - */
 
   return a.ready;
@@ -21045,7 +21085,7 @@ function repositoryMigrateWithLocalRepository( test )
 
   /* */
 
-  function agree( state )
+  function agree( state, branch )
   {
     a.ready.then( () =>
     {
@@ -21054,7 +21094,7 @@ function repositoryMigrateWithLocalRepository( test )
         srcBasePath : a.abs( '../repo' ),
         dstBasePath : a.abs( '.' ),
         srcState : state,
-        dstBranch : 'master',
+        dstBranch : branch || 'master',
         mergeStrategy : 'src',
         relative : 'commit',
         delta : '1980:00:00',
@@ -21066,7 +21106,7 @@ function repositoryMigrateWithLocalRepository( test )
       const delta = start - _.time.now() - 3600000;
       return _.git.commitsDates
       ({
-        localPath : a.abs( '.' ),
+        localPath : `${ a.abs( '.' ) }${ branch ? '!' : '' }${ branch ? branch : '' }`,
         state1 : '#HEAD',
         relative : 'commit',
         delta,
@@ -21075,6 +21115,8 @@ function repositoryMigrateWithLocalRepository( test )
     return a.ready;
   }
 }
+
+repositoryMigrateWithLocalRepository.timeOut = 60000;
 
 //
 
