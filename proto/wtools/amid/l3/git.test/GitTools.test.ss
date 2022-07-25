@@ -21287,6 +21287,171 @@ repositoryMigrateWithOptionOnCommitMessage.timeOut = 120000;
 
 //
 
+function repositoryMigrateWithCommitMessageWithQuotes( test )
+{
+  const a = test.assetFor( false );
+  const srcRepositoryRemote = a.abs( '../clone' );
+  let srcState1 = null;
+
+  /* - */
+
+  begin();
+  quoted_make1();
+  a.ready.then( () =>
+  {
+    test.case = 'migrate history with quotes "`"';
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1,
+      srcBranch : 'master',
+      dstBranch : 'master',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+  a.shell( 'git log' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '`quoted `' ), 1 );
+    test.identical( _.strCount( op.output, 'partially `quoted`' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  quoted_make2();
+  a.ready.then( () =>
+  {
+    test.case = 'migrate history with quotes "`"';
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1,
+      srcBranch : 'master',
+      dstBranch : 'master',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+  a.shell( 'git log' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '"quoted "' ), 1 );
+    test.identical( _.strCount( op.output, 'partially "quoted"' ), 1 );
+    return null;
+  });
+
+  /* */
+
+  begin();
+  quoted_make3();
+  a.ready.then( () =>
+  {
+    test.case = `migrate history with quotes "'"`;
+    return _.git.repositoryMigrate
+    ({
+      srcBasePath : srcRepositoryRemote,
+      dstBasePath : a.abs( '.' ),
+      srcState1,
+      srcBranch : 'master',
+      dstBranch : 'master',
+    });
+  });
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op, true );
+    return null;
+  });
+  a.shell( 'git log' );
+  a.ready.then( ( op ) =>
+  {
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, '\'quoted \'' ), 1 );
+    test.identical( _.strCount( op.output, 'partially \'quoted\'' ), 1 );
+    return null;
+  });
+
+  /* - */
+
+  return a.ready;
+
+  /* */
+
+  function begin()
+  {
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.filesDelete( a.abs( '../clone' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '../clone' ) ); return null });
+    a.ready.then( () => { a.fileProvider.dirMake( a.abs( '.' ) ); return null });
+    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( '../clone/file.txt' ), 'file.txt' ); return null });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : `git init` });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : `git add .` });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : `git commit -m Init` });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : `git commit --allow-empty -m second` });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : `git log -1 --format=format:"%H"` });
+    a.ready.then( ( op ) =>
+    {
+      srcState1 = `#${ op.output.trim() }`;
+      return null;
+    });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : `git clone ./ ${ a.abs( '.' ) }` });
+    return a.ready;
+  }
+
+  /* */
+
+  function quoted_make1()
+  {
+    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( '../clone/file1.txt' ), 'file1.txt' ); return null });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git commit -am \'`quoted `\'' });
+    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( '../clone/file2.txt' ), 'file2.txt' ); return null });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git commit -am \'partially `quoted`\'' });
+    return a.ready;
+  }
+
+  /* */
+
+  function quoted_make2()
+  {
+    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( '../clone/file1.txt' ), 'file1.txt' ); return null });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git commit -am \'"quoted "\'' });
+    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( '../clone/file2.txt' ), 'file2.txt' ); return null });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git commit -am \'partially "quoted"\'' });
+    return a.ready;
+  }
+
+  /* */
+
+  function quoted_make3()
+  {
+    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( '../clone/file1.txt' ), 'file1.txt' ); return null });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git commit -am "\'quoted \'"' });
+    a.ready.then( () => { a.fileProvider.fileWrite( a.abs( '../clone/file2.txt' ), 'file2.txt' ); return null });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git add .' });
+    a.shell({ currentPath : a.abs( '../clone' ), execPath : 'git commit -am "partially \'quoted\'"' });
+    return a.ready;
+  }
+}
+
+//
+
 function repositoryMigrateWithOptionOnCommitMessageManual( test )
 {
   const a = test.assetFor( false );
@@ -33556,6 +33721,7 @@ const Proto =
     repositoryMigrate,
     repositoryMigrateWithLocalRepository,
     repositoryMigrateWithOptionOnCommitMessage,
+    repositoryMigrateWithCommitMessageWithQuotes,
     repositoryMigrateWithOptionOnCommitMessageManual,
     repositoryMigrateWithOptionOnDate,
     repositoryMigrateWithOptionOnDateAsMap,
