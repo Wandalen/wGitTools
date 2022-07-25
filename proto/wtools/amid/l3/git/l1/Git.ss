@@ -4893,7 +4893,7 @@ function repositoryAgree( o )
         return shell
         ({
           currentPath : dstBasePathStripped,
-          execPath : `git commit -m "${ o.commitMessage }" ${ date }`,
+          execPath : `git commit -m '${ o.commitMessage }' ${ date }`,
           outputPiping : 0,
         });
       }
@@ -5347,7 +5347,7 @@ function repositoryMigrate( o )
             return shell
             ({
               currentPath : dstBasePathStripped,
-              execPath : `git commit -m "${ commitMessage }" ${ date }`,
+              execPath : `git commit -m '${ commitMessage }' ${ date }`,
               outputPiping : 0
             });
             return null;
@@ -6837,7 +6837,7 @@ function commitsDates( o )
         date = `--date="${ date }"`;
       }
       const author = `--author="${ commits[ i ].author } <${ commits[ i ].email }>"`
-      return start( `git commit --allow-empty -m "${ commits[ i ].message }" ${ author } ${ date }` );
+      return start( `git commit --allow-empty -m '${ commits[ i ].message }' ${ author } ${ date }` );
     });
     return con;
   }
