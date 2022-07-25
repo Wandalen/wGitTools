@@ -4697,7 +4697,7 @@ function _subrepositoryInitMaybe( dstBasePath, basePath )
       if( status.uncommitted )
       shell( 'git add .' );
       shell({ execPath : 'git commit --allow-empty -m Init' })
-      return shell({ execPath : 'git commit --allow-empty -m "Indexed"' })
+      return shell({ execPath : 'git commit --allow-empty -m Indexed' })
     });
   }
 
@@ -4893,7 +4893,7 @@ function repositoryAgree( o )
         return shell
         ({
           currentPath : dstBasePathStripped,
-          execPath : `git commit -m '${ o.commitMessage }' ${ date }`,
+          execPath : `git commit -m "${ o.commitMessage.replace( /([`"])/g, '\\$1' ) }" ${ date }`,
           outputPiping : 0,
         });
       }
@@ -4937,7 +4937,7 @@ function repositoryAgree( o )
         return shell
         ({
           currentPath : tempPath,
-          execPath : [ 'git add .', 'git commit -m Init', 'git commit --allow-empty -m "Indexed"' ]
+          execPath : [ 'git add .', 'git commit -m Init', 'git commit --allow-empty -m Indexed' ]
         });
       });
     }
@@ -5347,7 +5347,7 @@ function repositoryMigrate( o )
             return shell
             ({
               currentPath : dstBasePathStripped,
-              execPath : `git commit -m '${ commitMessage }' ${ date }`,
+              execPath : `git commit -m "${ commitMessage.replace( /([`"])/g, '\\$1' ) }" ${ date }`,
               outputPiping : 0
             });
             return null;
@@ -5528,10 +5528,13 @@ function repositoryHistoryToJson( o )
   .then( ( log ) =>
   {
     let commits = log.output;
+    console.log( log.output );
     if( process.platform === 'win32' )
     commits = _.str.replace( commits, /\\/, '\\\\' );
+
     commits = _.str.replaceBegin( commits, '', '[\n' );
     commits = _.str.replaceEnd( commits, ',\n', '\n]' );
+    console.log( commits );
     return JSON.parse( commits );
   });
 }
@@ -6837,7 +6840,7 @@ function commitsDates( o )
         date = `--date="${ date }"`;
       }
       const author = `--author="${ commits[ i ].author } <${ commits[ i ].email }>"`
-      return start( `git commit --allow-empty -m '${ commits[ i ].message }' ${ author } ${ date }` );
+      return start( `git commit --allow-empty -m "${ commits[ i ].message.replace( /([`"])/g, '\\$1' ) }" ${ author } ${ date }` );
     });
     return con;
   }
