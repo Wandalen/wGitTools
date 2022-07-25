@@ -5528,15 +5528,22 @@ function repositoryHistoryToJson( o )
   .then( ( log ) =>
   {
     let commits = log.output;
-    console.log( log.output );
     if( process.platform === 'win32' )
     commits = _.str.replace( commits, /\\/, '\\\\' );
 
+    commits = commits.replace( /"message" : "(.*)",/g, commitMsgQuote );
     commits = _.str.replaceBegin( commits, '', '[\n' );
     commits = _.str.replaceEnd( commits, ',\n', '\n]' );
-    console.log( commits );
     return JSON.parse( commits );
   });
+
+  /* */
+
+  function commitMsgQuote( full, entry )
+  {
+    entry = entry.replace( /(["])/g, '\\$1' );
+    return `"message" : "${ entry }",`;
+  }
 }
 
 repositoryHistoryToJson.defaults =
