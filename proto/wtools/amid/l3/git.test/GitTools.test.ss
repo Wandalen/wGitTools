@@ -20940,6 +20940,8 @@ function repositoryMigrate( test )
   }
 }
 
+repositoryMigrate.timeOut = 90000;
+
 //
 
 function repositoryMigrateWithLocalRepository( test )
