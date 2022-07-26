@@ -20515,6 +20515,8 @@ function repositoryAgreeWithOptionLogger( test )
   }
 }
 
+repositoryAgreeWithOptionLogger.timeOut = 90000;
+
 //
 
 function repositoryAgreeWithOptionDry( test )
