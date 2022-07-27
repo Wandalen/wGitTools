@@ -5128,18 +5128,6 @@ function repositoryMigrate( o )
   }
   _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}.' );
 
-  if( o.onDate === null )
-  if( !o.editDate )
-  o.onDate = ( e ) => e;
-  if( o.editDate )
-  {
-    _.assert( !o.onDate, 'Expects manual or automated commit date editing, but not both.' );
-    o.onCommitMessage = onCommitData_functor();
-  }
-  if( _.aux.is( o.onDate ) )
-  o.onDate = _.git._onDate_functor( o.onDate );
-  _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}.' );
-
   let remoteName;
   ready.then( () => _remoteNameGenerate( basePath ) )
   ready.then( ( name ) => { remoteName = name; return null });
@@ -5266,6 +5254,7 @@ function repositoryMigrate( o )
     }
 
     const con = _.take( null );
+    con.then( () => onDateForm() );
     con.then( () => o.onDate( commits[ length - 1 ].date, 'date', commits[ length - 1 ] ) );
     con.then( ( startCommitDate ) =>
     {
@@ -5303,7 +5292,7 @@ function repositoryMigrate( o )
       con.then( ( diff ) =>
       {
         if( diff.output )
-        if( !_.str.begins( commits[ i ].message, 'Merge pull request' ) )
+        if( !_.str.begins( commits[ i ].message, 'Merge ' ) )
         {
           if( !outputDiffPathsFilter( diff.output, true ).length )
           return null;
@@ -5444,6 +5433,59 @@ function repositoryMigrate( o )
     shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, sync : 1, outputPiping : 0 });
     shell({ execPath : `git clean -df`, sync : 1, outputPiping : 0 });
     shell({ execPath : `git checkout ./`, sync : 1, outputPiping : 0 });
+  }
+
+  /* */
+
+  function onDateForm()
+  {
+    if( o.onDate === null )
+    if( !o.editDate )
+    o.onDate = ( e ) => e;
+    if( o.editDate )
+    {
+      _.assert( !o.onDate, 'Expects manual or automated commit date editing, but not both.' );
+      o.onCommitMessage = onCommitData_functor();
+    }
+    if( _.aux.is( o.onDate ) )
+    {
+      let onDate = o.onDate;
+      if( o.onDate.timeRange )
+      {
+        _.assert( _.long.is( o.onDate.timeRange ), 'Time range should be a long.' );
+        _.assert
+        (
+          !o.onDate.periodic,
+          'Should be no option `periodic`. Routine will calculate the option `periodic` from time range automatically.'
+        );
+
+        onDate = _.map.extend( null, o.onDate );
+        let baseTime = o.relative === 'now' ? _.time.now() : commits[ length - 1 ].date;
+        let startTime =
+        onDate.timeRange[ 0 ] === null ? Date.parse( commits[ length - 1 ].date ) : baseTime + _getDelta( onDate.timeRange[ 0 ] );
+        let endTime =
+        onDate.timeRange[ 1 ] === null ? _.time.now() : baseTime + _getDelta( onDate.timeRange[ 1 ] );
+        let delta = Date.parse( o.delta );
+        let n = commits.reduce
+        (
+          ( accum, commit ) =>
+          {
+            if( _.str.begins( commit.message, 'Merge ' ) )
+            accum += 1;
+            return accum;
+          },
+          0
+        );
+        onDate.periodic = Math.floor( ( endTime - startTime - delta ) / ( commits.length - n ) );
+        if( onDate.relative === 'commit' )
+        onDate.relative = 'fromFirst';
+      }
+
+      o.onDate = _.git._onDate_functor( onDate );
+    }
+
+    _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}.' );
+    return null;
   }
 
   /* */
