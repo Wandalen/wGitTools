@@ -5338,7 +5338,7 @@ function repositoryMigrate( o )
             ({
               currentPath : dstBasePathStripped,
               execPath : `git commit -m "${ commitMessage.replace( /([`"])/g, '\\$1' ) }" ${ date }`,
-              outputPiping : 0
+              outputPiping : 1
             });
             return null;
           });
