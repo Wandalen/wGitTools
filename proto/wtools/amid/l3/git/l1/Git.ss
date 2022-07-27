@@ -5210,21 +5210,6 @@ function repositoryMigrate( o )
 
   /* */
 
-  function remoteNameGenerate()
-  {
-    ready.then( () =>
-    {
-      let remoteName = `_temp-${ _.idWithGuid() }`;
-      const config = _.git.configRead( basePath );
-      while( `remote "${ remoteName }"` in config )
-      remoteName = `_temp-${ _.idWithGuid() }`;
-      return remoteName;
-    });
-    return ready;
-  }
-
-  /* */
-
   function verifyRepositoriesHasSameFiles()
   {
     ready.then( () =>
@@ -5233,6 +5218,7 @@ function repositoryMigrate( o )
       ({
         execPath : `git diff --name-only --diff-filter=d ${ o.dstBranch }..${ srcState1 }`,
         outputCollecting : 1,
+        outputPiping : 0,
       });
     });
     ready.then( ( diff ) =>
@@ -5243,8 +5229,11 @@ function repositoryMigrate( o )
         if( files.length )
         throw _.err
         (
-          `Expects no diffs between ${ o.dstBranch } and ${ o.srcBasePath }.`
-          + `\nPlease, synchronize states before reflecting of commits.`
+          `Expects no diffs between ${ o.dstBasePath } and ${ o.srcBasePath }.`
+          + `\nThe files with different content :`
+          + `\n${ _.entity.exportStringNice( files ) }`
+          + `\n\nPlease, synchronize states before reflecting of commits.`
+          + `\nOr setup filters only/but to include/exclude files.`
         );
       }
       return null;
@@ -5294,6 +5283,7 @@ function repositoryMigrate( o )
         ({
           execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }`,
           throwingExitCode : 0,
+          outputPiping : 0,
         });
       });
       con.then( ( op ) =>
