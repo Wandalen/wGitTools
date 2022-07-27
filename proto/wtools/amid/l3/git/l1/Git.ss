@@ -5181,6 +5181,7 @@ function repositoryMigrate( o )
     });
     ready.then( ( head ) => writeCommits( head, commitsArray ) );
   }
+
   ready.finally( ( err, arg ) =>
   {
     if( err )
@@ -5270,7 +5271,13 @@ function repositoryMigrate( o )
     {
       const headDate = Date.parse( head[ 0 ].date );
       const commitStartDate = Date.parse( startCommitDate ) || _.time.now();
-      _.assert( headDate <= commitStartDate, 'New commit should be newer than last commit in branch.' );
+      _.sure
+      (
+        headDate <= commitStartDate,
+        'New commit should be newer than last commit in destination branch.'
+        + `\nThe date of last commit in the destination branch : "${ new Date( headDate ) }"`
+        + `\nThe date that will be applied to first commit from the source branch : "${ new Date( commitStartDate ) }"`
+      );
       return null;
     });
 
@@ -5434,9 +5441,9 @@ function repositoryMigrate( o )
 
   function filesUnstage( exclude )
   {
-    shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, sync : 1 });
-    shell({ execPath : `git clean -df`, sync : 1 });
-    shell({ execPath : `git checkout ./`, sync : 1 });
+    shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, sync : 1, outputPiping : 0 });
+    shell({ execPath : `git clean -df`, sync : 1, outputPiping : 0 });
+    shell({ execPath : `git checkout ./`, sync : 1, outputPiping : 0 });
   }
 
   /* */
