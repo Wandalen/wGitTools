@@ -22196,7 +22196,7 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
         test.identical( arg, undefined );
         test.identical( err.originalMessage, 'Deviation cannot be bigger than period.' );
       };
-      return test.shouldThrowErrorSync( () =>
+      return test.shouldThrowErrorAsync( () =>
       {
         return _.git.repositoryMigrate
         ({
@@ -22224,7 +22224,7 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
         test.true( _.error.is( err ) );
         test.identical( arg, undefined );
         var exp = 'New commit should be newer than last commit in branch.';
-        test.identical( err.originalMessage, exp );
+        test.identical( _strCoung( err.originalMessage, exp ), 1 );
       };
       return test.shouldThrowErrorAsync( () =>
       {
