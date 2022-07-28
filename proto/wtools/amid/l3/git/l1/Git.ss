@@ -5460,13 +5460,15 @@ function repositoryMigrate( o )
         );
 
         onDate = _.map.extend( null, o.onDate );
-        let baseTime = o.relative === 'now' ? _.time.now() : commits[ length - 1 ].date;
-        let startTime =
-        onDate.timeRange[ 0 ] === null ? Date.parse( commits[ length - 1 ].date ) : baseTime + _getDelta( onDate.timeRange[ 0 ] );
-        let endTime =
+        const commits = commitsArray;
+        const length = commits.length;
+        const baseTime = o.relative === 'now' ? _.time.now() : Date.parse( commits[ length - 1 ].date );
+        const startTime =
+        onDate.timeRange[ 0 ] === null? Date.parse( commits[ length - 1 ].date ) : baseTime + _getDelta( onDate.timeRange[ 0 ] );
+        const endTime =
         onDate.timeRange[ 1 ] === null ? _.time.now() : baseTime + _getDelta( onDate.timeRange[ 1 ] );
-        let delta = Date.parse( o.delta );
-        let n = commits.reduce
+        const delta = _getDelta( o.onDate.delta );
+        const n = commitsArray.reduce
         (
           ( accum, commit ) =>
           {
@@ -5476,7 +5478,8 @@ function repositoryMigrate( o )
           },
           0
         );
-        onDate.periodic = Math.floor( ( endTime - startTime - delta ) / ( commits.length - n ) );
+        onDate.periodic = Math.floor( ( endTime - startTime - delta ) / ( commitsArray.length - n ) );
+        _.sure( onDate.periodic > 0, 'Expects growing sequence in range.' );
         if( onDate.relative === 'commit' )
         onDate.relative = 'fromFirst';
       }
