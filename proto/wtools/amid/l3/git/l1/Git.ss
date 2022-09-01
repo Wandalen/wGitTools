@@ -4741,6 +4741,70 @@ function _remoteNameGenerate( basePath )
   return remoteName;
 }
 
+
+//
+
+function _filesUnstage( o, exclude )
+{
+  let ready = _.take( null );
+  const shell = _.process.starter
+  ({
+    currentPath : o.basePath,
+    inputMirroring : 0,
+    outputCollecting : 0,
+    ready,
+  });
+
+  if( exclude.length > 10 )
+  exclude = pathsFilterCommon( exclude );
+  shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, throwingExitCode : 0 });
+  shell({ execPath : `git clean -df` });
+  shell({ execPath : `git checkout ./` });
+
+  ready.deasync();
+  return ready.sync()
+
+  /* */
+
+  function pathsFilterCommon( paths )
+  {
+    let result = [];
+
+    let first = _.strIsolateLeftOrAll( paths[ 0 ], '/' )[ 0 ];
+    let commonContainer = [ paths[ 0 ] ];
+
+    for( let i = 1 ; i < paths.length ; i++ )
+    {
+      let split = _.strIsolateLeftOrAll( paths[ i ], '/' )[ 0 ];
+      if( split === first )
+      {
+        commonContainer.push( paths[ i ] );
+      }
+      else
+      {
+        first = split;
+        let common = _.path.common( commonContainer );
+        if( common !== '' )
+        result.push( `${ _.path.detrail( common ) }*` );
+        commonContainer = [ paths[ i ] ];
+      }
+    }
+
+    if( commonContainer.length === 1 && result.length > 1 )
+    {
+      result.push( commonContainer[ 0 ] );
+    }
+    else if( commonContainer.length > 1 )
+    {
+      let common = _.path.common( commonContainer );
+      if( common !== '' )
+      result.push( `${ _.path.detrail( common ) }*` );
+    }
+
+    return result;
+  }
+}
+
 //
 
 function repositoryAgree( o )
@@ -4761,7 +4825,7 @@ function repositoryAgree( o )
   let dstBasePathStripped = _.git.path.detrail( _tagStrip( basePath ) );
   if( o.dstDirPath )
   basePath = _.git.path.join( dstBasePathStripped, o.dstDirPath );
-  basePath = _.git.path.detrail( _tagStrip( basePath ) );
+  basePath = o.basePath = _.git.path.detrail( _tagStrip( basePath ) );
   let shouldRemove = false;
 
   const logger = _.logger.relativeMaybe( o.logger, -1 );
@@ -4982,14 +5046,14 @@ function repositoryAgree( o )
       const exclude = _.arrayAppendArray( null, pathsFromStatus );
       _.arrayRemovedArrayOnce( exclude, paths );
       if( exclude.length )
-      filesUnstage( exclude );
+      _filesUnstage( o, exclude );
       pathsFromStatus = paths;
     }
     if( o.but )
     {
       const exclude = pathsFilter( pathsFromStatus, o.but );
       if( exclude.length )
-      filesUnstage( exclude );
+      _filesUnstage( o, exclude );
       _.arrayRemovedArrayOnce( pathsFromStatus, exclude );
     }
     return pathsFromStatus;
@@ -5020,15 +5084,6 @@ function repositoryAgree( o )
       _.arrayAppendArrayOnce( result, entries );
     }
     return result;
-  }
-
-  /* */
-
-  function filesUnstage( exclude )
-  {
-    shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, sync : 1 });
-    shell({ execPath : `git clean -df`, sync : 1 });
-    shell({ execPath : `git checkout ./`, sync : 1 });
   }
 }
 
@@ -5068,7 +5123,7 @@ function repositoryMigrate( o )
   let dstBasePathStripped = _.git.path.detrail( _tagStrip( basePath ) );
   if( o.dstDirPath )
   basePath = _.git.path.join( o.dstBasePath, o.dstDirPath );
-  basePath = _.git.path.detrail( _tagStrip( basePath ) );
+  basePath = o.basePath = _.git.path.detrail( _tagStrip( basePath ) );
   let shouldRemove = false;
 
   const logger = _.logger.relativeMaybe( o.logger, -1 );
@@ -5387,14 +5442,14 @@ function repositoryMigrate( o )
       let exclude = _.arrayAppendArray( null, pathsFromStatus );
       _.arrayRemovedArrayOnce( exclude, paths );
       if( unstage && exclude.length )
-      filesUnstage( exclude );
+      _filesUnstage( o, exclude );
       pathsFromStatus = paths;
     }
     if( o.but )
     {
       let exclude = pathsFilter( pathsFromStatus, o.but );
       if( unstage && exclude.length )
-      filesUnstage( exclude );
+      _filesUnstage( o, exclude );
       _.arrayRemovedArrayOnce( pathsFromStatus, exclude );
     }
 
@@ -5424,15 +5479,6 @@ function repositoryMigrate( o )
       _.arrayAppendArrayOnce( result, filtered );
     }
     return result;
-  }
-
-  /* */
-
-  function filesUnstage( exclude )
-  {
-    shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, sync : 1, outputPiping : 0 });
-    shell({ execPath : `git clean -df`, sync : 1, outputPiping : 0 });
-    shell({ execPath : `git checkout ./`, sync : 1, outputPiping : 0 });
   }
 
   /* */
