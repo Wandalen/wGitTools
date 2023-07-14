@@ -1910,9 +1910,7 @@ function statusLocal_body( o )
 
   return ready;
 
-  /* aaa : for Dmytro : list of subroutines? */
   /*
-    Dmytro : list of subroutines is given below
     statusMake
     uncommittedCheck
     optimizedCheck
@@ -1920,9 +1918,6 @@ function statusLocal_body( o )
     resultPrepare
     uncommittedDetailedCheck
     checkTags
-    retry
-    remoteTagsGet
-    remoteTagsGetSync
     checkBranches
     unpushedCommitsCheck
   */
@@ -2200,70 +2195,19 @@ function statusLocal_body( o )
 
     /* check tags */
 
-    return start( 'git for-each-ref */tags/* --format=%(refname:short)' )
-    .then( ( got ) =>
-    {
-      tags = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
-      _.assert( tags.length > 0 );
-      return remoteTagsGet();
-    })
+    return start( 'git push --dry-run --force --tags' )
     .then( ( got ) =>
     {
       result.unpushedTags = '';
-      let unpushedTags = [];
-      _.each( tags, ( tag ) =>
-      {
-        if( !_.strHas( got.output, `refs/tags/${tag}` ) )
-        unpushedTags.push( `[new tag]   ${tag} -> ${tag}` );
-      })
-
-      if( unpushedTags.length )
-      result.unpushedTags += unpushedTags.join( '\n' );
-
+      tags = _.strSplitNonPreserving({ src : got.output, delimeter : '\n' });
+      tags.shift();
+      tags = tags.map( ( e ) => {
+        let tagLine = _.str.removeBegin( e, [ '* ', '+ ' ] );
+        return _.str.replace( tagLine, /\s{2,}/, '   ' );
+      });
+      result.unpushedTags += tags.join( '\n' );
       return result.unpushedTags;
-    })
-  }
-
-  /* */
-
-  function retry()
-  {
-    o.attempt -= 1;
-    return _.time.out( o.attemptDelay, () => remoteTagsGet() );
-  }
-
-  /* */
-
-  function remoteTagsGet()
-  {
-    _.assert( o.attempt >= 1, 'Expects defined number of attempts {-o.attempt-}' );
-
-    let result = remoteTagsGetSync();
-    if( result.exitCode === 0 )
-    return result;
-
-    if( _.strHas( result.output, /(C|c)ould not resolve host/ ) && o.attempt > 1 )
-    return retry();
-    else
-    throw _.errOnce( `Exit code : ${result.exitCode}\n`, result.output );
-  }
-
-  /* */
-
-  function remoteTagsGetSync()
-  {
-    return _.process.start
-    ({
-      execPath : 'git ls-remote --tags --refs',
-      currentPath : o.localPath,
-      mode : 'spawn',
-      sync : 1,
-      throwingExitCode : 0,
-      outputCollecting : 1,
-      // verbosity : o.verbosity - 1,
-      logger : _.logger.relativeMaybe( o.logger, -1 ),
-      verbosity : o.logger ? o.logger.verbosity - 1 : 0,
-    })
+    });
   }
 
   /* */
