@@ -22051,7 +22051,7 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
           srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
           srcBranch : 'master',
           dstBranch : 'master',
-          onDate : { relative : 'fromFirst', delta : '-9600:00:00', periodic : '00:00:00', deviation : '00:00:00' },
+          onDate : { relative : 'fromFirst', delta : '-40600:00:00', periodic : '00:00:00', deviation : '00:00:00' },
           onCommitMessage : ( e ) => e,
         });
       }, onErrorCallback );
