@@ -28355,7 +28355,6 @@ pushCheckOutput.timeOut = 60000;
 
 function pushTags( test )
 {
-  let context = this;
   let a = test.assetFor( 'basic' );
   a.shell.predefined.outputCollecting = 1;
   a.shell.predefined.currentPath = a.abs( 'repo' );
@@ -28577,6 +28576,59 @@ function pushTags( test )
     test.description = 'before';
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, 'v000' ), 1 );
+    return null;
+  });
+
+  tagAdd( 'v000' );
+  a.ready.then( () =>
+  {
+    var got = _.git.push({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+
+  /* */
+
+  let output;
+  begin().then( () =>
+  {
+    test.case = 'force updated tag';
+    a.fileProvider.filesDelete( a.abs( 'clone' ) );
+    return null;
+  });
+
+  tagAdd( 'v000' );
+  a.ready.then( () =>
+  {
+    var got = _.git.push({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'before';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'v000' ), 2 );
+    output = op.output;
+    return null;
+  });
+
+  commitAdd();
+  tagAdd( 'v000' );
+  a.ready.then( () =>
+  {
+    var got = _.git.push({ localPath : a.abs( 'repo' ), withTags : 1, force : 1 });
+    test.identical( got.exitCode, 0 );
+    return null;
+  });
+  a.shell( 'git ls-remote --tags' );
+  a.ready.then( ( op ) =>
+  {
+    test.description = 'before';
+    test.identical( op.exitCode, 0 );
+    test.identical( _.strCount( op.output, 'v000' ), 2 );
+    test.notIdentical( output, op.output );
     return null;
   });
 
