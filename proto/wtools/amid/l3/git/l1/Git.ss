@@ -4641,7 +4641,7 @@ function _subrepositoryInitMaybe( dstBasePath, basePath )
       if( status.uncommitted )
       shell( 'git add .' );
       shell({ execPath : 'git commit --allow-empty -m Init' })
-      return shell({ execPath : 'git commit --allow-empty -m "Indexed"' })
+      return shell({ execPath : 'git commit --allow-empty -m Indexed' })
     });
   }
 
@@ -4685,6 +4685,70 @@ function _remoteNameGenerate( basePath )
   return remoteName;
 }
 
+
+//
+
+function _filesUnstage( o, exclude )
+{
+  let ready = _.take( null );
+  const shell = _.process.starter
+  ({
+    currentPath : o.basePath,
+    inputMirroring : 0,
+    outputCollecting : 0,
+    ready,
+  });
+
+  if( exclude.length > 10 )
+  exclude = pathsFilterCommon( exclude );
+  shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, throwingExitCode : 0 });
+  shell({ execPath : `git clean -df` });
+  shell({ execPath : `git checkout ./` });
+
+  ready.deasync();
+  return ready.sync()
+
+  /* */
+
+  function pathsFilterCommon( paths )
+  {
+    let result = [];
+
+    let first = _.strIsolateLeftOrAll( paths[ 0 ], '/' )[ 0 ];
+    let commonContainer = [ paths[ 0 ] ];
+
+    for( let i = 1 ; i < paths.length ; i++ )
+    {
+      let split = _.strIsolateLeftOrAll( paths[ i ], '/' )[ 0 ];
+      if( split === first )
+      {
+        commonContainer.push( paths[ i ] );
+      }
+      else
+      {
+        first = split;
+        let common = _.path.common( commonContainer );
+        if( common !== '' )
+        result.push( `${ _.path.detrail( common ) }*` );
+        commonContainer = [ paths[ i ] ];
+      }
+    }
+
+    if( commonContainer.length === 1 && result.length > 1 )
+    {
+      result.push( commonContainer[ 0 ] );
+    }
+    else if( commonContainer.length > 1 )
+    {
+      let common = _.path.common( commonContainer );
+      if( common !== '' )
+      result.push( `${ _.path.detrail( common ) }*` );
+    }
+
+    return result;
+  }
+}
+
 //
 
 function repositoryAgree( o )
@@ -4705,7 +4769,7 @@ function repositoryAgree( o )
   let dstBasePathStripped = _.git.path.detrail( _tagStrip( basePath ) );
   if( o.dstDirPath )
   basePath = _.git.path.join( dstBasePathStripped, o.dstDirPath );
-  basePath = _.git.path.detrail( _tagStrip( basePath ) );
+  basePath = o.basePath = _.git.path.detrail( _tagStrip( basePath ) );
   let shouldRemove = false;
 
   const logger = _.logger.relativeMaybe( o.logger, -1 );
@@ -4837,7 +4901,7 @@ function repositoryAgree( o )
         return shell
         ({
           currentPath : dstBasePathStripped,
-          execPath : `git commit -m '${ o.commitMessage }' ${ date }`,
+          execPath : `git commit -m "${ o.commitMessage.replace( /([`"])/g, '\\$1' ) }" ${ date }`,
           outputPiping : 0,
         });
       }
@@ -4881,7 +4945,7 @@ function repositoryAgree( o )
         return shell
         ({
           currentPath : tempPath,
-          execPath : [ 'git add .', 'git commit -m Init', 'git commit --allow-empty -m "Indexed"' ]
+          execPath : [ 'git add .', 'git commit -m Init', 'git commit --allow-empty -m Indexed' ]
         });
       });
     }
@@ -4926,14 +4990,14 @@ function repositoryAgree( o )
       const exclude = _.arrayAppendArray( null, pathsFromStatus );
       _.arrayRemovedArrayOnce( exclude, paths );
       if( exclude.length )
-      filesUnstage( exclude );
+      _filesUnstage( o, exclude );
       pathsFromStatus = paths;
     }
     if( o.but )
     {
       const exclude = pathsFilter( pathsFromStatus, o.but );
       if( exclude.length )
-      filesUnstage( exclude );
+      _filesUnstage( o, exclude );
       _.arrayRemovedArrayOnce( pathsFromStatus, exclude );
     }
     return pathsFromStatus;
@@ -4964,15 +5028,6 @@ function repositoryAgree( o )
       _.arrayAppendArrayOnce( result, entries );
     }
     return result;
-  }
-
-  /* */
-
-  function filesUnstage( exclude )
-  {
-    shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, sync : 1 });
-    shell({ execPath : `git clean -df`, sync : 1 });
-    shell({ execPath : `git checkout ./`, sync : 1 });
   }
 }
 
@@ -5012,7 +5067,7 @@ function repositoryMigrate( o )
   let dstBasePathStripped = _.git.path.detrail( _tagStrip( basePath ) );
   if( o.dstDirPath )
   basePath = _.git.path.join( o.dstBasePath, o.dstDirPath );
-  basePath = _.git.path.detrail( _tagStrip( basePath ) );
+  basePath = o.basePath = _.git.path.detrail( _tagStrip( basePath ) );
   let shouldRemove = false;
 
   const logger = _.logger.relativeMaybe( o.logger, -1 );
@@ -5072,18 +5127,6 @@ function repositoryMigrate( o )
   }
   _.assert( _.routine.is( o.onCommitMessage ), 'Expects routine to produce commit message {-o.onCommitMessage-}.' );
 
-  if( o.onDate === null )
-  if( !o.editDate )
-  o.onDate = ( e ) => e;
-  if( o.editDate )
-  {
-    _.assert( !o.onDate, 'Expects manual or automated commit date editing, but not both.' );
-    o.onCommitMessage = onCommitData_functor();
-  }
-  if( _.aux.is( o.onDate ) )
-  o.onDate = _.git._onDate_functor( o.onDate );
-  _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}.' );
-
   let remoteName;
   ready.then( () => _remoteNameGenerate( basePath ) )
   ready.then( ( name ) => { remoteName = name; return null });
@@ -5125,6 +5168,7 @@ function repositoryMigrate( o )
     });
     ready.then( ( head ) => writeCommits( head, commitsArray ) );
   }
+
   ready.finally( ( err, arg ) =>
   {
     if( err )
@@ -5154,21 +5198,6 @@ function repositoryMigrate( o )
 
   /* */
 
-  function remoteNameGenerate()
-  {
-    ready.then( () =>
-    {
-      let remoteName = `_temp-${ _.idWithGuid() }`;
-      const config = _.git.configRead( basePath );
-      while( `remote "${ remoteName }"` in config )
-      remoteName = `_temp-${ _.idWithGuid() }`;
-      return remoteName;
-    });
-    return ready;
-  }
-
-  /* */
-
   function verifyRepositoriesHasSameFiles()
   {
     ready.then( () =>
@@ -5177,6 +5206,7 @@ function repositoryMigrate( o )
       ({
         execPath : `git diff --name-only --diff-filter=d ${ o.dstBranch }..${ srcState1 }`,
         outputCollecting : 1,
+        outputPiping : 0,
       });
     });
     ready.then( ( diff ) =>
@@ -5187,8 +5217,11 @@ function repositoryMigrate( o )
         if( files.length )
         throw _.err
         (
-          `Expects no diffs between ${ o.dstBranch } and ${ o.srcBasePath }.`
-          + `\nPlease, synchronize states before reflecting of commits.`
+          `Expects no diffs between ${ o.dstBasePath } and ${ o.srcBasePath }.`
+          + `\nThe files with different content :`
+          + `\n${ _.entity.exportStringNice( files ) }`
+          + `\n\nPlease, synchronize states before reflecting of commits.`
+          + `\nOr setup filters only/but to include/exclude files.`
         );
       }
       return null;
@@ -5220,12 +5253,19 @@ function repositoryMigrate( o )
     }
 
     const con = _.take( null );
+    con.then( () => onDateForm() );
     con.then( () => o.onDate( commits[ length - 1 ].date, 'date', commits[ length - 1 ] ) );
     con.then( ( startCommitDate ) =>
     {
       const headDate = Date.parse( head[ 0 ].date );
       const commitStartDate = Date.parse( startCommitDate ) || _.time.now();
-      _.assert( headDate <= commitStartDate, 'New commit should be newer than last commit in branch.' );
+      _.sure
+      (
+        headDate <= commitStartDate,
+        'New commit should be newer than last commit in destination branch.'
+        + `\nThe date of last commit in the destination branch : "${ new Date( headDate ) }"`
+        + `\nThe date that will be applied to first commit from the source branch : "${ new Date( commitStartDate ) }"`
+      );
       return null;
     });
 
@@ -5238,6 +5278,7 @@ function repositoryMigrate( o )
         ({
           execPath : `git cherry-pick --strategy=recursive -X theirs -n -m 1 ${ commits[ i ].hash }`,
           throwingExitCode : 0,
+          outputPiping : 0,
         });
       });
       con.then( ( op ) =>
@@ -5250,7 +5291,7 @@ function repositoryMigrate( o )
       con.then( ( diff ) =>
       {
         if( diff.output )
-        if( !_.str.begins( commits[ i ].message, 'Merge pull request' ) )
+        if( !_.str.begins( commits[ i ].message, 'Merge ' ) )
         {
           if( !outputDiffPathsFilter( diff.output, true ).length )
           return null;
@@ -5291,8 +5332,8 @@ function repositoryMigrate( o )
             return shell
             ({
               currentPath : dstBasePathStripped,
-              execPath : `git commit -m '${ commitMessage }' ${ date }`,
-              outputPiping : 0
+              execPath : `git commit -m "${ commitMessage.replace( /([`"])/g, '\\$1' ) }" ${ date }`,
+              outputPiping : 1
             });
             return null;
           });
@@ -5345,14 +5386,14 @@ function repositoryMigrate( o )
       let exclude = _.arrayAppendArray( null, pathsFromStatus );
       _.arrayRemovedArrayOnce( exclude, paths );
       if( unstage && exclude.length )
-      filesUnstage( exclude );
+      _filesUnstage( o, exclude );
       pathsFromStatus = paths;
     }
     if( o.but )
     {
       let exclude = pathsFilter( pathsFromStatus, o.but );
       if( unstage && exclude.length )
-      filesUnstage( exclude );
+      _filesUnstage( o, exclude );
       _.arrayRemovedArrayOnce( pathsFromStatus, exclude );
     }
 
@@ -5386,11 +5427,58 @@ function repositoryMigrate( o )
 
   /* */
 
-  function filesUnstage( exclude )
+  function onDateForm()
   {
-    shell({ execPath : `git restore --staged ${ exclude.join( ' ' ) }`, sync : 1 });
-    shell({ execPath : `git clean -df`, sync : 1 });
-    shell({ execPath : `git checkout ./`, sync : 1 });
+    if( o.onDate === null )
+    if( !o.editDate )
+    o.onDate = ( e ) => e;
+    if( o.editDate )
+    {
+      _.assert( !o.onDate, 'Expects manual or automated commit date editing, but not both.' );
+      o.onCommitMessage = onCommitData_functor();
+    }
+    if( _.aux.is( o.onDate ) )
+    {
+      let onDate = o.onDate;
+      if( o.onDate.timeRange )
+      {
+        _.assert( _.long.is( o.onDate.timeRange ), 'Time range should be a long.' );
+        _.assert
+        (
+          !o.onDate.periodic,
+          'Should be no option `periodic`. Routine will calculate the option `periodic` from time range automatically.'
+        );
+
+        onDate = _.map.extend( null, o.onDate );
+        const commits = commitsArray;
+        const length = commits.length;
+        const baseTime = o.relative === 'now' ? _.time.now() : Date.parse( commits[ length - 1 ].date );
+        const startTime =
+        onDate.timeRange[ 0 ] === null? Date.parse( commits[ length - 1 ].date ) : baseTime + _getDelta( onDate.timeRange[ 0 ] );
+        const endTime =
+        onDate.timeRange[ 1 ] === null ? _.time.now() : baseTime + _getDelta( onDate.timeRange[ 1 ] );
+        const delta = _getDelta( o.onDate.delta );
+        const n = commitsArray.reduce
+        (
+          ( accum, commit ) =>
+          {
+            if( _.str.begins( commit.message, 'Merge ' ) )
+            accum += 1;
+            return accum;
+          },
+          0
+        );
+        onDate.periodic = Math.floor( ( endTime - startTime - delta ) / ( commitsArray.length - n ) );
+        _.sure( onDate.periodic > 0, 'Expects growing sequence in range.' );
+        if( onDate.relative === 'commit' )
+        onDate.relative = 'fromFirst';
+      }
+
+      o.onDate = _.git._onDate_functor( onDate );
+    }
+
+    _.assert( _.routine.is( o.onDate ), 'Expects routine to produce commit date {-o.onDate-}.' );
+    return null;
   }
 
   /* */
@@ -5474,10 +5562,20 @@ function repositoryHistoryToJson( o )
     let commits = log.output;
     if( process.platform === 'win32' )
     commits = _.str.replace( commits, /\\/, '\\\\' );
+
+    commits = commits.replace( /"message" : "(.*)",/g, commitMsgQuote );
     commits = _.str.replaceBegin( commits, '', '[\n' );
     commits = _.str.replaceEnd( commits, ',\n', '\n]' );
     return JSON.parse( commits );
   });
+
+  /* */
+
+  function commitMsgQuote( full, entry )
+  {
+    entry = entry.replace( /(["])/g, '\\$1' );
+    return `"message" : "${ entry }",`;
+  }
 }
 
 repositoryHistoryToJson.defaults =
@@ -6781,7 +6879,7 @@ function commitsDates( o )
         date = `--date="${ date }"`;
       }
       const author = `--author="${ commits[ i ].author } <${ commits[ i ].email }>"`
-      return start( `git commit --allow-empty -m '${ commits[ i ].message }' ${ author } ${ date }` );
+      return start( `git commit --allow-empty -m "${ commits[ i ].message.replace( /([`"])/g, '\\$1' ) }" ${ author } ${ date }` );
     });
     return con;
   }
