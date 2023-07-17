@@ -19313,7 +19313,7 @@ function repositoryAgreeWithOptionCommitMessage( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '__sync__' ), 0 );
-    test.identical( _.strCount( op.output, `Merge branch 'master' of ${ srcRepositoryRemote } into master` ), 1 );
+    test.identical( _.strCount( op.output, `Merge branch master of ${ srcRepositoryRemote } into master` ), 1 );
     return null;
   });
 
@@ -19325,7 +19325,7 @@ function repositoryAgreeWithOptionCommitMessage( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '__sync__' ), 0 );
-    test.identical( _.strCount( op.output, `Merge branch 'master' of ${ srcRepositoryRemote } into master` ), 0 );
+    test.identical( _.strCount( op.output, `Merge branch master of ${ srcRepositoryRemote } into master` ), 0 );
     return null;
   });
   a.ready.then( () =>
@@ -19352,7 +19352,7 @@ function repositoryAgreeWithOptionCommitMessage( test )
   {
     test.identical( op.exitCode, 0 );
     test.identical( _.strCount( op.output, '__sync__' ), 1 );
-    test.identical( _.strCount( op.output, `Merge branch 'master' of ${ srcRepositoryRemote } into master` ), 0 );
+    test.identical( _.strCount( op.output, `Merge branch master of ${ srcRepositoryRemote } into master` ), 0 );
     return null;
   });
 
@@ -22051,7 +22051,7 @@ function repositoryMigrateWithOptionOnDateAsMap( test )
           srcState2 : '#d8c18d24c1d65fab1af6b8d676bba578b58bfad5',
           srcBranch : 'master',
           dstBranch : 'master',
-          onDate : { relative : 'fromFirst', delta : '-9600:00:00', periodic : '00:00:00', deviation : '00:00:00' },
+          onDate : { relative : 'fromFirst', delta : '-40600:00:00', periodic : '00:00:00', deviation : '00:00:00' },
           onCommitMessage : ( e ) => e,
         });
       }, onErrorCallback );
